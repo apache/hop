@@ -103,11 +103,12 @@ public class TransFileListener implements FileListener {
         if ( spoon.getRepository() != null ) {
           transMeta = fixLinks( transMeta );
         }
+        transMeta.setFilename( null );
       } else {
         transMeta.clearChanged();
+        transMeta.setFilename( fname );
       }
 
-      transMeta.setFilename( fname );
       spoon.addTransGraph( transMeta );
       spoon.sharedObjectsFileMap.put( transMeta.getSharedObjects().getFilename(), transMeta.getSharedObjects() );
 

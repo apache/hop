@@ -22,10 +22,14 @@
 
 package org.pentaho.di.ui.core.dialog;
 
+import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.browser.CloseWindowListener;
 import org.eclipse.swt.browser.WindowEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -34,6 +38,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.pentaho.di.core.WebSpoonUtils;
 
 /**
  * Created by bmorrise on 2/18/16.
@@ -76,6 +81,11 @@ public class ThinDialog extends Dialog {
           shell.close();
         }
       } );
+      new BrowserFunction( browser, "getConnectionId" ) {
+        @Override public Object function( Object[] arguments ) {
+          return WebSpoonUtils.getConnectionId();
+        }
+      };
     } catch ( Exception e ) {
       MessageBox messageBox = new MessageBox( dialog, SWT.ICON_ERROR | SWT.OK );
       messageBox.setMessage( "Browser cannot be initialized." );
@@ -83,6 +93,11 @@ public class ThinDialog extends Dialog {
       messageBox.open();
     }
     setPosition();
+    final ServerPushSession pushSession = new ServerPushSession();
+    pushSession.start();
+    dialog.addDisposeListener( ( event ) -> {
+      pushSession.stop();
+    });
     dialog.open();
   }
 

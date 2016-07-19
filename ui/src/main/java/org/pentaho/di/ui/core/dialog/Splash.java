@@ -35,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -43,6 +45,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.Const;
@@ -110,8 +114,10 @@ public class Splash {
     splash.setImage( kettle_icon );
 
     splash.setText( BaseMessages.getString( PKG, "SplashDialog.Title" ) ); // "Pentaho Data Integration"
+    splash.setLayout( new FillLayout() );
+    final Canvas canvas = new Canvas( splash, SWT.NO_REDRAW_RESIZE );
 
-    splash.addPaintListener( new PaintListener() {
+    canvas.addPaintListener( new PaintListener() {
       public void paintControl( PaintEvent e ) {
         StringBuilder sb = new StringBuilder();
         String line = null;
@@ -206,9 +212,15 @@ public class Splash {
         e.gc.drawText( buildDate, 290, 250, true );
       }
     } );
+    canvas.addMouseListener( new MouseAdapter() {
+      public void mouseUp( MouseEvent mouseevent ) {
+        splash.dispose();
+      }
+    } );
 
     splash.addDisposeListener( new DisposeListener() {
       public void widgetDisposed( DisposeEvent arg0 ) {
+        canvas.dispose();
         kettle_image.dispose();
         kettle_icon.dispose();
         exclamation_image.dispose();

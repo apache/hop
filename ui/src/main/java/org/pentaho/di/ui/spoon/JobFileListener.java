@@ -71,11 +71,12 @@ public class JobFileListener implements FileListener {
         if ( spoon.getRepository() != null ) {
           jobMeta = fixLinks( jobMeta );
         }
+        jobMeta.setFilename( null );
       } else {
         jobMeta.clearChanged();
+        jobMeta.setFilename( fname );
       }
 
-      jobMeta.setFilename( fname );
       spoon.delegates.jobs.addJobGraph( jobMeta );
 
       // Call extension point(s) now that the file has been opened

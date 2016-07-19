@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-engine</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-19</version>
   <packaging>jar</packaging>
 
   <name>Hop Engine</name>
@@ -94,6 +94,12 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>webspoon-security</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Pentaho dependencies -->

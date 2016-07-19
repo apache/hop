@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
+import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.PaintEvent;
@@ -58,6 +59,7 @@ import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.LastUsedFile;
 import org.pentaho.di.core.ObjectUsageCount;
 import org.pentaho.di.core.Props;
+import org.pentaho.di.core.WebSpoonUtils;
 import org.pentaho.di.core.gui.GUIOption;
 import org.pentaho.di.core.gui.GUIPositionInterface;
 import org.pentaho.di.core.gui.Point;
@@ -84,8 +86,6 @@ public class PropsUI extends Props {
   private static final String NO = "N";
 
   private static final String YES = "Y";
-
-  private static Display display;
 
   protected List<LastUsedFile> lastUsedFiles;
   protected List<LastUsedFile> openTabFiles;
@@ -124,15 +124,10 @@ public class PropsUI extends Props {
    *          The type of properties file.
    */
   public static void init( Display d, int t ) {
-    if ( props == null ) {
-      display = d;
-      props = new PropsUI( t );
+    props = new PropsUI( t );
 
-      // Also init the colors and fonts to use...
-      GUIResource.getInstance();
-    } else {
-      throw new RuntimeException( "The Properties systems settings are already initialised!" );
-    }
+    // Also init the colors and fonts to use...
+    GUIResource.getInstance();
   }
 
   /**
@@ -145,7 +140,6 @@ public class PropsUI extends Props {
    */
   public static void init( Display d, String filename ) {
     if ( props == null ) {
-      display = d;
       props = new PropsUI( filename );
 
       // Also init the colors and fonts to use...
@@ -165,11 +159,11 @@ public class PropsUI extends Props {
   }
 
   public static PropsUI getInstance() {
-    if ( props != null ) {
-      return (PropsUI) props;
-    }
+    return SingletonUtil.getUniqueInstance( PropsUI.class, WebSpoonUtils.getUISession() );
+  }
 
-    throw new RuntimeException( "Properties, Kettle systems settings, not initialised!" );
+  private PropsUI() {
+    super( Props.TYPE_PROPERTIES_SPOON );
   }
 
   private PropsUI( int t ) {
@@ -236,7 +230,7 @@ public class PropsUI extends Props {
     properties.setProperty( STRING_LOG_LEVEL, getLogLevel() );
     properties.setProperty( STRING_LOG_FILTER, getLogFilter() );
 
-    if ( display != null ) {
+    if ( Display.getCurrent() != null ) {
       // Set Default Look for all dialogs and sizes.
       String prop =
           BasePropertyHandler.getProperty( "Default_UI_Properties_Resource", "org.pentaho.di.ui.core.default" );
@@ -839,7 +833,7 @@ public class PropsUI extends Props {
   }
 
   public FontData getDefaultFontData() {
-    return display.getSystemFont().getFontData()[0];
+    return Display.getCurrent().getSystemFont().getFontData()[0];
   }
 
   public void setMaxUndo( int max ) {
@@ -1080,7 +1074,7 @@ public class PropsUI extends Props {
    * @return Returns the display.
    */
   public static Display getDisplay() {
-    return display;
+    return Display.getCurrent();
   }
 
   /**
@@ -1088,7 +1082,7 @@ public class PropsUI extends Props {
    *          The display to set.
    */
   public static void setDisplay( Display d ) {
-    display = d;
+
   }
 
   public void setDefaultPreviewSize( int size ) {
