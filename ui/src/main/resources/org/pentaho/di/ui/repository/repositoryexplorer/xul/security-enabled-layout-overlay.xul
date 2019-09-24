@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<overlay 
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:pen="http://www.pentaho.org/2008/xul">
+	<!--###########################################################################	-->
+	<!--	                      START - SECURITY TAB			                    -->
+	<!--##########################################################################  -->
+	<tabpanels id="repository-panels-set">
+		<tabpanel id="security" insertbefore="slaves">
+		    <hbox id="security-box" flex="1" >
+		        <vbox flex="1">
+		              <hbox id="user-role-radio-button-box" />
+		              <deck id="user-role-deck" flex="1">
+		                <hbox id="user-box" flex="1">
+		                    <vbox flex="1">
+		                        <!-- User list pane -->
+		                        <hbox>
+		                            <label value="${SecurityTab.Available}"/>
+		                            <label id="spacer-label" flex="1" />
+		                            <button id="user-edit" image="${Edit_image}" pen:disabledimage="${Disabled_Edit_image}" onclick="iSecurityController.showEditUserDialog()" disabled="true"/>
+		                            <button id="user-add" image="${New_image}" pen:disabledimage="${Disabled_New_image}" onclick="iSecurityController.showAddUserDialog()"/>
+		                            <button id="user-remove" image="${Delete_image}" pen:disabledimage="${Disabled_Delete_image}" onclick="iSecurityController.removeUser()" disabled="true"/>
+		                        </hbox>
+		                        <!-- Roles list -->
+		                        <listbox id="users-list" pen:binding="name" disabled="false" flex="1"/>
+		                    </vbox>
+		                    <vbox flex="4" id="user-memberof-box" visible="false">
+		                        <hbox>
+		                            <label value="${SecurityTab.Memberof}"/>
+		                            <label id="spacer-label" flex="1" />
+		                            <hbox id="user-manage-button-box"/>
+		                        </hbox>
+		                        <tree id="user-detail-table" flex="1" hidecolumnpicker="true" enableColumnDrag="true">
+		                            <treecols>
+		                                <treecol id="role-name-col" flex="1" label="${SecurityTab.Name}"
+		                                    pen:binding="name" pen:childrenbinding="children"/>
+		                                <treecol id="role-desc-col" flex="1" label="${SecurityTab.Description}"
+		                                    pen:binding="description"/>
+		                            </treecols>
+		                            <treechildren />
+		                        </tree>
+		                    </vbox>               
+		                </hbox>
+		            </deck>   
+		        </vbox>                   
+		    </hbox>				
+		</tabpanel>
+	</tabpanels>
+	<!--######################################################################### -->
+	<!--					END - SECURITY TAB				                      -->
+	<!--######################################################################### -->
+	<tabs id="repository-tab-set">
+		<tab id="security-tab" label="${RepositoryExplorerDialog.Tabs.Security}" insertbefore="slaves-tab"  onclick="iSecurityController.tabClicked()" />
+	</tabs>   	
+	
+  </overlay>
+

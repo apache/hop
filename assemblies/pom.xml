@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.hop</groupId>
+  <artifactId>hop-assemblies</artifactId>
+  <version>0.1.0</version>
+  <packaging>pom</packaging>
+
+  <name>Hop Assemblies</name>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop</artifactId>
+    <version>0.1.0</version>
+  </parent>
+
+  <properties>
+    <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+  </properties>
+
+  <modules>
+    <module>static</module>
+    <module>samples</module>
+    <module>lib</module>
+    <module>client</module>
+    <module>core</module>
+  </modules>
+</project>

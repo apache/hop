@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repositories>
+
+    <!-- NOTE i18n arguments are : i18n package and key separated by colon (:)
+    --> 
+
+	<repository id="KettleDatabaseRepository">
+		<description>i18n:org.pentaho.di.repository:RepositoryType.Name.KettleDatabaseRepository</description>
+		<tooltip>i18n:org.pentaho.di.repository:RepositoryType.Description.KettleDatabaseRepository</tooltip>
+		<classname>org.pentaho.di.repository.kdr.KettleDatabaseRepository</classname>
+		<meta-classname>org.pentaho.di.repository.kdr.KettleDatabaseRepositoryMeta</meta-classname>
+		<version-browser-classname/>
+	</repository>
+   
+	<repository id="KettleFileRepository">
+		<description>i18n:org.pentaho.di.repository:RepositoryType.Name.KettleFileRepository</description>
+		<tooltip>i18n:org.pentaho.di.repository:RepositoryType.Description.KettleFileRepository</tooltip>
+		<classname>org.pentaho.di.repository.filerep.KettleFileRepository</classname>
+		<meta-classname>org.pentaho.di.repository.filerep.KettleFileRepositoryMeta</meta-classname>
+		<version-browser-classname/>
+	</repository>
+
+</repositories>
