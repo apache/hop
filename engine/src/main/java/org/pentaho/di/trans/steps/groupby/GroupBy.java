@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Collections;
 
-import org.apache.commons.math.stat.descriptive.rank.Percentile;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.vfs2.FileObject;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.util.Utils;

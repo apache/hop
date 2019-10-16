@@ -31,7 +31,6 @@ import org.pentaho.di.core.exception.KettlePluginException;
 import org.pentaho.di.core.lifecycle.KettleLifecycleSupport;
 import org.pentaho.di.core.logging.LogTablePluginType;
 import org.pentaho.di.core.plugins.CartePluginType;
-import org.pentaho.di.core.plugins.EnginePluginType;
 import org.pentaho.di.core.plugins.ImportRulePluginType;
 import org.pentaho.di.core.plugins.JobEntryDialogFragmentType;
 import org.pentaho.di.core.plugins.JobEntryPluginType;
@@ -112,8 +111,7 @@ public class KettleEnvironment {
       CartePluginType.getInstance(),
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
-      AuthenticationConsumerPluginType.getInstance(),
-      EnginePluginType.getInstance()
+      AuthenticationConsumerPluginType.getInstance()
     ), simpleJndi );
   }
 

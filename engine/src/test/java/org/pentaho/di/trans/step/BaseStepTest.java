@@ -22,7 +22,7 @@
 
 package org.pentaho.di.trans.step;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.*;
 import static org.mockito.Matchers.any;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -424,13 +424,13 @@ public class BaseStepTest {
       baseStep.putRowTo( rowMetaInterface, objects, new QueueRowSet() );
       fail( "Expected default exception for putRowTo" );
     } catch ( UnsupportedOperationException uoe ) {
-      assertThat( uoe.getMessage(), containsString( this.getClass().getName() ) );
+      assertTrue( uoe.getMessage().contains( this.getClass().getName() ) );
     }
     try {
       baseStep.getRowFrom( new QueueRowSet() );
       fail( "Expected default exception for getRowFrom" );
     } catch ( UnsupportedOperationException uoe ) {
-      assertThat( uoe.getMessage(), containsString( this.getClass().getName() ) );
+      assertTrue( uoe.getMessage().contains( this.getClass().getName() ) );
     }
   }
 

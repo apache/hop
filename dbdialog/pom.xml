@@ -8,7 +8,7 @@
   <version>0.1.0</version>
   <packaging>jar</packaging>
 
-  <name>PDI DB Dialog</name>
+  <name>Hop DB Dialog</name>
 
   <parent>
     <groupId>org.hop</groupId>
@@ -23,13 +23,13 @@
   <dependencies>
     <!-- Kettle dependencies -->
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-core</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
 

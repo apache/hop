@@ -77,7 +77,6 @@ import org.pentaho.di.resource.ResourceNamingInterface;
 import org.pentaho.di.resource.ResourceReference;
 import org.pentaho.di.www.SlaveServerJobStatus;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.w3c.dom.Node;
 
 import java.io.OutputStream;
@@ -1271,8 +1270,8 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   /**
    * Make sure that we are not loading jobs recursively...
    *
-   * @param parentJobMeta
-   *          the parent job metadata
+   * @param parentJob
+   *          the parent job
    * @param jobMeta
    *          the job metadata
    * @throws KettleException
@@ -1378,10 +1377,10 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     String realJobName = "";
     String realDirectory = "/";
 
-    int index = transPath.lastIndexOf( RepositoryFile.SEPARATOR );
+    int index = transPath.lastIndexOf( "/" );
     if ( index != -1 ) {
       realJobName = transPath.substring( index + 1 );
-      realDirectory = index == 0 ? RepositoryFile.SEPARATOR : transPath.substring( 0, index );
+      realDirectory = index == 0 ? "/" : transPath.substring( 0, index );
     }
 
     realDirectory = r.normalizeSlashes( realDirectory );
@@ -1413,7 +1412,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           String realDirectory = tmpSpace.environmentSubstitute( getDirectory() != null ? getDirectory() : "" );
           String realJobName = tmpSpace.environmentSubstitute( getJobName() );
 
-          String transPath = StringUtil.trimEnd( realDirectory, '/' ) + RepositoryFile.SEPARATOR + StringUtil.trimStart( realJobName, '/' );
+          String transPath = StringUtil.trimEnd( realDirectory, '/' ) + "/" + StringUtil.trimStart( realJobName, '/' );
 
           if ( transPath.startsWith( "file://" ) || transPath.startsWith( "zip:file://" ) || transPath.startsWith( "hdfs://" ) ) {
             if ( !transPath.endsWith( RepositoryObjectType.JOB.getExtension() ) ) {

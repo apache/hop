@@ -27,7 +27,6 @@ import java.util.List;
 import org.pentaho.di.core.ProgressMonitorListener;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 
 /**
  * Implementing convenience methods that can be described in terms of other methods in the interface
@@ -141,8 +140,4 @@ public abstract class AbstractRepository implements Repository {
 
   }
 
-  @Override
-  public IUnifiedRepository getUnderlyingRepository() {
-    return null;
-  }
 }

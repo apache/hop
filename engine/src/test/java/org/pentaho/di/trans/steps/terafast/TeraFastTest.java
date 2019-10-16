@@ -33,9 +33,9 @@ import org.pentaho.di.core.util.GenericStepData;
 import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
 import org.pentaho.di.trans.steps.mock.StepMockHelper;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -91,7 +91,7 @@ public class TeraFastTest {
       // If the method does not throw a Kettle Exception, then the DB was set and not null for this test. Fail it.
       fail( "Database Connection is not null, this fails the test." );
     } catch ( KettleException aKettleException ) {
-      assertThat( aKettleException.getMessage(), containsString( "There is no connection defined in this step." ) );
+      assertTrue( aKettleException.getMessage().contains( "There is no connection defined in this step." ) );
     }
   }
 }

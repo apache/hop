@@ -62,7 +62,9 @@ public abstract class PrivateDatabasesTestTemplate<T extends AbstractMeta> {
 
     List<String> loadedDbs = Arrays.asList( loaded.getDatabaseNames() );
     assertEquals( 3, loadedDbs.size() );
-    assertThat( loadedDbs, JUnitMatchers.hasItems( "meta1", "meta2", "privateMeta" ) );
+    assertTrue( loadedDbs.contains( "meta1" ) );
+    assertTrue( loadedDbs.contains( "meta2" ) );
+    assertTrue( loadedDbs.contains( "privateMeta" ) );
 
     Set<String> privateDatabases = loaded.getPrivateDatabases();
     assertNotNull( privateDatabases );

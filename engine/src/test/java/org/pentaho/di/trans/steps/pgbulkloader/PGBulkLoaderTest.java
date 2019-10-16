@@ -21,7 +21,8 @@
  ******************************************************************************/
 package org.pentaho.di.trans.steps.pgbulkloader;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -173,7 +174,7 @@ public class PGBulkLoaderTest {
       // If the method does not throw a Kettle Exception, then the DB was set and not null for this test. Fail it.
       fail( "Database Connection is not null, this fails the test." );
     } catch ( KettleException aKettleException ) {
-      assertThat( aKettleException.getMessage(), containsString( "There is no connection defined in this step." ) );
+      assertTrue( aKettleException.getMessage().contains( "There is no connection defined in this step." ) );
     }
   }
 

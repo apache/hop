@@ -24,6 +24,7 @@ package org.pentaho.di.cluster;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pentaho.di.www.SlaveServerDetection;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class ClusterSchemaTest {
 
   @Before
   public void before() {
-    clusterSchema = spy( ClusterSchema.class );
+    clusterSchema = spy( new ClusterSchema() );
   }
 
   @Test

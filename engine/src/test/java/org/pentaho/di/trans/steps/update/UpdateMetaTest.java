@@ -300,7 +300,7 @@ public class UpdateMetaTest implements InitializerInterface<StepMetaInterface> {
     when( rep.countNrStepAttributes( objectId, "value_name" ) ).thenReturn( 3 );
     when( rep.countNrStepAttributes( objectId, "value_rename" ) ).thenReturn( 2 );
 
-    UpdateMeta updateMeta = spy( UpdateMeta.class );
+    UpdateMeta updateMeta = spy( new UpdateMeta() );
 
     updateMeta.readRep( rep, null, objectId, null );
 

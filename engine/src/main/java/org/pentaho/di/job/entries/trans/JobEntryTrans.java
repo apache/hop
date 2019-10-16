@@ -78,12 +78,10 @@ import org.pentaho.di.trans.StepWithMappingMeta;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransExecutionConfiguration;
 import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransSupplier;
 import org.pentaho.di.trans.cluster.TransSplitter;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.www.SlaveServerTransStatus;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -1125,9 +1123,8 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
           // Create the transformation from meta-data
           //
-          //trans = new Trans( transMeta, this );
           final TransMeta meta = transMeta;
-          trans = new TransSupplier( transMeta, log, () -> new Trans( meta ) ).get();
+          trans = new Trans( meta, this );
           trans.setParent( this );
 
           // Pass the socket repository as early as possible...
@@ -1280,10 +1277,10 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
       throw new KettleException( BaseMessages.getString( PKG, "JobTrans.Exception.MissingTransFileName" ) );
     }
 
-    int index = transPath.lastIndexOf( RepositoryFile.SEPARATOR );
+    int index = transPath.lastIndexOf( '/' );
     if ( index != -1 ) {
       realTransName = transPath.substring( index + 1 );
-      realDirectory = index == 0 ? RepositoryFile.SEPARATOR : transPath.substring( 0, index );
+      realDirectory = index == 0 ? "/" : transPath.substring( 0, index );
     }
     realDirectory = r.normalizeSlashes( realDirectory );
     RepositoryDirectoryInterface repositoryDirectory = rep.loadRepositoryDirectoryTree().findDirectory( realDirectory );
@@ -1315,7 +1312,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           String realDirectory = tmpSpace.environmentSubstitute( getDirectory() != null ? getDirectory() : "" );
           String realTransName = tmpSpace.environmentSubstitute( getTransname() );
 
-          String transPath = StringUtil.trimEnd( realDirectory, '/' ) + RepositoryFile.SEPARATOR + StringUtil
+          String transPath = StringUtil.trimEnd( realDirectory, '/' ) + "/" + StringUtil
                   .trimStart( realTransName, '/' );
 
           if ( transPath.startsWith( "file://" ) || transPath.startsWith( "zip:file://" ) || transPath.startsWith(

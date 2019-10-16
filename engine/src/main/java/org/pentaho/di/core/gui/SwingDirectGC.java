@@ -54,7 +54,6 @@ import org.pentaho.di.core.util.SwingSvgImageUtil;
 import org.pentaho.di.job.entry.JobEntryCopy;
 import org.pentaho.di.laf.BasePropertyHandler;
 import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.reporting.libraries.base.util.WaitingImageObserver;
 
 public class SwingDirectGC implements GCInterface {
 
@@ -306,9 +305,6 @@ public class SwingDirectGC implements GCInterface {
       if ( inputStream != null ) {
         try {
           BufferedImage bitmap = ImageIO.read( inputStream );
-
-          WaitingImageObserver wia = new WaitingImageObserver( bitmap );
-          wia.waitImageLoaded();
 
           image = new SwingUniversalImageBitmap( bitmap );
         } catch ( Exception ex ) {
