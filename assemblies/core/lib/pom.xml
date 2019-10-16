@@ -65,7 +65,7 @@
         <bahir.version>2.1.1</bahir.version>
 
         <!-- Spring -->
-        <springframework4.version>4.3.2.RELEASE</springframework4.version>
+        <springframework4.version>4.3.18</springframework4.version>
     </properties>
 
     <dependencies>
