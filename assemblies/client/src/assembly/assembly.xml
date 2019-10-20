@@ -5,7 +5,7 @@
     <format>zip</format>
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>data-integration</baseDirectory>
+  <baseDirectory>hop</baseDirectory>
   <fileSets>
     <!-- the staging dir -->
     <fileSet>
@@ -14,13 +14,13 @@
     </fileSet>
   </fileSets>
   <dependencySets>
-    <!-- pdi components -->
+    <!-- hop components -->
     <dependencySet>
       <includes>
-        <include>org.apache.hop:hop-static:zip</include>
-        <include>org.apache.hop:hop-samples:zip</include>
-        <include>org.apache.hop:hop-libs:zip</include>
-        <include>org.apache.hop:hop-plugins:zip</include>
+        <include>org.hop:hop-assemblies-static:zip</include>
+        <include>org.hop:hop-assemblies-samples:zip</include>
+        <include>org.hop:hop-assemblies-libs:zip</include>
+        <include>org.hop:hop-assemblies-plugins:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>

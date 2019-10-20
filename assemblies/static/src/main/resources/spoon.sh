@@ -46,12 +46,12 @@ export LIBOVERLAY_SCROLLBAR=0
 # Bug in: https://bugs.launchpad.net/ubuntu/+source/unity-gtk-module/+bug/1208019
 export UBUNTU_MENUPROXY=0
 
-# Supposed spoon.sh and set-env.sh files both are located in data-integration folder  
+# Supposed spoon.sh and set-env.sh files both are located in hop folder
 # **************************************************
 # ** Set INITIALDIR, BASEDIR AND CURRENTDIR       **
 # **************************************************
 INITIALDIR=`pwd`
-# set absolute path to data-integration folder
+# set absolute path to hop folder
 BASEDIR=$( cd "$( dirname "$0" )" && pwd )
 CURRENTDIR="."
 

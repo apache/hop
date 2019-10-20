@@ -117,15 +117,9 @@
       <artifactId>mockito-all</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.hop.plugins</groupId>
-      <artifactId>pdi-xml-plugin-core</artifactId>
-      <version>${pdi.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop.plugins</groupId>
-      <artifactId>pdi-core-plugins-impl</artifactId>
-      <version>${pdi.version}</version>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-plugins-core-impl</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -41,7 +41,7 @@
       </layout>
    </appender>
 
-  <appender name="pdi-execution-appender" class="org.apache.log4j.rolling.RollingFileAppender">
+  <appender name="hop-execution-appender" class="org.apache.log4j.rolling.RollingFileAppender">
     <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
       <param name="ActiveFileName"  value="logs/pdi.log" />
       <param name="FileNamePattern" value="logs/pdi.%d{yyyy-MM-dd}.log" />
@@ -123,12 +123,12 @@
 
   <logger name="org.apache.hop.trans.Trans" additivity="false">
     <level value="INFO"/>
-    <appender-ref ref="pdi-execution-appender"/>
+    <appender-ref ref="hop-execution-appender"/>
   </logger>
 
   <logger name="org.apache.hop.job.Job" additivity="false">
     <level value="INFO"/>
-    <appender-ref ref="pdi-execution-appender"/>
+    <appender-ref ref="hop-execution-appender"/>
   </logger>
 
    <!-- ======================= -->

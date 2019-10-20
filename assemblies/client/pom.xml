@@ -15,8 +15,6 @@
   </parent>
 
   <properties>
-    <pdi-dataservice-driver-bundle.version>${project.version}</pdi-dataservice-driver-bundle.version>
-
     <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
     <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
 

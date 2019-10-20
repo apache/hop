@@ -1,11 +1,11 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>pdi-core-ce</id>
+  <id>hop-assemblies-core</id>
   <formats>
     <format>zip</format>
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>data-integration</baseDirectory>
+  <baseDirectory>hop</baseDirectory>
   <fileSets>
     <!-- the staging dir -->
     <fileSet>
@@ -21,8 +21,8 @@
     <!-- pdi components -->
     <dependencySet>
       <includes>
-        <include>org.apache.hop:pdi-core-libs:zip</include>
-        <include>org.apache.hop:pdi-core-static:zip</include>
+        <include>org.apache.hop:hop-plugins-core-libs:zip</include>
+        <include>org.apache.hop:hop-plugins-core-static:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>
