@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.util;
+package org.apache.hop.core.util;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Locale;
 
 import org.junit.*;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.PluginTypeInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBase;
-import org.pentaho.di.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 
 import static org.junit.Assert.*;
 

@@ -89,17 +89,17 @@
   </properties>
 
   <dependencies>
-    <!-- Kettle dependencies -->
+    <!-- Hop dependencies -->
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Pentaho dependencies -->
     <dependency>
-      <groupId>pentaho</groupId>
+      <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
+      <version>0.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -125,6 +125,43 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-vfs2</artifactId>
+      <version>2.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.1.55</version>
+    </dependency>
+    <dependency>
+      <groupId>com.wcohen</groupId>
+      <artifactId>com.wcohen.secondstring</artifactId>
+      <version>0.1</version>
+    </dependency>
+
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -820,6 +857,7 @@
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -906,9 +944,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho</groupId>
+      <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
-      <version>${pentaho-metastore.version}</version>
+      <version>0.1.0</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>

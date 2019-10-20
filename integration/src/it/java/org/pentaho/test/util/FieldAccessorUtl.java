@@ -27,8 +27,8 @@ import java.lang.reflect.Modifier;
 
 import junit.framework.Assert;
 
-import org.pentaho.di.core.row.ValueMeta;
-import org.pentaho.di.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 
 public class FieldAccessorUtl {
 

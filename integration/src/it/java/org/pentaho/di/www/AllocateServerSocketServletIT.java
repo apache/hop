@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.anyInt;

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.util;
+package org.apache.hop.ui.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,16 +28,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.pentaho.di.ui.util.DialogUtils.getPathOf;
-import static org.pentaho.di.ui.util.DialogUtils.objectWithTheSameNameExists;
+import static org.apache.hop.ui.util.DialogUtils.getPathOf;
+import static org.apache.hop.ui.util.DialogUtils.objectWithTheSameNameExists;
 
 import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.pentaho.di.repository.RepositoryDirectoryInterface;
-import org.pentaho.di.repository.RepositoryElementMetaInterface;
-import org.pentaho.di.shared.SharedObjectInterface;
+import org.apache.hop.repository.RepositoryDirectoryInterface;
+import org.apache.hop.repository.RepositoryElementMetaInterface;
+import org.apache.hop.shared.SharedObjectInterface;
 
 /**
  * @author Andrey Khayrutdinov

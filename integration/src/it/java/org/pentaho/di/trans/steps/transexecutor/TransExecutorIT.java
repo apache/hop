@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.pentaho.di.trans.steps.transexecutor;
+package org.apache.hop.trans.steps.transexecutor;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -30,36 +30,36 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 public class TransExecutorIT {
   private static final String SAMPLE_INPUT = "abc";
   private static final String EXPECTED_SUBTRANS_OUTPUT_PATTERN = "aa";
   private static final int EXPECTED_SUBTRANS_OUTPUT_AMOUNT = 10;
 
-  private static final String SUBTRANS_PATH = "src/it/resources/org/pentaho/di/trans/steps/transexecutor/subtrans.ktr";
+  private static final String SUBTRANS_PATH = "src/it/resources/org.apache.hop/trans/steps/transexecutor/subtrans.ktr";
 
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
 

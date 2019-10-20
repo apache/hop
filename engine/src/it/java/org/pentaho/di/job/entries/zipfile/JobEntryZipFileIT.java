@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.zipfile;
+package org.apache.hop.job.entries.zipfile;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.job.Job;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.job.Job;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +47,7 @@ public class JobEntryZipFileIT {
 
   @BeforeClass
   public static void init() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @Test
@@ -71,7 +71,7 @@ public class JobEntryZipFileIT {
               entry.processRowFile(new Job(), result, zipPath, null, null, tempFile.getAbsolutePath(), null, false));
       boolean isTrue = true;
 
-      FileObject zip = KettleVFS.getFileObject(zipPath);
+      FileObject zip = HopVFS.getFileObject(zipPath);
       assertTrue("Zip archive should be created", zip.exists());
 
       ByteArrayOutputStream os = new ByteArrayOutputStream();

@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.repositoryexplorer;
+package org.apache.hop.repositoryexplorer;
 
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.repository.UserInfo;
-import org.pentaho.di.repository.kdr.KettleDatabaseRepository;
-import org.pentaho.di.repository.kdr.KettleDatabaseRepositoryMeta;
-import org.pentaho.di.ui.repository.repositoryexplorer.RepositoryExplorerCallback;
-import org.pentaho.di.ui.repository.repositoryexplorer.model.UIRepositoryContent;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.repository.UserInfo;
+import org.apache.hop.repository.kdr.HopDatabaseRepository;
+import org.apache.hop.repository.kdr.HopDatabaseRepositoryMeta;
+import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorerCallback;
+import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryContent;
 
 public class ExplorerHarness {
 
@@ -36,14 +36,14 @@ public class ExplorerHarness {
    */
   @SuppressWarnings( "nls" )
   public static void main( String[] args ) {
-    KettleDatabaseRepositoryMeta repositoryMeta;
-    KettleDatabaseRepository repository;
+    HopDatabaseRepositoryMeta repositoryMeta;
+    HopDatabaseRepository repository;
     @SuppressWarnings( "unused" )
     UserInfo userInfo;
 
-    repositoryMeta = new KettleDatabaseRepositoryMeta();
-    repositoryMeta.setName( "Kettle Database Repository" );
-    repositoryMeta.setDescription( "Kettle database test repository" );
+    repositoryMeta = new HopDatabaseRepositoryMeta();
+    repositoryMeta.setName( "Hop Database Repository" );
+    repositoryMeta.setDescription( "Hop database test repository" );
 
     DatabaseMeta connection = new DatabaseMeta();
     connection.setDatabaseType( "Hypersonic" );
@@ -56,7 +56,7 @@ public class ExplorerHarness {
 
     userInfo = new UserInfo( "admin", "admin", "Administrator", "The system administrator", true );
 
-    repository = new KettleDatabaseRepository();
+    repository = new HopDatabaseRepository();
     repository.init( repositoryMeta );
 
     @SuppressWarnings( "unused" )
@@ -80,7 +80,7 @@ public class ExplorerHarness {
     /*
      * try { repository.connect(userInfo.getLogin(), userInfo.getPassword()); //RepositoryExplorer explorer = new
      * RepositoryExplorer(new Shell(), repository, cb, null); //explorer.show(); } catch (XulException e) {
-     * e.printStackTrace(); } catch (KettleSecurityException e) { e.printStackTrace(); } catch (KettleException e) {
+     * e.printStackTrace(); } catch (HopSecurityException e) { e.printStackTrace(); } catch (HopException e) {
      * e.printStackTrace(); }
      */
 

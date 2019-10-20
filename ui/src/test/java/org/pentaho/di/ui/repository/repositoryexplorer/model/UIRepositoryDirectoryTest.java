@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.repository.repositoryexplorer.model;
+package org.apache.hop.ui.repository.repositoryexplorer.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,11 +33,11 @@ import java.util.Collections;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pentaho.di.repository.LongObjectId;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.repository.RepositoryDirectory;
-import org.pentaho.di.repository.RepositoryElementMetaInterface;
-import org.pentaho.di.repository.RepositoryObjectType;
+import org.apache.hop.repository.LongObjectId;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.repository.RepositoryDirectory;
+import org.apache.hop.repository.RepositoryElementMetaInterface;
+import org.apache.hop.repository.RepositoryObjectType;
 
 public class UIRepositoryDirectoryTest {
 

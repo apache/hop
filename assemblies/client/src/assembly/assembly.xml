@@ -17,10 +17,10 @@
     <!-- pdi components -->
     <dependencySet>
       <includes>
-        <include>org.pentaho.di:pdi-static:zip</include>
-        <include>org.pentaho.di:pdi-samples:zip</include>
-        <include>org.pentaho.di:pdi-libs:zip</include>
-        <include>org.pentaho.di:pdi-plugins:zip</include>
+        <include>org.apache.hop:hop-static:zip</include>
+        <include>org.apache.hop:hop-samples:zip</include>
+        <include>org.apache.hop:hop-libs:zip</include>
+        <include>org.apache.hop:hop-plugins:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>
@@ -88,16 +88,7 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
-    <!-- jdbc drivers -->
-    <dependencySet>
-      <includes>
-        <include>pentaho:pdi-dataservice-driver-bundle:zip</include>
-      </includes>
-      <outputDirectory>Data Service JDBC Driver</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-      <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
-    </dependencySet>
+
     <!-- application launcher -->
     <dependencySet>
       <includes>

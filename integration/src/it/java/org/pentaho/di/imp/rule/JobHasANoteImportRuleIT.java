@@ -20,25 +20,25 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.imp.rule;
+package org.apache.hop.imp.rule;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.NotePadMeta;
-import org.pentaho.di.core.plugins.ImportRulePluginType;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.imp.rules.JobHasANoteImportRule;
-import org.pentaho.di.job.JobMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.plugins.ImportRulePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.imp.rules.JobHasANoteImportRule;
+import org.apache.hop.job.JobMeta;
 
 public class JobHasANoteImportRuleIT extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   public void testRule() throws Exception {

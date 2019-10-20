@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.mapping;
+package org.apache.hop.trans.steps.mapping;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,24 +28,24 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepIOMetaInterface;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepIOMetaInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
 public class MappingIT extends TestCase {
 
   /**
-   * Builds a {@link org.pentaho.di.trans.steps.rowgenerator.RowGenerator} Step 
+   * Builds a {@link org.apache.hop.trans.steps.rowgenerator.RowGenerator} Step 
    * with a single String field.
    *
    * @param registry
@@ -100,7 +100,7 @@ public class MappingIT extends TestCase {
    * Tests that info steps are correctly identified via StepMetaInterface.getStepIOMeta()
    */
   public void testInfoStreams_single() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     PluginRegistry registry = PluginRegistry.getInstance();
 
     //
@@ -114,7 +114,7 @@ public class MappingIT extends TestCase {
     String mappingName = "mapping";
     MappingMeta mappingMeta = new MappingMeta();
     mappingMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    mappingMeta.setFileName( "test/org/pentaho/di/trans/steps/mapping/subtrans.ktr" );
+    mappingMeta.setFileName( "test/org.apache.hop/trans/steps/mapping/subtrans.ktr" );
     String mappingInputStepName = "input";
     mappingMeta.setInputMappings( Collections.singletonList( createMappingDef(
       rowGenerator.getName(), mappingInputStepName, "string", "a" ) ) );
@@ -129,7 +129,7 @@ public class MappingIT extends TestCase {
     trans.prepareExecution( null );
 
     // Mimic how a transformation is loaded and initialized from TransMeta.loadXML() or
-    // KettleDatabaseRepositoryTransDelegate.loadTransformation()
+    // HopDatabaseRepositoryTransDelegate.loadTransformation()
     // so the StepMeta references are wired up in the MappingMeta properly
     // (Copied from TransMeta.loadXML())
     for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
@@ -169,7 +169,7 @@ public class MappingIT extends TestCase {
    * Tests that an input step that is a main data path is not flagged as an info stream
    */
   public void testInfoStreams_with_main_data_path() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     PluginRegistry registry = PluginRegistry.getInstance();
 
     //
@@ -187,7 +187,7 @@ public class MappingIT extends TestCase {
     String mappingName = "mapping";
     MappingMeta mappingMeta = new MappingMeta();
     mappingMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    mappingMeta.setFileName( "test/org/pentaho/di/trans/steps/mapping/subtrans.ktr" );
+    mappingMeta.setFileName( "test/org.apache.hop/trans/steps/mapping/subtrans.ktr" );
     List<MappingIODefinition> inputMappings = new ArrayList<MappingIODefinition>();
     String mappingInputStepName = "input";
     inputMappings.add( createMappingDef( rowGenerator.getName(), mappingInputStepName, "string", "a" ) );
@@ -212,7 +212,7 @@ public class MappingIT extends TestCase {
     trans.prepareExecution( null );
 
     // Mimic how a transformation is loaded and initialized from TransMeta.loadXML() or
-    // KettleDatabaseRepositoryTransDelegate.loadTransformation()
+    // HopDatabaseRepositoryTransDelegate.loadTransformation()
     // so the StepMeta references are wired up in the MappingMeta properly
     // (Copied from TransMeta.loadXML())
     for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
@@ -238,9 +238,9 @@ public class MappingIT extends TestCase {
   }
 
   public void testMapping_WhenSharingPreviousStepWithAnother() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
-    TransMeta transMeta = new TransMeta( "src/it/resources/org/pentaho/di/trans/steps/mapping/pdi-13435/PDI-13435-main.ktr" );
+    TransMeta transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/steps/mapping/pdi-13435/PDI-13435-main.ktr" );
     transMeta.setTransformationType( TransMeta.TransformationType.Normal );
 
     Trans trans = new Trans( transMeta );
@@ -261,7 +261,7 @@ public class MappingIT extends TestCase {
    */
   public void testMapping_WhenNextStepHasTwoCopies_AndOutputIsNotDefinedExplicitly() throws Exception {
     runTransWhenMappingsIsFollowedByCopiedStep(
-      "src/it/resources/org/pentaho/di/trans/steps/mapping/pdi-13545/pdi-13545-1.ktr" );
+      "src/it/resources/org.apache.hop/trans/steps/mapping/pdi-13545/pdi-13545-1.ktr" );
   }
 
   /**
@@ -272,7 +272,7 @@ public class MappingIT extends TestCase {
    */
   public void testMapping_WhenNextStepHasTwoCopies_AndOutputIsDefinedExplicitly() throws Exception {
     runTransWhenMappingsIsFollowedByCopiedStep(
-      "src/it/resources/org/pentaho/di/trans/steps/mapping/pdi-13545/pdi-13545-2.ktr" );
+      "src/it/resources/org.apache.hop/trans/steps/mapping/pdi-13545/pdi-13545-2.ktr" );
   }
 
   /**
@@ -285,7 +285,7 @@ public class MappingIT extends TestCase {
    * @throws Exception
    */
   private void runTransWhenMappingsIsFollowedByCopiedStep( String transPath ) throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     TransMeta transMeta = new TransMeta( transPath );
     transMeta.setTransformationType( TransMeta.TransformationType.Normal );

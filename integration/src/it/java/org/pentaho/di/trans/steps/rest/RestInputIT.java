@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.rest;
+package org.apache.hop.trans.steps.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,22 +32,22 @@ import org.eclipse.jetty.testing.ServletTester;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
@@ -62,7 +62,7 @@ public class RestInputIT {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     tester = new ServletTester();
     tester.setContextPath( "/context" );
@@ -81,7 +81,7 @@ public class RestInputIT {
   }
 
   protected Trans createAndTestTrans( PluginRegistry registry, TransMeta transMeta, StepMeta inputStep,
-      RowStepCollector rowStepCollector, String name, int limit ) throws KettleException {
+      RowStepCollector rowStepCollector, String name, int limit ) throws HopException {
     //
     // Create a dummy step
     //

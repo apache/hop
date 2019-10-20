@@ -20,27 +20,27 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.imp.rule;
+package org.apache.hop.imp.rule;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.plugins.ImportRulePluginType;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.imp.rules.TransformationHasNoDisabledHopsImportRule;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.ImportRulePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.imp.rules.TransformationHasNoDisabledHopsImportRule;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 
 public class TransformationHasNoDisabledHopsImportRuleIT extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   public void testRule() throws Exception {

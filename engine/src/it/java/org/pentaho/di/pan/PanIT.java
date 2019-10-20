@@ -19,16 +19,16 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.pan;
+package org.apache.hop.pan;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.base.CommandExecutorCodes;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.util.Utils;
+import org.apache.hop.base.CommandExecutorCodes;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -74,8 +74,8 @@ public class PanIT {
   private SecurityManager oldSecurityManager;
 
   @Before
-  public void setUp() throws KettleException {
-    KettleEnvironment.init();
+  public void setUp() throws HopException {
+    HopEnvironment.init();
     oldSecurityManager = System.getSecurityManager();
     System.setSecurityManager( new PanIT.MySecurityManager( oldSecurityManager ) );
   }

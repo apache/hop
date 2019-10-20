@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.mergerows;
+package org.apache.hop.trans.steps.mergerows;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,26 +30,26 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.errorhandling.StreamInterface;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
 public class MergeRowsIT {
 
@@ -127,7 +127,7 @@ public class MergeRowsIT {
             fail( "row nr " + idx + " is not equal at field nr "
               + ydx + "(" + rm1.toString() + ";" + rm2.toString() + ")" );
           }
-        } catch ( KettleValueException e ) {
+        } catch ( HopValueException e ) {
           fail( "row nr " + idx + " is not equal at field nr "
             + ydx + "(" + rm1.toString() + ";" + rm2.toString() + ")" );
         }
@@ -171,7 +171,7 @@ public class MergeRowsIT {
   }
 
   void testOneRow(String transName, String[] referenceValues, String[] comparisonValues, Object[] goldenImageRowValues) throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     TransMeta transMeta = new TransMeta();
@@ -232,7 +232,7 @@ public class MergeRowsIT {
   @Test
   public void testMergeRowsIdentical() throws Exception {
     //if not in backwards compatible mode, use the comparison values when values are "identical"
-    System.setProperty( Const.KETTLE_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
+    System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
     String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
     String[] comp = new String[]{ "key", "compareValue1", "extraValue2" };
     Object[] gold = new Object[]{ "key", "compareValue1", "extraValue2", "identical" };
@@ -242,7 +242,7 @@ public class MergeRowsIT {
   @Test
   public void testMergeRowsIdenticalPDI736Compatible() throws Exception {
     //if not in backwards compatible mode, use the reference values when values are "identical"
-    System.setProperty( Const.KETTLE_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
+    System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
     String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
     String[] comp = new String[]{ "key", "compareValue1", "extraValue2" };
     Object[] gold = new Object[]{ "key", "compareValue1", "extraValue1", "identical" };
@@ -252,7 +252,7 @@ public class MergeRowsIT {
   @Test
   public void testMergeRowsChanged() throws Exception {
     //regardless of backwards compatible mode, use the comparison values when values are "changed"
-    System.setProperty( Const.KETTLE_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
+    System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
     String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
     String[] comp = new String[]{ "key", "this value changed", "extraValue2" };
     Object[] gold = new Object[]{ "key", "this value changed", "extraValue2", "changed" };
@@ -262,7 +262,7 @@ public class MergeRowsIT {
   @Test
   public void testMergeRowsChangedPDI736Compatible() throws Exception {
     //regardless of backwards compatible mode, use the comparison values when values are "changed"
-    System.setProperty( Const.KETTLE_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
+    System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
     String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
     String[] comp = new String[]{ "key", "this value changed", "extraValue2" };
     Object[] gold = new Object[]{ "key", "this value changed", "extraValue2", "changed" };

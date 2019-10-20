@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>launcher\launcher-1.0.0.jar</jar>
-  <outfile>C:\development_svnroot\Kettle trunk\bin\Kettle.exe</outfile>
+  <outfile>C:\development_svnroot\Hop trunk\bin\Hop.exe</outfile>
   <errTitle>Java upgrade required</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -11,7 +11,7 @@
   <supportUrl></supportUrl>
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
-  <icon>C:\development_svnroot\Kettle trunk\ui\images\kettle.ico</icon>
+  <icon>C:\development_svnroot\Hop trunk\ui\images\kettle.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.5.0</minVersion>

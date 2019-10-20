@@ -20,13 +20,13 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.janino;
+package org.apache.hop.trans.steps.janino;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.trans.step.StepInjectionMetaEntry;
-import org.pentaho.di.trans.step.StepInjectionUtil;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.trans.step.StepInjectionMetaEntry;
+import org.apache.hop.trans.step.StepInjectionUtil;
 
 import java.util.List;
 

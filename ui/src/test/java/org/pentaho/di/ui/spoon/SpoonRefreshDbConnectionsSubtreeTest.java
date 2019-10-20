@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.base.AbstractMeta;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.ui.core.gui.GUIResource;
-import org.pentaho.di.ui.core.widget.tree.TreeNode;
-import org.pentaho.di.ui.spoon.tree.provider.DBConnectionFolderProvider;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.tree.TreeNode;
+import org.apache.hop.ui.spoon.tree.provider.DBConnectionFolderProvider;
 
 import java.util.Collections;
 import java.util.List;

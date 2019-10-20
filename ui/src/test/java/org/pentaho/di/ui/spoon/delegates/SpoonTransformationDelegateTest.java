@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.delegates;
+package org.apache.hop.ui.spoon.delegates;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,17 +32,17 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.logging.TransLogTable;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.TransExecutionConfiguration;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.di.ui.spoon.trans.TransGraph;
-import org.pentaho.di.ui.spoon.trans.TransLogDelegate;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.TransLogTable;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.spoon.trans.TransGraph;
+import org.apache.hop.ui.spoon.trans.TransLogDelegate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,7 +116,7 @@ public class SpoonTransformationDelegateTest {
 
   @Test
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
-  public void testSetParamsIntoMetaInExecuteTransformation() throws KettleException {
+  public void testSetParamsIntoMetaInExecuteTransformation() throws HopException {
     doCallRealMethod().when( delegate ).executeTransformation( transMeta, true, false, false,
             false, false, null, false, LogLevel.BASIC );
 

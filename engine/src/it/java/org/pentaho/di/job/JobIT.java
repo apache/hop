@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import static org.junit.Assert.assertTrue;
 
@@ -33,19 +33,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 
 public class JobIT {
 
   @Before
-  public void setUp() throws KettleException {
-    KettleEnvironment.init();
+  public void setUp() throws HopException {
+    HopEnvironment.init();
   }
 
   @After
-  public void tearDown() throws KettleException {
-    KettleEnvironment.shutdown();
+  public void tearDown() throws HopException {
+    HopEnvironment.shutdown();
   }
 
   @Test

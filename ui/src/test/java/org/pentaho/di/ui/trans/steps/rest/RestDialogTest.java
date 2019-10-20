@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.rest;
+package org.apache.hop.ui.trans.steps.rest;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.trans.steps.rest.RestMeta;
-import org.pentaho.di.ui.core.widget.ComboVar;
-import org.pentaho.di.ui.core.widget.TableView;
+import org.apache.hop.trans.steps.rest.RestMeta;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
 
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;

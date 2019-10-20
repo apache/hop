@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.csvinput;
+package org.apache.hop.trans.steps.csvinput;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +28,13 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
 
 /**
  * Regression test case for Jira PDI-10242: a csv input step does not recognize parameter in encoding
@@ -106,7 +106,7 @@ public class CsvInputFileEncodingIT extends CsvInputBase {
   @Test
   public void testCSVVariableEncodingFail() throws Exception {
     csvInpMeta.setEncoding( "${P_ENCODING_MISSED}" );
-    KettleLogStore.init();
+    HopLogStore.init();
     assertFalse( csvInput.init( csvInpMeta, new CsvInputData() ) );
   }
 

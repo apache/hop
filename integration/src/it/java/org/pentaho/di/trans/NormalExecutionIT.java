@@ -20,21 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleStepException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.step.BaseStepMeta;
-import org.pentaho.di.trans.step.RowAdapter;
-import org.pentaho.di.trans.step.StepInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.RowAdapter;
+import org.apache.hop.trans.step.StepInterface;
 
 public class NormalExecutionIT extends TestCase {
 
@@ -44,13 +44,13 @@ public class NormalExecutionIT extends TestCase {
     if ( initCalled ) {
       return;
     }
-    KettleEnvironment.init();
+    HopEnvironment.init();
     initCalled = true;
-    KettleLogStore.getAppender().setMaxNrLines( 100 );
+    HopLogStore.getAppender().setMaxNrLines( 100 );
   }
 
   /**
-   * Mock {@link org.pentaho.di.trans.step.RowListener} that totals the number of events. 
+   * Mock {@link org.apache.hop.trans.step.RowListener} that totals the number of events. 
    * Can be stopped with {@code close()}.
    */
   protected class CountingRowListener extends RowAdapter {
@@ -127,7 +127,7 @@ public class NormalExecutionIT extends TestCase {
     }
 
     @Override
-    public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws KettleStepException {
+    public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
       if ( !isListening() ) {
         ignoredError++;
       } else {
@@ -136,7 +136,7 @@ public class NormalExecutionIT extends TestCase {
     }
 
     @Override
-    public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws KettleStepException {
+    public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
       if ( !isListening() ) {
         ignoredRead++;
       } else {
@@ -145,7 +145,7 @@ public class NormalExecutionIT extends TestCase {
     }
 
     @Override
-    public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws KettleStepException {
+    public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
       if ( !isListening() ) {
         ignoredWritten++;
       } else {
@@ -155,7 +155,7 @@ public class NormalExecutionIT extends TestCase {
   }
 
   /**
-   * Tests that all rows are written out to {@link org.pentaho.di.trans.step.RowListener}s 
+   * Tests that all rows are written out to {@link org.apache.hop.trans.step.RowListener}s 
    * before {@link Trans#waitUntilFinished} returns.
    */
   public void testWaitUntilFinished() throws Exception {

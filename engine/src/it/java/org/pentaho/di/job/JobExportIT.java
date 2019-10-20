@@ -20,20 +20,20 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.repository.RepositoryDirectoryInterface;
-import org.pentaho.di.repository.filerep.KettleFileRepository;
-import org.pentaho.di.repository.filerep.KettleFileRepositoryMeta;
-import org.pentaho.di.resource.ResourceUtil;
-import org.pentaho.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.repository.RepositoryDirectoryInterface;
+import org.apache.hop.repository.filerep.HopFileRepository;
+import org.apache.hop.repository.filerep.HopFileRepositoryMeta;
+import org.apache.hop.resource.ResourceUtil;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -51,29 +51,29 @@ import static org.junit.Assert.assertTrue;
  */
 public class JobExportIT {
 
-  private static final String FILE_REPOSITORY_ID = "KettleFileRepository";
+  private static final String FILE_REPOSITORY_ID = "HopFileRepository";
   private static final String FILE_REPOSITORY_NAME = "FileRep";
   private static final String FILE_REPOSITORY_DESC = "File repository";
 
   private static final String EXPORT_FILE_NAME = "sample_job_export.zip";
-  private static final String EXPORT_DIR = "target/export/org/pentaho/di/job/out/";
+  private static final String EXPORT_DIR = "target/export/org.apache.hop/job/out/";
   private static final String EXPORT_FILE = EXPORT_DIR + EXPORT_FILE_NAME;
 
-  private static final String REPOSITORY_ROOT_DIR = "src/it/resources/org/pentaho/di/job/repo";
+  private static final String REPOSITORY_ROOT_DIR = "src/it/resources/org.apache.hop/job/repo";
   private static final String REPOSITORY_DIR = "/folder";
   private static final String JOB_NAME = "sample_job";
   private static final String EXTRACT_DIR = EXPORT_DIR + File.separator + JOB_NAME;
   private static final String EXTRACTED_JOB_FILE = EXTRACT_DIR + File.separator + JOB_NAME + ".kjb";
   private static final String EXTRACTED_TRANS_FILE = EXTRACT_DIR + File.separator + "sample_trans.ktr";
 
-  private KettleFileRepository repository;
+  private HopFileRepository repository;
 
   @BeforeClass
-  public static void setUpOnce() throws KettleException {
+  public static void setUpOnce() throws HopException {
     deleteFolder( new File( EXPORT_DIR ) );
     new File( EXPORT_DIR ).mkdirs();
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @AfterClass
@@ -82,10 +82,10 @@ public class JobExportIT {
   }
 
   @Before
-  public void setUp() throws KettleException {
-    KettleFileRepositoryMeta repositoryMeta = new KettleFileRepositoryMeta( FILE_REPOSITORY_ID, FILE_REPOSITORY_NAME,
+  public void setUp() throws HopException {
+    HopFileRepositoryMeta repositoryMeta = new HopFileRepositoryMeta( FILE_REPOSITORY_ID, FILE_REPOSITORY_NAME,
       FILE_REPOSITORY_DESC, REPOSITORY_ROOT_DIR );
-    repository = new KettleFileRepository();
+    repository = new HopFileRepository();
     repository.init( repositoryMeta );
     repository.connect( null, null );
   }
@@ -103,7 +103,7 @@ public class JobExportIT {
    * then the referenced Transformation should be exported as well.
    */
   @Test
-  public void shouldExportJobAndRelatedTransformationFile() throws IOException, MetaStoreException, KettleException {
+  public void shouldExportJobAndRelatedTransformationFile() throws IOException, MetaStoreException, HopException {
     RepositoryDirectoryInterface repositoryDir = repository.loadRepositoryDirectoryTree();
     repositoryDir = repositoryDir.findDirectory( REPOSITORY_DIR );
 

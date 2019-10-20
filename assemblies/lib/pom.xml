@@ -3,36 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pdi-libs</artifactId>
+  <artifactId>hop-assemblies-libs</artifactId>
   <packaging>pom</packaging>
 
-  <name>PDI Client Libraries</name>
+  <name>Hop Assemblies Libraries</name>
 
   <parent>
-    <artifactId>pdi-assemblies</artifactId>
-    <groupId>org.pentaho.di</groupId>
-    <version>8.2.0.7-719</version>
+    <artifactId>hop-assemblies</artifactId>
+    <groupId>org.hop</groupId>
+    <version>0.1.0</version>
   </parent>
 
   <properties>
-    <pdi-engine-spark.version>${project.version}</pdi-engine-spark.version>
     <rxjava.version>2.0.4</rxjava.version>
 
-    <pentaho-json.version>8.2.0.7-719</pentaho-json.version>
-    <pdi-spark-driver.version>${project.version}</pdi-spark-driver.version>
-    <pdi-osgi-bridge.version>8.2.0.7-719</pdi-osgi-bridge.version>
-    <commons-database.version>8.2.0.7-719</commons-database.version>
-    <pentaho-registry.version>8.2.0.7-719</pentaho-registry.version>
-    <pentaho-metaverse.version>8.2.0.7-719</pentaho-metaverse.version>
-    <platform.version>8.2.0.7-719</platform.version>
-    <pentaho-reporting.version>8.2.0.7-719</pentaho-reporting.version>
-    <pentaho-hadoop-shims-api.version>8.2.2019.03.00-600</pentaho-hadoop-shims-api.version>
 
     <!-- third party -->
-    <org.apache.karaf.main.version>3.0.3</org.apache.karaf.main.version>
-    <org.apache.karaf.util.version>3.0.3</org.apache.karaf.util.version>
-    <org.apache.karaf.jaas.boot.version>2.4.2</org.apache.karaf.jaas.boot.version>
-    <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
     <derbyclient.version>10.2.1.6</derbyclient.version>
     <hsqldb.version>2.3.2</hsqldb.version>
     <jaybird.version>2.1.6</jaybird.version>
@@ -70,18 +56,13 @@
   <dependencies>
     <!-- kettle -->
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-core</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>pentaho-hadoop-shims-api</artifactId>
-      <version>${pentaho-hadoop-shims-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
@@ -91,8 +72,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-dbdialog</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-dbdialog</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
@@ -102,8 +83,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-ui-swt</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
@@ -119,249 +100,9 @@
       <version>${rxjava.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
-      <version>${kafka.spark.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
-      <version>${kafka-clients.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.paho</groupId>
-      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-      <version>${paho.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.bahir</groupId>
-      <artifactId>spark-streaming-mqtt_2.11</artifactId>
-      <version>${bahir.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish.tyrus.bundles</groupId>
       <artifactId>tyrus-standalone-client</artifactId>
       <version>${tyrus-standalone-client.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- Pentaho dependencies -->
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>json</artifactId>
-      <version>${pentaho-json.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pdi-osgi-bridge-core</artifactId>
-      <version>${pdi-osgi-bridge.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>commons-database-model</artifactId>
-      <version>${commons-database.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>pentaho-registry</artifactId>
-      <version>${pentaho-registry.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-repository</artifactId>
-      <version>${platform.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${platform.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-metaverse-api</artifactId>
-      <version>${pentaho-metaverse.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-api</artifactId>
-      <version>${platform.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-core</artifactId>
-      <version>${platform.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!--  Pentaho reporting dependencies -->
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-drill-down</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-kettle</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-mondrian</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-olap4j</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-pmd</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-reportdesigner-parser</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-sampledata</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-scripting</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-toc</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>classic-extensions-xpath</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>legacy-charts</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>legacy-functions</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho.reporting.engine</groupId>
-      <artifactId>wizard-core</artifactId>
-      <version>${pentaho-reporting.version}</version>
-    </dependency>
-
-    <!-- Karaf Dependencies -->
-    <dependency>
-      <groupId>org.apache.karaf</groupId>
-      <artifactId>org.apache.karaf.util</artifactId>
-      <version>${org.apache.karaf.util.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.karaf.jaas</groupId>
-      <artifactId>org.apache.karaf.jaas.boot</artifactId>
-      <version>${org.apache.karaf.jaas.boot.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.main</artifactId>
-      <version>${org.apache.felix.main.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -477,45 +218,6 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <!-- Spring -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <version>${springframework4.version}</version>
-    </dependency>
-
-    <!-- Spring Security -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-      <version>${spring-security.version}</version>  <!-- see maven-parent-pom -->
     </dependency>
 
     <!-- Other third-party dependencies -->

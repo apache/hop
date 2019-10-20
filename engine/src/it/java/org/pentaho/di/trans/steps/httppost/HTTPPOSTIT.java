@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.httppost;
+package org.apache.hop.trans.steps.httppost;
 
 import com.google.common.io.ByteStreams;
 import com.sun.net.httpserver.Headers;
@@ -38,20 +38,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleStepException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.util.Assert;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.mock.StepMockHelper;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Assert;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +86,7 @@ public class HTTPPOSTIT {
      * have to copy the data to the alternate splits: rowsets 1 through n.
      */
     @Override
-    public Object[] getRow() throws KettleException {
+    public Object[] getRow() throws HopException {
       return row;
     }
 
@@ -96,10 +96,10 @@ public class HTTPPOSTIT {
      * to each rowset!
      *
      * @param row The row to put to the destination rowset(s).
-     * @throws org.pentaho.di.core.exception.KettleStepException
+     * @throws org.apache.hop.core.exception.HopStepException
      */
     @Override
-    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws KettleStepException {
+    public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
       outputRow = row;
     }
 
@@ -147,8 +147,8 @@ public class HTTPPOSTIT {
   private HttpServer httpServer;
 
   @BeforeClass
-  public static void setupBeforeClass() throws KettleException {
-    KettleClientEnvironment.init();
+  public static void setupBeforeClass() throws HopException {
+    HopClientEnvironment.init();
   }
 
   @Before

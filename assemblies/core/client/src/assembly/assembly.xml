@@ -21,8 +21,8 @@
     <!-- pdi components -->
     <dependencySet>
       <includes>
-        <include>org.pentaho.di:pdi-core-libs:zip</include>
-        <include>org.pentaho.di:pdi-core-static:zip</include>
+        <include>org.apache.hop:pdi-core-libs:zip</include>
+        <include>org.apache.hop:pdi-core-static:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>

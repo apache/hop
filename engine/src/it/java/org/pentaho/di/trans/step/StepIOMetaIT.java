@@ -20,11 +20,11 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.step;
+package org.apache.hop.trans.step;
 
 import org.junit.Test;
-import org.pentaho.di.trans.step.errorhandling.Stream;
-import org.pentaho.di.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.step.errorhandling.Stream;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
 
 import static org.junit.Assert.assertNull;
 

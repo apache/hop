@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.spoon.trans;
+package org.apache.hop.ui.spoon.trans;
 
 import org.junit.Test;
 

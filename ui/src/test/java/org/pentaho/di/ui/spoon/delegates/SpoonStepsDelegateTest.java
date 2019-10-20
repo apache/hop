@@ -20,26 +20,26 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.delegates;
+package org.apache.hop.ui.spoon.delegates;
 
 import org.eclipse.swt.widgets.Shell;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.extension.ExtensionPointInterface;
-import org.pentaho.di.core.extension.ExtensionPointPluginType;
-import org.pentaho.di.core.extension.KettleExtensionPoint;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.plugins.ClassLoadingPluginInterface;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepDialogInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.ui.spoon.Spoon;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointInterface;
+import org.apache.hop.core.extension.ExtensionPointPluginType;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.ui.spoon.Spoon;
 
 import java.util.HashMap;
 
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SpoonStepsDelegateTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   public interface PluginMockInterface extends ClassLoadingPluginInterface, PluginInterface {
   }
@@ -62,13 +62,13 @@ public class SpoonStepsDelegateTest {
   @Test
   public void testDelStepsExtensionPointCancelDelete() throws Exception {
     PluginMockInterface pluginInterface = mock( PluginMockInterface.class );
-    when( pluginInterface.getName() ).thenReturn( KettleExtensionPoint.TransBeforeDeleteSteps.id );
+    when( pluginInterface.getName() ).thenReturn( HopExtensionPoint.TransBeforeDeleteSteps.id );
     when( pluginInterface.getMainType() ).thenReturn( (Class) ExtensionPointInterface.class );
-    when( pluginInterface.getIds() ).thenReturn( new String[] { KettleExtensionPoint.TransBeforeDeleteSteps.id } );
+    when( pluginInterface.getIds() ).thenReturn( new String[] { HopExtensionPoint.TransBeforeDeleteSteps.id } );
 
     ExtensionPointInterface extensionPoint = mock( ExtensionPointInterface.class );
     when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );
-    doThrow( KettleException.class ).when( extensionPoint )
+    doThrow( HopException.class ).when( extensionPoint )
         .callExtensionPoint( any( LogChannelInterface.class ), any( StepMeta[].class ) );
 
     PluginRegistry.addPluginType( ExtensionPointPluginType.getInstance() );

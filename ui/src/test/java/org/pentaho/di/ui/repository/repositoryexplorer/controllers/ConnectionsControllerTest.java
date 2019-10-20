@@ -20,22 +20,22 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.repository.repositoryexplorer.controllers;
+package org.apache.hop.ui.repository.repositoryexplorer.controllers;
 
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.ProgressMonitorListener;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.repository.StringObjectId;
-import org.pentaho.di.ui.core.database.dialog.DatabaseDialog;
-import org.pentaho.di.ui.repository.repositoryexplorer.model.UIDatabaseConnection;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.repository.StringObjectId;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.repository.repositoryexplorer.model.UIDatabaseConnection;
 import org.pentaho.ui.xul.containers.XulTree;
 
 import java.util.List;
@@ -47,11 +47,11 @@ import static org.mockito.Mockito.*;
  * @author Andrey Khayrutdinov
  */
 public class ConnectionsControllerTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
   private ConnectionsController controller;
@@ -104,7 +104,7 @@ public class ConnectionsControllerTest {
     assertRepositoryWasNotAccessed();
   }
 
-  private void assertRepositoryWasNotAccessed() throws KettleException {
+  private void assertRepositoryWasNotAccessed() throws HopException {
     verify( repository, never() ).getDatabaseID( anyString() );
     assertSaveWasNotInvoked();
   }
@@ -211,17 +211,17 @@ public class ConnectionsControllerTest {
     return singletonList( new UIDatabaseConnection( meta, repository ) );
   }
 
-  private void assertSaveWasNotInvoked() throws KettleException {
+  private void assertSaveWasNotInvoked() throws HopException {
     verify( repository, never() ).save( any( DatabaseMeta.class ), anyString(), any( ProgressMonitorListener.class ) );
   }
 
-  private void assertShowedAlreadyExistsMessage() throws KettleException {
+  private void assertShowedAlreadyExistsMessage() throws HopException {
     assertSaveWasNotInvoked();
     // instead the error dialog was shown
     verify( controller ).showAlreadyExistsMessage();
   }
 
-  private void assertRepositorySavedDb() throws KettleException {
+  private void assertRepositorySavedDb() throws HopException {
     // repository.save() was invoked
     verify( repository ).save( any( DatabaseMeta.class ), anyString(), any( ProgressMonitorListener.class ) );
   }

@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.excelinput;
+package org.apache.hop.trans.steps.excelinput;
 
 import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.spreadsheet.KCell;
-import org.pentaho.di.core.spreadsheet.KCellType;
-import org.pentaho.di.core.spreadsheet.KSheet;
-import org.pentaho.di.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
 
 public class OdsWorkBookIT extends TestCase {
   public void testRead() throws Exception {

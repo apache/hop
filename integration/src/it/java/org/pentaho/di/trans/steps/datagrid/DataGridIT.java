@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.datagrid;
+package org.apache.hop.trans.steps.datagrid;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,15 +30,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 import org.pentaho.test.util.FieldAccessorUtl;
 
 public class DataGridIT {
@@ -50,17 +50,17 @@ public class DataGridIT {
   private static final String STEP_NAME = "testDataGridStep";
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init();
+  public static void before() throws HopException {
+    HopEnvironment.init();
   }
 
   @After
-  public void after() throws KettleException, NoSuchFieldException, IllegalAccessException {
+  public void after() throws HopException, NoSuchFieldException, IllegalAccessException {
     FieldAccessorUtl.resetEmptyStringIsNotNull();
   }
 
   @Test
-  public void test_invalid() throws KettleException {
+  public void test_invalid() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     final DataGridMeta meta = new DataGridMeta();
@@ -110,8 +110,8 @@ public class DataGridIT {
       try {
         TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, STEP_NAME,
           TransTestFactory.DUMMY_STEPNAME, inputList );
-        Assert.fail( "empty input data. KettleException expected" );
-      } catch ( KettleException e ) {
+        Assert.fail( "empty input data. HopException expected" );
+      } catch ( HopException e ) {
         // NOP: Ok
       }
     }
@@ -125,8 +125,8 @@ public class DataGridIT {
       try {
         TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, STEP_NAME,
           TransTestFactory.DUMMY_STEPNAME, inputList );
-        Assert.fail( "not empty input data. KettleException expected" );
-      } catch ( KettleException e ) {
+        Assert.fail( "not empty input data. HopException expected" );
+      } catch ( HopException e ) {
         // NOP: Ok
       }
 

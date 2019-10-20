@@ -51,10 +51,11 @@
   </properties>
 
   <dependencies>
-    <!-- Pentaho Dependencies -->
+
     <dependency>
-      <groupId>pentaho</groupId>
+      <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
+      <version>0.1.0</version>
     </dependency>
 
     <!-- Third-party dependencies -->
@@ -523,8 +524,8 @@
             </goals>
             <configuration>
               <includes>
-                <include>org/pentaho/di/junit/**</include>
-                <include>org/pentaho/di/concurrency/**</include>
+                <include>org/apache/hop/junit/**</include>
+                <include>org/apache/hop/concurrency/**</include>
               </includes>
             </configuration>
           </execution>

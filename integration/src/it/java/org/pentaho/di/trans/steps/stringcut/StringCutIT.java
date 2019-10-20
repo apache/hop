@@ -20,32 +20,32 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.stringcut;
+package org.apache.hop.trans.steps.stringcut;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransformationIT;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransformationIT;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 /**
  * Test class for the StringCut step.
@@ -54,7 +54,7 @@ import org.pentaho.di.trans.steps.injector.InjectorMeta;
  */
 public class StringCutIT extends TransformationIT {
 
-  public StringCutIT() throws KettleException {
+  public StringCutIT() throws HopException {
     super();
   }
 
@@ -152,9 +152,9 @@ public class StringCutIT extends TransformationIT {
    * This is a test for PDI-8042, where the first row of meta has no output field but the second does.
    */
   @Test
-  public void testStringCut1() throws KettleException {
+  public void testStringCut1() throws HopException {
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -257,9 +257,9 @@ public class StringCutIT extends TransformationIT {
    * This is a generic test using two input fields and different cuts for each
    */
   @Test
-  public void testStringCut2() throws KettleException {
+  public void testStringCut2() throws HopException {
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -361,9 +361,9 @@ public class StringCutIT extends TransformationIT {
   /**
    * This is a generic test using two input fields and different cuts for each
    */
-  public void testPDI11236() throws KettleException {
+  public void testPDI11236() throws HopException {
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

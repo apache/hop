@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.missing;
+package org.apache.hop.job.entries.missing;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,12 +39,12 @@ import static org.junit.Assert.assertFalse;
 public class MissingPluginJobIT {
 
   @Before
-  public void setUp() throws KettleException {
-    KettleEnvironment.init();
+  public void setUp() throws HopException {
+    HopEnvironment.init();
   }
 
   /**
-   * Given a job having an entry which's plugin is missing in current Kettle installation.
+   * Given a job having an entry which's plugin is missing in current Hop installation.
    * When this job is executed, then execution should fail.
    */
   @Test

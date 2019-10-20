@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.job.JobEntryJob;
-import org.pentaho.di.job.entries.trans.JobEntryTrans;
-import org.pentaho.di.job.entry.JobEntryCopy;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryCopy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

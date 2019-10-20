@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.waitforsql;
+package org.apache.hop.job.entries.waitforsql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,12 +40,12 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.job.Job;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.job.Job;
 
 public class JobEntryWaitForSQLIT {
 
@@ -54,8 +54,8 @@ public class JobEntryWaitForSQLIT {
   LogChannelInterface parentJobLogChannel;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   @Before
@@ -66,7 +66,7 @@ public class JobEntryWaitForSQLIT {
   }
 
   @Test
-  public void testGoodResult() throws KettleException {
+  public void testGoodResult() throws HopException {
     JobEntryWaitForSQL entry = spy( new JobEntryWaitForSQL() );
     doReturn( true ).when( entry ).SQLDataOK( any( Result.class ), anyLong(), anyString(), anyString(), anyString() );
     doNothing().when( entry ).checkConnection();
@@ -86,7 +86,7 @@ public class JobEntryWaitForSQLIT {
   }
 
   @Test
-  public void testBadResult() throws KettleException {
+  public void testBadResult() throws HopException {
     JobEntryWaitForSQL entry = spy( new JobEntryWaitForSQL() );
     doReturn( false ).when( entry ).SQLDataOK( any( Result.class ), anyLong(), anyString(), anyString(), anyString() );
     doNothing().when( entry ).checkConnection();
@@ -106,7 +106,7 @@ public class JobEntryWaitForSQLIT {
   }
 
   @Test
-  public void testSuccessOnTimeout() throws KettleException {
+  public void testSuccessOnTimeout() throws HopException {
     JobEntryWaitForSQL entry = spy( new JobEntryWaitForSQL() );
     doReturn( false ).when( entry ).SQLDataOK( any( Result.class ), anyLong(), anyString(), anyString(), anyString() );
     doNothing().when( entry ).checkConnection();

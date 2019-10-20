@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,10 +28,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.di.core.exception.KettlePluginException;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class SpoonPluginManagerTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   @Spy
   private SpoonPluginManager spoonPluginManager;
 
@@ -77,7 +77,7 @@ public class SpoonPluginManagerTest {
   private AtomicInteger notifications = new AtomicInteger();
 
   @Before
-  public void setUp() throws KettlePluginException {
+  public void setUp() throws HopPluginException {
     when( spoonPluginManager.getPluginRegistry() ).thenReturn( pluginRegistry );
     when( spoonPluginManager.getSpoonPerspectiveManager() ).thenReturn( spoonPerspectiveManager );
     when( pluginRegistry.loadClass( any( PluginInterface.class ) ) )

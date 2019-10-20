@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.sftpput;
+package org.apache.hop.trans.steps.sftpput;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
@@ -31,10 +31,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.job.entries.sftp.SftpServer;
-import org.pentaho.di.trans.Trans;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.job.entries.sftp.SftpServer;
+import org.apache.hop.trans.Trans;
 
 import java.io.ByteArrayOutputStream;
 
@@ -51,7 +51,7 @@ public class SFTPPutIntegrationIT {
 
   @BeforeClass
   public static void startServer() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     folder = new TemporaryFolder();
     folder.create();
@@ -118,7 +118,7 @@ public class SFTPPutIntegrationIT {
 
     // execute the transformation
     Trans trans = TestUtilities.loadAndRunTransformation(
-      "src/it/resources/org/pentaho/di/trans/steps/sftpput/pdi-13897.ktr",
+      "src/it/resources/org.apache.hop/trans/steps/sftpput/pdi-13897.ktr",
       "server", "localhost",
       "port", server.getPort(),
       "username", server.getUsername(),

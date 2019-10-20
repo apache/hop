@@ -20,27 +20,27 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.addsequence;
+package org.apache.hop.trans.steps.addsequence;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
 import junit.framework.TestCase;
 
@@ -128,7 +128,7 @@ public class AddSequenceIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + " is not equal" );
       }
 
@@ -141,7 +141,7 @@ public class AddSequenceIT extends TestCase {
    * result is as expected.
    */
   public void testAddSequence() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

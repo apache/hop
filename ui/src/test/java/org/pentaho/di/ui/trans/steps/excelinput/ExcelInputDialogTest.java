@@ -20,31 +20,31 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.excelinput;
+package org.apache.hop.ui.trans.steps.excelinput;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.core.row.value.ValueMetaPluginType;
-import org.pentaho.di.core.spreadsheet.KCell;
-import org.pentaho.di.core.spreadsheet.KCellType;
-import org.pentaho.di.core.spreadsheet.KSheet;
-import org.pentaho.di.core.spreadsheet.KWorkbook;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.trans.steps.excelinput.ExcelInputMeta;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.excelinput.ExcelInputMeta;
 
 import java.lang.reflect.Method;
 
 
 public class ExcelInputDialogTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   /**

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cubeinput;
+package org.apache.hop.trans.steps.cubeinput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,23 +32,23 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.steps.cubeoutput.CubeOutputMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.steps.cubeoutput.CubeOutputMeta;
 
 public class CubeInputStepIntIT {
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   List<RowMetaAndData> getSampleData() {
@@ -64,7 +64,7 @@ public class CubeInputStepIntIT {
   }
 
   @Test
-  public void testPDI12897() throws KettleException, IOException {
+  public void testPDI12897() throws HopException, IOException {
     File tempOutputFile = File.createTempFile( "testPDI11374", ".cube" );
     tempOutputFile.deleteOnExit();
 
@@ -115,7 +115,7 @@ public class CubeInputStepIntIT {
   }
 
   @Test
-  public void testNoLimit() throws KettleException, IOException {
+  public void testNoLimit() throws HopException, IOException {
     File tempOutputFile = File.createTempFile( "testNoLimit", ".cube" );
     tempOutputFile.deleteOnExit();
 
@@ -165,7 +165,7 @@ public class CubeInputStepIntIT {
   }
 
   @Test
-  public void testNumericLimit() throws KettleException, IOException {
+  public void testNumericLimit() throws HopException, IOException {
     File tempOutputFile = File.createTempFile( "testNumericLimit", ".cube" );
     tempOutputFile.deleteOnExit();
 

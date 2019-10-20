@@ -21,7 +21,7 @@
   </properties>
 
   <dependencies>
-    <!-- Kettle dependencies -->
+    <!-- Hop dependencies -->
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-core</artifactId>
@@ -33,7 +33,7 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Pentaho (non-Kettle) dependencies -->
+    <!-- Pentaho (non-Hop) dependencies -->
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-xul-core</artifactId>

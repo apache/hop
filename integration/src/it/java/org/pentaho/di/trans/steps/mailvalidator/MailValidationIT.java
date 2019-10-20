@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.mailvalidator;
+package org.apache.hop.trans.steps.mailvalidator;
 
 import junit.framework.TestCase;
 

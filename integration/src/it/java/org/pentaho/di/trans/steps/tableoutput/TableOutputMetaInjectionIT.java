@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.tableoutput;
+package org.apache.hop.trans.steps.tableoutput;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.trans.step.StepInjectionMetaEntry;
-import org.pentaho.di.trans.step.StepInjectionUtil;
+import org.apache.hop.trans.step.StepInjectionMetaEntry;
+import org.apache.hop.trans.step.StepInjectionUtil;
 
 public class TableOutputMetaInjectionIT extends TestCase {
 

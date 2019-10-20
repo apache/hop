@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.exception.KettleFileException;
-import org.pentaho.di.core.row.ValueMetaInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
  * Verify the {@link BaseDatabaseMeta} can properly parse a script for individual statements
@@ -60,7 +60,7 @@ public class SQLStatementParserIT extends TestCase {
     }
 
     @Override
-    public String getURL( String hostname, String port, String databaseName ) throws KettleDatabaseException {
+    public String getURL( String hostname, String port, String databaseName ) throws HopDatabaseException {
       return null;
     }
 
@@ -101,7 +101,7 @@ public class SQLStatementParserIT extends TestCase {
     assertEquals( statement2, statements.get( 1 ) );
   }
 
-  public void testParseStatements_appostrophy_in_backticks() throws KettleFileException {
+  public void testParseStatements_appostrophy_in_backticks() throws HopFileException {
     BaseDatabaseMeta dbMeta = new BaseDatabaseMetaForTest();
     String sqlScript = "CREATE TABLE sfdcom_test ( `Rep's Scoring` VARCHAR(255) );";
     List<String> statements = dbMeta.parseStatements( sqlScript );

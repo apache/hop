@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.repository.repositoryexplorer.model;
+package org.apache.hop.ui.repository.repositoryexplorer.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -32,9 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.junit.Test;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.repository.RepositoryElementMetaInterface;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.repository.RepositoryElementMetaInterface;
 
 public class UIDatabaseConnectionTest {
 

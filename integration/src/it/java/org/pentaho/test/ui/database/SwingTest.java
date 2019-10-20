@@ -26,9 +26,9 @@ import java.io.InputStream;
 
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.pentaho.ui.database.DatabaseConnectionDialog;
 import org.pentaho.ui.database.Messages;
 import org.pentaho.ui.xul.XulDomContainer;
@@ -43,8 +43,8 @@ public class SwingTest {
   public static void main( String[] args ) {
 
     try {
-      KettleEnvironment.init();
-    } catch ( KettleException e ) {
+      HopEnvironment.init();
+    } catch ( HopException e ) {
       e.printStackTrace();
       System.exit( 1 );
     }

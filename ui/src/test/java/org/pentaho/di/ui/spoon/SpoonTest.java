@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -39,39 +39,39 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.base.AbstractMeta;
-import org.pentaho.di.core.EngineMetaInterface;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.LastUsedFile;
-import org.pentaho.di.core.NotePadMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.extension.ExtensionPointHandler;
-import org.pentaho.di.core.extension.KettleExtensionPoint;
-import org.pentaho.di.core.gui.Point;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.repository.ObjectId;
-import org.pentaho.di.repository.ObjectRevision;
-import org.pentaho.di.repository.RepositoryDirectory;
-import org.pentaho.di.repository.RepositoryDirectoryInterface;
-import org.pentaho.di.repository.RepositoryObject;
-import org.pentaho.di.repository.RepositoryObjectType;
-import org.pentaho.di.repository.RepositorySecurityProvider;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepErrorMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.trans.steps.csvinput.CsvInputMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.ui.core.FileDialogOperation;
-import org.pentaho.di.ui.core.PropsUI;
-import org.pentaho.di.ui.spoon.delegates.SpoonDelegates;
-import org.pentaho.di.ui.spoon.delegates.SpoonTabsDelegate;
-import org.pentaho.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.LastUsedFile;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.repository.ObjectId;
+import org.apache.hop.repository.ObjectRevision;
+import org.apache.hop.repository.RepositoryDirectory;
+import org.apache.hop.repository.RepositoryDirectoryInterface;
+import org.apache.hop.repository.RepositoryObject;
+import org.apache.hop.repository.RepositoryObjectType;
+import org.apache.hop.repository.RepositorySecurityProvider;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.csvinput.CsvInputMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.ui.core.FileDialogOperation;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.spoon.delegates.SpoonDelegates;
+import org.apache.hop.ui.spoon.delegates.SpoonTabsDelegate;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabSet;
 import org.powermock.api.mockito.PowerMockito;
@@ -83,7 +83,7 @@ import org.powermock.api.mockito.PowerMockito;
  * @see Spoon
  */
 public class SpoonTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private final Spoon spoon = mock( Spoon.class );
   private final LogChannelInterface log = mock( LogChannelInterface.class );
@@ -96,24 +96,24 @@ public class SpoonTest {
   }
 
   @Before
-  public void setUp() throws KettleException {
+  public void setUp() throws HopException {
     doCallRealMethod().when( spoon ).copySelected( any( TransMeta.class ), anyListOf( StepMeta.class ),
         anyListOf( NotePadMeta.class ) );
     doCallRealMethod().when( spoon ).pasteXML( any( TransMeta.class ), anyString(), any( Point.class ) );
     doCallRealMethod().when( spoon ).delHop( any( TransMeta.class ), any( TransHopMeta.class ) );
     when( spoon.getLog() ).thenReturn( log );
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   /**
    * test two steps
    * @see http://jira.pentaho.com/browse/PDI-689
    * 
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testCopyPasteStepsErrorHandling() throws KettleException {
+  public void testCopyPasteStepsErrorHandling() throws HopException {
 
     final TransMeta transMeta = new TransMeta();
 
@@ -155,10 +155,10 @@ public class SpoonTest {
    * test copy one step with error handling 
    * @see http://jira.pentaho.com/browse/PDI-13358
    * 
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testCopyPasteOneStepWithErrorHandling() throws KettleException {
+  public void testCopyPasteOneStepWithErrorHandling() throws HopException {
 
     final TransMeta transMeta = new TransMeta();
     StepMeta sourceStep = new StepMeta( "CsvInput", "Step1", new CsvInputMeta() );
@@ -197,7 +197,7 @@ public class SpoonTest {
    * Testing displayed test in case versioning enabled
    * @see http://jira.pentaho.com/browse/BACKLOG-11607
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
   public void testSetShellTextForTransformationWVersionEnabled() {

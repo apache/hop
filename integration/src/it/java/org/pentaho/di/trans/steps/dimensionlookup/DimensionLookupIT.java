@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.dimensionlookup;
+package org.apache.hop.trans.steps.dimensionlookup;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -38,15 +38,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
 
 public class DimensionLookupIT {
   private StepMeta mockStepMeta;
@@ -109,7 +109,7 @@ public class DimensionLookupIT {
   }
 
   @Test
-  public void testDimInsertPreparesStatementWithReturnKeysForNullTechnicalKey() throws KettleException,
+  public void testDimInsertPreparesStatementWithReturnKeysForNullTechnicalKey() throws HopException,
     SQLException {
     RowMetaInterface mockMetaInterface = mock( RowMetaInterface.class );
     Object[] row = new Object[0];
@@ -127,7 +127,7 @@ public class DimensionLookupIT {
   }
 
   @Test
-  public void testDimInsertPreparesStatementWithReturnKeysForNotNullTechnicalKey() throws KettleException,
+  public void testDimInsertPreparesStatementWithReturnKeysForNotNullTechnicalKey() throws HopException,
     SQLException {
     RowMetaInterface mockMetaInterface = mock( RowMetaInterface.class );
     Object[] row = new Object[0];

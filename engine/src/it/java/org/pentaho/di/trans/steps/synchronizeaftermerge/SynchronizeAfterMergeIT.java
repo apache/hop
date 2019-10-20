@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.synchronizeaftermerge;
+package org.apache.hop.trans.steps.synchronizeaftermerge;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -36,25 +36,25 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepErrorMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.BaseStepData.StepExecutionStatus;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 public class SynchronizeAfterMergeIT {
 
@@ -89,13 +89,13 @@ public class SynchronizeAfterMergeIT {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     DriverManager.registerDriver( new org.h2.Driver() );
   }
 
   @AfterClass
   public static void afterClass() throws Exception {
-    KettleEnvironment.shutdown();
+    HopEnvironment.shutdown();
   }
 
   @After
@@ -107,7 +107,7 @@ public class SynchronizeAfterMergeIT {
   }
 
   @Before
-  public void setUp() throws KettleDatabaseException, SQLException {
+  public void setUp() throws HopDatabaseException, SQLException {
     connection = DriverManager.getConnection( "jdbc:h2:mem:PERSON;" );
     connection.setAutoCommit( false );
     PreparedStatement stmt = connection.prepareStatement( "CREATE TABLE PERSON (ID INT PRIMARY KEY, personName VARCHAR(64) )" );

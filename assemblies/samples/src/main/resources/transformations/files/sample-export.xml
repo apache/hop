@@ -209,7 +209,7 @@ xml files like such:
 var encrypted_password = &apos;not encrypted&apos;;
 
 
-encrypted_password = &quot;Encrypted &quot; + Packages.org.pentaho.di.core.encryption.Encr.encryptPassword(clear_password);
+encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encryption.Encr.encryptPassword(clear_password);
 
 </jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>encrypted_password</name>

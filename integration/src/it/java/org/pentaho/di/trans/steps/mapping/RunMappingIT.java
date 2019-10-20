@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.mapping;
+package org.apache.hop.trans.steps.mapping;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.run.TimedTransRunner;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.run.TimedTransRunner;
 
 public class RunMappingIT extends TestCase {
   private static String TARGET_CONNECTION_XML =
@@ -53,15 +53,15 @@ public class RunMappingIT extends TestCase {
       + "<attribute>jdbc:derby:test&#47;derbyNew;create=true</attribute></attribute>"
       + "  </attributes>" + "</connection>";
 
-  public static DatabaseMeta getTargetDatabase() throws KettleXMLException {
+  public static DatabaseMeta getTargetDatabase() throws HopXMLException {
     return new DatabaseMeta( TARGET_CONNECTION_XML );
   }
 
   public void test_MAPPING_INPUT_ONLY() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     TimedTransRunner timedTransRunner =
       new TimedTransRunner(
-        "test/org/pentaho/di/trans/steps/mapping/filereader/use filereader.ktr", LogLevel.ERROR,
+        "test/org.apache.hop/trans/steps/mapping/filereader/use filereader.ktr", LogLevel.ERROR,
         getTargetDatabase(), 1000 );
     assertTrue( timedTransRunner.runEngine( true ) );
 
@@ -70,10 +70,10 @@ public class RunMappingIT extends TestCase {
   }
 
   public void test_MAPPING_OUTPUT_ONLY() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     TimedTransRunner timedTransRunner =
       new TimedTransRunner(
-        "test/org/pentaho/di/trans/steps/mapping/filewriter/use filewriter.ktr", LogLevel.ERROR,
+        "test/org.apache.hop/trans/steps/mapping/filewriter/use filewriter.ktr", LogLevel.ERROR,
         getTargetDatabase(), 1000 );
     assertTrue( timedTransRunner.runEngine( true ) );
 
@@ -82,10 +82,10 @@ public class RunMappingIT extends TestCase {
   }
 
   public void test_MAPPING_MULTI_OUTPUT() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     TimedTransRunner timedTransRunner =
       new TimedTransRunner(
-        "test/org/pentaho/di/trans/steps/mapping/multi_output/use filereader.ktr", LogLevel.ERROR,
+        "test/org.apache.hop/trans/steps/mapping/multi_output/use filereader.ktr", LogLevel.ERROR,
         getTargetDatabase(), 1000 );
     assertTrue( timedTransRunner.runEngine( true ) );
 

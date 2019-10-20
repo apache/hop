@@ -20,17 +20,17 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.csvinput;
+package org.apache.hop.trans.steps.csvinput;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
 
 /**
  * Regression test case for PDI JIRA-1317: a csv input step with less columns in certain rows than the number of columns
@@ -77,7 +77,7 @@ public class CsvInput1NoTrailingSpaceIT extends CsvInput1IT {
    */
   @Test
   public void testCSVInput1() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

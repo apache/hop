@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -47,17 +47,17 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.logging.LoggingObjectType;
-import org.pentaho.di.core.logging.SimpleLoggingObject;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.TransMeta;
 
 /**
  * Try to test database functionality using a hypersonic database. This is just a small fraction of the functionality,
@@ -80,7 +80,7 @@ public class DatabaseIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @Before
@@ -93,16 +93,16 @@ public class DatabaseIT {
    * Test that mysql fetch size is not set if fetch size more than
    * max rows ResultSet can return.
    *
-   * @throws KettleDatabaseException
+   * @throws HopDatabaseException
    * @throws SQLException
    */
   @Test
-  public void testOpenQueryFetchSizeNotSet() throws KettleDatabaseException, SQLException {
+  public void testOpenQueryFetchSizeNotSet() throws HopDatabaseException, SQLException {
 
     Database db = Mockito.spy( new MockDatabase( log, databaseMysqlMeta, 5 ) );
     try {
       db.openQuery( ps, params, data );
-    } catch ( KettleDatabaseException e ) {
+    } catch ( HopDatabaseException e ) {
       // it is OK since we do not using real connection
     }
     Mockito.verify( ps, Mockito.times( 0 ) ).setFetchSize( Mockito.anyInt() );
@@ -119,7 +119,7 @@ public class DatabaseIT {
     Database db = Mockito.spy( new MockDatabase( log, emptyMeta, 5 ) );
     try {
       db.openQuery( ps, params, data );
-    } catch ( KettleDatabaseException e ) {
+    } catch ( HopDatabaseException e ) {
       // it is OK since we do not using real connection
     }
     Mockito.verify( ps, Mockito.times( 1 ) ).setFetchSize( Mockito.anyInt() );
@@ -137,7 +137,7 @@ public class DatabaseIT {
     Mockito.when( ps.getMaxRows() ).thenReturn( Const.FETCH_SIZE + 1 );
     try {
       db.openQuery( ps, params, data );
-    } catch ( KettleDatabaseException e ) {
+    } catch ( HopDatabaseException e ) {
       // it is OK since we do not using real connection
     }
     Mockito.verify( ps, Mockito.times( 1 ) ).setFetchSize( Mockito.anyInt() );
@@ -364,7 +364,7 @@ public class DatabaseIT {
   }
 
   private void fillDbInBatch( String tableName, Database db, int insertSize ) throws SQLException,
-    KettleDatabaseException {
+    HopDatabaseException {
     String insert = "INSERT INTO " + tableName + " VALUES( ?, ? )";
 
     PreparedStatement ps = db.getConnection().prepareStatement( insert );
@@ -403,7 +403,7 @@ public class DatabaseIT {
     }
 
     @Override
-    public DatabaseMetaData getDatabaseMetaData() throws KettleDatabaseException {
+    public DatabaseMetaData getDatabaseMetaData() throws HopDatabaseException {
       return md;
     }
   }

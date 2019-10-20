@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.ldapinput;
+package org.apache.hop.trans.steps.ldapinput;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -41,10 +41,10 @@ import javax.naming.ldap.StartTlsResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.trans.steps.ldapinput.store.CustomSocketFactory;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
 
 public class LdapTlsProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -73,7 +73,7 @@ public class LdapTlsProtocolIT {
 
     @Override
     protected void configureSocketFactory( boolean trustAllCertificates, String trustStorePath,
-      String trustStorePassword ) throws KettleException {
+      String trustStorePassword ) throws HopException {
       CustomSocketFactory.configure();
     }
   }
@@ -90,7 +90,7 @@ public class LdapTlsProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws KettleException, NamingException {
+  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws HopException, NamingException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -111,7 +111,7 @@ public class LdapTlsProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws KettleException {
+  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws HopException {
     String hostnameConcrete = "host_concrete";
     String hostConcrete = "ldap://" + hostnameConcrete;
     String portConcrete = "12345";
@@ -133,7 +133,7 @@ public class LdapTlsProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsSsl() throws KettleException {
+  public void testLdapProtocolSetsSsl() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -152,7 +152,7 @@ public class LdapTlsProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsSocketFactory() throws KettleException {
+  public void testLdapProtocolSetsSocketFactory() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -171,7 +171,7 @@ public class LdapTlsProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolNegotiatesTls() throws KettleException, IOException {
+  public void testLdapProtocolNegotiatesTls() throws HopException, IOException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );

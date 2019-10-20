@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.monetdbbulkloader;
+package org.apache.hop.trans.steps.monetdbbulkloader;
 
 import static org.junit.Assert.fail;
 
@@ -29,14 +29,14 @@ import java.util.ArrayList;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.database.MonetDBDatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.MonetDBDatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 public class MonetDBBulkLoaderIT {
 
@@ -47,8 +47,8 @@ public class MonetDBBulkLoaderIT {
   static final String HOST = "localhost";
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   // not a real unit test: ignore it. depends on monetdb running and a specific table existing in it.
@@ -77,7 +77,7 @@ public class MonetDBBulkLoaderIT {
 
     try {
       TransTestFactory.executeTestTransformation( transMeta, oneStepname, new ArrayList<RowMetaAndData>() );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // The Monet DB Bulk Loader step should finish quietly if no input rows
       fail();
     }

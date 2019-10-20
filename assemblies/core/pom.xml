@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pdi-core</artifactId>
+    <artifactId>hop-assemblies-core</artifactId>
     <packaging>pom</packaging>
 
-    <name>PDI Core Client Assembly</name>
+    <name>Hop Core Client Assembly</name>
 
     <parent>
-        <groupId>org.pentaho.di</groupId>
-        <artifactId>pdi-assemblies</artifactId>
-        <version>8.2.0.7-719</version>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-assemblies</artifactId>
+        <version>0.1.0</version>
     </parent>
 
     <modules>

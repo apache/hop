@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.eclipse.swt.widgets.Composite;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.EngineMetaInterface;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.containers.XulDeck;
 import org.pentaho.ui.xul.containers.XulToolbar;
@@ -71,7 +71,7 @@ public class SpoonPerspectiveManagerTest {
 
 
   @Test
-  public void perspectiveIsInitializedOnlyOnce() throws KettleException {
+  public void perspectiveIsInitializedOnlyOnce() throws HopException {
     SpoonPerspectiveManager.PerspectiveManager perspectiveManager = perspectiveManagerMap.get( perspective );
 
     spoonPerspectiveManager.activatePerspective( perspective.getClass() );

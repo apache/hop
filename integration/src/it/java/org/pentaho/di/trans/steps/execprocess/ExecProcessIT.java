@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.execprocess;
+package org.apache.hop.trans.steps.execprocess;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -33,12 +33,12 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
 
 public class ExecProcessIT {
 
@@ -50,8 +50,8 @@ public class ExecProcessIT {
   private Trans trans;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   @Before

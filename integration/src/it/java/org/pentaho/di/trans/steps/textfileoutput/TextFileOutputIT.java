@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.textfileoutput;
+package org.apache.hop.trans.steps.textfileoutput;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -38,28 +38,28 @@ import java.util.zip.ZipFile;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.pentaho.di.TestFailedException;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.xml.XMLHandler;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.pentaho.metastore.api.IMetaStore;
+import org.apache.hop.TestFailedException;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -350,7 +350,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput1() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //
@@ -423,7 +423,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput2() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     TextFileOutputMeta textFileOutputMeta = new TextFileOutputMeta();
     assertTrue( textFileOutputMeta.isCreateParentFolder() );
@@ -439,7 +439,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput3() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation from the same XML file
     //
@@ -458,7 +458,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput4() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //
@@ -542,7 +542,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput5() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //
@@ -622,7 +622,7 @@ public class TextFileOutputIT extends TestCase {
    */
   @Test
   public void testTextFileOutput6() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //

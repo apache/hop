@@ -20,13 +20,13 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.auth;
+package org.apache.hop.ui.core.auth;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.ui.core.auth.model.BasicAuthProvider;
-import org.pentaho.di.ui.core.auth.model.KerberosAuthProvider;
-import org.pentaho.di.ui.core.auth.model.NamedProvider;
-import org.pentaho.di.ui.core.auth.model.NoAuthAuthProvider;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.ui.core.auth.model.BasicAuthProvider;
+import org.apache.hop.ui.core.auth.model.KerberosAuthProvider;
+import org.apache.hop.ui.core.auth.model.NamedProvider;
+import org.apache.hop.ui.core.auth.model.NoAuthAuthProvider;
 import org.pentaho.ui.xul.binding.BindingFactory;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class AuthHarness {
   public static void main( String[] args ) {
     try {
 
-      KettleEnvironment.init();
+      HopEnvironment.init();
 
       AuthProviderDialog dialog = new AuthProviderDialog( null );
       dialog.addProviders( getProviders( dialog.getBindingFactory() ) );

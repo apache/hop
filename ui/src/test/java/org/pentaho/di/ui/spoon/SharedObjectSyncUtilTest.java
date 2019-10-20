@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import static org.mockito.Mockito.mock;
 
@@ -38,31 +38,31 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import org.pentaho.di.base.AbstractMeta;
-import org.pentaho.di.cluster.ClusterSchema;
-import org.pentaho.di.cluster.SlaveServer;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.partition.PartitionSchema;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.repository.RepositoryDirectory;
-import org.pentaho.di.repository.StringObjectId;
-import org.pentaho.di.shared.SharedObjectInterface;
-import org.pentaho.di.shared.SharedObjects;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.ui.spoon.delegates.SpoonClustersDelegate;
-import org.pentaho.di.ui.spoon.delegates.SpoonDBDelegate;
-import org.pentaho.di.ui.spoon.delegates.SpoonDelegates;
-import org.pentaho.di.ui.spoon.delegates.SpoonJobDelegate;
-import org.pentaho.di.ui.spoon.delegates.SpoonPartitionsDelegate;
-import org.pentaho.di.ui.spoon.delegates.SpoonSlaveDelegate;
-import org.pentaho.di.ui.spoon.delegates.SpoonTransformationDelegate;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.cluster.ClusterSchema;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.repository.RepositoryDirectory;
+import org.apache.hop.repository.StringObjectId;
+import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.shared.SharedObjects;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.spoon.delegates.SpoonClustersDelegate;
+import org.apache.hop.ui.spoon.delegates.SpoonDBDelegate;
+import org.apache.hop.ui.spoon.delegates.SpoonDelegates;
+import org.apache.hop.ui.spoon.delegates.SpoonJobDelegate;
+import org.apache.hop.ui.spoon.delegates.SpoonPartitionsDelegate;
+import org.apache.hop.ui.spoon.delegates.SpoonSlaveDelegate;
+import org.apache.hop.ui.spoon.delegates.SpoonTransformationDelegate;
 
 
 /**
@@ -70,7 +70,7 @@ import org.pentaho.di.ui.spoon.delegates.SpoonTransformationDelegate;
  * 
  */
 public class SharedObjectSyncUtilTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static final String BEFORE_SYNC_VALUE = "BeforeSync";
 
@@ -88,7 +88,7 @@ public class SharedObjectSyncUtilTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @Before
@@ -109,7 +109,7 @@ public class SharedObjectSyncUtilTest {
 
   @After
   public void tearDown() throws Exception {
-    FileObject sharedObjectsFile = KettleVFS.getFileObject( SHARED_OBJECTS_FILE );
+    FileObject sharedObjectsFile = HopVFS.getFileObject( SHARED_OBJECTS_FILE );
     if ( sharedObjectsFile.exists() ) {
       sharedObjectsFile.delete();
     }
@@ -769,7 +769,7 @@ public class SharedObjectSyncUtilTest {
     return jobMeta;
   }
 
-  private TransMeta createTransMeta() throws KettleException {
+  private TransMeta createTransMeta() throws HopException {
     TransMeta transMeta = new TransMeta();
     transMeta.setName( UUID.randomUUID().toString() );
     transMeta.setFilename( UUID.randomUUID().toString() );
@@ -782,7 +782,7 @@ public class SharedObjectSyncUtilTest {
     return transMeta;
   }
 
-  private static void initSharedObjects( AbstractMeta meta, String sharedObjectsFile ) throws KettleException {
+  private static void initSharedObjects( AbstractMeta meta, String sharedObjectsFile ) throws HopException {
     meta.setSharedObjectsFile( sharedObjectsFile );
     meta.setSharedObjects( meta.readSharedObjects() );
   }
@@ -835,7 +835,7 @@ public class SharedObjectSyncUtilTest {
   }
 
   private static SharedObjects createSharedObjects( String location, SharedObjectInterface... objects )
-    throws KettleXMLException {
+    throws HopXMLException {
     SharedObjects sharedObjects = new SharedObjects( location );
     for ( SharedObjectInterface sharedObject : objects ) {
       sharedObjects.storeObject( sharedObject );

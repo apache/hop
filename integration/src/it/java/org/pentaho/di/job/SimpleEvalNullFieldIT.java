@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,22 +29,22 @@ import java.net.URISyntaxException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleXMLException;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
 
 public class SimpleEvalNullFieldIT {
   private static String jobPath = "PDI-13387.kjb";
-  private static String PKG = "org/pentaho/di/job/";
+  private static String PKG = "org.apache.hop/job/";
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init();   
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init();   
   }
 
   @Test
-  public void testNullField() throws KettleXMLException, IOException, URISyntaxException {
+  public void testNullField() throws HopXMLException, IOException, URISyntaxException {
     JobMeta jm = new JobMeta( new File( SimultaneousJobsAppenderIT.class.getClassLoader().getResource( PKG + jobPath ).toURI() ).getCanonicalPath(), null );
     Job job = new Job( null, jm );    
     job.start();

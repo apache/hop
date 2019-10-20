@@ -20,17 +20,17 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.csvinput;
+package org.apache.hop.trans.steps.csvinput;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
 
 /**
  * Regression test case for Jira PDI-10242: a csv input step does not recognize parameter in encoding
@@ -49,7 +49,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   @Before
   protected void setUp() throws Exception {
     super.setUp();
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

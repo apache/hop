@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.delegates;
+package org.apache.hop.ui.spoon.delegates;
 
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.ui.core.ConstUI;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.di.ui.spoon.TreeSelection;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.spoon.TreeSelection;
 
 import org.junit.Before;
 import org.junit.Test;

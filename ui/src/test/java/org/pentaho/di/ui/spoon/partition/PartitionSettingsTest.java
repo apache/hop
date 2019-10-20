@@ -20,17 +20,17 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.partition;
+package org.apache.hop.ui.spoon.partition;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.partition.PartitionSchema;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepPartitioningMeta;
-import org.pentaho.di.ui.spoon.PartitionSchemasProvider;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.ui.spoon.PartitionSchemasProvider;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class PartitionSettingsTest {
   private PluginInterface plugin;
 
   @Before
-  public void setUp() throws KettleException {
+  public void setUp() throws HopException {
     transMeta = mock( TransMeta.class );
     stepMeta = mock( StepMeta.class );
     partitionSchemasProvider = mock( PartitionSchemasProvider.class );

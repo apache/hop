@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.blackbox;
+package org.apache.hop.blackbox;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -42,19 +42,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.pentaho.di.core.CheckResultInterface;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.util.EnvUtil;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.i18n.GlobalMessageUtil;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.GlobalMessageUtil;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 @RunWith( Parameterized.class )
 public class BlackBoxIT {
@@ -78,7 +78,7 @@ public class BlackBoxIT {
     GlobalMessageUtil.setLocale( EnvUtil.createLocale( "en-US" ) );
 
     // Keep all log rows for at least 60 minutes as per BaseCluster.java
-    KettleLogStore.init( 0, 60 );
+    HopLogStore.init( 0, 60 );
   }
 
   @Parameters
@@ -222,7 +222,7 @@ public class BlackBoxIT {
     // We didn't get a result, so the only expected file should be a ".fail.txt" file
     //
     if ( !result.getResult() ) {
-      String logStr = KettleLogStore.getAppender().getBuffer( result.getLogChannelId(), true ).toString();
+      String logStr = HopLogStore.getAppender().getBuffer( result.getLogChannelId(), true ).toString();
 
       if ( expectedFiles.size() == 0 ) {
         // We haven't got a ".fail.txt" file, so this is a real failure
@@ -346,10 +346,10 @@ public class BlackBoxIT {
     }
   }
 
-  public Result runTrans( String fileName, LogChannelInterface log ) throws KettleException {
-    // Bootstrap the Kettle API...
+  public Result runTrans( String fileName, LogChannelInterface log ) throws HopException {
+    // Bootstrap the Hop API...
     //
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     TransMeta transMeta = new TransMeta( fileName );
     Trans trans = new Trans( transMeta );
@@ -369,7 +369,7 @@ public class BlackBoxIT {
 
     try {
       trans.initializeVariablesFrom( null );
-      trans.getTransMeta().setInternalKettleVariables( trans );
+      trans.getTransMeta().setInternalHopVariables( trans );
 
       trans.setSafeModeEnabled( true );
 

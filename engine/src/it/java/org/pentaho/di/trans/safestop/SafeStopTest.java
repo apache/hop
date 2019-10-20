@@ -19,24 +19,24 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.trans.safestop;
+package org.apache.hop.trans.safestop;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 import static org.junit.Assert.assertEquals;
 
 public class SafeStopTest {
   @Test
-  public void testDownStreamStepsFinishProcessing() throws KettleException {
+  public void testDownStreamStepsFinishProcessing() throws HopException {
     String path = getClass().getResource( "/safe-stop-gen-rows.ktr" ).getPath();
     TransMeta transMeta = new TransMeta( path, new Variables() );
     Trans trans = new Trans( transMeta );
@@ -48,7 +48,7 @@ public class SafeStopTest {
 
   @BeforeClass
   public static void init() throws Exception {
-    KettleClientEnvironment.init();
+    HopClientEnvironment.init();
     PluginRegistry.addPluginType( StepPluginType.getInstance() );
     PluginRegistry.init();
     if ( !Props.isInitialized() ) {

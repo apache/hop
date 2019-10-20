@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.delegates;
+package org.apache.hop.ui.spoon.delegates;
 
 import org.junit.Test;
-import org.pentaho.di.shared.SharedObjectInterface;
+import org.apache.hop.shared.SharedObjectInterface;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.pentaho.di.ui.spoon.delegates.SpoonSharedObjectDelegate.isDuplicate;
+import static org.apache.hop.ui.spoon.delegates.SpoonSharedObjectDelegate.isDuplicate;
 
 /**
  * @author Andrey Khayrutdinov

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.trans.Trans;
+import org.apache.hop.trans.Trans;
 
 public class CleanupTransServletIT {
   private TransformationMap mockTransformationMap;

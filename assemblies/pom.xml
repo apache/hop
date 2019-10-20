@@ -21,6 +21,7 @@
   </properties>
 
   <modules>
+    <module>plugins</module>
     <module>static</module>
     <module>samples</module>
     <module>lib</module>

@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.trans.steps.constant;
+package org.apache.hop.trans.steps.constant;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,21 +27,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.logging.LogChannelInterfaceFactory;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogChannelInterfaceFactory;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 import java.util.List;
 
@@ -56,16 +56,16 @@ public class ConstantIT {
   @Mock private LogChannelInterface logChannel;
 
   @Before
-  public void setUp() throws KettleException {
-    KettleEnvironment.init();
-    KettleLogStore.setLogChannelInterfaceFactory( logChannelFactory );
+  public void setUp() throws HopException {
+    HopEnvironment.init();
+    HopLogStore.setLogChannelInterfaceFactory( logChannelFactory );
     when( logChannelFactory.create( any(), any() ) ).thenReturn( logChannel );
     when( logChannelFactory.create( any() ) ).thenReturn( logChannel );
   }
 
   @BeforeClass
   public static void init() throws Exception {
-    KettleClientEnvironment.init();
+    HopClientEnvironment.init();
     PluginRegistry.addPluginType( StepPluginType.getInstance() );
     PluginRegistry.init();
     if ( !Props.isInitialized() ) {
@@ -74,7 +74,7 @@ public class ConstantIT {
   }
 
   @Test
-  public void constantFieldsAddedOnceWithCorrectFormatting() throws KettleException {
+  public void constantFieldsAddedOnceWithCorrectFormatting() throws HopException {
     String path = getClass().getResource( "/constants-test.ktr" ).getPath();
     TransMeta constantTrans = new TransMeta( path, new Variables() );
     Trans trans = new Trans( constantTrans );

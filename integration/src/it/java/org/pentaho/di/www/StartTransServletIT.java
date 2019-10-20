@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -38,11 +38,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.gui.Point;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 public class StartTransServletIT {
   private TransformationMap mockTransformationMap;
@@ -73,7 +73,7 @@ public class StartTransServletIT {
 
   @Test
   public void testStartTransServletEscapesHtmlWhenTransFound() throws ServletException, IOException {
-    KettleLogStore.init();
+    HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Trans mockTrans = mock( Trans.class );

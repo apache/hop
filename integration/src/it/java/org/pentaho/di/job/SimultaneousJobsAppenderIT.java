@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,29 +29,29 @@ import java.net.URISyntaxException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.logging.LoggingBuffer;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.parameters.UnknownParamException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingBuffer;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.parameters.UnknownParamException;
 
 public class SimultaneousJobsAppenderIT {
 
   private int howMany = 3; // number of simultaneously running jobs
   private int prevJobBuffer = 0;
   private static String jobPath = "one hundred lines.kjb";
-  private static String PKG = "org/pentaho/di/job/";
+  private static String PKG = "org.apache.hop/job/";
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init();
-    KettleLogStore.init();
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init();
+    HopLogStore.init();
   }
 
   @Test
-  public void testAppendersBuffer() throws KettleXMLException, IOException, URISyntaxException, UnknownParamException {
+  public void testAppendersBuffer() throws HopXMLException, IOException, URISyntaxException, UnknownParamException {
     Job[] jobs = new Job[howMany];
     for ( int i = 0; i < jobs.length; i++ ) {
       JobMeta jm = new JobMeta( new File( SimultaneousJobsAppenderIT.class.getClassLoader().getResource( PKG + jobPath ).toURI() ).getCanonicalPath(), null );
@@ -70,7 +70,7 @@ public class SimultaneousJobsAppenderIT {
       job.waitUntilFinished();
     }
 
-    LoggingBuffer appender = KettleLogStore.getAppender();
+    LoggingBuffer appender = HopLogStore.getAppender();
 
     for (int i = 0; i < jobs.length; i++) {
       if ( prevJobBuffer != 0 ) {

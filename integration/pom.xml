@@ -27,14 +27,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-core</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <exclusions>
@@ -45,20 +45,20 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-dbdialog</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-dbdialog</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-ui-swt</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
@@ -68,13 +68,6 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.pentaho.di.plugins</groupId>
-      <artifactId>kettle-gpload-plugin-core</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -124,13 +117,13 @@
       <artifactId>mockito-all</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.pentaho.di.plugins</groupId>
+      <groupId>org.apache.hop.plugins</groupId>
       <artifactId>pdi-xml-plugin-core</artifactId>
       <version>${pdi.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.pentaho.di.plugins</groupId>
+      <groupId>org.apache.hop.plugins</groupId>
       <artifactId>pdi-core-plugins-impl</artifactId>
       <version>${pdi.version}</version>
       <scope>test</scope>

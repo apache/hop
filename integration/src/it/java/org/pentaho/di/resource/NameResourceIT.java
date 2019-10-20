@@ -20,19 +20,19 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.resource;
+package org.apache.hop.resource;
 
 import static org.junit.Assert.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.resource.ResourceNamingInterface.FileNamingType;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.resource.ResourceNamingInterface.FileNamingType;
+import org.apache.hop.trans.TransMeta;
 
 /**
  * @author Sean Flatley
@@ -43,9 +43,9 @@ import org.pentaho.di.trans.TransMeta;
 public class NameResourceIT {
 
   @BeforeClass
-  public static void setupBeforeClass() throws KettleException {
-    if ( !KettleClientEnvironment.isInitialized() ) {
-      KettleClientEnvironment.init();
+  public static void setupBeforeClass() throws HopException {
+    if ( !HopClientEnvironment.isInitialized() ) {
+      HopClientEnvironment.init();
     }
   }
 
@@ -145,7 +145,7 @@ public class NameResourceIT {
     // Create a new transformation.
     TransMeta transMeta = new TransMeta();
 
-    FileObject fileObject = KettleVFS.getFileObject( fileName, transMeta );
+    FileObject fileObject = HopVFS.getFileObject( fileName, transMeta );
 
     // This code is modeled after the legacy code in legacy step meta classes
     // that have an exportResources method that deal with file masks

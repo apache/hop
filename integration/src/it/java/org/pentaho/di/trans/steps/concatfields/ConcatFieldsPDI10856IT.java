@@ -20,22 +20,22 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.concatfields;
+package org.apache.hop.trans.steps.concatfields;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 public class ConcatFieldsPDI10856IT {
 
   @Test
   public void rowLevelLoggingDoesNotFail() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
-    TransMeta transMeta = new TransMeta( "src/it/resources/org/pentaho/di/trans/steps/concatfields/PDI-10856.ktr" );
+    TransMeta transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/steps/concatfields/PDI-10856.ktr" );
     transMeta.setTransformationType( TransMeta.TransformationType.Normal );
 
     Trans trans = new Trans( transMeta );

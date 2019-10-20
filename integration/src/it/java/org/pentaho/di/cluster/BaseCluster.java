@@ -20,21 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.trans.TransExecutionConfiguration;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
 
 public class BaseCluster extends TestCase {
 
@@ -54,7 +54,7 @@ public class BaseCluster extends TestCase {
     return config;
   }
 
-  public TransMeta loadAndModifyTestTransformation( ClusterGenerator clusterGenerator, String filename ) throws KettleException {
+  public TransMeta loadAndModifyTestTransformation( ClusterGenerator clusterGenerator, String filename ) throws HopException {
     TransMeta transMeta = new TransMeta( filename );
 
     // Add the slave servers
@@ -74,15 +74,15 @@ public class BaseCluster extends TestCase {
   }
 
   protected void init() throws Exception {
-    // Bootstrap the Kettle API...
+    // Bootstrap the Hop API...
     //
-    KettleEnvironment.init();
-    KettleLogStore.init( 5000, 60 ); // Keep 5000 log rows for at least 60 minutes
+    HopEnvironment.init();
+    HopLogStore.init( 5000, 60 ); // Keep 5000 log rows for at least 60 minutes
   }
 
   public static String loadFileContent( VariableSpace space, String filename ) throws Exception {
     String realFilename = space.environmentSubstitute( filename );
-    return KettleVFS.getTextFileContent( realFilename, Charset.defaultCharset().name() );
+    return HopVFS.getTextFileContent( realFilename, Charset.defaultCharset().name() );
   }
 
   protected void assertEqualsIgnoreWhitespaces( String expected, String two ) {

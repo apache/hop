@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -34,12 +34,12 @@ import org.junit.Test;
 import org.mockito.AdditionalMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.gui.GUIPositionInterface;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entry.JobEntryCopy;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.ui.spoon.job.JobGraph;
-import org.pentaho.di.ui.spoon.trans.TransGraph;
+import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.spoon.job.JobGraph;
+import org.apache.hop.ui.spoon.trans.TransGraph;
 
 public class GraphTest {
 

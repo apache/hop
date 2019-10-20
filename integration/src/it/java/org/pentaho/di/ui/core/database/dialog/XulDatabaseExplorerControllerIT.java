@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.database.dialog;
+package org.apache.hop.ui.core.database.dialog;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,14 +30,14 @@ import junit.framework.Assert;
 import org.eclipse.swt.widgets.Shell;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 
 public class XulDatabaseExplorerControllerIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   /**

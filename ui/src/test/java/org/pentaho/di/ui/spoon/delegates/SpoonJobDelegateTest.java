@@ -19,31 +19,31 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.spoon.delegates;
+package org.apache.hop.ui.spoon.delegates;
 
 
 import org.eclipse.swt.widgets.Shell;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettlePluginException;
-import org.pentaho.di.core.logging.JobLogTable;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.plugins.ClassLoadingPluginInterface;
-import org.pentaho.di.core.plugins.JobEntryPluginType;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.job.JobExecutionConfiguration;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entry.JobEntryDialogInterface;
-import org.pentaho.di.job.entry.JobEntryInterface;
-import org.pentaho.di.ui.job.dialog.JobExecutionConfigurationDialog;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.di.ui.spoon.job.JobGraph;
-import org.pentaho.di.ui.spoon.job.JobLogDelegate;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.JobLogTable;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
+import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.job.JobExecutionConfiguration;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
+import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.spoon.job.JobGraph;
+import org.apache.hop.ui.spoon.job.JobLogDelegate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,7 +115,7 @@ public class SpoonJobDelegateTest {
 
   @Test
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
-  public void testSetParamsIntoMetaInExecuteJob() throws KettleException {
+  public void testSetParamsIntoMetaInExecuteJob() throws HopException {
     doCallRealMethod().when( delegate ).executeJob( jobMeta, true, false, null, false,
         null, 0 );
 
@@ -156,7 +156,7 @@ public class SpoonJobDelegateTest {
   }
 
   @Test
-  public void testGetJobEntryDialogClass() throws KettlePluginException {
+  public void testGetJobEntryDialogClass() throws HopPluginException {
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginMockInterface plugin = mock( PluginMockInterface.class );
     when( plugin.getIds() ).thenReturn( new String[] { "mockJobPlugin" } );

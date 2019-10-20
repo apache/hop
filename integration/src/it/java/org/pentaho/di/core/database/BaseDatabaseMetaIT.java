@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -20,11 +20,11 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.numberrange;
+package org.apache.hop.trans.steps.numberrange;
 
 import java.util.Arrays;
 
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.exception.HopException;
 
 import junit.framework.TestCase;
 
@@ -72,14 +72,14 @@ public class NumberRangeSetIT extends TestCase {
     try {
       numberRange.evaluate( "10 EUR" );
       assertTrue( "String to number worked for '10 EUR' when it was expected to fail", false );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // expected exception
     }
 
     try {
       numberRange.evaluate( "" );
       assertTrue( "String to number worked for an empty when it was expected to fail", false );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // expected exception
     }
 

@@ -20,25 +20,25 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 import junit.framework.TestCase;
 
@@ -114,7 +114,7 @@ public class HopIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + "is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + "is not equal" );
       }
 
@@ -131,7 +131,7 @@ public class HopIT extends TestCase {
    * Both dummy1 and dummy2 should get all rows.
    */
   public void testCopyHops() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -232,7 +232,7 @@ public class HopIT extends TestCase {
    * The default in the GUI of spoon is copy mode, but here it seems to be distribute.
    */
   public void testDefaultConfiguration() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -350,7 +350,7 @@ public class HopIT extends TestCase {
    * This testcase uses distribute mode, so each hop in turn should get a row.
    */
   public void testDistributeHops() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

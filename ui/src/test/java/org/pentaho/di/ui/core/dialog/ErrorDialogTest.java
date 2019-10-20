@@ -20,11 +20,11 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.dialog;
+package org.apache.hop.ui.core.dialog;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -44,7 +44,7 @@ public class ErrorDialogTest {
 
   @Test
   public void setErrorTextWithNoCauseException() {
-    Exception e = new KettleException( "kettleMessage" );
+    Exception e = new HopException( "kettleMessage" );
 
     StringBuilder text = new StringBuilder();
     StringBuilder details = new StringBuilder();
@@ -61,7 +61,7 @@ public class ErrorDialogTest {
   @Test
   public void setErrorTextWithCauseMessageException() {
     ClientProtocolException cpe = new ClientProtocolException( "causeMessage" );
-    Exception e = new KettleException( "kettleMessage", cpe );
+    Exception e = new HopException( "kettleMessage", cpe );
 
 
     StringBuilder text = new StringBuilder();
@@ -82,7 +82,7 @@ public class ErrorDialogTest {
   public void setErrorTextWithCauseExceptionWithoutCauseMessage() {
     //cause without message
     ClientProtocolException cpe = new ClientProtocolException(  );
-    Exception e = new KettleException( "kettleMessage", cpe );
+    Exception e = new HopException( "kettleMessage", cpe );
 
 
     StringBuilder text = new StringBuilder();

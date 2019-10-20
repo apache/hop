@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.auth.controller;
+package org.apache.hop.ui.core.auth.controller;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.auth.AuthHarness;
-import org.pentaho.di.ui.core.auth.AuthProviderDialog;
-import org.pentaho.di.ui.core.auth.model.NamedProvider;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.auth.AuthHarness;
+import org.apache.hop.ui.core.auth.AuthProviderDialog;
+import org.apache.hop.ui.core.auth.model.NamedProvider;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.swt.SwtBindingFactory;
 

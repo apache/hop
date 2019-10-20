@@ -20,32 +20,32 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
 import java.io.File;
 import java.util.UUID;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.logging.LoggingObjectType;
-import org.pentaho.di.core.logging.SimpleLoggingObject;
-import org.pentaho.di.www.SlaveSequence;
-import org.pentaho.di.www.SlaveServerConfig;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.www.SlaveSequence;
+import org.apache.hop.www.SlaveServerConfig;
 
 public class SlaveSequenceIT extends TestCase {
 
   private LoggingObjectInterface loggingObject;
 
   protected void init() throws Exception {
-    // Bootstrap the Kettle API...
+    // Bootstrap the Hop API...
     //
-    KettleEnvironment.init();
-    KettleLogStore.init( 5000, 60 ); // Keep 5000 log rows for at least 60 minutes
+    HopEnvironment.init();
+    HopLogStore.init( 5000, 60 ); // Keep 5000 log rows for at least 60 minutes
 
     loggingObject = new SimpleLoggingObject( "SlaveSequenceTest", LoggingObjectType.GENERAL, null );
   }

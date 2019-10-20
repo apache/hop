@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di;
+package org.apache.hop;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,18 +36,18 @@ import java.util.Random;
 
 import junit.framework.ComparisonFailure;
 
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
-import org.pentaho.di.trans.steps.sort.SortRowsMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.apache.hop.trans.steps.sort.SortRowsMeta;
 
 public class TestUtilities {
 
@@ -136,7 +136,7 @@ public class TestUtilities {
           rowMetaInterface1.getString( rowObject1 ),
           rowMetaInterface1.getString( rowObject2 ) ); 
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         throw new TestFailedException( "row nr " + idx + " is not equal" );
       }
       idx++;
@@ -269,7 +269,7 @@ public class TestUtilities {
    * @param directory      The directory in the file system where the sort is to take place if it can't fit into
    *                       memory?
    * @param sortSize       ???
-   * @param pluginRegistry The environment's Kettle plugin registry.
+   * @param pluginRegistry The environment's Hop plugin registry.
    * @return
    */
   public static synchronized StepMeta createSortRowsStep( String name, String[] sortFields, boolean[] ascending,

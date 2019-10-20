@@ -20,10 +20,10 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
-import org.pentaho.di.www.Carte;
-import org.pentaho.di.www.SlaveServerConfig;
+import org.apache.hop.www.Carte;
+import org.apache.hop.www.SlaveServerConfig;
 
 public class CarteLauncher implements Runnable {
   private SlaveServerConfig config;

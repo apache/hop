@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -30,9 +30,9 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pentaho.di.ui.spoon.delegates.SpoonDelegates;
-import org.pentaho.di.ui.spoon.delegates.SpoonTabsDelegate;
-import org.pentaho.di.ui.spoon.job.JobGraph;
+import org.apache.hop.ui.spoon.delegates.SpoonDelegates;
+import org.apache.hop.ui.spoon.delegates.SpoonTabsDelegate;
+import org.apache.hop.ui.spoon.job.JobGraph;
 import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabSet;
 

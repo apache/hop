@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.ldapinput;
+package org.apache.hop.trans.steps.ldapinput;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -36,11 +36,11 @@ import javax.naming.ldap.InitialLdapContext;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.trans.steps.ldapinput.store.CustomSocketFactory;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
 
 public class LdapSslProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -71,7 +71,7 @@ public class LdapSslProtocolIT {
 
     @Override
     protected void configureSocketFactory( boolean trustAllCertificates, String trustStorePath,
-      String trustStorePassword ) throws KettleException {
+      String trustStorePassword ) throws HopException {
       this.trustAllCertificates = trustAllCertificates;
       this.trustStorePath = trustStorePath;
       this.trustStorePassword = trustStorePassword;
@@ -86,7 +86,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws KettleException {
+  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -107,7 +107,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws KettleException {
+  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws HopException {
     String hostnameConcrete = "host_concrete";
     String hostConcrete = "ldaps://" + hostnameConcrete;
     String portConcrete = "12345";
@@ -129,7 +129,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsSsl() throws KettleException {
+  public void testLdapProtocolSetsSsl() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -148,7 +148,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsSocketFactory() throws KettleException {
+  public void testLdapProtocolSetsSocketFactory() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -168,7 +168,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSkipsConfiguresSocketFactoryIfNecessary() throws KettleException {
+  public void testLdapProtocolSkipsConfiguresSocketFactoryIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String trustStorePath = "TEST_PATH";
@@ -196,7 +196,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolConfiguresSocketFactoryIfNecessary() throws KettleException {
+  public void testLdapProtocolConfiguresSocketFactoryIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String trustStorePath = "TEST_PATH";
@@ -226,10 +226,10 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testResolvingPathVariables() throws KettleException {
+  public void testResolvingPathVariables() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
-    String trustStorePath = "${KETTLE_SSL_PATH}";
+    String trustStorePath = "${HOP_SSL_PATH}";
     String trustStorePathResolved = "/home/test_path";
     String trustStorePassword = "TEST_PASSWORD";
 
@@ -247,7 +247,7 @@ public class LdapSslProtocolIT {
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePath ) ) ).thenReturn( trustStorePathResolved );
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePassword ) ) ).thenReturn( trustStorePassword );
 
-    KettleClientEnvironment.init();
+    HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
             new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );
@@ -256,7 +256,7 @@ public class LdapSslProtocolIT {
 
 
   @Test
-  public void testResolvingPasswordVariables() throws KettleException {
+  public void testResolvingPasswordVariables() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String trustStorePath = "/home/test_path";
@@ -277,7 +277,7 @@ public class LdapSslProtocolIT {
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePath ) ) ).thenReturn( trustStorePath );
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePassword ) ) ).thenReturn( trustStorePasswordResolved );
 
-    KettleClientEnvironment.init();
+    HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
             new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );
@@ -285,7 +285,7 @@ public class LdapSslProtocolIT {
   }
 
   @Test
-  public void testResolvingPasswordAndDecryptVariables() throws KettleException {
+  public void testResolvingPasswordAndDecryptVariables() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String trustStorePath = "/home/test_path";
@@ -307,7 +307,7 @@ public class LdapSslProtocolIT {
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePath ) ) ).thenReturn( trustStorePath );
     when( mockVariableSpace.environmentSubstitute( eq( trustStorePassword ) ) ).thenReturn( trustStorePasswordResolved );
 
-    KettleClientEnvironment.init();
+    HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
             new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );

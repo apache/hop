@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.getfilenames;
+package org.apache.hop.trans.steps.getfilenames;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,13 +34,13 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 public class GetFileNamesIntIT {
 
@@ -50,12 +50,12 @@ public class GetFileNamesIntIT {
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   @Test
-  public void testParameterFolderName() throws KettleException, IOException {
+  public void testParameterFolderName() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 
@@ -96,7 +96,7 @@ public class GetFileNamesIntIT {
   }
 
   @Test
-  public void testParameterFolderNameWithoutWildcard() throws KettleException, IOException {
+  public void testParameterFolderNameWithoutWildcard() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 
@@ -137,7 +137,7 @@ public class GetFileNamesIntIT {
   }
 
   @Test
-  public void testParameterFolderNameOnlyFiles() throws KettleException, IOException {
+  public void testParameterFolderNameOnlyFiles() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 
@@ -177,7 +177,7 @@ public class GetFileNamesIntIT {
   }
 
   @Test
-  public void testParameterFolderNameWithoutWildcardAndOnlyFiles() throws KettleException, IOException {
+  public void testParameterFolderNameWithoutWildcardAndOnlyFiles() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 
@@ -217,7 +217,7 @@ public class GetFileNamesIntIT {
   }
 
   @Test
-  public void testParameterFolderNameOnlyFolders() throws KettleException, IOException {
+  public void testParameterFolderNameOnlyFolders() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 
@@ -257,7 +257,7 @@ public class GetFileNamesIntIT {
   }
 
   @Test
-  public void testParameterFolderNameWithoutWildcardAndOnlyFolders() throws KettleException, IOException {
+  public void testParameterFolderNameWithoutWildcardAndOnlyFolders() throws HopException, IOException {
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setDefault();
 

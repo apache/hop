@@ -19,13 +19,13 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.kitchen;
+package org.apache.hop.kitchen;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.base.CommandExecutorCodes;
-import org.pentaho.di.core.Result;
+import org.apache.hop.base.CommandExecutorCodes;
+import org.apache.hop.core.Result;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

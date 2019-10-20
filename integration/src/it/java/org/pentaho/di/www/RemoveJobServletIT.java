@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -38,11 +38,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.gui.Point;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
 
 public class RemoveJobServletIT {
   private JobMap mockJobMap;
@@ -73,7 +73,7 @@ public class RemoveJobServletIT {
 
   @Test
   public void testRemoveJobServletEscapesHtmlWhenTransFound() throws ServletException, IOException {
-    KettleLogStore.init();
+    HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
     Job mockJob = mock( Job.class );

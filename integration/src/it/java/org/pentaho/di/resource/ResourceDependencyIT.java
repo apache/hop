@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.resource;
+package org.apache.hop.resource;
 
 import java.util.List;
 
@@ -29,10 +29,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.resource.ResourceEntry.ResourceType;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.trans.TransMeta;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -62,7 +62,7 @@ public class ResourceDependencyIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @Before
@@ -81,7 +81,7 @@ public class ResourceDependencyIT {
   @Test
   public void testJobDependencyList() throws Exception {
     // Load the first job metadata
-    JobMeta jobMeta = new JobMeta( "test/org/pentaho/di/resource/processchangelog.kjb", null, null );
+    JobMeta jobMeta = new JobMeta( "test/org.apache.hop/resource/processchangelog.kjb", null, null );
     List<ResourceReference> resourceReferences = jobMeta.getResourceDependencies();
     assertEquals( 5, resourceReferences.size() );
     for ( int i = 0; i < 5; i++ ) {
@@ -122,7 +122,7 @@ public class ResourceDependencyIT {
 
   @Test
   public void testTransformationDependencyList() throws Exception {
-    TransMeta transMeta = new TransMeta( "test/org/pentaho/di/resource/trans/General - Change log processing.ktr" );
+    TransMeta transMeta = new TransMeta( "test/org.apache.hop/resource/trans/General - Change log processing.ktr" );
     List<ResourceReference> resourceReferences = transMeta.getResourceDependencies();
     assertEquals( 2, resourceReferences.size() );
     ResourceReference genRef = null;

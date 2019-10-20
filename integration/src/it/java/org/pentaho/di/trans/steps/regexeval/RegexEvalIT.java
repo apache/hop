@@ -20,21 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.regexeval;
+package org.apache.hop.trans.steps.regexeval;
 
 import java.util.List;
 
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBoolean;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.TransformationIT;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.TransformationIT;
 
 /**
  * Test class for the RegexEval step.
@@ -46,7 +46,7 @@ import org.pentaho.di.trans.TransformationIT;
  * @since 05-05-2008
  */
 public class RegexEvalIT extends TransformationIT {
-  public RegexEvalIT() throws KettleException {
+  public RegexEvalIT() throws HopException {
     super();
   }
 

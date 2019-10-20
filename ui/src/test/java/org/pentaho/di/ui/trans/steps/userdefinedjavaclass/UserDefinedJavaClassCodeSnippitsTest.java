@@ -18,16 +18,16 @@
  * limitations under the License.
  */
 
-package org.pentaho.di.ui.trans.steps.userdefinedjavaclass;
+package org.apache.hop.ui.trans.steps.userdefinedjavaclass;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 
 public class UserDefinedJavaClassCodeSnippitsTest {
 
@@ -38,7 +38,7 @@ public class UserDefinedJavaClassCodeSnippitsTest {
   }
 
   @Test
-  public void testSnippitsWellDefined() throws KettleXMLException {
+  public void testSnippitsWellDefined() throws HopXMLException {
     List<String> snippitNames = new ArrayList<String>();
     for ( Snippit snippit : UserDefinedJavaClassCodeSnippits.getSnippitsHelper().getSnippits() ) {
       Assert.assertNotNull( snippit.category );

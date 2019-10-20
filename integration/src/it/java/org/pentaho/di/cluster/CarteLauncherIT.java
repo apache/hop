@@ -20,17 +20,17 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.pentaho.di.core.KettleEnvironment;
+import org.apache.hop.core.HopEnvironment;
 
 public class CarteLauncherIT {
 
   @Test( timeout = 10 * 60 * 1000 )
   public void testLaunchStopSlaveServer() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     CarteLauncher carteLauncher = new CarteLauncher( "localhost", 8282 );
     Thread thread = new Thread( carteLauncher );

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptvalues_mod;
+package org.apache.hop.trans.steps.scriptvalues_mod;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -28,18 +28,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
-import org.pentaho.di.core.CheckResultInterface;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 /**
  * Tests setting the optimization level of ScriptValuesMetaMod. This unit test will call the ScriptValuesMetaMod.check()
@@ -118,7 +118,7 @@ public class OptimizationLevelIT {
     try {
       List<CheckResultInterface> remarks = testOptimizationLevel( optimizationLevel );
       assertEquals( containsErrorMessage( remarks ), containsErrorMessage );
-    } catch ( KettleException ke ) {
+    } catch ( HopException ke ) {
       ke.printStackTrace();
       fail( ke.getMessage() );
     }
@@ -129,11 +129,11 @@ public class OptimizationLevelIT {
    *
    * @param optimizationLevel
    * @return
-   * @throws KettleException
+   * @throws HopException
    */
-  private List<CheckResultInterface> testOptimizationLevel( String optimizationLevel ) throws KettleException {
+  private List<CheckResultInterface> testOptimizationLevel( String optimizationLevel ) throws HopException {
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     TransMeta transMeta = new TransMeta();

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,26 +34,26 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.logging.LoggingObjectType;
-import org.pentaho.di.core.logging.SimpleLoggingObject;
-import org.pentaho.di.core.parameters.UnknownParamException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.parameters.UnknownParamException;
 
 public abstract class JobTrackerExecution {
 
   public static String CREATE = "logTableCreate.sql";
   public static final String NAME = "Junit_JobTest";
   public static final String DB = "mem:HSQLDB-JUNIT-LOGJOB";
-  public static String PKG = "org/pentaho/di/job/";
+  public static String PKG = "org.apache.hop/job/";
 
   @Before
   public void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     LoggingObjectInterface log = new SimpleLoggingObject( "junit", LoggingObjectType.GENERAL, null );
 
     File file = File.createTempFile( JobTrackerExecution.class.getSimpleName(), "" );
@@ -73,7 +73,7 @@ public abstract class JobTrackerExecution {
   }
 
   @After
-  public void after() throws KettleDatabaseException {
+  public void after() throws HopDatabaseException {
     // DatabaseMeta databaseMeta = new DatabaseMeta( NAME, "H2", "JDBC", null, TMP, null, USER, USER );
     DatabaseMeta databaseMeta =
         new DatabaseMeta( NAME, "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
@@ -132,7 +132,7 @@ public abstract class JobTrackerExecution {
     return list;
   }
 
-  protected JobMeta getJobMeta( String resource ) throws KettleXMLException, URISyntaxException, IOException,
+  protected JobMeta getJobMeta( String resource ) throws HopXMLException, URISyntaxException, IOException,
     UnknownParamException {
     JobMeta jobMeta = new JobMeta( getCanonicalPath( resource ), null );
     /*

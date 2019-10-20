@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.rest;
+package org.apache.hop.trans.steps.rest;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.MatrixParam;

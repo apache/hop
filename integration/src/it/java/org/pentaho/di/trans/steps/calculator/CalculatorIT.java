@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.calculator;
+package org.apache.hop.trans.steps.calculator;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -31,22 +31,22 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
 public class CalculatorIT extends TestCase {
 
@@ -119,7 +119,7 @@ public class CalculatorIT extends TestCase {
             fail( "row nr " + idx + " is not equal at field nr "
               + ydx + "(" + rm1.toString() + ";" + rm2.toString() + ")" );
           }
-        } catch ( KettleValueException e ) {
+        } catch ( HopValueException e ) {
           fail( "row nr " + idx + " is not equal at field nr "
             + ydx + "(" + rm1.toString() + ";" + rm2.toString() + ")" );
         }
@@ -130,7 +130,7 @@ public class CalculatorIT extends TestCase {
   }
 
   public void testCalculator1() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     PluginRegistry registry = PluginRegistry.getInstance();
     //

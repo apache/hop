@@ -20,10 +20,10 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.dnd;
+package org.apache.hop.core.dnd;
 
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.exception.HopException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -110,7 +110,7 @@ public class DragAndDropContainerTest {
   }
 
   @Test
-  public void newFromXML() throws KettleException {
+  public void newFromXML() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                + "<DragAndDrop>\n"
                + "  <DragType>BaseStep</DragType>\n"
@@ -127,7 +127,7 @@ public class DragAndDropContainerTest {
   }
 
   @Test
-  public void newFromXMLWithId() throws KettleException {
+  public void newFromXMLWithId() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                + "<DragAndDrop>\n"
                + "  <ID>StepID</ID>\n"

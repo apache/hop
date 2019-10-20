@@ -20,23 +20,23 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransExecutionConfiguration;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.cluster.TransSplitter;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.cluster.TransSplitter;
 
 public class MasterSlaveIT extends BaseCluster {
 
@@ -121,7 +121,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runParallelFileReadOnMaster() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-parallel-file-read-on-master.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-parallel-file-read-on-master.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <testParallelFileReadOnMaster>" );
@@ -144,7 +144,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runParallelFileReadOnMasterWithCopies() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-parallel-file-read-on-master-with-copies.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-parallel-file-read-on-master-with-copies.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runParallelFileReadOnMasterWithCopies>" );
@@ -162,7 +162,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runParallelFileReadOnSlaves() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-parallel-file-read-on-slaves.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-parallel-file-read-on-slaves.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runParallelFileReadOnSlaves>" );
@@ -180,7 +180,7 @@ public class MasterSlaveIT extends BaseCluster {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
         clusterGenerator,
-        "test/org/pentaho/di/cluster/test-parallel-file-read-on-slaves-with-partitioning.ktr" );
+        "test/org.apache.hop/cluster/test-parallel-file-read-on-slaves-with-partitioning.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runParallelFileReadOnSlavesWithPartitioning>" );
@@ -200,7 +200,7 @@ public class MasterSlaveIT extends BaseCluster {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
         clusterGenerator,
-        "test/org/pentaho/di/cluster/test-parallel-file-read-on-slaves-with-partitioning2.ktr" );
+        "test/org.apache.hop/cluster/test-parallel-file-read-on-slaves-with-partitioning2.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runParallelFileReadOnSlavesWithPartitioning2>" );
@@ -217,7 +217,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runMultipleCopiesOnMultipleSlaves2() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-hops-between-multiple-copies-steps-on-cluster.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-hops-between-multiple-copies-steps-on-cluster.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runMultipleCopiesOnMultipleSlaves2>" );
@@ -233,7 +233,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runMultipleCopiesOnMultipleSlaves() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-multiple-copies-on-multiple-slaves.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-multiple-copies-on-multiple-slaves.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <testMultipleCopiesOnMultipleSlaves>" );
@@ -250,7 +250,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runOneStepClustered() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/one-step-clustered.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/one-step-clustered.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
     LogChannel logChannel = createLogChannel( "cluster unit test <runOneStepClustered>" );
@@ -268,7 +268,7 @@ public class MasterSlaveIT extends BaseCluster {
   public void runSubtransformationClustered() throws Exception {
     TransMeta transMeta =
       loadTransMetaReplaceSlavesInCluster(
-        clusterGenerator, "test/org/pentaho/di/cluster/test-subtrans-clustered.ktr" );
+        clusterGenerator, "test/org.apache.hop/cluster/test-subtrans-clustered.ktr" );
     TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
     Result prevResult = new Result();
     prevResult.setRows( getSampleRows() );
@@ -294,7 +294,7 @@ public class MasterSlaveIT extends BaseCluster {
   }
 
   private static TransMeta loadTransMetaReplaceSlavesInCluster( ClusterGenerator clusterGenerator,
-    String testFilename ) throws KettleException {
+    String testFilename ) throws HopException {
     TransMeta transMeta = new TransMeta( testFilename );
 
     // Add the slave servers

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import static org.junit.Assert.assertEquals;
 

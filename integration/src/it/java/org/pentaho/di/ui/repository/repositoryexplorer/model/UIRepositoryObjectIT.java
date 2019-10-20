@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.repository.repositoryexplorer.model;
+package org.apache.hop.ui.repository.repositoryexplorer.model;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

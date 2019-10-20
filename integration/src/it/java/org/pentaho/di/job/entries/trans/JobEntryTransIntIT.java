@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.trans;
+package org.apache.hop.job.entries.trans;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,30 +32,30 @@ import java.io.PrintWriter;
 import org.apache.commons.vfs2.FileObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobHopMeta;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.special.JobEntrySpecial;
-import org.pentaho.di.job.entry.JobEntryCopy;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.pentaho.di.utils.TestUtils;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobHopMeta;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.special.JobEntrySpecial;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.utils.TestUtils;
 
 public class JobEntryTransIntIT {
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
-  private String createPDI14676Transformation() throws IOException, KettleException {
+  private String createPDI14676Transformation() throws IOException, HopException {
     // Setup Transformation
     String rowGenStepName = "Generate Rows";
     RowGeneratorMeta rowGenMeta = new RowGeneratorMeta();
@@ -87,7 +87,7 @@ public class JobEntryTransIntIT {
    * A timeout parameter is required, to avoid a failed unit test from running forever.
    */
   @Test(timeout=30000)
-  public void testPDI14676() throws KettleException, IOException, InterruptedException {
+  public void testPDI14676() throws HopException, IOException, InterruptedException {
 
     String transFilename = createPDI14676Transformation();
 

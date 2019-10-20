@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.job.entries.trans;
+package org.apache.hop.ui.job.entries.trans;
 
 import org.junit.Test;
 

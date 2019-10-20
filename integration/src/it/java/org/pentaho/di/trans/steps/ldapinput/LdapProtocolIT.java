@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.ldapinput;
+package org.apache.hop.trans.steps.ldapinput;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -39,9 +39,9 @@ import javax.naming.ldap.InitialLdapContext;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.variables.VariableSpace;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.variables.VariableSpace;
 
 public class LdapProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -73,7 +73,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSubstitutesEnvironmentVariables() throws KettleException {
+  public void testLdapProtocolSubstitutesEnvironmentVariables() throws HopException {
     String hostnameVar = "host_var";
     String hostConcrete = "host_concrete";
     String portVar = "port_var";
@@ -96,7 +96,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsInitialContextFactory() throws KettleException {
+  public void testLdapProtocolSetsInitialContextFactory() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
 
@@ -117,7 +117,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsDerefAliases() throws KettleException {
+  public void testLdapProtocolSetsDerefAliases() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String deref = "TEST_DEREF";
@@ -138,7 +138,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsReferral() throws KettleException {
+  public void testLdapProtocolSetsReferral() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String referral = "TEST_REFERRAL";
@@ -159,7 +159,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws KettleException {
+  public void testLdapProtocolAddsLdapPrefixIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     when( mockLdapMeta.getHost() ).thenReturn( hostConcrete );
@@ -180,7 +180,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws KettleException {
+  public void testLdapProtocolSkipsAddingLdapPrefixIfNecessary() throws HopException {
     String hostnameConcrete = "host_concrete";
     String hostConcrete = "ldap://" + hostnameConcrete;
     String portConcrete = "12345";
@@ -202,7 +202,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSetsCredentialsIfNecessary() throws KettleException {
+  public void testLdapProtocolSetsCredentialsIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     String username = "TEST_USERNAME";
@@ -226,7 +226,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolSkipsCredentialsIfNecessary() throws KettleException {
+  public void testLdapProtocolSkipsCredentialsIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
 
@@ -246,7 +246,7 @@ public class LdapProtocolIT {
   }
 
   @Test
-  public void testLdapProtocolAddsBinaryAttributesIfNecessary() throws KettleException {
+  public void testLdapProtocolAddsBinaryAttributesIfNecessary() throws HopException {
     String hostConcrete = "host_concrete";
     String portConcrete = "12345";
     Set<String> binaryAttributes = new HashSet<String>();

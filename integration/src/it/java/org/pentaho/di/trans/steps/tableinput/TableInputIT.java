@@ -20,33 +20,33 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.tableinput;
+package org.apache.hop.trans.steps.tableinput;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 import junit.framework.TestCase;
 
@@ -120,7 +120,7 @@ public class TableInputIT extends TestCase {
       db.getCreateTableStatement( source_table, createSourceRowMetaInterface(), null, false, null, true );
     try {
       db.execStatement( source );
-    } catch ( KettleException ex ) {
+    } catch ( HopException ex ) {
       fail( "failure while creating table " + source_table + ": " + ex.getMessage() );
     }
   }
@@ -232,7 +232,7 @@ public class TableInputIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + " is not equal" );
       }
 
@@ -246,7 +246,7 @@ public class TableInputIT extends TestCase {
    * The query in the table input step has one '?' and this parameter is filled by values read from an input hop.
    */
   public void testTableInputWithParam() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

@@ -20,7 +20,7 @@
  * ****************************************************************************
  */
 
-package org.pentaho.di.repository;
+package org.apache.hop.repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -35,23 +35,23 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.repository.kdr.KettleDatabaseRepository;
-import org.pentaho.di.repository.kdr.KettleDatabaseRepositoryCreationHelper;
-import org.pentaho.di.repository.kdr.KettleDatabaseRepositoryMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.getxmldata.GetXMLDataField;
-import org.pentaho.di.trans.steps.getxmldata.GetXMLDataMeta;
-import org.pentaho.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.repository.kdr.HopDatabaseRepository;
+import org.apache.hop.repository.kdr.HopDatabaseRepositoryCreationHelper;
+import org.apache.hop.repository.kdr.HopDatabaseRepositoryMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.getxmldata.GetXMLDataField;
+import org.apache.hop.trans.steps.getxmldata.GetXMLDataMeta;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 
 /**
- * This class serves as a collection of tests for transformation steps and other Kettle capabilities
+ * This class serves as a collection of tests for transformation steps and other Hop capabilities
  * that need to interact with a database repository. It offers performance benefits over putting
  * repo-related tests into the individual unit test classes, as it is a test suite that establishes
  * a connection to the test database repository once before all internal test cases are executed,
@@ -62,8 +62,8 @@ import org.pentaho.metastore.stores.memory.MemoryMetaStore;
  */
 public class RepositoryUnitIT extends TestSuite {
 
-  protected static KettleDatabaseRepositoryMeta repositoryMeta;
-  protected static KettleDatabaseRepository repository;
+  protected static HopDatabaseRepositoryMeta repositoryMeta;
+  protected static HopDatabaseRepository repository;
   protected static DatabaseMeta connection;
   protected static PluginRegistry registry;
   protected static String filename; // The H2 database backing file
@@ -79,7 +79,7 @@ public class RepositoryUnitIT extends TestSuite {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     registry = PluginRegistry.getInstance();
 
@@ -90,11 +90,11 @@ public class RepositoryUnitIT extends TestSuite {
     try {
       DatabaseMeta databaseMeta = new DatabaseMeta( "H2Repo", "H2", "JDBC", null, filename, null, null, null );
       repositoryMeta =
-        new KettleDatabaseRepositoryMeta( "KettleDatabaseRepository", "H2Repo", "H2 Repository", databaseMeta );
-      repository = new KettleDatabaseRepository();
+        new HopDatabaseRepositoryMeta( "HopDatabaseRepository", "H2Repo", "H2 Repository", databaseMeta );
+      repository = new HopDatabaseRepository();
       repository.init( repositoryMeta );
       repository.connectionDelegate.connect( true, true );
-      KettleDatabaseRepositoryCreationHelper helper = new KettleDatabaseRepositoryCreationHelper( repository );
+      HopDatabaseRepositoryCreationHelper helper = new HopDatabaseRepositoryCreationHelper( repository );
       helper.createRepositorySchema( null, false, new ArrayList<String>(), false );
 
       // Reconnect as admin
@@ -103,7 +103,7 @@ public class RepositoryUnitIT extends TestSuite {
 
     } catch ( Exception e ) {
       e.printStackTrace();
-      throw new KettleException( "Error during database repository unit testing", e );
+      throw new HopException( "Error during database repository unit testing", e );
     }
   }
 
@@ -150,11 +150,11 @@ public class RepositoryUnitIT extends TestSuite {
    * field value(s) are equal to what was saved.
    *
    * Test method for
-   * {@link org.pentaho.di.trans.steps.getxmldata.GetXMLDataMeta#readRep(org.pentaho.di.repository.Repository,
-   * org.pentaho.di.repository.ObjectId, java.util.List, java.util.Map)}
+   * {@link org.apache.hop.trans.steps.getxmldata.GetXMLDataMeta#readRep(org.apache.hop.repository.Repository,
+   * org.apache.hop.repository.ObjectId, java.util.List, java.util.Map)}
    * . Test method for
-   * {@link org.pentaho.di.trans.steps.getxmldata.GetXMLDataMeta#saveRep(org.pentaho.di.repository.Repository,
-   * org.pentaho.di.repository.ObjectId, jorg.pentaho.di.repository.ObjectId)}
+   * {@link org.apache.hop.trans.steps.getxmldata.GetXMLDataMeta#saveRep(org.apache.hop.repository.Repository,
+   * org.apache.hop.repository.ObjectId, jorg.apache.hop.repository.ObjectId)}
    * .
    */
   @Test
@@ -222,7 +222,7 @@ public class RepositoryUnitIT extends TestSuite {
       // Check that the value of Result Type is what was saved in the repo
       assertEquals( newMeta.getInputFields()[0].getResultTypeCode(), "singlenode" );
 
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       fail( "Test failed due to exception: " + e.getLocalizedMessage() );
     }
   }

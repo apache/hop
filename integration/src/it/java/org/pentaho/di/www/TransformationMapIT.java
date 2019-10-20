@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import junit.framework.TestCase;
 

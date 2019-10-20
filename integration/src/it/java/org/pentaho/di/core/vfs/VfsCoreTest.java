@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.vfs;
+package org.apache.hop.core.vfs;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,7 +29,7 @@ import java.io.OutputStreamWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.vfs2.FileObject;
-import org.pentaho.di.core.Const;
+import org.apache.hop.core.Const;
 
 public class VfsCoreTest extends TestCase {
 
@@ -39,8 +39,8 @@ public class VfsCoreTest extends TestCase {
   public void testWriteReadFile() throws Exception {
     // Write a text
     //
-    FileObject tempFile = KettleVFS.createTempFile( "prefix", "suffix", tmpDir );
-    OutputStream outputStream = KettleVFS.getOutputStream( tempFile, false );
+    FileObject tempFile = HopVFS.createTempFile( "prefix", "suffix", tmpDir );
+    OutputStream outputStream = HopVFS.getOutputStream( tempFile, false );
     OutputStreamWriter writer = new OutputStreamWriter( outputStream );
     writer.write( content );
     writer.close();
@@ -48,7 +48,7 @@ public class VfsCoreTest extends TestCase {
 
     // Read it back...
     //
-    InputStream inputStream = KettleVFS.getInputStream( tempFile );
+    InputStream inputStream = HopVFS.getInputStream( tempFile );
     StringBuffer buffer = new StringBuffer();
     int c;
     while ( ( c = inputStream.read() ) >= 0 ) {
@@ -61,7 +61,7 @@ public class VfsCoreTest extends TestCase {
     // Now open the data as a regular file...
     //
     String url = tempFile.getName().getURI();
-    String textFileContent = KettleVFS.getTextFileContent( url, Const.XML_ENCODING );
+    String textFileContent = HopVFS.getTextFileContent( url, Const.XML_ENCODING );
 
     // Now delete the file...
     //

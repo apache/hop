@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.util;
+package org.apache.hop.ui.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.sftp;
+package org.apache.hop.job.entries.sftp;
 
 import static org.junit.Assert.assertTrue;
 
@@ -37,8 +37,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.vfs.KettleVFS;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.vfs.HopVFS;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
@@ -55,7 +55,7 @@ public class SFTPClientIT {
 
   @BeforeClass
   public static void startServer() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     folder = new TemporaryFolder();
     folder.create();
@@ -129,9 +129,9 @@ public class SFTPClientIT {
     channel.connect();
     channel.put( new ByteArrayInputStream( data ), "downloaded.txt" );
 
-    client.get( KettleVFS.getFileObject( "ram://downloaded.txt" ), "downloaded.txt" );
+    client.get( HopVFS.getFileObject( "ram://downloaded.txt" ), "downloaded.txt" );
 
-    FileObject downloaded = KettleVFS.getFileObject( "ram://downloaded.txt" );
+    FileObject downloaded = HopVFS.getFileObject( "ram://downloaded.txt" );
     assertTrue( downloaded.exists() );
     assertTrue( IOUtils.contentEquals( downloaded.getContent().getInputStream(), new ByteArrayInputStream( data ) ) );
   }

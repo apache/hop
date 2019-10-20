@@ -20,22 +20,22 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.run;
+package org.apache.hop.run;
 
 import java.text.DecimalFormat;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.RowListener;
-import org.pentaho.di.trans.step.StepInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.RowListener;
+import org.apache.hop.trans.step.StepInterface;
 
 public class TimedTransRunner {
   private String filename;
@@ -81,14 +81,14 @@ public class TimedTransRunner {
       + speedDF.format( speed ) + " rows/s" );
   }
 
-  public boolean runEngine() throws KettleException {
+  public boolean runEngine() throws HopException {
     return runEngine( false );
   }
 
-  public boolean runEngine( boolean printDescription ) throws KettleException {
+  public boolean runEngine( boolean printDescription ) throws HopException {
     System.gc();
 
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     transMeta = new TransMeta( filename );
     transMeta.setVariable( "NR_OF_ROWS", Long.toString( records ) );
@@ -108,7 +108,7 @@ public class TimedTransRunner {
     try {
       trans.prepareExecution( null );
     } catch ( Exception e ) {
-      System.err.println( KettleLogStore.getAppender().getBuffer( trans.getLogChannelId(), true ) );
+      System.err.println( HopLogStore.getAppender().getBuffer( trans.getLogChannelId(), true ) );
 
       trans.getLogChannel().logError( "Error preparing / initializing transformation", e );
 

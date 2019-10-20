@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.groupby;
+package org.apache.hop.trans.steps.groupby;
 
 import org.pentaho.test.util.SingleThreadedExecutionGuarder;
 

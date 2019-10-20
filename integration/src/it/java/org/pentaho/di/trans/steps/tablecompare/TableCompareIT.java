@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.tablecompare;
+package org.apache.hop.trans.steps.tablecompare;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,23 +33,23 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleDatabaseException;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.logging.LoggingObjectType;
-import org.pentaho.di.core.logging.SimpleLoggingObject;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 public class TableCompareIT {
 
@@ -59,7 +59,7 @@ public class TableCompareIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
     log = new SimpleLoggingObject( "junit", LoggingObjectType.GENERAL, null );
     databaseMeta =
         new DatabaseMeta( "TableCompare", "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
@@ -136,11 +136,11 @@ public class TableCompareIT {
   /**
    * PDI-7255 - The table compare step reports incorrect record as missing
    *
-   * @throws KettleException
+   * @throws HopException
    * @throws IOException
    */
   @Test
-  public void testMissedReferenceLinesAreRepored() throws KettleException, IOException {
+  public void testMissedReferenceLinesAreRepored() throws HopException, IOException {
     // prepare database
     executeSqlPrecondition( "PDI-7255.sql" );
 
@@ -179,10 +179,10 @@ public class TableCompareIT {
    * Test table compare test can handle complex keys comparison
    *
    * @throws IOException
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testComplexKeysComparsion() throws IOException, KettleException {
+  public void testComplexKeysComparsion() throws IOException, HopException {
     executeSqlPrecondition( "complex_key_test.sql" );
 
     TableCompareMeta meta = getTableCompareMeta();
@@ -221,10 +221,10 @@ public class TableCompareIT {
    * Test compare table if reference table is empty
    *
    * @throws IOException
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueNotExistsReference() throws IOException, KettleException {
+  public void testValueNotExistsReference() throws IOException, HopException {
     executeSqlPrecondition( "compare_only.sql" );
 
     TableCompareMeta meta = getTableCompareMeta();
@@ -255,10 +255,10 @@ public class TableCompareIT {
    * Test compare table reference table is empty
    *
    * @throws IOException
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueNotExistedInCompare() throws IOException, KettleException {
+  public void testValueNotExistedInCompare() throws IOException, HopException {
     executeSqlPrecondition( "reference_only.sql" );
 
     TableCompareMeta meta = getTableCompareMeta();
@@ -287,10 +287,10 @@ public class TableCompareIT {
    * Test that step reports value comparison errors
    *
    * @throws IOException
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueComparsion() throws IOException, KettleException {
+  public void testValueComparsion() throws IOException, HopException {
     executeSqlPrecondition( "complex_key_test.sql" );
 
     TableCompareMeta meta = getTableCompareMeta();
@@ -327,10 +327,10 @@ public class TableCompareIT {
    * Test that step can ignore excluded values during comparison
    *
    * @throws IOException
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueExcludeComparsion() throws IOException, KettleException {
+  public void testValueExcludeComparsion() throws IOException, HopException {
     executeSqlPrecondition( "complex_key_test.sql" );
 
     TableCompareMeta meta = getTableCompareMeta();
@@ -379,7 +379,7 @@ public class TableCompareIT {
     return meta;
   }
 
-  private void executeSqlPrecondition( String sqlFile ) throws IOException, KettleDatabaseException {
+  private void executeSqlPrecondition( String sqlFile ) throws IOException, HopDatabaseException {
     String path = PKG + sqlFile;
     InputStream input = TableCompareIT.class.getClassLoader().getResourceAsStream( PKG + sqlFile );
     if ( input == null ) {

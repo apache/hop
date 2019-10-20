@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptvalues_mod;
+package org.apache.hop.trans.steps.scriptvalues_mod;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,30 +29,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBoolean;
-import org.pentaho.di.core.row.value.ValueMetaDate;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 import junit.framework.TestCase;
 
@@ -265,7 +265,7 @@ public class JavaScriptSpecialIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + " is not equal" );
       }
 
@@ -277,7 +277,7 @@ public class JavaScriptSpecialIT extends TestCase {
    * Test case for javascript functionality: ltrim(), rtrim(), trim().
    */
   public void testLuhnCheck() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -378,7 +378,7 @@ public class JavaScriptSpecialIT extends TestCase {
    * PDI-364.
    */
   public void testTransStatus() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -479,7 +479,7 @@ public class JavaScriptSpecialIT extends TestCase {
    * Test case for JavaScript/Java/JavaScript interfacing.
    */
   public void disabledTestJavaInterface() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -512,15 +512,15 @@ public class JavaScriptSpecialIT extends TestCase {
         ScriptValuesScript.TRANSFORM_SCRIPT,
         "script1",
         "java;\n\n"
-          + "var obj     = new Packages.org.pentaho.di.trans.steps.scriptvalues_mod.JavaScriptTest();\n"
+          + "var obj     = new Packages.org.apache.hop.trans.steps.scriptvalues_mod.JavaScriptTest();\n"
           + "var long1   = obj.add1ToLong(getInputRowMeta().getInteger(row, 0));\n"
           + "var number1 = obj.add1ToNumber(getInputRowMeta().getNumber(row, 1));\n"
           + "var string1 = obj.add1ToString(getInputRowMeta().getString(row, 2));\n"
-          + "var long2   = Packages.org.pentaho.di.trans.steps.scriptvalues_mod."
+          + "var long2   = Packages.org.apache.hop.trans.steps.scriptvalues_mod."
           + "JavaScriptTest.add1ToLongStatic(getInputRowMeta().getInteger(row, 0));\n"
-          + "var number2 = Packages.org.pentaho.di.trans.steps.scriptvalues_mod."
+          + "var number2 = Packages.org.apache.hop.trans.steps.scriptvalues_mod."
           + "JavaScriptTest.add1ToNumberStatic(getInputRowMeta().getNumber(row, 1));\n"
-          + "var string2 = Packages.org.pentaho.di.trans.steps.scriptvalues_mod."
+          + "var string2 = Packages.org.apache.hop.trans.steps.scriptvalues_mod."
           + "JavaScriptTest.add1ToStringStatic(getInputRowMeta().getString(row, 2));\n" ) };
     svm.setJSScripts( js );
     svm.setFieldname( new String[] { "long1", "number1", "string1", "long2", "number2", "string2" } );
@@ -637,7 +637,7 @@ public class JavaScriptSpecialIT extends TestCase {
   }
 
   public void testDateAdd() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a javascript step

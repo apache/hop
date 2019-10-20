@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di;
+package org.apache.hop;
 
 public class TestFailedException extends Exception {
 

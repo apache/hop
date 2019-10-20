@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.memgroupby;
+package org.apache.hop.trans.steps.memgroupby;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,20 +30,20 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBigNumber;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.steps.groupby.GroupByMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.steps.groupby.GroupByMeta;
 
 public class MemoryGroupByIntIT {
 
@@ -59,8 +59,8 @@ public class MemoryGroupByIntIT {
   public static final String OUT4 = "out4";
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void before() throws HopException {
+    HopEnvironment.init( false );
   }
 
   RowMetaInterface getTestRowMeta() {
@@ -101,7 +101,7 @@ public class MemoryGroupByIntIT {
    * See PDI-12501 for details
    */
   @Test
-  public void testMemoryGroupByNoInputData() throws KettleException {
+  public void testMemoryGroupByNoInputData() throws HopException {
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setSubjectField( new String[]{ KEY2 } );
     meta.setAggregateField( new String[]{ OUT1 } );
@@ -114,7 +114,7 @@ public class MemoryGroupByIntIT {
     try {
       result =
         TransTestFactory.executeTestTransformation( transMeta, stepName, inputList );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       Assert.fail();
     }
     Assert.assertNotNull( result );
@@ -127,7 +127,7 @@ public class MemoryGroupByIntIT {
    * See PDI-15415 for details
    */
   @Test
-  public void testMemoryGroupByAlwaysReturnARow() throws KettleException {
+  public void testMemoryGroupByAlwaysReturnARow() throws HopException {
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setSubjectField( new String[]{ KEY2 } );
     meta.setAggregateField( new String[]{ OUT1 } );
@@ -141,7 +141,7 @@ public class MemoryGroupByIntIT {
     try {
       result =
         TransTestFactory.executeTestTransformation( transMeta, stepName, inputList );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       Assert.fail();
     }
     Assert.assertNotNull( result );
@@ -160,9 +160,9 @@ public class MemoryGroupByIntIT {
    * bugs. Uncomment code when PDI-11897 will be fixed some day.
    */
   @Test
-  public void testMemoryGroupByNullAggregationsConversion() throws KettleException {
+  public void testMemoryGroupByNullAggregationsConversion() throws HopException {
     // this to force null aggregations becomes nulls
-    System.getProperties().setProperty( Const.KETTLE_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y" );
+    System.getProperties().setProperty( Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y" );
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setSubjectField( new String[] { KEY1, KEY2, KEY3, KEY4 } );

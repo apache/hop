@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.groupby;
+package org.apache.hop.trans.steps.groupby;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,19 +30,19 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBigNumber;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 /**
  * 'Int' is added just to avoid name conflicts with engine/test_src existing class.
@@ -62,8 +62,8 @@ public class GroupByIntIT {
   public static final String OUT4 = "out4";
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init();
+  public static void before() throws HopException {
+    HopEnvironment.init();
   }
 
   List<RowMetaAndData> getTestRowMetaAndData( int count, Integer[] nulls ) {
@@ -98,12 +98,12 @@ public class GroupByIntIT {
    * We must be correct if it is 0L, or it is double 0, or it is BigDecimal 0. 
    * Not keep attention to java class conversions we can get specific errors on UI :(   * 
    * 
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testGroupByNullAggregationsConversion() throws KettleException {
+  public void testGroupByNullAggregationsConversion() throws HopException {
     // this to force null aggregations becomes nulls
-    System.getProperties().setProperty( Const.KETTLE_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y" );
+    System.getProperties().setProperty( Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y" );
 
     GroupByMeta meta = new GroupByMeta();
     meta.setSubjectField( new String[] { KEY1, KEY2, KEY3, KEY4 } );

@@ -20,12 +20,12 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Test;
-import org.pentaho.di.base.AbstractMeta;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.repository.Repository;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.repository.Repository;
 
 import java.util.List;
 

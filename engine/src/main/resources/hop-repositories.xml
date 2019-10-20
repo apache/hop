@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repositories>
+
+    <!-- NOTE i18n arguments are : i18n package and key separated by colon (:)
+    --> 
+
+	<repository id="HopDatabaseRepository">
+		<description>i18n:org.apache.hop.repository:RepositoryType.Name.HopDatabaseRepository</description>
+		<tooltip>i18n:org.apache.hop.repository:RepositoryType.Description.HopDatabaseRepository</tooltip>
+		<classname>org.apache.hop.repository.kdr.HopDatabaseRepository</classname>
+		<meta-classname>org.apache.hop.repository.kdr.HopDatabaseRepositoryMeta</meta-classname>
+		<version-browser-classname/>
+	</repository>
+   
+	<repository id="HopFileRepository">
+		<description>i18n:org.apache.hop.repository:RepositoryType.Name.HopFileRepository</description>
+		<tooltip>i18n:org.apache.hop.repository:RepositoryType.Description.HopFileRepository</tooltip>
+		<classname>org.apache.hop.repository.filerep.HopFileRepository</classname>
+		<meta-classname>org.apache.hop.repository.filerep.HopFileRepositoryMeta</meta-classname>
+		<version-browser-classname/>
+	</repository>
+
+</repositories>

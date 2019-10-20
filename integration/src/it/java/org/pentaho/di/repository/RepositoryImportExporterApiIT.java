@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.repository;
+package org.apache.hop.repository;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.ProgressMonitorListener;
+import org.apache.hop.core.ProgressMonitorListener;
 
 public class RepositoryImportExporterApiIT extends TestCase {
 

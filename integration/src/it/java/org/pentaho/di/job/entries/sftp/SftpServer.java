@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.sftp;
+package org.apache.hop.job.entries.sftp;
 
 import java.io.IOException;
 import java.util.Collections;

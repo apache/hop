@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.sftp;
+package org.apache.hop.job.entries.sftp;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -33,12 +33,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.utils.TestUtils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.job.Job;
+import org.apache.hop.utils.TestUtils;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
@@ -54,7 +54,7 @@ public class JobEntrySFTPIT {
 
   @BeforeClass
   public static void prepareEnv() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     folder = new TemporaryFolder();
     folder.create();
@@ -75,7 +75,7 @@ public class JobEntrySFTPIT {
   @Test
   public void getFile_WhenDestinationIsSetViaVariable() throws Exception {
     final String localDir = TestUtils.createTempDir();
-    KettleVFS.getFileObject( localDir ).createFolder();
+    HopVFS.getFileObject( localDir ).createFolder();
 
     final String myVar = "my-var";
 
@@ -101,7 +101,7 @@ public class JobEntrySFTPIT {
 
     job.execute( new Result(), 1 );
 
-    FileObject downloaded = KettleVFS.getFileObject( localDir + "/" + fileName );
+    FileObject downloaded = HopVFS.getFileObject( localDir + "/" + fileName );
     assertTrue( downloaded.exists() );
     downloaded.delete();
   }

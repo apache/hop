@@ -20,18 +20,18 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.job.entries.job;
+package org.apache.hop.ui.job.entries.job;
 
 import org.eclipse.swt.widgets.Shell;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.core.logging.LoggingRegistry;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.job.JobEntryJob;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.ui.core.PropsUI;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.ui.core.PropsUI;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 

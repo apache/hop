@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job;
+package org.apache.hop.job;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,11 +33,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.pentaho.di.core.database.util.DatabaseLogExceptionFactory;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.gui.JobTracker;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.parameters.UnknownParamException;
+import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.parameters.UnknownParamException;
 
 @RunWith( value = Parameterized.class )
 public class JobTrackerExecutionIT extends JobTrackerExecution {
@@ -259,9 +259,9 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
   }
 
   @Test
-  public void testJobTracker() throws UnknownParamException, KettleXMLException, URISyntaxException, IOException {
+  public void testJobTracker() throws UnknownParamException, HopXMLException, URISyntaxException, IOException {
     if ( res.setAsVariable != null ) {
-      System.getProperties().setProperty( DatabaseLogExceptionFactory.KETTLE_GLOBAL_PROP_NAME,
+      System.getProperties().setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME,
           res.setAsVariable.toString() );
     }
 
@@ -292,7 +292,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
         Assert.assertEquals( res.assertMessage + ": " + i, res.jobTrackerStatus[i], actual );
       }
     } finally {
-      System.getProperties().remove( DatabaseLogExceptionFactory.KETTLE_GLOBAL_PROP_NAME );
+      System.getProperties().remove( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME );
     }
   }
 

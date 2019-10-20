@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.pentahoreporting;
+package org.apache.hop.trans.steps.pentahoreporting;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,16 +33,16 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.steps.pentahoreporting.PentahoReportingOutputMeta.ProcessorType;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.steps.pentahoreporting.PentahoReportingOutputMeta.ProcessorType;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 
 public class PDI7502IT {
@@ -58,8 +58,8 @@ public class PDI7502IT {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     ClassicEngineBoot.getInstance().start();
-    KettleEnvironment.init( false );
-    reportFile = new File( "src/it/resources/org/pentaho/di/trans/steps/pentahoreporting/pdi-7502.prpt" );
+    HopEnvironment.init( false );
+    reportFile = new File( "src/it/resources/org.apache.hop/trans/steps/pentahoreporting/pdi-7502.prpt" );
     assertTrue( reportFile.exists() );
   }
 
@@ -77,7 +77,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -89,7 +89,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -101,7 +101,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -113,7 +113,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -125,7 +125,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -137,7 +137,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );
@@ -149,7 +149,7 @@ public class PDI7502IT {
     try {
       TransTestFactory.executeTestTransformation( tm, REPORTING_STEP_NAME, inputRows );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       // Success, the transformation failed to render the report
     }
     assertFalse( outputFile.exists() );

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.step;
+package org.apache.hop.ui.trans.step;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -42,17 +42,17 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.shared.SharedObjectInterface;
-import org.pentaho.di.shared.SharedObjects;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.ui.trans.step.BaseStepDialog.EditConnectionListener;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.shared.SharedObjects;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.trans.step.BaseStepDialog.EditConnectionListener;
 
 public class EditConnectionListenerTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static String TEST_NAME = "TEST_NAME";
 
@@ -63,8 +63,8 @@ public class EditConnectionListenerTest {
   private EditConnectionListener editConnectionListener;
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
   @Before
@@ -81,7 +81,7 @@ public class EditConnectionListenerTest {
   }
 
   @Test
-  public void replaceSharedConnection() throws IOException, KettleException {
+  public void replaceSharedConnection() throws IOException, HopException {
     dialog.transMeta.addDatabase( createDefaultDatabase( true ) );
     SharedObjects sharedObjects = mock( SharedObjects.class );
     doReturn( sharedObjects ).when( dialog.transMeta ).getSharedObjects();
@@ -104,7 +104,7 @@ public class EditConnectionListenerTest {
   }
 
   @Test
-  public void replaceSharedConnectionReturnsFalse_on_error() throws IOException, KettleException {
+  public void replaceSharedConnectionReturnsFalse_on_error() throws IOException, HopException {
     dialog.transMeta.addDatabase( createDefaultDatabase( false ) );
     SharedObjects sharedObjects = mock( SharedObjects.class );
     doThrow( Exception.class ).when( sharedObjects ).saveToFile();

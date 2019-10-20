@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.stepsmetrics;
+package org.apache.hop.trans.steps.stepsmetrics;
 
 import org.pentaho.test.util.SingleThreadedExecutionGuarder;
 

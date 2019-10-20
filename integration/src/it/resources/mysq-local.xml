@@ -678,7 +678,7 @@ FROM klanten
     <filter_position>-1</filter_position>
     <filter_string></filter_string>
     <file>
-      <name>D:\Projects\Kettle\testsuite\Spoon\ODBC-ACCESS\klanten.csv</name>
+      <name>D:\Projects\Hop\testsuite\Spoon\ODBC-ACCESS\klanten.csv</name>
       <filemask></filemask>
       <type>CSV</type>
       <zipped>N</zipped>
@@ -12344,10 +12344,10 @@ FROM D_KLANT
       <include_date>Y</include_date>
       <contact_person>Matt Casters</contact_person>
       <contact_phone>+32 486 97 29 37</contact_phone>
-      <comment>This mail was sent because an error occurred in a Kettle Job (or something other).
+      <comment>This mail was sent because an error occurred in a Hop Job (or something other).
 Please check the job specified below.
 
-Your Kettle admin!
+Your Hop admin!
 </comment>
       <parallel>N</parallel>
       <draw>Y</draw>

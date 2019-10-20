@@ -20,40 +20,40 @@
 *
 ******************************************************************************/
 
-package org.pentaho.di;
+package org.apache.hop;
 
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.pentaho.di.core.database.ConnectionPoolUtilIntegrationIT;
-import org.pentaho.di.core.database.DatabaseIT;
-import org.pentaho.di.core.parameters.ParameterSimpleTransIT;
-import org.pentaho.di.core.util.StringEvaluatorIT;
-import org.pentaho.di.trans.HopIT;
-import org.pentaho.di.trans.steps.addsequence.AddSequenceIT;
-import org.pentaho.di.trans.steps.append.AppendIT;
-import org.pentaho.di.trans.steps.blockingstep.BlockingStepIT;
-import org.pentaho.di.trans.steps.combinationlookup.CombinationLookupIT;
-import org.pentaho.di.trans.steps.constant.ConstantIT;
-import org.pentaho.di.trans.steps.csvinput.CsvInput1IT;
-import org.pentaho.di.trans.steps.csvinput.CsvInput2IT;
-import org.pentaho.di.trans.steps.detectlastrow.DetectLastRowStepIT;
-import org.pentaho.di.trans.steps.filterrows.FilterRowsIT;
-//import org.pentaho.di.trans.steps.getxmldata.GetXMLDataTest;
-import org.pentaho.di.trans.steps.gpload.GPLoadIT;
-import org.pentaho.di.trans.steps.injector.InjectorIT;
-import org.pentaho.di.trans.steps.nullif.NullIfIT;
-import org.pentaho.di.trans.steps.regexeval.RegexEvalIT;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorIT;
-import org.pentaho.di.trans.steps.scriptvalues_mod.JavaScriptSpecialIT;
-import org.pentaho.di.trans.steps.scriptvalues_mod.JavaScriptStringIT;
-import org.pentaho.di.trans.steps.sort.SortRowsIT;
-import org.pentaho.di.trans.steps.tableinput.TableInputIT;
-import org.pentaho.di.trans.steps.tableoutput.TableOutputIT;
-import org.pentaho.di.trans.steps.transexecutor.TransExecutorIT;
-import org.pentaho.di.trans.steps.valuemapper.ValueMapperIT;
-import org.pentaho.di.trans.steps.webservices.WebServiceIT;
+import org.apache.hop.core.database.ConnectionPoolUtilIntegrationIT;
+import org.apache.hop.core.database.DatabaseIT;
+import org.apache.hop.core.parameters.ParameterSimpleTransIT;
+import org.apache.hop.core.util.StringEvaluatorIT;
+import org.apache.hop.trans.HopIT;
+import org.apache.hop.trans.steps.addsequence.AddSequenceIT;
+import org.apache.hop.trans.steps.append.AppendIT;
+import org.apache.hop.trans.steps.blockingstep.BlockingStepIT;
+import org.apache.hop.trans.steps.combinationlookup.CombinationLookupIT;
+import org.apache.hop.trans.steps.constant.ConstantIT;
+import org.apache.hop.trans.steps.csvinput.CsvInput1IT;
+import org.apache.hop.trans.steps.csvinput.CsvInput2IT;
+import org.apache.hop.trans.steps.detectlastrow.DetectLastRowStepIT;
+import org.apache.hop.trans.steps.filterrows.FilterRowsIT;
+//import org.apache.hop.trans.steps.getxmldata.GetXMLDataTest;
+import org.apache.hop.trans.steps.gpload.GPLoadIT;
+import org.apache.hop.trans.steps.injector.InjectorIT;
+import org.apache.hop.trans.steps.nullif.NullIfIT;
+import org.apache.hop.trans.steps.regexeval.RegexEvalIT;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorIT;
+import org.apache.hop.trans.steps.scriptvalues_mod.JavaScriptSpecialIT;
+import org.apache.hop.trans.steps.scriptvalues_mod.JavaScriptStringIT;
+import org.apache.hop.trans.steps.sort.SortRowsIT;
+import org.apache.hop.trans.steps.tableinput.TableInputIT;
+import org.apache.hop.trans.steps.tableoutput.TableOutputIT;
+import org.apache.hop.trans.steps.transexecutor.TransExecutorIT;
+import org.apache.hop.trans.steps.valuemapper.ValueMapperIT;
+import org.apache.hop.trans.steps.webservices.WebServiceIT;
 
 /**
  * Regression tests for the PDI framework.

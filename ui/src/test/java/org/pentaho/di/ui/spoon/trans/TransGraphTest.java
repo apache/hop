@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.spoon.trans;
+package org.apache.hop.ui.spoon.trans;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,13 +34,13 @@ import org.junit.Assert;
 
 import org.eclipse.swt.events.MouseEvent;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.gui.Point;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepErrorMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.ui.spoon.Spoon;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.spoon.Spoon;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenu;
 import org.pentaho.ui.xul.dom.Document;
@@ -99,7 +99,7 @@ public class TransGraphTest {
 
   @SuppressWarnings( "unchecked" )
   @Test
-  public void testInitializeXulMenu() throws KettleException {
+  public void testInitializeXulMenu() throws HopException {
     StepMeta stepMeta = mock( StepMeta.class );
     TransGraph transGraph = mock( TransGraph.class );
     TransMeta transMeta = mock( TransMeta.class );

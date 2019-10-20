@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.excelinput;
+package org.apache.hop.trans.steps.excelinput;
 
 import static org.junit.Assert.*;
 
@@ -32,22 +32,22 @@ import java.nio.channels.FileLock;
 import java.util.Date;
 
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.spreadsheet.KCell;
-import org.pentaho.di.core.spreadsheet.KCellType;
-import org.pentaho.di.core.spreadsheet.KSheet;
-import org.pentaho.di.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.commons.io.FileUtils;
 
 public class PoiWorkBookIT {
 
   @Test
-  public void testReadData() throws KettleException {
+  public void testReadData() throws HopException {
     readData();
   }
 
   @Test
-  public void testFileDoesNotChange() throws KettleException, IOException {
+  public void testFileDoesNotChange() throws HopException, IOException {
     File fileBeforeRead = new File( "src/it/resources/sample-file.xlsx" );
     readData();
     File fileAfterRead = new File( "src/it/resources/sample-file.xlsx" );
@@ -76,7 +76,7 @@ public class PoiWorkBookIT {
     }
   }
 
-  private void readData() throws KettleException {
+  private void readData() throws HopException {
     KWorkbook workbook = WorkbookFactory.getWorkbook( SpreadSheetType.POI, "src/it/resources/sample-file.xlsx", null );
     int numberOfSheets = workbook.getNumberOfSheets();
     assertEquals( 3, numberOfSheets );

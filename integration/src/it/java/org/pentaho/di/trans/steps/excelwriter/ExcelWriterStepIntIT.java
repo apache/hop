@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.excelwriter;
+package org.apache.hop.trans.steps.excelwriter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,24 +33,24 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
-import org.pentaho.di.trans.steps.excelinput.ExcelInputField;
-import org.pentaho.di.trans.steps.excelinput.ExcelInputMeta;
-import org.pentaho.di.trans.steps.excelinput.SpreadSheetType;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
+import org.apache.hop.trans.steps.excelinput.ExcelInputField;
+import org.apache.hop.trans.steps.excelinput.ExcelInputMeta;
+import org.apache.hop.trans.steps.excelinput.SpreadSheetType;
 
 public class ExcelWriterStepIntIT {
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   private List<RowMetaAndData> getPDI11374RowMetaAndData() {
@@ -66,7 +66,7 @@ public class ExcelWriterStepIntIT {
   }
 
   @Test
-  public void testPDI11374() throws KettleException, IOException {
+  public void testPDI11374() throws HopException, IOException {
     String stepName = "Excel Writer";
     ExcelWriterStepMeta meta = new ExcelWriterStepMeta();
     meta.setDefault();
@@ -146,20 +146,20 @@ public class ExcelWriterStepIntIT {
   }
 
   @Test
-  public void testPDI14854() throws KettleException, IOException {
+  public void testPDI14854() throws HopException, IOException {
     try {
       testEmptyFileInit( true ); // An empty file should be created
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       fail();
     }
     try {
       testEmptyFileInit( false ); // No file should be created, but the transformation should not fail
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       fail();
     }
   }
 
-  public void testEmptyFileInit( boolean createEmptyFile ) throws KettleException, IOException {
+  public void testEmptyFileInit( boolean createEmptyFile ) throws HopException, IOException {
     String stepName = "Excel Writer";
     ExcelWriterStepMeta meta = new ExcelWriterStepMeta();
     meta.setDefault();

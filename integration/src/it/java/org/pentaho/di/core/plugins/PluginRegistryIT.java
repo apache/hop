@@ -20,13 +20,13 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.plugins;
+package org.apache.hop.core.plugins;
 
 import junit.framework.TestCase;
-import org.pentaho.di.core.exception.KettlePluginException;
-import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
-import org.pentaho.di.trans.steps.tableoutput.TableOutputMeta;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.tableinput.TableInputMeta;
+import org.apache.hop.trans.steps.tableoutput.TableOutputMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class PluginRegistryIT extends TestCase {
   private static final String TABLE_OUTPUT_PLUGIN_DESCRIPTION = "The table output step";
   private static final String TABLE_OUTPUT_PLUGIN_IMAGE_FILE_NAME = "/ui/images/TOP.png";
 
-  public void testPluginRegistry() throws KettlePluginException {
+  public void testPluginRegistry() throws HopPluginException {
     PluginRegistry registry = PluginRegistry.getInstance();
     assertNotNull( "Registry singleton was not found!", registry );
 
@@ -66,7 +66,7 @@ public class PluginRegistryIT extends TestCase {
 
     try {
       registry.getPluginType( pluginTypeClass );
-    } catch ( KettlePluginException kpe ) {
+    } catch ( HopPluginException kpe ) {
       // Register a new plugin type...
       registry.registerPluginType( pluginTypeClass );
     }
@@ -74,7 +74,7 @@ public class PluginRegistryIT extends TestCase {
     // See if the plugin is there...
     try {
       registry.getPluginType( pluginTypeClass );
-    } catch ( KettlePluginException kpe ) {
+    } catch ( HopPluginException kpe ) {
       fail( pluginTypeClass.getName() + " expected in the PluginRegistry but was not found!" );
     }
 
@@ -85,7 +85,7 @@ public class PluginRegistryIT extends TestCase {
     if ( plugin == null ) {
       // Register a single step plugin
       //
-      classMap.put( StepMetaInterface.class, "org.pentaho.di.trans.steps.tableinput.TableInputMeta" );
+      classMap.put( StepMetaInterface.class, "org.apache.hop.trans.steps.tableinput.TableInputMeta" );
       tableInputPlugin =
         new Plugin( new String[] { TABLE_INPUT_PLUGIN_ID, }, pluginTypeClass, StepMetaInterface.class,
           PLUGIN_INPUT_CATEGORY, TABLE_INPUT_PLUGIN_NAME, TABLE_INPUT_PLUGIN_DESCRIPTION,
@@ -113,7 +113,7 @@ public class PluginRegistryIT extends TestCase {
       // Register a second step plugin
       //
       classMap = new HashMap<Class<?>, String>();
-      classMap.put( StepMetaInterface.class, "org.pentaho.di.trans.steps.tableoutput.TableOutputMeta" );
+      classMap.put( StepMetaInterface.class, "org.apache.hop.trans.steps.tableoutput.TableOutputMeta" );
       tableOutputPlugin =
         new Plugin( new String[] { TABLE_OUTPUT_PLUGIN_ID, }, pluginTypeClass, StepMetaInterface.class,
           PLUGIN_OUTPUT_CATEGORY, TABLE_OUTPUT_PLUGIN_NAME, TABLE_OUTPUT_PLUGIN_DESCRIPTION,
@@ -177,7 +177,7 @@ public class PluginRegistryIT extends TestCase {
     }
   }
 
-  public void testPluginRegistryInit() throws KettlePluginException {
+  public void testPluginRegistryInit() throws HopPluginException {
 
     // Run an init() just to see it doesn't blow up
     //

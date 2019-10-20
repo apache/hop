@@ -19,17 +19,17 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.job.entries.copyfiles;
+package org.apache.hop.job.entries.copyfiles;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -47,7 +47,7 @@ public class JobEntryCopyFilesIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleLogStore.init();
+    HopLogStore.init();
   }
 
   @Before

@@ -20,12 +20,12 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.formula;
+package org.apache.hop.trans.steps.formula;
 
-import static org.pentaho.di.core.row.ValueMetaInterface.TRIM_TYPE_BOTH;
-import static org.pentaho.di.core.row.ValueMetaInterface.TRIM_TYPE_LEFT;
-import static org.pentaho.di.core.row.ValueMetaInterface.TRIM_TYPE_NONE;
-import static org.pentaho.di.core.row.ValueMetaInterface.TRIM_TYPE_RIGHT;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_BOTH;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_LEFT;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_NONE;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_RIGHT;
 
 import java.util.List;
 
@@ -33,16 +33,16 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 import org.pentaho.test.util.FieldAccessorUtl;
 
 public class Formula2IT {
@@ -53,17 +53,17 @@ public class Formula2IT {
   static final String KEY_RESULT = "result_value";
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init();
+  public static void before() throws HopException {
+    HopEnvironment.init();
   }
 
   @After
-  public void after() throws KettleException, NoSuchFieldException, IllegalAccessException {
+  public void after() throws HopException, NoSuchFieldException, IllegalAccessException {
     FieldAccessorUtl.resetEmptyStringIsNotNull();
   }
 
   @Test
-  public void testIsBlank_EmptyStringIsNotNull() throws KettleException {
+  public void testIsBlank_EmptyStringIsNotNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( true );
 
     final String fIsBlank = "ISBLANK([" + KEY_ARG + "])";
@@ -81,7 +81,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testIsBlank_EmptyStringIsNull() throws KettleException {
+  public void testIsBlank_EmptyStringIsNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     final String fIsBlank = "ISBLANK([" + KEY_ARG + "])";
@@ -101,7 +101,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testIsText_EmptyStringIsNotNull() throws KettleException {
+  public void testIsText_EmptyStringIsNotNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( true );
 
     final String fIsText = "ISTEXT([" + KEY_ARG + "])";
@@ -119,7 +119,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testIsText_EmptyStringIsNull() throws KettleException {
+  public void testIsText_EmptyStringIsNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     final String fIsText = "ISTEXT([" + KEY_ARG + "])";
@@ -139,7 +139,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testIsNonText_EmptyStringIsNotNull() throws KettleException {
+  public void testIsNonText_EmptyStringIsNotNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( true );
 
     final String fIsText = "ISNONTEXT([" + KEY_ARG + "])";
@@ -157,7 +157,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testIsNonText_EmptyStringIsNull() throws KettleException {
+  public void testIsNonText_EmptyStringIsNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     final String fIsText = "ISNONTEXT([" + KEY_ARG + "])";
@@ -177,7 +177,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testConcat_EmptyStringIsNotNull() throws KettleException {
+  public void testConcat_EmptyStringIsNotNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( true );
 
     final String fConcat = "[" + KEY_ARG + "] & [" + KEY_ARG2 + "]";
@@ -237,7 +237,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testConcat_EmptyStringIsNull() throws KettleException {
+  public void testConcat_EmptyStringIsNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     // TODO: this is the same as testConcat_EmptyStringIsNotNull(). Is it correct?
@@ -299,7 +299,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testCompare_EmptyStringIsNotNull() throws KettleException {
+  public void testCompare_EmptyStringIsNotNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( true );
 
     assertBooleanOperator( "a", "=", "a", true );
@@ -414,7 +414,7 @@ public class Formula2IT {
   }
 
   @Test
-  public void testCompare_EmptyStringIsNull() throws KettleException {
+  public void testCompare_EmptyStringIsNull() throws HopException {
     FieldAccessorUtl.ensureEmptyStringIsNotNull( false );
 
     // TODO: How to compare empty string and null? The flag doesn't matter now.
@@ -537,10 +537,10 @@ public class Formula2IT {
    * @param operatorTxt
    * @param strValue2
    * @param expectedResult
-   * @throws KettleException
+   * @throws HopException
    */
   private void assertBooleanOperator( String strValue1, String operatorTxt, String strValue2, Boolean expectedResult )
-    throws KettleException {
+    throws HopException {
     final String formula = "[" + KEY_ARG + "] " + operatorTxt + " [" + KEY_ARG2 + "]";
     assertBooleanFormula( formula, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
         new Object[] { strValue1, strValue2 }, expectedResult );
@@ -593,12 +593,12 @@ public class Formula2IT {
    * @param inputRowMeta
    * @param inputRowData
    * @param expectedResult
-   * @throws KettleException
+   * @throws HopException
    */
   private void assertBooleanFormula( //
       final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
       final Boolean expectedResult //
-    ) throws KettleException {
+    ) throws HopException {
     assertBooleanFormula( getMsg( inputRowData ), formula, inputRowMeta, inputRowData, expectedResult );
   }
 
@@ -609,12 +609,12 @@ public class Formula2IT {
    * @param inputRowMeta
    * @param inputRowData
    * @param expectedResult
-   * @throws KettleException
+   * @throws HopException
    */
   private void assertBooleanFormula( final String msg, //
       final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
       final Boolean expectedResult //
-    ) throws KettleException {
+    ) throws HopException {
     final int formulaType = ValueMetaInterface.TYPE_BOOLEAN;
 
     final FormulaMetaFunction function = new FormulaMetaFunction( KEY_RESULT, formula, formulaType, -1, -1, null );
@@ -664,12 +664,12 @@ public class Formula2IT {
    * @param inputRowMeta
    * @param inputRowData
    * @param expectedResult
-   * @throws KettleException
+   * @throws HopException
    */
   private void assertStringFormula( //
       final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
       final String expectedResult //
-    ) throws KettleException {
+    ) throws HopException {
     assertStringFormula( getMsg( inputRowData ), formula, inputRowMeta, inputRowData, expectedResult );
   }
 
@@ -680,12 +680,12 @@ public class Formula2IT {
    * @param inputRowMeta
    * @param inputRowData
    * @param expectedResult
-   * @throws KettleException
+   * @throws HopException
    */
   private void assertStringFormula( final String msg, //
       final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
       final String expectedResult //
-    ) throws KettleException {
+    ) throws HopException {
     final int formulaType = ValueMetaInterface.TYPE_STRING;
 
     final FormulaMetaFunction function = new FormulaMetaFunction( KEY_RESULT, formula, formulaType, -1, -1, null );

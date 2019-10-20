@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.xbaseinput;
+package org.apache.hop.trans.steps.xbaseinput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,17 +30,17 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 public class XBaseInputIntIT {
 
   @BeforeClass
-  public static void setUpBeforeClass() throws KettleException {
-    KettleEnvironment.init( false );
+  public static void setUpBeforeClass() throws HopException {
+    HopEnvironment.init( false );
   }
 
   List<RowMetaAndData> getEmptyRowMetaAndData() {
@@ -51,7 +51,7 @@ public class XBaseInputIntIT {
    * Timeout is needed, as the transformation may never stop if PDI-8846 regresses
    */
   @Test(timeout=10000)
-  public void testFilenameFromFieldNoFiles() throws KettleException {
+  public void testFilenameFromFieldNoFiles() throws HopException {
     String stepName = "XBase Input";
     XBaseInputMeta meta = new XBaseInputMeta();
     meta.setAcceptingFilenames( true );

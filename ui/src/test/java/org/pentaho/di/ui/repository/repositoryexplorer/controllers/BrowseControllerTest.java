@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.repository.repositoryexplorer.controllers;
+package org.apache.hop.ui.repository.repositoryexplorer.controllers;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.repository.ObjectId;
-import org.pentaho.di.ui.repository.repositoryexplorer.RepositoryExplorer;
-import org.pentaho.di.ui.repository.repositoryexplorer.model.UIRepositoryDirectory;
-import org.pentaho.di.ui.repository.repositoryexplorer.model.UIRepositoryObject;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.repository.ObjectId;
+import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorer;
+import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryDirectory;
+import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryObject;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.components.XulPromptBox;

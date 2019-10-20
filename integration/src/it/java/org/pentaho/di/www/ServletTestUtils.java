@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 public class ServletTestUtils {
   public static final String BAD_STRING = "!@#$%^&*()<>/";

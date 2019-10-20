@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.trans.steps.sftpput;
+package org.apache.hop.ui.trans.steps.sftpput;
 
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.eclipse.swt.widgets.Shell;
@@ -27,12 +27,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.job.entries.sftp.SFTPClient;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.steps.sftpput.SFTPPutMeta;
-import org.pentaho.di.ui.core.PropsUI;
+import org.apache.hop.core.Props;
+import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.steps.sftpput.SFTPPutMeta;
+import org.apache.hop.ui.core.PropsUI;
 
 import java.lang.reflect.Field;
 
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.*;
  * Created by Yury_Ilyukevich on 7/1/2015.
  */
 public class SFTPPutDialogTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static boolean changedPropsUi;
 

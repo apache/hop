@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBinary;
-import org.pentaho.di.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaString;
 
 /**
  * Tests for the Vertica Database Meta classes.

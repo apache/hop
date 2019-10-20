@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.numberrange;
+package org.apache.hop.trans.steps.numberrange;
 
 import junit.framework.TestCase;
 

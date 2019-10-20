@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,18 +36,18 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.core.xml.XMLHandler;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransConfiguration;
-import org.pentaho.di.trans.TransExecutionConfiguration;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransPreviewFactory;
-import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransConfiguration;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -109,7 +109,7 @@ public class CarteIT {
       response.parse( tester.getResponses( request.generate() ) );
 
       Node document = parse( response.getContent() );
-      String title = BaseMessages.getString( GetRootServlet.class, "GetRootServlet.KettleSlaveServer.Title" );
+      String title = BaseMessages.getString( GetRootServlet.class, "GetRootServlet.HopSlaveServer.Title" );
       Assert.assertEquals( title, findTextNode( document, "TITLE" ).getTextContent() );
       String menu = BaseMessages.getString( GetRootServlet.class, "GetRootServlet.SlaveServerMenu" );
       Assert.assertEquals( menu, findTextNode( document, "H2" ).getTextContent() );

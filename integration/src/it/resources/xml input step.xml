@@ -12,7 +12,7 @@
     <rownum>N</rownum>
     <rownum_field></rownum_field>
     <file>
-      <name>D:\Projects\SVN\javaForge\Kettle\trunk\testfiles\xmlinput testfile.xml</name>
+      <name>D:\Projects\SVN\javaForge\Hop\trunk\testfiles\xmlinput testfile.xml</name>
       <filemask></filemask>
       </file>
     <fields>

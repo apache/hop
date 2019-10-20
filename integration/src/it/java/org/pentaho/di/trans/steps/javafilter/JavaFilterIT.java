@@ -20,21 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.javafilter;
+package org.apache.hop.trans.steps.javafilter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 import static org.junit.Assert.assertTrue;
 
@@ -45,8 +45,8 @@ public class JavaFilterIT {
   private static final String fieldName = "VehicleType";
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init();
+  public static void before() throws HopException {
+    HopEnvironment.init();
   }
 
   private static List<RowMetaAndData> getInputData() {
@@ -60,7 +60,7 @@ public class JavaFilterIT {
   }
 
   @Test
-  public void testCondition() throws KettleException {
+  public void testCondition() throws HopException {
     JavaFilterMeta meta = new JavaFilterMeta();
     meta.setCondition( realCondition );
 
@@ -76,7 +76,7 @@ public class JavaFilterIT {
   }
 
   @Test
-  public void testVariableCondition() throws KettleException {
+  public void testVariableCondition() throws HopException {
     Variables varSpace = new Variables();
     varSpace.setVariable( "myVarCondition", realCondition );
 

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.combinationlookup;
+package org.apache.hop.trans.steps.combinationlookup;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -31,26 +31,26 @@ import java.sql.ResultSet;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.SQLStatement;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
-import org.pentaho.metastore.api.IMetaStore;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.tableinput.TableInputMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 
 import junit.framework.TestCase;
 
@@ -95,7 +95,7 @@ public class CombinationLookupIT extends TestCase {
   @Override
   @Before
   public void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   public RowMetaInterface createTargetRowMetaInterface() {
@@ -140,7 +140,7 @@ public class CombinationLookupIT extends TestCase {
       db.getCreateTableStatement( target_table, createTargetRowMetaInterface(), null, false, null, true );
     try {
       db.execStatement( target );
-    } catch ( KettleException ex ) {
+    } catch ( HopException ex ) {
       fail( "failure while creating table " + target_table + ": " + ex.getMessage() );
     }
 
@@ -148,7 +148,7 @@ public class CombinationLookupIT extends TestCase {
       db.getCreateTableStatement( source_table, createSourceRowMetaInterface(), null, false, null, true );
     try {
       db.execStatement( source );
-    } catch ( KettleException ex ) {
+    } catch ( HopException ex ) {
       fail( "failure while creating table " + source_table + ": " + ex.getMessage() );
     }
   }

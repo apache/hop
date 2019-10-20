@@ -19,17 +19,17 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.trans.steps.pentahoreporting;
+package org.apache.hop.trans.steps.pentahoreporting;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.datagrid.DataGridMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.datagrid.DataGridMeta;
 
 import java.io.File;
 import java.util.Arrays;
@@ -44,14 +44,14 @@ public class PentahoReportingOutputIT {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   private TransMeta transMeta;
 
   @Before
   public void prepareCommon() throws Exception {
-    transMeta = new TransMeta( "src/it/resources/org/pentaho/di/trans/steps/pentahoreporting/pdi-13434.ktr" );
+    transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/steps/pentahoreporting/pdi-13434.ktr" );
   }
 
   private void runTransformation(PentahoReportingOutputMeta.ProcessorType processorType) throws Exception {
@@ -62,7 +62,7 @@ public class PentahoReportingOutputIT {
     DataGridMeta metaGrid = (DataGridMeta) outputStep.getStepMetaInterface();
     metaGrid.getDataLines().clear();
     metaGrid.getDataLines()
-      .add( asList( "src/it/resources/org/pentaho/di/trans/steps/pentahoreporting/pdi-13434.prpt", tmp.getAbsolutePath() ) );
+      .add( asList( "src/it/resources/org.apache.hop/trans/steps/pentahoreporting/pdi-13434.prpt", tmp.getAbsolutePath() ) );
 
     StepMeta reportingStep = transMeta.findStep( "Pentaho Reporting Output" );
     PentahoReportingOutputMeta reportingMeta = (PentahoReportingOutputMeta) reportingStep.getStepMetaInterface();

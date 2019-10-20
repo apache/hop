@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.ldapinput;
+package org.apache.hop.trans.steps.ldapinput;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -31,8 +31,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.variables.VariableSpace;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.VariableSpace;
 
 public class LdapProtocolFactoryIT {
   private LdapMeta mockLdapMeta;
@@ -52,7 +52,7 @@ public class LdapProtocolFactoryIT {
   }
 
   @Test
-  public void testLdapProtocolFactoryReturnsLdapProtocolForName() throws KettleException {
+  public void testLdapProtocolFactoryReturnsLdapProtocolForName() throws HopException {
     when( mockLdapMeta.getProtocol() ).thenReturn( LdapProtocol.getName() );
     LdapProtocol protocol =
       new LdapProtocolFactory( null ).createLdapProtocol( mock( VariableSpace.class ), mockLdapMeta, null );
@@ -60,7 +60,7 @@ public class LdapProtocolFactoryIT {
   }
 
   @Test
-  public void testLdapProtocolFactoryReturnsLdapSslProtocolForName() throws KettleException {
+  public void testLdapProtocolFactoryReturnsLdapSslProtocolForName() throws HopException {
     when( mockLdapMeta.getProtocol() ).thenReturn( LdapSslProtocol.getName() );
     LdapProtocol protocol =
       new LdapProtocolFactory( null ).createLdapProtocol( mock( VariableSpace.class ), mockLdapMeta, null );
@@ -68,7 +68,7 @@ public class LdapProtocolFactoryIT {
   }
 
   @Test
-  public void testLdapProtocolFactoryReturnsLdapTlsProtocolForName() throws KettleException {
+  public void testLdapProtocolFactoryReturnsLdapTlsProtocolForName() throws HopException {
     when( mockLdapMeta.getProtocol() ).thenReturn( LdapTlsProtocol.getName() );
     LdapProtocol protocol =
       new LdapProtocolFactory( null ).createLdapProtocol( mock( VariableSpace.class ), mockLdapMeta, null );

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.widget.text;
+package org.apache.hop.ui.core.widget.text;
 
 import org.junit.Assert;
 import org.junit.Test;

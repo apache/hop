@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,24 +28,24 @@ import java.util.ListIterator;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
 
 public abstract class TransformationIT extends TestCase {
 
-  public TransformationIT() throws KettleException {
+  public TransformationIT() throws HopException {
     super();
-    KettleEnvironment.init( false );
+    HopEnvironment.init( false );
   }
 
-  public TransformationIT(String name ) throws KettleException {
+  public TransformationIT(String name ) throws HopException {
     super( name );
-    KettleEnvironment.init( false );
+    HopEnvironment.init( false );
   }
 
   public RowMetaInterface createRowMetaInterface( ValueMetaInterface... valueMetas ) {
@@ -96,7 +96,7 @@ public abstract class TransformationIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + it1.nextIndex() + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + it1.nextIndex() + " is not equal" );
       }
     }

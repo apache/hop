@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon.trans;
+package org.apache.hop.ui.spoon.trans;
 
 import org.junit.Test;
-import org.pentaho.di.core.logging.LogTableField;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.ui.core.widget.ColumnInfo;
-import org.pentaho.di.ui.core.widget.TableView;
-import org.pentaho.di.ui.spoon.Spoon;
+import org.apache.hop.core.logging.LogTableField;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.spoon.Spoon;
 
 import java.util.Arrays;
 import java.util.List;

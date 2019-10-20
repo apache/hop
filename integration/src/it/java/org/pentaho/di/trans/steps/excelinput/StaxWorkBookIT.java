@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.trans.steps.excelinput;
+package org.apache.hop.trans.steps.excelinput;
 
 import static org.junit.Assert.*;
 
@@ -32,21 +32,21 @@ import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.spreadsheet.KCell;
-import org.pentaho.di.core.spreadsheet.KCellType;
-import org.pentaho.di.core.spreadsheet.KSheet;
-import org.pentaho.di.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
 
 public class StaxWorkBookIT {
 
   @Test
-  public void testReadData() throws KettleException {
+  public void testReadData() throws HopException {
     readData();
   }
 
   @Test
-  public void testFileDoesNotChange() throws KettleException, IOException {
+  public void testFileDoesNotChange() throws HopException, IOException {
     File fileBeforeRead = new File( "src/it/resources/sample-file.xlsx" );
     readData();
     File fileAfterRead = new File( "src/it/resources/sample-file.xlsx" );
@@ -136,11 +136,11 @@ public class StaxWorkBookIT {
     assertEquals( KCellType.LABEL, cell.getType() );
   }
 
-  protected KWorkbook getWorkbook( String file, String encoding ) throws KettleException {
+  protected KWorkbook getWorkbook( String file, String encoding ) throws HopException {
     return WorkbookFactory.getWorkbook( SpreadSheetType.SAX_POI, file, encoding );
   }
 
-  private void readData() throws KettleException {
+  private void readData() throws HopException {
     KWorkbook workbook = getWorkbook( "src/it/resources/sample-file.xlsx", null );
     int numberOfSheets = workbook.getNumberOfSheets();
     assertEquals( 3, numberOfSheets );

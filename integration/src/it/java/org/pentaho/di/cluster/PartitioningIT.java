@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.cluster;
+package org.apache.hop.cluster;
 
 import org.apache.commons.vfs2.FileObject;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransExecutionConfiguration;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.cluster.TransSplitter;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.cluster.TransSplitter;
 
 public class PartitioningIT extends BaseCluster {
 
@@ -48,7 +48,7 @@ public class PartitioningIT extends BaseCluster {
 
       TransMeta transMeta =
           loadAndModifyTestTransformation( clusterGenerator,
-              "src/it/resources/org/pentaho/di/cluster/partitioning-swimming-lanes-on-cluster.ktr" );
+              "src/it/resources/org.apache.hop/cluster/partitioning-swimming-lanes-on-cluster.ktr" );
       TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
       TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
       long nrErrors =
@@ -66,7 +66,7 @@ public class PartitioningIT extends BaseCluster {
 
         // Remove the output file : we don't want to leave too much clutter around
         //
-        FileObject file = KettleVFS.getFileObject( transMeta.environmentSubstitute( filename ) );
+        FileObject file = HopVFS.getFileObject( transMeta.environmentSubstitute( filename ) );
         file.delete();
       }
 
@@ -99,7 +99,7 @@ public class PartitioningIT extends BaseCluster {
 
       TransMeta transMeta =
           loadAndModifyTestTransformation( clusterGenerator,
-              "src/it/resources/org/pentaho/di/cluster/partitioning-repartitioning-on-cluster.ktr" );
+              "src/it/resources/org.apache.hop/cluster/partitioning-repartitioning-on-cluster.ktr" );
       TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
       TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
       long nrErrors =
@@ -117,7 +117,7 @@ public class PartitioningIT extends BaseCluster {
 
         // Remove the output file : we don't want to leave too much clutter around
         //
-        FileObject file = KettleVFS.getFileObject( transMeta.environmentSubstitute( filename ) );
+        FileObject file = HopVFS.getFileObject( transMeta.environmentSubstitute( filename ) );
         file.delete();
       }
 
@@ -148,7 +148,7 @@ public class PartitioningIT extends BaseCluster {
 
       TransMeta transMeta =
           loadAndModifyTestTransformation( clusterGenerator,
-              "src/it/resources/org/pentaho/di/cluster/partitioning-repartitioning-on-cluster3.ktr" );
+              "src/it/resources/org.apache.hop/cluster/partitioning-repartitioning-on-cluster3.ktr" );
       TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
       TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
       long nrErrors =
@@ -163,7 +163,7 @@ public class PartitioningIT extends BaseCluster {
 
       // Remove the output file : we don't want to leave too much clutter around
       //
-      // FileObject file = KettleVFS.getFileObject(transMeta.environmentSubstitute(filename));
+      // FileObject file = HopVFS.getFileObject(transMeta.environmentSubstitute(filename));
       // file.delete();
     } catch ( Exception e ) {
       e.printStackTrace();
@@ -191,7 +191,7 @@ public class PartitioningIT extends BaseCluster {
       clusterGenerator.launchSlaveServers();
       TransMeta transMeta =
           loadAndModifyTestTransformation( clusterGenerator,
-              "src/it/resources/org/pentaho/di/cluster/test-partitioning-on-master-and-clustering.ktr" );
+              "src/it/resources/org.apache.hop/cluster/test-partitioning-on-master-and-clustering.ktr" );
       TransExecutionConfiguration config = createClusteredTransExecutionConfiguration();
       TransSplitter transSplitter = Trans.executeClustered( transMeta, config );
       long nrErrors = Trans.monitorClusteredTransformation( log, transSplitter, null );

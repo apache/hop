@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.textfileinput;
+package org.apache.hop.trans.steps.textfileinput;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,32 +34,32 @@ import java.util.Locale;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.pentaho.di.TestFailedException;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.compress.CompressionPluginType;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.TestFailedException;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
 import org.pentaho.reporting.libraries.base.util.CSVTokenizer;
 
 import junit.framework.TestCase;
 
 /**
- * This class was a "copy and modification" of Kettle's CsvInput1Test. I added comments as I was learning the
+ * This class was a "copy and modification" of Hop's CsvInput1Test. I added comments as I was learning the
  * architecture of the class.
  *
  * @author sflatley
@@ -395,7 +395,7 @@ public class TextFileInputIT extends TestCase {
   }
 
   public void testTextFileInput1() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //
@@ -465,7 +465,7 @@ public class TextFileInputIT extends TestCase {
   }
 
   public void testTextFileInput2() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Create a new transformation...
     //
@@ -519,7 +519,7 @@ public class TextFileInputIT extends TestCase {
    */
   public void testGetLine_FILE_FORMAT_MIXED() throws Exception {
     String fileLocation = "src/it/resources/example.csv";
-    InputStream inputStream = KettleVFS.getInputStream( fileLocation );
+    InputStream inputStream = HopVFS.getInputStream( fileLocation );
     InputStreamReader reader = new InputStreamReader( inputStream );
     // Grab the first line and verify it only has 4 tokens instead of 24 (the total tokens in the file)
     StringBuilder stringBuilder = new StringBuilder( 1000 );

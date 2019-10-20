@@ -20,35 +20,35 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.tableoutput;
+package org.apache.hop.trans.steps.tableoutput;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 import junit.framework.TestCase;
 
@@ -77,7 +77,7 @@ public class TableOutputIT extends TestCase {
     String source = db.getCreateTableStatement( tableName, rm, null, false, null, true );
     try {
       db.execStatement( source );
-    } catch ( KettleException ex ) {
+    } catch ( HopException ex ) {
       fail( "failure while creating table " + tableName + ": " + ex.getMessage() );
     }
   }
@@ -89,7 +89,7 @@ public class TableOutputIT extends TestCase {
     String source = "DROP TABLE " + tableName + ";";
     try {
       db.execStatement( source );
-    } catch ( KettleException ex ) {
+    } catch ( HopException ex ) {
       fail( "failure while dropping table " + tableName + ": " + ex.getMessage() );
     }
   }
@@ -235,7 +235,7 @@ public class TableOutputIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + " is not equal" );
       }
 
@@ -336,7 +336,7 @@ public class TableOutputIT extends TestCase {
    */
   @SuppressWarnings( "deprecation" )
   public void testTableOutputNormal() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -418,7 +418,7 @@ public class TableOutputIT extends TestCase {
    * the table.
    */
   public void testTableOutputJIRA897() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...
@@ -505,7 +505,7 @@ public class TableOutputIT extends TestCase {
    */
   @SuppressWarnings( "deprecation" )
   public void testTableOutputJIRA2733() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

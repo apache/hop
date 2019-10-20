@@ -20,19 +20,19 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.step.StepMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.StepMeta;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * This test was created after <a href="http://jira.pentaho.com/browse/PDI-13634">PDI-13634</a>. It verifies the process
- * of previewing field in a transformation, that contains a {@linkplain org.pentaho.di.trans.steps.mapping.Mapping
+ * of previewing field in a transformation, that contains a {@linkplain org.apache.hop.trans.steps.mapping.Mapping
  * Mapping step}.
  * <p/>
  * The input transformation is a simplified version of the one, attached to the ticket. It has a linear structure:
@@ -48,13 +48,13 @@ import static org.junit.Assert.assertEquals;
 public class TransMetaPDI13634IT {
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
   @Test
   public void shouldNotShareRowMetaInterfaceAmongDifferentSteps() throws Exception {
-    TransMeta transMeta = new TransMeta( "src/it/resources/org/pentaho/di/trans/pdi-13634.ktr" );
+    TransMeta transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/pdi-13634.ktr" );
     StepMeta mapper = transMeta.findStep( "mapper" );
     StepMeta captor = transMeta.findStep( "captor" );
 

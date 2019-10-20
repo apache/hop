@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.splitfieldtorows;
+package org.apache.hop.trans.steps.splitfieldtorows;
 
 import static org.junit.Assert.fail;
 
@@ -28,31 +28,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 /**
  * Test class for the SplitFieldToRows step.
  *
- * The expected results were obtained by running the "Split field To Rows" Kettle step with Spoon 4.3.0.
+ * The expected results were obtained by running the "Split field To Rows" Hop step with Spoon 4.3.0.
  *
  * @author Sean Flatley
  */
@@ -107,7 +107,7 @@ public class SplitFieldToRowsIT {
   }
 
   /**
-   * Splits the "stringToSplit" with the passed "delimiter". The "delimiter" is assumed by this method to be a Kettle
+   * Splits the "stringToSplit" with the passed "delimiter". The "delimiter" is assumed by this method to be a Hop
    * variable. The parameter "delimiterVariableValue" should contain the variables value.
    *
    * The "isDelimiterRegex" parameter will process the use regex for pattern matching if true.
@@ -124,7 +124,7 @@ public class SplitFieldToRowsIT {
       String delimiter, String delimiterVariableValue ) {
     RowStepCollector rc = new RowStepCollector();
     try {
-      KettleEnvironment.init();
+      HopEnvironment.init();
 
       // Create a new transformation...
       TransMeta transMeta = new TransMeta();
@@ -191,8 +191,8 @@ public class SplitFieldToRowsIT {
       }
       rowProducer.finished();
       trans.waitUntilFinished();
-    } catch ( KettleException e ) {
-      fail( "KettleEnvironment exception" + e.getMessage() );
+    } catch ( HopException e ) {
+      fail( "HopEnvironment exception" + e.getMessage() );
     }
     List<RowMetaAndData> resultRows = rc.getRowsWritten();
     return resultRows;
@@ -214,7 +214,7 @@ public class SplitFieldToRowsIT {
         }
       } catch ( ArrayIndexOutOfBoundsException aiobe ) {
         fail( aiobe.getMessage() );
-      } catch ( KettleValueException kve ) {
+      } catch ( HopValueException kve ) {
         fail( kve.getMessage() );
       }
     }

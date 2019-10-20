@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.fileinput.text;
+package org.apache.hop.ui.trans.steps.fileinput.text;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,40 +42,40 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.pentaho.di.core.BlockingRowSet;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.RowSet;
-import org.pentaho.di.core.fileinput.FileInputList;
-import org.pentaho.di.core.playlist.FilePlayListAll;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.variables.Variables;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.errorhandling.FileErrorHandler;
-import org.pentaho.di.trans.steps.StepMockUtil;
-import org.pentaho.di.trans.steps.file.BaseFileField;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileFilter;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileFilterProcessor;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileInput;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileInputData;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileInputMeta;
-import org.pentaho.di.ui.core.PropsUI;
-import org.pentaho.di.ui.core.widget.TableView;
+import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
+import org.apache.hop.trans.steps.StepMockUtil;
+import org.apache.hop.trans.steps.file.BaseFileField;
+import org.apache.hop.trans.steps.fileinput.text.TextFileFilter;
+import org.apache.hop.trans.steps.fileinput.text.TextFileFilterProcessor;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInput;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInputData;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.widget.TableView;
 
 /**
  * Created by jadametz on 9/9/15.
  */
 public class TextFileInputDialogTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static boolean changedPropsUi;
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
   @BeforeClass
@@ -110,13 +110,13 @@ public class TextFileInputDialogTest {
   @Test
   public void testMinimalWidth_PDI_14253() throws Exception {
     final String virtualFile = "ram://pdi-14253.txt";
-    KettleVFS.getFileObject( virtualFile ).createFile();
+    HopVFS.getFileObject( virtualFile ).createFile();
 
     final String content = "r1c1,  r1c2\nr2c1  ,  r2c2  ";
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     bos.write( content.getBytes() );
 
-    OutputStream os = KettleVFS.getFileObject( virtualFile ).getContent().getOutputStream();
+    OutputStream os = HopVFS.getFileObject( virtualFile ).getContent().getOutputStream();
     IOUtils.copy( new ByteArrayInputStream( bos.toByteArray() ), os );
     os.close();
 
@@ -135,7 +135,7 @@ public class TextFileInputDialogTest {
 
     TextFileInputData data = new TextFileInputData();
     data.files = new FileInputList();
-    data.files.addFile( KettleVFS.getFileObject( virtualFile ) );
+    data.files.addFile( HopVFS.getFileObject( virtualFile ) );
 
     data.outputRowMeta = new RowMeta();
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
@@ -168,7 +168,7 @@ public class TextFileInputDialogTest {
     Object[] row2 = output.getRowImmediate();
     assertRow( row2, "r2c1", "r2c2" );
 
-    KettleVFS.getFileObject( virtualFile ).delete();
+    HopVFS.getFileObject( virtualFile ).delete();
 
   }
 

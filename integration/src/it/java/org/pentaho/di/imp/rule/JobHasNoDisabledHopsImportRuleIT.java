@@ -20,27 +20,27 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.imp.rule;
+package org.apache.hop.imp.rule;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.plugins.ImportRulePluginType;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.imp.rules.JobHasNoDisabledHopsImportRule;
-import org.pentaho.di.job.JobHopMeta;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.special.JobEntrySpecial;
-import org.pentaho.di.job.entry.JobEntryCopy;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.ImportRulePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.imp.rules.JobHasNoDisabledHopsImportRule;
+import org.apache.hop.job.JobHopMeta;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.special.JobEntrySpecial;
+import org.apache.hop.job.entry.JobEntryCopy;
 
 public class JobHasNoDisabledHopsImportRuleIT extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   public void testRule() throws Exception {

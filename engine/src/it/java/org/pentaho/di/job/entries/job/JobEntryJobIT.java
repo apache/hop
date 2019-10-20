@@ -20,24 +20,24 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.job;
+package org.apache.hop.job.entries.job;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.cluster.SlaveServer;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.repository.RepositoryDirectoryInterface;
-import org.pentaho.di.www.SlaveServerJobStatus;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.repository.Repository;
+import org.apache.hop.repository.RepositoryDirectoryInterface;
+import org.apache.hop.www.SlaveServerJobStatus;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +69,7 @@ public class JobEntryJobIT extends JobEntryJob {
 
   @BeforeClass
   public static void setUpBeforeClass() {
-    KettleLogStore.init();
+    HopLogStore.init();
   }
 
   @After

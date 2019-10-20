@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.job.entry;
+package org.apache.hop.ui.job.entry;
 
 import org.eclipse.swt.custom.CCombo;
 import org.junit.BeforeClass;
@@ -28,11 +28,11 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
  * @author Andrey Khayrutdinov
  */
 public class JobEntryDialog_ConnectionLine_Test {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static String INITIAL_NAME = "qwerty";
   private static String INPUT_NAME = "asdfg";
@@ -51,8 +51,8 @@ public class JobEntryDialog_ConnectionLine_Test {
   private static String INPUT_HOST = "5.6.7.8";
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
 

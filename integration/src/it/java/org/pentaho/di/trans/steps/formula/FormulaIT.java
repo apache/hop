@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.formula;
+package org.apache.hop.trans.steps.formula;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -30,17 +30,17 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBigNumber;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 public class FormulaIT {
 
@@ -51,8 +51,8 @@ public class FormulaIT {
   static final String[] keys = { KEY1, KEY2 };
 
   @BeforeClass
-  public static void before() throws KettleException {
-    KettleEnvironment.init();
+  public static void before() throws HopException {
+    HopEnvironment.init();
   }
 
   List<RowMetaAndData> getTestRowMetaAndData( int[] value ) {
@@ -92,10 +92,10 @@ public class FormulaIT {
   /**
    * PDI-7923 - Formula step requires Number value type when could be used Integer. see transf_formula_error.ktr
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueMetaIntegerConversion() throws KettleException {
+  public void testValueMetaIntegerConversion() throws HopException {
     FormulaMetaFunction function =
       new FormulaMetaFunction( KEY2, "[int_value]", ValueMetaInterface.TYPE_NUMBER, -1, -1, null );
 
@@ -121,10 +121,10 @@ public class FormulaIT {
    * PDI-7923 - Formula step requires Number value type when could be used Integer. see
    * sample-datagrid-truncating-numbers.ktr
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testValueMetaTypeNotErased() throws KettleException {
+  public void testValueMetaTypeNotErased() throws HopException {
     FormulaMetaFunction function =
       new FormulaMetaFunction( KEY2, "max([" + KEY1 + "];[" + KEY2 + "])", ValueMetaInterface.TYPE_BIGNUMBER, -1, -1,
         null );
@@ -166,7 +166,7 @@ public class FormulaIT {
     try {
       TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
         TransTestFactory.DUMMY_STEPNAME, inputList );
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       Assert.fail( "Null is not handled correctly" );
     }
   }

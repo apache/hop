@@ -20,21 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.dialog;
+package org.apache.hop.ui.core.dialog;
 
 import org.eclipse.swt.widgets.TableItem;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBase;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.trans.TransTestingUtil;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.TransTestingUtil;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Matchers.any;
@@ -49,23 +49,23 @@ import static org.mockito.Mockito.when;
 @RunWith( PowerMockRunner.class )
 public class EditRowsDialog_EmptyStringVsNull_Test {
 
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init();
+  public static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
   @Test
   public void emptyAndNullsAreNotDifferent() throws Exception {
-    System.setProperty( Const.KETTLE_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
+    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
     executeAndAssertResults( new String[]{ "", null, null } );
   }
 
 
   @Test
   public void emptyAndNullsAreDifferent() throws Exception {
-    System.setProperty( Const.KETTLE_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
+    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     executeAndAssertResults( new String[]{ "", "", "" } );
   }
 

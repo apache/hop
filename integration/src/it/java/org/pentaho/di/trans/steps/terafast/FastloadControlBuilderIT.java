@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.terafast;
+package org.apache.hop.trans.steps.terafast;
 
 import org.apache.commons.lang.SystemUtils;
 

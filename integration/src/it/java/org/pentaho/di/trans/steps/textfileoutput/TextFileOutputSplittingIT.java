@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.textfileoutput;
+package org.apache.hop.trans.steps.textfileoutput;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -29,11 +29,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleFileException;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 import java.util.List;
 
@@ -57,13 +57,13 @@ public class TextFileOutputSplittingIT {
   private TransMeta transMeta;
 
   @BeforeClass
-  public static void initKettle() throws Exception {
-    KettleEnvironment.init( false );
+  public static void initHop() throws Exception {
+    HopEnvironment.init( false );
   }
 
   @Before
   public void setUp() throws Exception {
-    transMeta = new TransMeta( "src/it/resources/org/pentaho/di/trans/steps/textfileoutput/pdi-12847.ktr" );
+    transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/steps/textfileoutput/pdi-12847.ktr" );
     transMeta.setTransformationType( TransMeta.TransformationType.Normal );
   }
 
@@ -154,8 +154,8 @@ public class TextFileOutputSplittingIT {
     assertEquals( 0, trans.getErrors() );
   }
 
-  private static FileObject getFolder() throws FileSystemException, KettleFileException {
-    return KettleVFS.getFileObject( OUTPUT_DIR );
+  private static FileObject getFolder() throws FileSystemException, HopFileException {
+    return HopVFS.getFileObject( OUTPUT_DIR );
   }
 
   private static void assertSplitFileIsCorrect( FileObject file, String expectedName, String... expectedLines )

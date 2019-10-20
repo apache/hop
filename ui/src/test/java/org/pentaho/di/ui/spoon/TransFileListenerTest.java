@@ -19,15 +19,15 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.jobexecutor.JobExecutorMeta;
-import org.pentaho.di.trans.steps.transexecutor.TransExecutorMeta;
+import org.apache.hop.core.ObjectLocationSpecificationMethod;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta;
+import org.apache.hop.trans.steps.transexecutor.TransExecutorMeta;
 
 import java.util.Arrays;
 

@@ -121,12 +121,12 @@
     <priority value="INFO"/>
   </category>
 
-  <logger name="org.pentaho.di.trans.Trans" additivity="false">
+  <logger name="org.apache.hop.trans.Trans" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="pdi-execution-appender"/>
   </logger>
 
-  <logger name="org.pentaho.di.job.Job" additivity="false">
+  <logger name="org.apache.hop.job.Job" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="pdi-execution-appender"/>
   </logger>

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.core.dialog;
+package org.apache.hop.ui.core.dialog;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -29,19 +29,19 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
-import org.pentaho.di.ui.core.PropsUI;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.ui.core.PropsUI;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 
 
 public class PreviewRowsDialogTest {
-  @ClassRule public static RestorePDIEngineEnvironment env = new RestorePDIEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void getDataForRow() throws Exception {

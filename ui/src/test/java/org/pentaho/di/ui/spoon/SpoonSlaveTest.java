@@ -20,12 +20,12 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
+import org.apache.hop.core.exception.HopException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -42,7 +42,7 @@ public class SpoonSlaveTest {
 
   @Test
   public void setErrorTextWithNoCauseException() {
-    Exception e = new KettleException( "kettleMessage" );
+    Exception e = new HopException( "kettleMessage" );
 
     SpoonSlave spoonSlave = mock( SpoonSlave.class );
     doCallRealMethod().when( spoonSlave ).setExceptionMessage( any( Exception.class ) );
@@ -55,7 +55,7 @@ public class SpoonSlaveTest {
   @Test
   public void setErrorTextWithCauseMessageException() {
     ClientProtocolException cpe = new ClientProtocolException( "causeMessage" );
-    Exception e = new KettleException( "kettleMessage", cpe );
+    Exception e = new HopException( "kettleMessage", cpe );
 
     SpoonSlave spoonSlave = mock( SpoonSlave.class );
     doCallRealMethod().when( spoonSlave ).setExceptionMessage( any( Exception.class ) );
@@ -71,7 +71,7 @@ public class SpoonSlaveTest {
   public void setErrorTextWithCauseExceptionWithoutCauseMessage() {
     //cause without message
     ClientProtocolException cpe = new ClientProtocolException(  );
-    Exception e = new KettleException( "kettleMessage", cpe );
+    Exception e = new HopException( "kettleMessage", cpe );
 
     SpoonSlave spoonSlave = mock( SpoonSlave.class );
     doCallRealMethod().when( spoonSlave ).setExceptionMessage( any( Exception.class ) );

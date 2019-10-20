@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.imp.rule;
+package org.apache.hop.imp.rule;
 
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.plugins.ImportRulePluginType;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.imp.rules.TransformationHasDescriptionImportRule;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.ImportRulePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.imp.rules.TransformationHasDescriptionImportRule;
+import org.apache.hop.trans.TransMeta;
 
 import junit.framework.TestCase;
 
@@ -37,7 +37,7 @@ public class TransformationHasDescriptionImportRuleIT extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   public void testRule() throws Exception {

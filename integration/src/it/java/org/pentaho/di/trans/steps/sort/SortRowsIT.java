@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.sort;
+package org.apache.hop.trans.steps.sort;
 
 import static org.junit.Assert.fail;
 
@@ -35,20 +35,20 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaDate;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.row.value.ValueMetaTimestamp;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.TransTestFactory;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransTestFactory;
 
 /**
  * Test class for the Sort step.
@@ -63,8 +63,8 @@ public class SortRowsIT {
   public static int MAX_COUNT = 1000;
 
   @BeforeClass
-  public static void beforeClass() throws KettleException {
-    KettleEnvironment.init();
+  public static void beforeClass() throws HopException {
+    HopEnvironment.init();
   }
 
   RowMetaInterface createStringRowMetaInterface() {
@@ -373,10 +373,10 @@ public class SortRowsIT {
   /**
    * Uses 2 fields as a group, sort descending
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void test2GrouppingSort() throws KettleException {
+  public void test2GrouppingSort() throws HopException {
     SortRowsMeta srm = new SortRowsMeta();
     srm.setSortSize( Integer.toString( MAX_COUNT / 100 ) );
 
@@ -408,10 +408,10 @@ public class SortRowsIT {
   /**
    * Test that rows can be sorted with one grouping field
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void test1GroupingSort() throws KettleException {
+  public void test1GroupingSort() throws HopException {
     SortRowsMeta srm = new SortRowsMeta();
     srm.setSortSize( Integer.toString( MAX_COUNT / 100 ) );
 
@@ -441,10 +441,10 @@ public class SortRowsIT {
   /**
    * Test rows are sorted case sensitive
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testSortCaseSensitive() throws KettleException {
+  public void testSortCaseSensitive() throws HopException {
 
     SortRowsMeta srm = new SortRowsMeta();
     srm.setSortSize( Integer.toString( MAX_COUNT / 100 ) );
@@ -477,10 +477,10 @@ public class SortRowsIT {
   /**
    * Check rows are sorted case insensitive descending.
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testStringSortedCaseInsensitive() throws KettleException {
+  public void testStringSortedCaseInsensitive() throws HopException {
     SortRowsMeta srm = new SortRowsMeta();
     srm.setSortSize( Integer.toString( MAX_COUNT / 100 ) );
     String[] sortFields = { STR };
@@ -509,7 +509,7 @@ public class SortRowsIT {
     this.checkStringSortCorrect( ret, caseSen, asc );
   }
 
-  private void checkStringSortCorrect( List<RowMetaAndData> list, boolean caseSensitive, boolean asc ) throws KettleValueException {
+  private void checkStringSortCorrect( List<RowMetaAndData> list, boolean caseSensitive, boolean asc ) throws HopValueException {
     List<String> actual = new ArrayList<String>();
     List<String> expected = new ArrayList<String>();
 
@@ -536,7 +536,7 @@ public class SortRowsIT {
     Assert.assertEquals( "Data is sorted: " + caseSen, expected, actual );
   }
 
-  private void checkGrouppingFieldSort( List<RowMetaAndData> list, boolean asc ) throws KettleValueException {
+  private void checkGrouppingFieldSort( List<RowMetaAndData> list, boolean asc ) throws HopValueException {
     Long prev = null;
     List<Long> actual = new ArrayList<Long>();
     List<Long> expected = new ArrayList<Long>();

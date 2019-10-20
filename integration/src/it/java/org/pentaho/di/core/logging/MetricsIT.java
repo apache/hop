@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.logging;
+package org.apache.hop.core.logging;
 
 import java.util.Deque;
 import java.util.List;
@@ -28,13 +28,13 @@ import java.util.Queue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.metrics.MetricsDuration;
-import org.pentaho.di.core.metrics.MetricsSnapshotInterface;
-import org.pentaho.di.core.metrics.MetricsSnapshotType;
-import org.pentaho.di.core.metrics.MetricsUtil;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.metrics.MetricsDuration;
+import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+import org.apache.hop.core.metrics.MetricsSnapshotType;
+import org.apache.hop.core.metrics.MetricsUtil;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -51,7 +51,7 @@ public class MetricsIT {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
   @Test

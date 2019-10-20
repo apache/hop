@@ -20,15 +20,15 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.missing;
+package org.apache.hop.trans.steps.missing;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,12 +42,12 @@ import static org.mockito.Mockito.verify;
 public class MissingPluginTransIT {
 
   @Before
-  public void setUp() throws KettleException {
-    KettleEnvironment.init();
+  public void setUp() throws HopException {
+    HopEnvironment.init();
   }
 
   /**
-   * Given a transformation having a step which's plugin is missing in current Kettle installation.
+   * Given a transformation having a step which's plugin is missing in current Hop installation.
    * When this transformation is executed, then execution should fail.
    */
   @Test
@@ -62,7 +62,7 @@ public class MissingPluginTransIT {
     try {
       trans.prepareExecution( null );
       fail();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       verify( log, times( 1 ) ).logError( "Step [JSON Input.0] failed to initialize!" );
     }
   }

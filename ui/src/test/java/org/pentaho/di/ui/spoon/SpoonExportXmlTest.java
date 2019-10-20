@@ -20,24 +20,24 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.spoon;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.BaseLogTable;
-import org.pentaho.di.core.logging.ChannelLogTable;
-import org.pentaho.di.core.logging.JobEntryLogTable;
-import org.pentaho.di.core.logging.JobLogTable;
-import org.pentaho.di.core.logging.MetricsLogTable;
-import org.pentaho.di.core.logging.PerformanceLogTable;
-import org.pentaho.di.core.logging.StepLogTable;
-import org.pentaho.di.core.logging.TransLogTable;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.trans.HasDatabasesInterface;
-import org.pentaho.di.trans.TransMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.BaseLogTable;
+import org.apache.hop.core.logging.ChannelLogTable;
+import org.apache.hop.core.logging.JobEntryLogTable;
+import org.apache.hop.core.logging.JobLogTable;
+import org.apache.hop.core.logging.MetricsLogTable;
+import org.apache.hop.core.logging.PerformanceLogTable;
+import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransLogTable;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.trans.HasDatabasesInterface;
+import org.apache.hop.trans.TransMeta;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -50,15 +50,15 @@ public class SpoonExportXmlTest {
   private HasDatabasesInterface mockedHasDbInterface;
   private static String PARAM_START_SYMBOL = "${";
   private static String PARAM_END_SYMBOL = "}";
-  private static String GLOBAL_PARAM = PARAM_START_SYMBOL + Const.KETTLE_STEP_LOG_SCHEMA + PARAM_END_SYMBOL;
+  private static String GLOBAL_PARAM = PARAM_START_SYMBOL + Const.HOP_STEP_LOG_SCHEMA + PARAM_END_SYMBOL;
   private static String USER_PARAM = PARAM_START_SYMBOL + "param-content" + PARAM_END_SYMBOL;
   private static String HARDCODED_VALUE = "hardcoded";
 
   private final Spoon spoon = mock( Spoon.class );
 
   @Before
-  public void setUp() throws KettleException {
-    System.setProperty( Const.KETTLE_STEP_LOG_SCHEMA, "KETTLE_STEP_LOG_DB_VALUE" );
+  public void setUp() throws HopException {
+    System.setProperty( Const.HOP_STEP_LOG_SCHEMA, "HOP_STEP_LOG_DB_VALUE" );
     mockedVariableSpace = mock( VariableSpace.class );
     mockedHasDbInterface = mock( HasDatabasesInterface.class );
   }

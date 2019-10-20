@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -46,11 +46,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.database.util.DatabaseUtil;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.i18n.BaseMessages;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.util.DatabaseUtil;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
 
 public class ConnectionPoolUtilIntegrationIT {
 
@@ -67,8 +67,8 @@ public class ConnectionPoolUtilIntegrationIT {
   Properties dsProps;
 
   @BeforeClass
-  public static void setupBeforeClass() throws KettleException {
-    KettleClientEnvironment.init();
+  public static void setupBeforeClass() throws HopException {
+    HopClientEnvironment.init();
   }
 
   @Before
@@ -212,7 +212,7 @@ public class ConnectionPoolUtilIntegrationIT {
     assertNotNull( futures );
     assertEquals( threadCount, futures.size() );
 
-    //pool should be creates only once for KettleClientEnvironment
+    //pool should be creates only once for HopClientEnvironment
     verify( logChannelInterface, atMost( 2 ) ).logBasic( captorLogMessage.capture() );
     List<String> capturedLogEntry = captorLogMessage.getAllValues();
     if ( capturedLogEntry != null && !capturedLogEntry.isEmpty() ) {

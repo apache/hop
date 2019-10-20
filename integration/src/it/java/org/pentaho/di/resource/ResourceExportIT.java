@@ -20,24 +20,24 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.resource;
+package org.apache.hop.resource;
 
 import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.job.JobMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.job.JobMeta;
 
 public class ResourceExportIT extends TestCase {
 
   public void testJobExport() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     // Load the job metadata
     //
-    String filename = "test/org/pentaho/di/resource/top-job.kjb";
+    String filename = "test/org.apache.hop/resource/top-job.kjb";
     JobMeta jobMeta = new JobMeta( filename, null, null );
 
     // This job meta object references a few transformations, another job and a mapping

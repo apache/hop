@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.prioritizestreams;
+package org.apache.hop.trans.steps.prioritizestreams;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -45,15 +45,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.pentaho.di.core.BlockingRowSet;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.RowSet;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.steps.mock.StepMockHelper;
+import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
 
 @RunWith( Parameterized.class )
 public class PrioritizeStreamsExecutionIT {
@@ -89,15 +89,15 @@ public class PrioritizeStreamsExecutionIT {
 
   @Before
   public void before() {
-    old_timeout_get = System.getProperty( Const.KETTLE_ROWSET_GET_TIMEOUT );
+    old_timeout_get = System.getProperty( Const.HOP_ROWSET_GET_TIMEOUT );
     // 1 sec
-    System.setProperty( Const.KETTLE_ROWSET_GET_TIMEOUT, "1000" );
+    System.setProperty( Const.HOP_ROWSET_GET_TIMEOUT, "1000" );
   }
 
   @After
   public void after() {
     if ( old_timeout_get != null ) {
-      System.setProperty( Const.KETTLE_ROWSET_GET_TIMEOUT, old_timeout_get );
+      System.setProperty( Const.HOP_ROWSET_GET_TIMEOUT, old_timeout_get );
     }
   }
 
@@ -130,12 +130,12 @@ public class PrioritizeStreamsExecutionIT {
    * method.
    *
    * Please pay attention, this test is based on concurrent execution environment,
-   * so put input rowset delay should correlate with KETTLE_ROWSET_GET_TIMEOUT value.
+   * so put input rowset delay should correlate with HOP_ROWSET_GET_TIMEOUT value.
    *
-   * @throws KettleException
+   * @throws HopException
    */
   @Test
-  public void testProcessRow() throws KettleException {
+  public void testProcessRow() throws HopException {
     PrioritizeStreamsData data = getTestData( code );
     PrioritizeStreamsInner ps = new PrioritizeStreamsInner( stepMockHelper );
     ps.first = false;
@@ -208,7 +208,7 @@ public class PrioritizeStreamsExecutionIT {
 
   /**
    * This class simulates working delay before actual data will be available for
-   * input stream. Pay attention to KETTLE_ROWSET_GET_TIMEOUT value. Default
+   * input stream. Pay attention to HOP_ROWSET_GET_TIMEOUT value. Default
    * value can be too small - and empty (even not started to fill) rowset will
    * be treated as empty (returns 'null' for offer method call on blocking queue).
    *

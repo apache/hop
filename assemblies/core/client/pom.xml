@@ -4,22 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pdi-core-ce</artifactId>
+    <artifactId>hop-assemblies-core-client</artifactId>
     <packaging>pom</packaging>
 
-    <name>PDI Core Client Community Edition</name>
+    <name>Hop Assemblies Core Client</name>
 
     <parent>
-        <groupId>org.pentaho.di</groupId>
-        <artifactId>pdi-core</artifactId>
-        <version>8.2.0.7-719</version>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-assemblies-core</artifactId>
+        <version>0.1.0</version>
     </parent>
 
     <properties>
         <pdi-dataservice-driver-bundle.version>${project.version}</pdi-dataservice-driver-bundle.version>
-        <ael.version>8.2.0.7-719</ael.version>
 
-        <pentaho-karaf.version>8.2.0.7-719</pentaho-karaf.version>
         <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
         <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
 
@@ -32,10 +30,10 @@
     </properties>
 
     <dependencies>
-        <!-- PDI Assemblies -->
+        <!-- Hop Assemblies -->
         <dependency>
-            <groupId>org.pentaho.di</groupId>
-            <artifactId>pdi-core-static</artifactId>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-core-static</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -46,8 +44,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.pentaho.di</groupId>
-            <artifactId>pdi-core-libs</artifactId>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-core-libs</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -57,31 +55,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>pentaho-karaf-assembly</artifactId>
-            <version>${pentaho-karaf.version}</version>
-            <classifier>client</classifier>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>pdi-dataservice-driver-bundle</artifactId>
-            <version>${pdi-dataservice-driver-bundle.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        
         <dependency>
             <groupId>pentaho</groupId>
             <artifactId>pentaho-application-launcher</artifactId>
@@ -129,49 +103,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-karaf</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>pentaho</groupId>
-                                    <artifactId>pentaho-karaf-assembly</artifactId>
-                                    <classifier>client</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${assembly.dir}/system</outputDirectory>
-                            <excludes>**/etc-pan/*.cfg,**/etc-kitchen/*.cfg,**/etc-scale/*.cfg</excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- post processing -->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>rename-unpacked-dependencies</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <echo message="Moving unpacked dependencies to the right place..."/>
-                                <move file="${assembly.dir}/system/pentaho-karaf-assembly" tofile="${assembly.dir}/system/karaf" failonerror="false"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
 

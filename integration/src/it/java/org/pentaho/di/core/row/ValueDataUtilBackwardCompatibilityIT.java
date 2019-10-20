@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.row;
+package org.apache.hop.core.row;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -33,12 +33,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.steps.calculator.CalculatorMetaFunction;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
 
 /**
  * Not yet completely finished.
@@ -109,10 +109,10 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   /**
    * @deprecated Use {@link Const#ltrim(String)} instead
-   * @throws KettleValueException
+   * @throws HopValueException
    */
   @Deprecated
-  public void testLeftTrim() throws KettleValueException {
+  public void testLeftTrim() throws HopValueException {
     assertEquals( "", ValueDataUtil.leftTrim( "" ) );
     assertEquals( "string", ValueDataUtil.leftTrim( "string" ) );
     assertEquals( "string", ValueDataUtil.leftTrim( " string" ) );
@@ -132,10 +132,10 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   /**
    * @deprecated Use {@link Const#rtrim(String)} instead
-   * @throws KettleValueException
+   * @throws HopValueException
    */
   @Deprecated
-  public void testRightTrim() throws KettleValueException {
+  public void testRightTrim() throws HopValueException {
     assertEquals( "", ValueDataUtil.rightTrim( "" ) );
     assertEquals( "string", ValueDataUtil.rightTrim( "string" ) );
     assertEquals( "string", ValueDataUtil.rightTrim( "string " ) );
@@ -155,10 +155,10 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   /**
    * @deprecated Use {@link Const#isSpace(char)} instead
-   * @throws KettleValueException
+   * @throws HopValueException
    */
   @Deprecated
-  public void testIsSpace() throws KettleValueException {
+  public void testIsSpace() throws HopValueException {
     assertTrue( ValueDataUtil.isSpace( ' ' ) );
     assertTrue( ValueDataUtil.isSpace( '\t' ) );
     assertTrue( ValueDataUtil.isSpace( '\r' ) );
@@ -170,10 +170,10 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   /**
    * @deprecated Use {@link Const#trim(String)} instead
-   * @throws KettleValueException
+   * @throws HopValueException
    */
   @Deprecated
-  public void testTrim() throws KettleValueException {
+  public void testTrim() throws HopValueException {
     assertEquals( "", ValueDataUtil.trim( "" ) );
     assertEquals( "string", ValueDataUtil.trim( "string" ) );
     assertEquals( "string", ValueDataUtil.trim( "string " ) );
@@ -225,7 +225,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   }
 
   @Test
-  public void testPlus() throws KettleValueException {
+  public void testPlus() throws HopValueException {
     
     long longValue = 1;
     
@@ -235,7 +235,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   
   public void testAdd() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "3.0" ), calculate(
       "1", "2", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Double.valueOf( "0.0" ), calculate(
@@ -245,7 +245,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "-50.0" ), calculate(
       "-100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_ADD ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "3" ), calculate(
       "1", "2", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Long.valueOf( "0" ), calculate(
@@ -255,7 +255,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "-50" ), calculate(
       "-100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_ADD ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "2.0" ).compareTo( (BigDecimal) calculate(
       "1", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
     assertEquals( 0, new BigDecimal( "0.0" ).compareTo( (BigDecimal) calculate(
@@ -268,7 +268,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testAdd3() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "6.0" ), calculate(
       "1", "2", "3", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Double.valueOf( "10.0" ), calculate(
@@ -278,7 +278,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "-55.0" ), calculate(
       "-100", "50", "-5", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_ADD3 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "3" ), calculate(
       "1", "1", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Long.valueOf( "10" ), calculate(
@@ -288,7 +288,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "-55" ), calculate(
       "-100", "50", "-5", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_ADD3 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "6.0" ).compareTo( (BigDecimal) calculate(
       "1", "2", "3", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
     assertEquals( 0, new BigDecimal( "10.0" ).compareTo( (BigDecimal) calculate(
@@ -301,19 +301,19 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testSubtract() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "10.0" ), calculate(
       "20", "10", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) );
     assertEquals( Double.valueOf( "-10.0" ), calculate(
       "10", "20", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "10" ), calculate(
       "20", "10", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_SUBTRACT ) );
     assertEquals( Long.valueOf( "-10" ), calculate(
       "10", "20", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_SUBTRACT ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "10" ).compareTo( (BigDecimal) calculate(
       "20", "10", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) ) );
     assertEquals( 0, new BigDecimal( "-10" ).compareTo( (BigDecimal) calculate(
@@ -322,7 +322,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testDivide() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "2.0" ), calculate(
       "2", "1", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Double.valueOf( "2.0" ), calculate(
@@ -332,7 +332,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "2.0" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_DIVIDE ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "2" ), calculate(
       "2", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Long.valueOf( "2" ), calculate(
@@ -342,7 +342,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "2" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_DIVIDE ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Long.valueOf( "2" ) ), calculate(
       "2", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "2" ) ), calculate(
@@ -355,7 +355,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testPercent1() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "10.0" ), calculate(
       "10", "100", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Double.valueOf( "100.0" ), calculate(
@@ -365,7 +365,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "200.0" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "10" ), calculate(
       "10", "100", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Long.valueOf( "100" ), calculate(
@@ -375,7 +375,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "200" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Long.valueOf( "10" ) ), calculate(
       "10", "100", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "100" ) ), calculate(
@@ -388,7 +388,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testPercent2() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "0.99" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Double.valueOf( "1.96" ), calculate(
@@ -398,7 +398,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "50.0" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate(
@@ -408,7 +408,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "50" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "0.99" ) ), calculate(
       "1", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.99" ) ), calculate(
@@ -421,7 +421,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testPercent3() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "1.01" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Double.valueOf( "2.04" ), calculate(
@@ -431,7 +431,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "150.0" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Long.valueOf( "2" ), calculate(
@@ -441,7 +441,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "150" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_PERCENT_3 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1.01" ).compareTo( (BigDecimal) calculate(
       "1", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
     assertEquals( 0, new BigDecimal( "2.01" ).compareTo( (BigDecimal) calculate(
@@ -454,7 +454,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testCombination1() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "2.0" ), calculate(
       "1", "1", "1", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Double.valueOf( "22.0" ), calculate(
@@ -464,7 +464,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "350" ), calculate(
       "100", "50", "5", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "2" ), calculate(
       "1", "1", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Long.valueOf( "22" ), calculate(
@@ -474,7 +474,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "350" ), calculate(
       "100", "50", "5", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_COMBINATION_1 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "2.0" ).compareTo( (BigDecimal) calculate(
       "1", "1", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
     assertEquals( 0, new BigDecimal( "22.0" ).compareTo( (BigDecimal) calculate(
@@ -487,7 +487,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testCombination2() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "1.4142135623730951" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Double.valueOf( "2.8284271247461903" ), calculate(
@@ -497,7 +497,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "111.80339887498948" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate(
       "1", "1", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate(
@@ -507,7 +507,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "100" ), calculate(
       "100", "50", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_COMBINATION_2 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1.4142135623730951" ).compareTo( (BigDecimal) calculate(
       "1", "1", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
     assertEquals( 0, new BigDecimal( "2.8284271247461903" ).compareTo( (BigDecimal) calculate(
@@ -520,7 +520,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testRound() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", ValueMetaInterface.TYPE_NUMBER,
         CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "103.0" ), calculate( "103.01", ValueMetaInterface.TYPE_NUMBER,
@@ -537,7 +537,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "-1235.0" ), calculate( "-1235.5", ValueMetaInterface.TYPE_NUMBER,
         CalculatorMetaFunction.CALC_ROUND_1 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", ValueMetaInterface.TYPE_INTEGER,
         CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", ValueMetaInterface.TYPE_INTEGER,
@@ -545,7 +545,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Long.valueOf( "-103" ), calculate( "-103", ValueMetaInterface.TYPE_INTEGER,
         CalculatorMetaFunction.CALC_ROUND_1 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.0" ) ), calculate( "1", ValueMetaInterface.TYPE_BIGNUMBER,
         CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "103.0" ) ), calculate( "103.01",
@@ -565,7 +565,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testRound2() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
         CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "2.1" ), calculate( "2.06", "1", ValueMetaInterface.TYPE_NUMBER,
@@ -587,7 +587,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     assertEquals( Double.valueOf( "-12.36" ), calculate( "-12.355", "2", ValueMetaInterface.TYPE_NUMBER,
         CalculatorMetaFunction.CALC_ROUND_2 ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
         CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
@@ -609,7 +609,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     //assertEquals( Long.valueOf( "-12360" ), calculate( "-12355", "-1", ValueMetaInterface.TYPE_INTEGER,
     //    CalculatorMetaFunction.CALC_ROUND_2 ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.0" ) ), calculate( "1", "1",
         ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "2.1" ) ), calculate( "2.06", "1",
@@ -634,7 +634,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   public void testNVL() {
 
-    // Test Kettle number types
+    // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate(
       "1", "", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Double.valueOf( "2.0" ), calculate(
@@ -643,13 +643,13 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
       "10", "20", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_NVL ) );
 
-    // Test Kettle string types
+    // Test Hop string types
     assertEquals( "1", calculate( "1", "", ValueMetaInterface.TYPE_STRING, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( "2", calculate( "", "2", ValueMetaInterface.TYPE_STRING, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( "10", calculate( "10", "20", ValueMetaInterface.TYPE_STRING, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_STRING, CalculatorMetaFunction.CALC_NVL ) );
 
-    // Test Kettle Integer (Java Long) types
+    // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate(
       "1", "", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Long.valueOf( "2" ), calculate(
@@ -658,7 +658,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
       "10", "20", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_NVL ) );
 
-    // Test Kettle big Number types
+    // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1" ).compareTo( (BigDecimal) calculate(
       "1", "", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
     assertEquals( 0, new BigDecimal( "2" ).compareTo( (BigDecimal) calculate(
@@ -674,7 +674,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
       "false", "true", ValueMetaInterface.TYPE_BOOLEAN, CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_BOOLEAN, CalculatorMetaFunction.CALC_NVL ) );
 
-    // Test Kettle date
+    // Test Hop date
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat( yyyy_MM_dd );
 
     try {
@@ -716,7 +716,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
       // assertEquals(binaryValueMeta.convertData(new ValueMeta("dummy", ValueMeta.TYPE_STRING), "101"),
       // calculate("101", "", ValueMetaInterface.TYPE_BINARY, CalculatorMetaFunction.CALC_NVL));
-    } catch ( KettleValueException kve ) {
+    } catch ( HopValueException kve ) {
       fail( kve.getMessage() );
     }
   }
@@ -841,7 +841,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
         fail( "Invalid CalculatorMetaFunction specified." );
         return null;
       }
-    } catch ( KettleValueException kve ) {
+    } catch ( HopValueException kve ) {
       fail( kve.getMessage() );
       return null;
     }

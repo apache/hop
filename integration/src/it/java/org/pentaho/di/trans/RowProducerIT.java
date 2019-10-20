@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.RowSet;
-import org.pentaho.di.core.row.RowMetaInterface;
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.row.RowMetaInterface;
 
 /**
  * Tests for RowProducer

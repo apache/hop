@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.repositoryexplorer.model;
+package org.apache.hop.repositoryexplorer.model;
 
 import org.junit.Before;
 import org.junit.Test;

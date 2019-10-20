@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core.database;
+package org.apache.hop.core.database;
 
 import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
+import org.apache.hop.core.HopEnvironment;
 
 /**
- * Tests the value returned from org.pentaho.di.core.database.DatabaseInterface.getSelectCountStatement for the database
+ * Tests the value returned from org.apache.hop.core.database.DatabaseInterface.getSelectCountStatement for the database
  * the interface is fronting.
  *
  * As this release, Hive uses the following to select the number of rows:
@@ -65,7 +65,7 @@ public class SelectCountIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    KettleEnvironment.init( false );
+    HopEnvironment.init( false );
   }
 
   @Test

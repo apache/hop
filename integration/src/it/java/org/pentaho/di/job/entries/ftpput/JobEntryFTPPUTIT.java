@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.ftpput;
+package org.apache.hop.job.entries.ftpput;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,12 +28,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.ftpsget.FTPSConnection;
-import org.pentaho.di.job.entries.ftpsget.FtpsServer;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.ftpsget.FTPSConnection;
+import org.apache.hop.job.entries.ftpsget.FtpsServer;
 
 import java.io.File;
 import java.util.UUID;
@@ -41,11 +41,11 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.pentaho.di.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
-import static org.pentaho.di.job.entries.ftpsget.FTPSConnection.CONNECTION_TYPE_FTP;
-import static org.pentaho.di.job.entries.ftpsget.FtpsServer.ADMIN;
-import static org.pentaho.di.job.entries.ftpsget.FtpsServer.DEFAULT_PORT;
-import static org.pentaho.di.job.entries.ftpsget.FtpsServer.PASSWORD;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
+import static org.apache.hop.job.entries.ftpsget.FTPSConnection.CONNECTION_TYPE_FTP;
+import static org.apache.hop.job.entries.ftpsget.FtpsServer.ADMIN;
+import static org.apache.hop.job.entries.ftpsget.FtpsServer.DEFAULT_PORT;
+import static org.apache.hop.job.entries.ftpsget.FtpsServer.PASSWORD;
 
 /**
  * @author Andrey Khayrutdinov
@@ -57,7 +57,7 @@ public class JobEntryFTPPUTIT {
 
   @BeforeClass
   public static void prepareEnv() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     folder = new TemporaryFolder();
     folder.create();

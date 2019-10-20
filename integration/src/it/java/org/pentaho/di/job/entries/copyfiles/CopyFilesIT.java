@@ -20,23 +20,23 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.copyfiles;
+package org.apache.hop.job.entries.copyfiles;
 
 import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.TestUtilities;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.job.Job;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.job.Job;
 
 public class CopyFilesIT {
 
   @BeforeClass
   public static void setUpBeforeClass() {
-    KettleLogStore.init();
+    HopLogStore.init();
   }
 
   /**

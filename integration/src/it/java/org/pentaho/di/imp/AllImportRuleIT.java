@@ -20,16 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.imp;
+package org.apache.hop.imp;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.pentaho.di.imp.rule.DatabaseConfigurationImportRuleIT;
-import org.pentaho.di.imp.rule.JobHasDescriptionImportRuleIT;
-import org.pentaho.di.imp.rule.JobHasJobLogConfiguredImportRuleIT;
-import org.pentaho.di.imp.rule.TransformationHasDescriptionImportRuleIT;
-import org.pentaho.di.imp.rule.TransformationHasTransLogConfiguredImportRuleIT;
+import org.apache.hop.imp.rule.DatabaseConfigurationImportRuleIT;
+import org.apache.hop.imp.rule.JobHasDescriptionImportRuleIT;
+import org.apache.hop.imp.rule.JobHasJobLogConfiguredImportRuleIT;
+import org.apache.hop.imp.rule.TransformationHasDescriptionImportRuleIT;
+import org.apache.hop.imp.rule.TransformationHasTransLogConfiguredImportRuleIT;
 
 /**
  * Regression tests for the PDI framework.

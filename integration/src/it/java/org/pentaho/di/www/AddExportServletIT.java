@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.www;
+package org.apache.hop.www;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleXMLException;
+import org.apache.hop.core.exception.HopXMLException;
 import static junit.framework.Assert.*;
 
 public class AddExportServletIT {
@@ -57,7 +57,7 @@ public class AddExportServletIT {
   }
 
   @Test
-  public void testDoGetEncodesMessageWithEmptyLoad() throws ServletException, IOException, KettleXMLException {
+  public void testDoGetEncodesMessageWithEmptyLoad() throws ServletException, IOException, HopXMLException {
     HttpServletRequest mockRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockResponse = mock( HttpServletResponse.class );
     StringWriter out = new StringWriter();

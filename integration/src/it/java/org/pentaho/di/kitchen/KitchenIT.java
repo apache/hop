@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.kitchen;
+package org.apache.hop.kitchen;
 
 import junit.framework.TestCase;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.pan.CommandLineOption;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.pan.CommandLineOption;
 
 /**
  * Kitchen Tests
@@ -36,7 +36,7 @@ import org.pentaho.di.pan.CommandLineOption;
  */
 public class KitchenIT extends TestCase {
 
-  public void testArgumentMaxLogLines_valid() throws KettleException {
+  public void testArgumentMaxLogLines_valid() throws HopException {
     final String maxLogLinesArg = "50";
     int expected = 50;
     CommandLineOption opt = new CommandLineOption( "maxloglines", null, new StringBuilder( maxLogLinesArg ) );
@@ -50,13 +50,13 @@ public class KitchenIT extends TestCase {
     try {
       Kitchen.parseIntArgument( opt, 0 );
       fail( "Argument should not be parsable" );
-    } catch ( KettleException expected ) {
+    } catch ( HopException expected ) {
       assertTrue( "Error is not as expected: " + expected.getMessage(), expected.getMessage().contains(
         "ERROR: maxloglines" ) );
     }
   }
 
-  public void testArgumentMaxLogTimeout_valid() throws KettleException {
+  public void testArgumentMaxLogTimeout_valid() throws HopException {
     final String maxLogTimeoutArg = "658";
     int expected = 658;
     CommandLineOption opt = new CommandLineOption( "maxlogtimeout", null, new StringBuilder( maxLogTimeoutArg ) );
@@ -70,18 +70,18 @@ public class KitchenIT extends TestCase {
     try {
       Kitchen.parseIntArgument( opt, 0 );
       fail( "Argument should not be parsable" );
-    } catch ( KettleException expected ) {
+    } catch ( HopException expected ) {
       assertTrue( "Error is not as expected: " + expected.getMessage(), expected.getMessage().contains(
         "ERROR: maxlogtimeout" ) );
     }
   }
 
-  public void testConfigureLogging() throws KettleException {
+  public void testConfigureLogging() throws HopException {
     final String maxLogTimeoutArg = "600";
-    // Init Kettle Environment so the default CentralLogStore is initialized
-    KettleEnvironment.init();
+    // Init Hop Environment so the default CentralLogStore is initialized
+    HopEnvironment.init();
     // Change the max nr of lines
-    final int maxNrLines = KettleLogStore.getAppender().getMaxNrLines() + 50;
+    final int maxNrLines = HopLogStore.getAppender().getMaxNrLines() + 50;
     final String maxLogLinesArg = String.valueOf( maxNrLines );
     CommandLineOption maxLogLinesOption =
       new CommandLineOption( "maxloglines", null, new StringBuilder( maxLogLinesArg ) );
@@ -89,6 +89,6 @@ public class KitchenIT extends TestCase {
       new CommandLineOption( "maxlogtimeout", null, new StringBuilder( maxLogTimeoutArg ) );
     // Configure logging with the new options
     Kitchen.configureLogging( maxLogLinesOption, maxLogTimeoutOption );
-    assertEquals( maxNrLines, KettleLogStore.getAppender().getMaxNrLines() );
+    assertEquals( maxNrLines, HopLogStore.getAppender().getMaxNrLines() );
   }
 }

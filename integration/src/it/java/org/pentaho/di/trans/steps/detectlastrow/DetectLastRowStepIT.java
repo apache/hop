@@ -20,35 +20,35 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.detectlastrow;
+package org.apache.hop.trans.steps.detectlastrow;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBigNumber;
-import org.pentaho.di.core.row.value.ValueMetaBoolean;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.RowProducer;
-import org.pentaho.di.trans.RowStepCollector;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransHopMeta;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.dummytrans.DummyTransMeta;
-import org.pentaho.di.trans.steps.injector.InjectorMeta;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.RowProducer;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
 
 import junit.framework.TestCase;
 
@@ -88,13 +88,13 @@ public class DetectLastRowStepIT extends TestCase {
     RowMetaInterface rm = createRowMetaInterface();
 
     Object[] r1 =
-      new Object[] { "KETTLE1", new Long( 123L ), new Double( 10.5D ), Boolean.TRUE, BigDecimal.valueOf( 123.45 ) };
+      new Object[] { "HOP1", new Long( 123L ), new Double( 10.5D ), Boolean.TRUE, BigDecimal.valueOf( 123.45 ) };
     Object[] r2 =
       new Object[] {
-        "KETTLE2", new Long( 500L ), new Double( 20.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ) };
+        "HOP2", new Long( 500L ), new Double( 20.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ) };
     Object[] r3 =
       new Object[] {
-        "KETTLE3", new Long( 501L ), new Double( 21.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ) };
+        "HOP3", new Long( 501L ), new Double( 21.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ) };
 
     list.add( new RowMetaAndData( rm, r1 ) );
     list.add( new RowMetaAndData( rm, r2 ) );
@@ -135,15 +135,15 @@ public class DetectLastRowStepIT extends TestCase {
 
     Object[] r1 =
       new Object[] {
-        "KETTLE1", new Long( 123L ), new Double( 10.5D ), Boolean.TRUE, BigDecimal.valueOf( 123.45 ),
+        "HOP1", new Long( 123L ), new Double( 10.5D ), Boolean.TRUE, BigDecimal.valueOf( 123.45 ),
         ( nrRows == 1 ? Boolean.TRUE : Boolean.FALSE ) };
     Object[] r2 =
       new Object[] {
-        "KETTLE2", new Long( 500L ), new Double( 20.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ),
+        "HOP2", new Long( 500L ), new Double( 20.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ),
         ( nrRows == 2 ? Boolean.TRUE : Boolean.FALSE ) };
     Object[] r3 =
       new Object[] {
-        "KETTLE3", new Long( 501L ), new Double( 21.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ),
+        "HOP3", new Long( 501L ), new Double( 21.0D ), Boolean.FALSE, BigDecimal.valueOf( 123.45 ),
         ( nrRows == 3 ? Boolean.TRUE : Boolean.FALSE ) };
 
     list.add( new RowMetaAndData( rm, r1 ) );
@@ -187,7 +187,7 @@ public class DetectLastRowStepIT extends TestCase {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
-      } catch ( KettleValueException e ) {
+      } catch ( HopValueException e ) {
         fail( "row nr " + idx + " is not equal" );
       }
 
@@ -205,7 +205,7 @@ public class DetectLastRowStepIT extends TestCase {
    *           upon any exception
    */
   public void detectLastRowStepTest( int nrRows ) throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     //
     // Create a new transformation...

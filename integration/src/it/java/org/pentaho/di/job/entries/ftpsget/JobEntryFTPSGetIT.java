@@ -20,18 +20,18 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.job.entries.ftpsget;
+package org.apache.hop.job.entries.ftpsget;
 
 import org.apache.commons.vfs2.FileObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.entry.JobEntryBase;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.entry.JobEntryBase;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -48,13 +48,13 @@ public class JobEntryFTPSGetIT {
 
   @BeforeClass
   public static void createServer() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
 
     server = FtpsServer.createDefaultServer();
     server.start();
 
     ramDir = "ram://" + JobEntryFTPSGetIT.class.getSimpleName();
-    KettleVFS.getFileObject( ramDir ).createFolder();
+    HopVFS.getFileObject( ramDir ).createFolder();
   }
 
   @AfterClass
@@ -64,7 +64,7 @@ public class JobEntryFTPSGetIT {
       server = null;
     }
 
-    KettleVFS.getFileObject( ramDir ).delete();
+    HopVFS.getFileObject( ramDir ).delete();
   }
 
 
@@ -77,11 +77,11 @@ public class JobEntryFTPSGetIT {
     job.setVariable( myVar, ramDir );
     job.setTargetDirectory( String.format( "${%s}", myVar ) );
 
-    FileObject downloaded = KettleVFS.getFileObject( expectedDownloadedFilePath );
+    FileObject downloaded = HopVFS.getFileObject( expectedDownloadedFilePath );
     assertFalse( downloaded.exists() );
     try {
       job.execute( new Result(), 1 );
-      downloaded = KettleVFS.getFileObject( expectedDownloadedFilePath );
+      downloaded = HopVFS.getFileObject( expectedDownloadedFilePath );
       assertTrue( downloaded.exists() );
     } finally {
       downloaded.delete();
@@ -93,11 +93,11 @@ public class JobEntryFTPSGetIT {
     JobEntryFTPSGet job = createCommonJob();
     job.setTargetDirectory( ramDir );
 
-    FileObject downloaded = KettleVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
+    FileObject downloaded = HopVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
     assertFalse( downloaded.exists() );
     try{
       job.execute( new Result(), 1 );
-      downloaded = KettleVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
+      downloaded = HopVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
       assertTrue( downloaded.exists() );
     } finally {
       downloaded.delete();

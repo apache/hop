@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans;
+package org.apache.hop.trans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -30,25 +30,25 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.RowSet;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.trans.TransMeta.TransformationType;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMetaDataCombi;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.trans.TransMeta.TransformationType;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMetaDataCombi;
 
 public class WordCountSampleIT {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    KettleEnvironment.init();
+    HopEnvironment.init();
   }
 
 
