@@ -16,16 +16,15 @@
 
   <properties>
     <!-- plugins -->
-    <hop-core-plugin.version>${project.version}</hop-core-plugin.version>
-    <hop-dummy-plugin.version>${project.version}</hop-dummy-plugin.version>
-
+    <hop-plugins-dummy.version>${project.version}</hop-plugins-dummy.version>
+    <hop-plugins-core.version>${project.version}</hop-plugins-core.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-core-plugins</artifactId>
-      <version>0.1.0</version>
+      <version>${hop-plugins-core.version}</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -37,8 +36,8 @@
 
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-dummy-plugin</artifactId>
-      <version>0.1.0</version>
+      <artifactId>hop-dummy-plugins</artifactId>
+      <version>${hop-plugins-dummy.version}</version>
       <type>zip</type>
       <exclusions>
         <exclusion>

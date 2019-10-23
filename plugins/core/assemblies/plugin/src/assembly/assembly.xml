@@ -4,7 +4,7 @@
   <formats>
     <format>zip</format>
   </formats>
-  <baseDirectory>hop-core-plugins</baseDirectory>
+  <baseDirectory>hop-plugins-core</baseDirectory>
 
   <files>
     <file>
@@ -26,8 +26,8 @@
     <dependencySet>
       <outputDirectory>.</outputDirectory>
       <includes>
-        <include>org.apache.hop.plugins:hop-core-plugins-impl:jar</include>
-        <include>org.apache.hop.plugins:hop-core-plugins-ui:jar</include>
+        <include>org.hop:hop-plugins-core-impl:jar</include>
+        <include>org.hop:hop-plugins-core-ui:jar</include>
       </includes>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>

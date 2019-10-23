@@ -29,7 +29,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-libs</artifactId>
+      <artifactId>hop-assemblies-libs</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>
@@ -53,7 +53,7 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-static</artifactId>
+      <artifactId>hop-assemblies-static</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>
@@ -65,7 +65,7 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-samples</artifactId>
+      <artifactId>hop-assemblies-samples</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>
