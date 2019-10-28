@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.auth;
 
 import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.SpoonFactory;
+import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
@@ -92,7 +92,7 @@ public class AuthProviderDialog {
       try {
         runner.initialize();
       } catch ( XulException e ) {
-        SpoonFactory.getInstance().messageBox( e.getLocalizedMessage(),
+        HopUiFactory.getInstance().messageBox( e.getLocalizedMessage(),
             resourceBundle.getString( "error.on_initialization" ), false, Const.ERROR );
         log.logError( resourceBundle.getString( "error.on_initialization" ), e );
       }

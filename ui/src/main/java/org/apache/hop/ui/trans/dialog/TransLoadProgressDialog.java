@@ -41,7 +41,7 @@ import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.steps.missing.MissingTransDialog;
 
 /**
@@ -91,11 +91,11 @@ public class TransLoadProgressDialog {
   public TransMeta open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        Spoon spoon = Spoon.getInstance();
+        HopUi hopUi = HopUi.getInstance();
         try {
           // Call extension point(s) before the file has been opened
           ExtensionPointHandler.callExtensionPoint(
-            spoon.getLog(),
+            hopUi.getLog(),
             HopExtensionPoint.TransBeforeOpen.id,
             ( objectId == null ) ? transname : objectId.toString() );
 
@@ -107,7 +107,7 @@ public class TransLoadProgressDialog {
                 transname, repdir, new ProgressMonitorAdapter( monitor ), true, versionLabel );
           }
           // Call extension point(s) now that the file has been opened
-          ExtensionPointHandler.callExtensionPoint( spoon.getLog(), HopExtensionPoint.TransAfterOpen.id, transInfo );
+          ExtensionPointHandler.callExtensionPoint( hopUi.getLog(), HopExtensionPoint.TransAfterOpen.id, transInfo );
           if ( transInfo.hasMissingPlugins() ) {
             StepMeta stepMeta = transInfo.getStep( 0 );
             Display.getDefault().syncExec( () -> {

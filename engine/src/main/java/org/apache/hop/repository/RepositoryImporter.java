@@ -49,7 +49,7 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.exception.LookupReferencesException;
 import org.apache.hop.core.gui.HasOverwritePrompter;
 import org.apache.hop.core.gui.OverwritePrompter;
-import org.apache.hop.core.gui.SpoonFactory;
+import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.StringUtil;
@@ -835,7 +835,7 @@ public class RepositoryImporter implements IRepositoryImporter, CanLimitDirs {
   private DocumentBuilder documentBuilder;
 
   JobMeta createJobMetaForNode( Node jobnode ) throws HopXMLException {
-    return new JobMeta( jobnode, null, false, SpoonFactory.getInstance() );
+    return new JobMeta( jobnode, null, false, HopUiFactory.getInstance() );
   }
 
   private DocumentBuilder getOrCreateDb() throws HopXMLException {

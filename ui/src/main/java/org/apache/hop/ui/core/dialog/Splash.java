@@ -32,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -52,7 +53,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.version.BuildVersion;
 
@@ -87,7 +87,7 @@ public class Splash {
   }
 
   protected Splash( Display display, Shell splashShell ) throws HopException {
-    log = new LogChannel( Spoon.APP_NAME );
+    log = new LogChannel( HopUi.APP_NAME );
 
     Rectangle displayBounds = display.getPrimaryMonitor().getBounds();
 

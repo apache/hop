@@ -115,7 +115,7 @@ public class SubjectDataBrowserDialog {
   public void open() {
     shell = new Shell( parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

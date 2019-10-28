@@ -29,10 +29,10 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.SpoonFactory;
+import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.ui.repository.controllers.RepositoriesController;
-import org.apache.hop.ui.spoon.XulSpoonResourceBundle;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
@@ -48,14 +48,14 @@ public class RepositoriesDialog {
   private RepositoriesController repositoriesController = new RepositoriesController();
   private XulDomContainer container;
   private ILoginCallback callback;
-  private ResourceBundle resourceBundle = new XulSpoonResourceBundle( CLZ );
+  private ResourceBundle resourceBundle = new XulHopUiResourceBundle( CLZ );
 
   public RepositoriesDialog( Shell shell, String preferredRepositoryName, ILoginCallback callback ) {
     try {
       this.callback = callback;
       HopXulLoader xulLoader = new HopXulLoader();
       xulLoader.setOuterContext( shell );
-      xulLoader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
+      xulLoader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
       container = xulLoader.loadXul( "org.apache.hop/ui/repository/xul/repositories.xul", resourceBundle );
       final XulRunner runner = new SwtXulRunner();
       runner.addContainer( container );
@@ -72,7 +72,7 @@ public class RepositoriesDialog {
       try {
         runner.initialize();
       } catch ( XulException e ) {
-        SpoonFactory.getInstance().messageBox(
+        HopUiFactory.getInstance().messageBox(
           e.getLocalizedMessage(), "Service Initialization Failed", false, Const.ERROR );
         log.error( resourceBundle.getString( "RepositoryLoginDialog.ErrorStartingXulApplication" ), e );
       }

@@ -593,7 +593,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
           0,
           BaseMessages.getString( PKG, "MultiMergeJoinDialog.InputNeedSort.Option2" ),
           "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
       props.saveProps();

@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
@@ -29,7 +30,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.spoon.Spoon;
 
 public class PopupOverwritePrompter implements OverwritePrompter {
   private final Shell shell;
@@ -44,8 +44,8 @@ public class PopupOverwritePrompter implements OverwritePrompter {
   public boolean overwritePrompt( String message, String rememberText, String rememberPropertyName ) {
     Object[] res =
         messageDialogWithToggle( "Warning", null, message, Const.WARNING, new String[] {
-          BaseMessages.getString( Spoon.class, "System.Button.Yes" ),
-          BaseMessages.getString( Spoon.class, "System.Button.No" ) }, 1, rememberText, !"Y".equalsIgnoreCase( props
+          BaseMessages.getString( HopUi.class, "System.Button.Yes" ),
+          BaseMessages.getString( HopUi.class, "System.Button.No" ) }, 1, rememberText, !"Y".equalsIgnoreCase( props
             .getProperty( rememberPropertyName ) ) );
     int idx = ( (Integer) res[0] ).intValue();
     boolean overwrite = ( ( idx & 0xFF ) == 0 );

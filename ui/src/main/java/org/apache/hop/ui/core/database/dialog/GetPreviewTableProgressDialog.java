@@ -36,7 +36,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're getting rows for a certain SQL query on a
@@ -71,7 +71,7 @@ public class GetPreviewTableProgressDialog {
   public List<Object[]> open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        db = new Database( Spoon.loggingObject, dbMeta );
+        db = new Database( HopUi.loggingObject, dbMeta );
         try {
           db.connect();
 

@@ -42,7 +42,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +118,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     parametersSectionLayout( PKG, "TransExecutionConfigurationDialog" );
 
     String docUrl =
-        Const.getDocUrl( BaseMessages.getString( Spoon.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
+        Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
@@ -157,7 +157,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( Spoon.getInstance().getLog(), HopExtensionPoint.SpoonRunConfiguration.id,
+        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, TransMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors

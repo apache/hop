@@ -10,7 +10,7 @@
 		title="${RepositoryExplorerDialog.Title}"
 		resizable="true"
 	    height="600" width="800"
-		appicon="ui/images/spoon.ico"
+		appicon="ui/images/hopUi.ico"
 		buttons="accept"
 		buttonalign="end"
 		buttonlabelaccept="${Dialog.Close}"
@@ -311,7 +311,7 @@
     		ondialogaccept="iSecurityController.saveUser()"
     		ondialogcancel="iSecurityController.cancelAddUserDialog()"
     		buttons="accept, cancel" buttonalign="right" title="${AddUserDialog.Title}"
-    		appicon="ui/images/spoon.ico"
+    		appicon="ui/images/hopUi.ico"
     		resizable="true"
     		height="260" width="350">
        <vbox>

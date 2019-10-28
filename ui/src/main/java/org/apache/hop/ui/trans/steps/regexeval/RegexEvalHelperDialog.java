@@ -155,7 +155,7 @@ public class RegexEvalHelperDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE );
     props.setLook( shell );
-    shell.setImage( guiresource.getImageSpoon() );
+    shell.setImage( guiresource.getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

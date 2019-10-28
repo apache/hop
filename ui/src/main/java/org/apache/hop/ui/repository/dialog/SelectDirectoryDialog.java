@@ -116,7 +116,7 @@ public class SelectDirectoryDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     shell.setText( BaseMessages.getString( PKG, "SelectDirectoryDialog.Dialog.Main.Title" ) );
 
     FormLayout formLayout = new FormLayout();

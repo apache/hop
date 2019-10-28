@@ -1000,7 +1000,7 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
       message += Const.CR;
       message +=
         BaseMessages.getString( PKG, "TableOutputDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "TableOutputDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );
@@ -1090,7 +1090,7 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
     String close = BaseMessages.getString( PKG, "System.Button.Close" );
 
     MessageDialog dialog =
-      new MessageDialog( shell, title, GUIResource.getInstance().getImageSpoon(), message, MessageDialog.WARNING,
+      new MessageDialog( shell, title, GUIResource.getInstance().getImageHopUi(), message, MessageDialog.WARNING,
         new String[] { close }, 0 );
     dialog.open();
   }

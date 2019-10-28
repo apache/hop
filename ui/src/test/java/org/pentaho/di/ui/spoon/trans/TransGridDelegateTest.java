@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.ui.spoon.trans;
+package org.apache.hop.ui.hopui.trans;
 
 import org.junit.Test;
 

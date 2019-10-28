@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon.partition;
+package org.apache.hop.ui.hopui.partition;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
-import org.apache.hop.ui.spoon.PartitionSchemasProvider;
+import org.apache.hop.ui.hopui.PartitionSchemasProvider;
 
 import java.util.Arrays;
 import java.util.Collections;

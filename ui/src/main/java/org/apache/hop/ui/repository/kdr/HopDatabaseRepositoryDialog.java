@@ -142,7 +142,7 @@ public class HopDatabaseRepositoryDialog implements RepositoryDialogInterface {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     shell.setText( BaseMessages.getString( PKG, "RepositoryDialog.Dialog.Main.Title2" ) );
 
     int middle = props.getMiddlePct();

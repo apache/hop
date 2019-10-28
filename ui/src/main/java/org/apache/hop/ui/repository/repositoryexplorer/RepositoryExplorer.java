@@ -28,8 +28,10 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.HopUiPluginManager;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.gui.SpoonFactory;
+import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.repository.IRepositoryService;
@@ -38,11 +40,9 @@ import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.repository.repositoryexplorer.controllers.MainController;
 import org.apache.hop.ui.repository.repositoryexplorer.uisupport.IRepositoryExplorerUISupport;
-import org.apache.hop.ui.spoon.SharedObjectSyncUtil;
-import org.apache.hop.ui.spoon.Spoon;
-import org.apache.hop.ui.spoon.SpoonPluginManager;
-import org.apache.hop.ui.spoon.XulSpoonResourceBundle;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.SharedObjectSyncUtil;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
@@ -66,19 +66,19 @@ public class RepositoryExplorer {
 
   private boolean initialized = false;
 
-  private ResourceBundle resourceBundle = new XulSpoonResourceBundle( CLZ );
+  private ResourceBundle resourceBundle = new XulHopUiResourceBundle( CLZ );
 
   public RepositoryExplorer( Shell shell, final Repository rep, RepositoryExplorerCallback callback,
     VariableSpace variableSpace ) throws XulException {
     HopXulLoader xulLoader = new HopXulLoader();
     xulLoader.setIconsSize( 24, 24 );
     xulLoader.setOuterContext( shell );
-    xulLoader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
+    xulLoader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
     container =
       xulLoader.loadXul(
         "org.apache.hop/ui/repository/repositoryexplorer/xul/explorer-layout.xul", resourceBundle );
 
-    SpoonPluginManager.getInstance().applyPluginsForContainer( "repository-explorer", container );
+    HopUiPluginManager.getInstance().applyPluginsForContainer( "repository-explorer", container );
 
     final XulRunner runner = new SwtXulRunner();
     runner.addContainer( container );
@@ -99,8 +99,8 @@ public class RepositoryExplorer {
       }
     } catch ( Exception e ) {
       log.error( resourceBundle.getString( "RepositoryExplorer.ErrorStartingXulApplication" ), e );
-      new ErrorDialog( ( (Spoon) SpoonFactory.getInstance() ).getShell(), BaseMessages.getString(
-        Spoon.class, "Spoon.Error" ), e.getMessage(), e );
+      new ErrorDialog( ( (HopUi) HopUiFactory.getInstance() ).getShell(), BaseMessages.getString(
+        HopUi.class, "Spoon.Error" ), e.getMessage(), e );
     }
     // Call the init method for all the Active UISupportController
     HopRepositoryLostException krle = null;
@@ -111,8 +111,8 @@ public class RepositoryExplorer {
         log.error( resourceBundle.getString( "RepositoryExplorer.ErrorStartingXulApplication" ), e );
         krle = HopRepositoryLostException.lookupStackStrace( e );
         if ( krle == null ) {
-          new ErrorDialog( ( (Spoon) SpoonFactory.getInstance() ).getShell(), BaseMessages.getString(
-            Spoon.class, "Spoon.Error" ), e.getMessage(), e );
+          new ErrorDialog( ( (HopUi) HopUiFactory.getInstance() ).getShell(), BaseMessages.getString(
+            HopUi.class, "Spoon.Error" ), e.getMessage(), e );
         } else {
           break;
         }
@@ -128,8 +128,8 @@ public class RepositoryExplorer {
       runner.initialize();
     } catch ( XulException e ) {
       log.error( resourceBundle.getString( "RepositoryExplorer.ErrorStartingXulApplication" ), e );
-      new ErrorDialog( ( (Spoon) SpoonFactory.getInstance() ).getShell(), BaseMessages.getString(
-        Spoon.class, "Spoon.Error" ), e.getMessage(), e );
+      new ErrorDialog( ( (HopUi) HopUiFactory.getInstance() ).getShell(), BaseMessages.getString(
+        HopUi.class, "Spoon.Error" ), e.getMessage(), e );
     }
 
     initialized = true;

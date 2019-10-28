@@ -83,7 +83,7 @@ public class SelectFolderDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
     shell.setText( BaseMessages.getString( PKG, "SelectFolderDialog.Dialog.Main.Title" ) );
-    shell.setImage( guiresource.getImageSpoon() );
+    shell.setImage( guiresource.getImageHopUi() );
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;

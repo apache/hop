@@ -3693,7 +3693,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * @param transSplitter          the trans splitter
    * @param executionConfiguration the execution configuration
    * @throws HopException the kettle exception
-   * @see org.apache.hop.ui.spoon.delegates.SpoonTransformationDelegate
+   * @see org.apache.hop.ui.hopui.delegates.SpoonTransformationDelegate
    */
   public static void executeClustered( final TransSplitter transSplitter,
                                        final TransExecutionConfiguration executionConfiguration )

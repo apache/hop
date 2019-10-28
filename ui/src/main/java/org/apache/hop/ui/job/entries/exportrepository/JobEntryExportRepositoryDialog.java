@@ -1268,7 +1268,7 @@ public class JobEntryExportRepositoryDialog extends JobEntryDialog implements Jo
           if ( !Utils.isEmpty( wFoldername.getText() ) ) {
             fileDialogOperation.setStartDir( wFoldername.getText() );
           }
-          ExtensionPointHandler.callExtensionPoint( null, HopExtensionPoint.SpoonOpenSaveRepository.id,
+          ExtensionPointHandler.callExtensionPoint( null, HopExtensionPoint.HopUiOpenSaveRepository.id,
             fileDialogOperation );
           if ( fileDialogOperation.getRepositoryObject() != null ) {
             String path =

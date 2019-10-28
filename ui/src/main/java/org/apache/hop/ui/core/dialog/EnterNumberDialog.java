@@ -116,7 +116,7 @@ public class EnterNumberDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = BaseDialog.MARGIN_SIZE;

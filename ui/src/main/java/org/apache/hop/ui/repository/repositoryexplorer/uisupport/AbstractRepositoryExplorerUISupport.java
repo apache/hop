@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.repository.repositoryexplorer.ControllerInitializationException;
 import org.apache.hop.ui.repository.repositoryexplorer.IUISupportController;
-import org.apache.hop.ui.spoon.XulSpoonResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
@@ -56,7 +56,7 @@ public abstract class AbstractRepositoryExplorerUISupport implements IRepository
     }
     for ( XulOverlay overlay : overlays ) {
       if ( overlay instanceof RepositoryExplorerDefaultXulOverlay ) {
-        container.loadOverlay( overlay.getOverlayUri(), new XulSpoonResourceBundle(
+        container.loadOverlay( overlay.getOverlayUri(), new XulHopUiResourceBundle(
           ( (RepositoryExplorerDefaultXulOverlay) overlay ).getPackageClass() ) );
       } else {
         container.loadOverlay( overlay.getOverlayUri(), overlay.getResourceBundleUri() );

@@ -427,7 +427,7 @@ public class FieldsChangeSequenceDialog extends BaseStepDialog implements StepDi
           0,
           BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.Option2" ), "N".equalsIgnoreCase(
             props.getCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
       props.saveProps();

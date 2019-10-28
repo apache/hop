@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.ui.spoon;
+package org.apache.hop.ui.hopui;
 
 import org.junit.Before;
 import org.junit.Test;

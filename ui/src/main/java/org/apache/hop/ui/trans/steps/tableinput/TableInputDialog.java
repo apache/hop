@@ -72,7 +72,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.job.JobGraph;
+import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 

@@ -52,7 +52,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.util.HelpUtils;
 
 public class ArgumentsDialog extends Dialog {
@@ -149,7 +149,7 @@ public class ArgumentsDialog extends Dialog {
     btnHelp.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent evt ) {
-        String docUrl = Const.getDocUrl( BaseMessages.getString( Spoon.class, "Spoon.ArgumentsDialog.Help" ) );
+        String docUrl = Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.ArgumentsDialog.Help" ) );
         String docTitle = BaseMessages.getString( PKG, "ArgumentsDialog.docTitle" );
         String docHeader = BaseMessages.getString( PKG, "ArgumentsDialog.docHeader" );
         HelpUtils.openHelpDialog( parent.getShell(), docTitle, docUrl, docHeader );

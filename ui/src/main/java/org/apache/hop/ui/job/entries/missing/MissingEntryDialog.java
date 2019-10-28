@@ -45,7 +45,7 @@ import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 
 public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = MissingEntryDialog.class;
@@ -106,7 +106,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
             | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -185,7 +185,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
       public void widgetSelected( SelectionEvent e ) {
         try {
           shell.dispose();
-          Spoon.getInstance().openMarketplace();
+          HopUi.getInstance().openMarketplace();
         } catch ( Exception ex ) {
           ex.printStackTrace();
         }

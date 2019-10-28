@@ -136,7 +136,7 @@ public class EnterValueDialog extends Dialog {
       new Shell( parent, SWT.DIALOG_TRIM
         | SWT.RESIZE | ( modalDialog ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

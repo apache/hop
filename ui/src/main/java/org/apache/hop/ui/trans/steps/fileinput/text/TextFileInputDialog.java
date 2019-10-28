@@ -104,7 +104,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
@@ -671,7 +671,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        VfsFileChooserDialog fileChooserDialog = Spoon.getInstance().getVfsFileChooserDialog( null, null );
+        VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( null, null );
         if ( wFilename.getText() != null ) {
           try {
             fileChooserDialog.initialFile =

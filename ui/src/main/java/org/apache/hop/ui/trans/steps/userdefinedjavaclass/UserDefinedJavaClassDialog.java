@@ -114,7 +114,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
@@ -1398,7 +1398,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
 
         // OK, now we ask the user to edit this dialog...
         //
-        if ( Spoon.getInstance().editStep( transMeta, genStep ) != null ) {
+        if ( HopUi.getInstance().editStep( transMeta, genStep ) != null ) {
           // Now run this transformation and grab the results...
           //
           TransPreviewProgressDialog progressDialog =

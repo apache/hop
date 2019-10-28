@@ -39,7 +39,7 @@ import org.apache.hop.repository.Repository;
 import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.job.entries.missing.MissingEntryDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 
 /**
  *
@@ -85,11 +85,11 @@ public class JobLoadProgressDialog {
   public JobMeta open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        Spoon spoon = Spoon.getInstance();
+        HopUi hopUi = HopUi.getInstance();
         try {
           // Call extension point(s) before the file has been opened
           ExtensionPointHandler.callExtensionPoint(
-            spoon.getLog(),
+            hopUi.getLog(),
             HopExtensionPoint.JobBeforeOpen.id,
             ( objectId == null ) ? jobname : objectId.toString() );
 
@@ -100,7 +100,7 @@ public class JobLoadProgressDialog {
           }
 
           // Call extension point(s) now that the file has been opened
-          ExtensionPointHandler.callExtensionPoint( spoon.getLog(), HopExtensionPoint.JobAfterOpen.id, jobInfo );
+          ExtensionPointHandler.callExtensionPoint( hopUi.getLog(), HopExtensionPoint.JobAfterOpen.id, jobInfo );
 
           if ( jobInfo.hasMissingPlugins() ) {
             MissingEntryDialog missingDialog = new MissingEntryDialog( shell, jobInfo.getMissingEntries() );

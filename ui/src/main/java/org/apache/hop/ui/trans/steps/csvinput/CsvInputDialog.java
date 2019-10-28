@@ -92,8 +92,8 @@ import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
-import org.apache.hop.ui.spoon.trans.TransGraph;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.step.common.CsvInputAwareImportProgressDialog;
@@ -1051,7 +1051,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
         buffer.append( Const.getStackTracker( e ) );
       }
 
-      TransGraph transGraph = Spoon.getInstance().getActiveTransGraph();
+      TransGraph transGraph = HopUi.getInstance().getActiveTransGraph();
       if ( transGraph != null ) {
         if ( !transGraph.isExecutionResultsPaneVisible() ) {
           transGraph.showExecutionResults();

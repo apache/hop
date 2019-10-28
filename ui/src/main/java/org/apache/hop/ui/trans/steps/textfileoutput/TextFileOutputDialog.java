@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -81,7 +82,6 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
@@ -1205,7 +1205,7 @@ public class TextFileOutputDialog extends BaseStepDialog implements StepDialogIn
 
     wbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        VfsFileChooserDialog fileChooserDialog = Spoon.getInstance().getVfsFileChooserDialog( null, null );
+        VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( null, null );
         if ( wFilename.getText() != null ) {
           try {
             fileChooserDialog.initialFile =

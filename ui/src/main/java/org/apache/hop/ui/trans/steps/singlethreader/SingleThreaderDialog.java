@@ -23,6 +23,7 @@
 package org.apache.hop.ui.trans.steps.singlethreader;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -68,7 +69,6 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.DialogHelper;
 import org.apache.hop.ui.util.DialogUtils;
@@ -557,7 +557,7 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
       try {
         root = HopVFS.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
 
-        VfsFileChooserDialog vfsFileChooser = Spoon.getInstance().getVfsFileChooserDialog( root.getParent(), root );
+        VfsFileChooserDialog vfsFileChooser = HopUi.getInstance().getVfsFileChooserDialog( root.getParent(), root );
         FileObject file =
           vfsFileChooser.open(
             shell, null, Const.STRING_TRANS_FILTER_EXT, Const.getTransformationFilterNames(),

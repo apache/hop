@@ -38,8 +38,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.gui.SpoonFactory;
-import org.apache.hop.core.gui.SpoonInterface;
+import org.apache.hop.core.gui.HopUiFactory;
+import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.EnvUtil;
@@ -1560,7 +1560,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static String Alert( Context actualContext, Scriptable actualObject, Object[] ArgList,
     Function FunctionContext ) {
 
-    SpoonInterface spoon = SpoonFactory.getInstance();
+    HopUiInterface spoon = HopUiFactory.getInstance();
     if ( ArgList.length == 1 && spoon != null ) {
       String strMessage = Context.toString( ArgList[0] );
       boolean ok = spoon.messageBox( strMessage, "Alert", true, Const.INFO );

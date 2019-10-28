@@ -717,7 +717,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
       message += Const.CR;
       message +=
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "MySQLBulkLoaderDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );

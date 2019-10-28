@@ -24,14 +24,14 @@ package org.apache.hop.core.gui;
 
 public class GUIFactory {
 
-  private static SpoonInterface spoonInstance;
+  private static HopUiInterface spoonInstance;
   private static ThreadDialogs threadDialogs = new RuntimeThreadDialogs(); // default to the runtime one
 
-  public static SpoonInterface getInstance() {
+  public static HopUiInterface getInstance() {
     return spoonInstance;
   }
 
-  public static void setSpoonInstance( SpoonInterface anInstance ) {
+  public static void setSpoonInstance( HopUiInterface anInstance ) {
     spoonInstance = anInstance;
   }
 

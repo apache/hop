@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon;
+package org.apache.hop.ui.hopui;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -38,8 +38,8 @@ import org.apache.hop.core.gui.GUIPositionInterface;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.spoon.job.JobGraph;
-import org.apache.hop.ui.spoon.trans.TransGraph;
+import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopui.trans.TransGraph;
 
 public class GraphTest {
 
@@ -107,38 +107,38 @@ public class GraphTest {
   @Test
   public void testDelJobNoSelections() {
     JobMeta jobMeta = mock( JobMeta.class );
-    Spoon spoon = mock( Spoon.class );
+    HopUi hopUi = mock( HopUi.class );
     when( jobMeta.getSelectedEntries() ).thenReturn( Collections.<JobEntryCopy>emptyList() );
     JobEntryCopy je = mock( JobEntryCopy.class );
 
     JobGraph jobGraph = mock( JobGraph.class );
     doCallRealMethod().when( jobGraph ).setJobMeta( any( JobMeta.class ) );
-    doCallRealMethod().when( jobGraph ).setSpoon( any( Spoon.class ) );
+    doCallRealMethod().when( jobGraph ).setHopUi( any( HopUi.class ) );
     doCallRealMethod().when( jobGraph ).delSelected( any( JobEntryCopy.class ) );
     jobGraph.setJobMeta( jobMeta );
-    jobGraph.setSpoon( spoon );
+    jobGraph.setHopUi( hopUi );
 
     jobGraph.delSelected( je );
-    verify( spoon ).deleteJobEntryCopies( jobMeta, je );
+    verify( hopUi ).deleteJobEntryCopies( jobMeta, je );
   }
 
   @Test
   public void testDelSelectionsJob() {
     JobMeta jobMeta = mock( JobMeta.class );
-    Spoon spoon = mock( Spoon.class );
+    HopUi hopUi = mock( HopUi.class );
     JobEntryCopy selected1 = mock( JobEntryCopy.class );
     JobEntryCopy selected2 = mock( JobEntryCopy.class );
     when( jobMeta.getSelectedEntries() ).thenReturn( Arrays.asList( selected1, selected2 ) );
 
     JobGraph jobGraph = mock( JobGraph.class );
     doCallRealMethod().when( jobGraph ).setJobMeta( any( JobMeta.class ) );
-    doCallRealMethod().when( jobGraph ).setSpoon( any( Spoon.class ) );
+    doCallRealMethod().when( jobGraph ).setHopUi( any( HopUi.class ) );
     doCallRealMethod().when( jobGraph ).delSelected( any( JobEntryCopy.class ) );
     jobGraph.setJobMeta( jobMeta );
-    jobGraph.setSpoon( spoon );
+    jobGraph.setHopUi( hopUi );
 
     jobGraph.delSelected( null );
-    verify( spoon ).deleteJobEntryCopies( eq( jobMeta ),
+    verify( hopUi ).deleteJobEntryCopies( eq( jobMeta ),
         AdditionalMatchers.aryEq( new JobEntryCopy[] { selected1, selected2 } ) );
   }
 

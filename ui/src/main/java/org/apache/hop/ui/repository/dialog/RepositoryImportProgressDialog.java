@@ -124,7 +124,7 @@ public class RepositoryImportProgressDialog extends Dialog implements ProgressMo
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setText( BaseMessages.getString( PKG, "RepositoryImportDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     shell.setLayout( formLayout );
 
     //
@@ -240,7 +240,7 @@ public class RepositoryImportProgressDialog extends Dialog implements ProgressMo
         BaseMessages.getString( PKG, "System.Button.No" ) },
       1,
       BaseMessages.getString( PKG, "RepositoryImportDialog.DontAskAgain.Label" ), !askOverwrite );
-    MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+    MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
     int answer = md.open();
 
     askOverwrite = !md.getToggleState();
@@ -259,7 +259,7 @@ public class RepositoryImportProgressDialog extends Dialog implements ProgressMo
         1,
         BaseMessages.getString( PKG, "RepositoryImportDialog.DontAskAgain.Label" ),
         !askOverwrite );
-    MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+    MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
     int answer = md.open();
     askOverwrite = !md.getToggleState();
 

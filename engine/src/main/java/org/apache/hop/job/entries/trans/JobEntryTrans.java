@@ -900,7 +900,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           log.logBasic( BaseMessages.getString( PKG, "JobTrans.RunConfig.Message" ), runConfiguration );
           executionConfiguration.setRunConfiguration( runConfiguration );
           try {
-            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.SpoonTransBeforeStart.id, new Object[] {
+            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
               executionConfiguration, parentJob.getJobMeta(), transMeta, rep
             } );
             List<Object> items = Arrays.asList( runConfiguration, false );

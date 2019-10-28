@@ -9,7 +9,7 @@
 		buttons="accept, cancel" buttonalign="right" title="${RepositoryLoginDialog.Title}" 
 		height="475" width="400"
 		resizable="true"
-		appicon="ui/images/spoon.ico"
+		appicon="ui/images/hopUi.ico"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 		xmlns:pen="http://www.pentaho.org/2008/xul" 
 		onload="repositoryLoginController.init()" padding="10" spacing="3">

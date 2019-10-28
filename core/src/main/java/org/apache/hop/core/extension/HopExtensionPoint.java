@@ -24,7 +24,7 @@ package org.apache.hop.core.extension;
 
 public enum HopExtensionPoint {
 
-    SpoonStart( "SpoonStart", "Spoon has started" ),
+    HopUiStart( "HopUiStart", "HopUi has started" ),
     OpenRecent( "OpenRecent", "A recent file is opened" ),
   // Some transformation points
   //
@@ -57,14 +57,14 @@ public enum HopExtensionPoint {
     TransBeforeDeleteSteps( "TransBeforeDeleteSteps", "Transformation steps about to be deleted" ),
     TransImportAfterSaveToRepo( "TransImportAfterSaveToRepo",
       "Transformation's shared objects created and it's content saved to repository" ),
-    SpoonTransMetaExecutionStart( "SpoonTransMetaExecutionStart",
-      "Spoon initiates the execution of a trans (TransMeta)" ),
-    SpoonTransExecutionConfiguration( "SpoonTransExecutionConfiguration",
-      "Right before Spoon configuration of transformation to be executed takes place" ),
-    SpoonTransBeforeStart( "SpoonTransBeforeStart", "Right before the transformation is started" ),
+    HopUiTransMetaExecutionStart( "HopUiTransMetaExecutionStart",
+      "Hop UI initiates the execution of a trans (TransMeta)" ),
+    HopUiTransExecutionConfiguration( "HopUiTransExecutionConfiguration",
+      "Right before Hop UI configuration of transformation to be executed takes place" ),
+    HopUiTransBeforeStart( "HopUiTransBeforeStart", "Right before the transformation is started" ),
     RunConfigurationSelection( "RunConfigurationSelection", "Check when run configuration is selected" ),
     RunConfigurationIsRemote( "RunConfigurationIsRemote", "Check when run configuration is pointing to a remote server" ),
-    SpoonRunConfiguration( "SpoonRunConfiguration", "Send the run configuration" ),
+    HopUiRunConfiguration( "HopUiRunConfiguration", "Send the run configuration" ),
     JobStart( "JobStart", "A job starts" ),
     JobHeartbeat( "JobHeartbeat", "A signal sent at regular intervals to indicate that the job is still active" ),
     JobFinish( "JobFinish", "A job finishes" ),
@@ -91,9 +91,9 @@ public enum HopExtensionPoint {
     JobEntryTransSave( "JobEntryTransSave", "Job entry trans is saved" ),
 
     JobMetaLoaded( "JobMetaLoaded", "Job metadata was loaded" ),
-    SpoonJobMetaExecutionStart( "SpoonJobMetaExecutionStart", "Spoon initiates the execution of a job (JobMeta)" ),
-    SpoonJobExecutionConfiguration( "SpoonJobExecutionConfiguration",
-      "Right before Spoon configuration of job to be executed takes place" ),
+    HopUiJobMetaExecutionStart( "HopUiJobMetaExecutionStart", "Hop UI initiates the execution of a job (JobMeta)" ),
+    HopUiJobExecutionConfiguration( "HopUiJobExecutionConfiguration",
+      "Right before Hop UI configuration of job to be executed takes place" ),
 
     DatabaseConnected( "DatabaseConnected", "A connection to a database was made" ),
     DatabaseDisconnected( "DatabaseDisconnected", "A connection to a database was terminated" ),
@@ -112,11 +112,11 @@ public enum HopExtensionPoint {
     CarteStartup( "CarteStartup", "Right after the Carte webserver has started and is fully functional" ),
     CarteShutdown( "CarteShutdown", "Right before the Carte webserver will shut down" ),
 
-    SpoonViewTreeExtension( "SpoonViewTreeExtension", "View tree spoon extension" ),
-    SpoonPopupMenuExtension( "SpoonPopupMenuExtension", "Pop up menu extension for the view tree" ),
-    SpoonTreeDelegateExtension( "SpoonTreeDelegateExtension", "During the SpoonTreeDelegate execution" ),
-    SpoonOpenSaveRepository( "SpoonOpenSaveRepository", "Open the repository browser" ),
-    SpoonBrowserFunction( "SpoonBrowserFunction", "Generic browser function handler" ),
+    HopUiViewTreeExtension( "HopUiViewTreeExtension", "View tree Hop UI extension" ),
+    HopUiPopupMenuExtension( "HopUiPopupMenuExtension", "Pop up menu extension for the view tree" ),
+    HopUiTreeDelegateExtension( "HopUiTreeDelegateExtension", "During the HopUiTreeDelegate execution" ),
+    HopUiOpenSaveRepository( "HopUiOpenSaveRepository", "Open the repository browser" ),
+    HopUiBrowserFunction( "HopUiBrowserFunction", "Generic browser function handler" ),
     GetFieldsExtension( "GetFieldsExtension", "Get Fields dialog" ),
 
     RepositoryImporterPatchTransStep( "RepositoryImporterPatchTransStep", "Patch the step in a transformation during repository import" ),
@@ -128,7 +128,7 @@ public enum HopExtensionPoint {
     AfterDeleteRepositoryObject( "AfterDeleteRepositoryObject",
       "After an object has been deleted from the repository" ),
 
-    TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in Spoon" );
+    TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" );
 
 
   public String id;

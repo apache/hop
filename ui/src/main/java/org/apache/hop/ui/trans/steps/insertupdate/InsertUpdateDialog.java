@@ -619,7 +619,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
       message += Const.CR;
       message +=
         BaseMessages.getString( PKG, "InsertUpdateDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "InsertUpdateDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );

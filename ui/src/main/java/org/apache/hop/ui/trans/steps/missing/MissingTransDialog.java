@@ -43,7 +43,7 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.missing.MissingTrans;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class MissingTransDialog extends BaseStepDialog implements StepDialogInterface {
@@ -106,7 +106,7 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
             | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -185,7 +185,7 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
       public void widgetSelected( SelectionEvent e ) {
         try {
           shell.dispose();
-          Spoon.getInstance().openMarketplace();
+          HopUi.getInstance().openMarketplace();
         } catch ( Exception ex ) {
           ex.printStackTrace();
         }

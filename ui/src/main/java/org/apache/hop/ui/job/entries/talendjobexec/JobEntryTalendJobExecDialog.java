@@ -56,7 +56,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -211,7 +211,7 @@ public class JobEntryTalendJobExecDialog extends JobEntryDialog implements JobEn
           }
 
           VfsFileChooserDialog vfsFileChooser =
-            Spoon.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
+            HopUi.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
 
           FileObject selected =
             vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );

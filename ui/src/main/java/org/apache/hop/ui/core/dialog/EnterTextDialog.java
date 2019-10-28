@@ -45,7 +45,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.spoon.job.JobGraph;
+import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
@@ -138,7 +138,7 @@ public class EnterTextDialog extends Dialog {
       new Shell( parent, SWT.DIALOG_TRIM
         | SWT.RESIZE | SWT.MAX | SWT.MIN | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

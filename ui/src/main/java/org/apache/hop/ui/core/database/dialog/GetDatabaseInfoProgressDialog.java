@@ -33,7 +33,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables, views etc we can
@@ -62,7 +62,7 @@ public class GetDatabaseInfoProgressDialog {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
-          dmi.getData( Spoon.loggingObject, new ProgressMonitorAdapter( monitor ) );
+          dmi.getData( HopUi.loggingObject, new ProgressMonitorAdapter( monitor ) );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString() ) );

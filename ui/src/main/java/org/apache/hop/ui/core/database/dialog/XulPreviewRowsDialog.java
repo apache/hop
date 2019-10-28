@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulRunner;
@@ -58,7 +58,7 @@ public class XulPreviewRowsDialog {
   public void open() {
     try {
       HopXulLoader theLoader = new HopXulLoader();
-      theLoader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
+      theLoader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
       theLoader.setOuterContext( this.shell );
       this.container = theLoader.loadXul( XUL );
 

@@ -66,7 +66,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.DialogHelper;
 import org.apache.hop.ui.util.DialogUtils;
@@ -338,14 +338,14 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
             int answer = mb.open();
             if ( answer == SWT.YES ) {
 
-              Spoon spoon = Spoon.getInstance();
-              spoon.newJobFile();
-              JobMeta newJobMeta = spoon.getActiveJob();
+              HopUi hopUi = HopUi.getInstance();
+              hopUi.newJobFile();
+              JobMeta newJobMeta = hopUi.getActiveJob();
               newJobMeta.initializeVariablesFrom( jobEntry );
               newJobMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-              spoon.saveFile();
+              hopUi.saveFile();
               return;
             }
           }
@@ -468,7 +468,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( Spoon.getInstance().getLog(), HopExtensionPoint.SpoonRunConfiguration.id,
+        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, JobMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors
@@ -615,7 +615,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     executionConfiguration.setRunConfiguration( jej.getRunConfiguration() );
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.SpoonTransBeforeStart.id,
+      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.HopUiTransBeforeStart.id,
         new Object[] { executionConfiguration, jobMeta, jobMeta, null } );
     } catch ( HopException e ) {
       // Ignore errors

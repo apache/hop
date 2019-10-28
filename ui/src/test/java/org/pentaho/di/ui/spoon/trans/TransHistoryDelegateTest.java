@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon.trans;
+package org.apache.hop.ui.hopui.trans;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.junit.Test;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -29,7 +30,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.spoon.Spoon;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +53,7 @@ public class TransHistoryDelegateTest {
     setInternalState( model, "logDisplayTableView", view );
     setInternalState( model, "logTableFields", getLogTableFields() );
 
-    TransHistoryDelegate history = new TransHistoryDelegate( mock( Spoon.class ), mock( TransGraph.class ) );
+    TransHistoryDelegate history = new TransHistoryDelegate( mock( HopUi.class ), mock( TransGraph.class ) );
     Map<String, Integer> map = history.getColumnMappings( model );
 
     assertEquals( 0, (int) map.get( "COLUMN_1" ) );
@@ -65,7 +65,7 @@ public class TransHistoryDelegateTest {
 
   @Test
   public void getValueMetaForStringColumn() {
-    TransHistoryDelegate history = new TransHistoryDelegate( mock( Spoon.class ), mock( TransGraph.class ) );
+    TransHistoryDelegate history = new TransHistoryDelegate( mock( HopUi.class ), mock( TransGraph.class ) );
     ValueMetaInterface valueMeta = history.getValueMetaForColumn( getColumnInfo(), new LogTableField( "COLUMN 2", "COLUMN_2", null ) );
 
     assertEquals( "COLUMN_2", valueMeta.getName() );
@@ -74,7 +74,7 @@ public class TransHistoryDelegateTest {
 
   @Test
   public void getValueMetaForIntegerColumn() {
-    TransHistoryDelegate history = new TransHistoryDelegate( mock( Spoon.class ), mock( TransGraph.class ) );
+    TransHistoryDelegate history = new TransHistoryDelegate( mock( HopUi.class ), mock( TransGraph.class ) );
     ValueMetaInterface valueMeta = history.getValueMetaForColumn( getColumnInfo(), new LogTableField( "COLUMN 5", "COLUMN_5", null ) );
 
     assertEquals( "COLUMN_5", valueMeta.getName() );

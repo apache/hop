@@ -55,8 +55,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * The HopEnvironment class contains settings and properties for all of Hop. Initialization of the environment is
  * done by calling the init() method, which reads in properties file(s), registers plugins, etc. Initialization should
- * be performed once at application startup; for example, Spoon's main() method calls HopEnvironment.init() in order
- * to prepare the environment for usage by Spoon.
+ * be performed once at application startup; for example, HopUi's main() method calls HopEnvironment.init() in order
+ * to prepare the environment for usage by HopUi.
  */
 public class HopEnvironment {
 

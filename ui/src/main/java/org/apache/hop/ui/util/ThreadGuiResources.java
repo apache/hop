@@ -24,7 +24,7 @@ package org.apache.hop.ui.util;
 
 import org.eclipse.swt.widgets.Display;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.SpoonFactory;
+import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.ThreadDialogs;
 
 public class ThreadGuiResources implements ThreadDialogs {
@@ -34,7 +34,7 @@ public class ThreadGuiResources implements ThreadDialogs {
     final boolean[] result = new boolean[1];
     Display.getDefault().syncExec( new Runnable() {
       public void run() {
-        result[0] = SpoonFactory.getInstance().messageBox( message, text, true, Const.INFO );
+        result[0] = HopUiFactory.getInstance().messageBox( message, text, true, Const.INFO );
       }
     } );
     return result[0];

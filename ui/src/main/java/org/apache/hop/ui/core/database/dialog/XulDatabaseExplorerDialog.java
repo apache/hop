@@ -32,8 +32,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.spoon.SpoonPluginManager;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.HopUiPluginManager;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulRunner;
@@ -68,7 +68,7 @@ public class XulDatabaseExplorerDialog {
     try {
 
       HopXulLoader theLoader = new HopXulLoader();
-      theLoader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
+      theLoader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
       theLoader.setSettingsManager( new DefaultSettingsManager( new File( Const.getHopDirectory()
         + Const.FILE_SEPARATOR + "xulSettings.properties" ) ) );
       theLoader.setOuterContext( this.shell );
@@ -78,7 +78,7 @@ public class XulDatabaseExplorerDialog {
       XulDialog theExplorerDialog =
         (XulDialog) this.container.getDocumentRoot().getElementById( "databaseExplorerDialog" );
 
-      SpoonPluginManager.getInstance().applyPluginsForContainer( "database_dialog", container );
+      HopUiPluginManager.getInstance().applyPluginsForContainer( "database_dialog", container );
 
       this.controller =
         new XulDatabaseExplorerController(

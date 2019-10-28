@@ -1529,7 +1529,7 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialog = new Shell( shell, SWT.DIALOG_TRIM );
         dialog.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
-        dialog.setImage( GUIResource.getInstance().getImageSpoon() );
+        dialog.setImage( GUIResource.getInstance().getImageHopUi() );
         dialog.setLayout( new GridLayout( 3, false ) );
 
         final DateTime calendar = new DateTime( dialog, SWT.CALENDAR );
@@ -1591,7 +1591,7 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialogto = new Shell( shell, SWT.DIALOG_TRIM );
         dialogto.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
-        dialogto.setImage( GUIResource.getInstance().getImageSpoon() );
+        dialogto.setImage( GUIResource.getInstance().getImageHopUi() );
         dialogto.setLayout( new GridLayout( 3, false ) );
 
         final DateTime calendarto = new DateTime( dialogto, SWT.CALENDAR | SWT.BORDER );

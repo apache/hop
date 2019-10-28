@@ -23,6 +23,7 @@
 package org.apache.hop.ui.job.entries.trans;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -67,7 +68,6 @@ import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.DialogHelper;
 import org.apache.hop.ui.util.DialogUtils;
@@ -325,14 +325,14 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
             int answer = mb.open();
             if ( answer == SWT.YES ) {
 
-              Spoon spoon = Spoon.getInstance();
-              spoon.newTransFile();
-              TransMeta transMeta = spoon.getActiveTransformation();
+              HopUi hopUi = HopUi.getInstance();
+              hopUi.newTransFile();
+              TransMeta transMeta = hopUi.getActiveTransformation();
               transMeta.initializeVariablesFrom( jobEntry );
               transMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
               specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-              spoon.saveFile();
+              hopUi.saveFile();
               return;
             }
           }
@@ -451,7 +451,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( Spoon.getInstance().getLog(), HopExtensionPoint.SpoonRunConfiguration.id,
+        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, TransMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors
@@ -609,7 +609,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
     TransExecutionConfiguration executionConfiguration = new TransExecutionConfiguration();
     executionConfiguration.setRunConfiguration( jet.getRunConfiguration() );
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.SpoonTransBeforeStart.id,
+      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.HopUiTransBeforeStart.id,
         new Object[] { executionConfiguration, jobMeta, jobMeta, null } );
     } catch ( HopException e ) {
       // Ignore errors

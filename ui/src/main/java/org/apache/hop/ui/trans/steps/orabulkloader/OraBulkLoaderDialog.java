@@ -1658,7 +1658,7 @@ public class OraBulkLoaderDialog extends BaseStepDialog implements StepDialogInt
       message += Const.CR;
       message +=
         BaseMessages.getString( PKG, "OraBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "OraBulkLoaderDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );

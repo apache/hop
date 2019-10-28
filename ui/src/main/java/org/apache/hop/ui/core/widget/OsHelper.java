@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -34,7 +35,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.ui.spoon.Spoon;
 
 //import org.eclipse.swt.internal.cocoa.NSWindow;
 
@@ -116,7 +116,7 @@ public class OsHelper {
 
       @Override
       public void handleEvent( Event event ) {
-        Spoon.getInstance().openFile( event.text, Spoon.getInstance().getRepository() != null );
+        HopUi.getInstance().openFile( event.text, HopUi.getInstance().getRepository() != null );
       }
 
     } );
@@ -127,7 +127,7 @@ public class OsHelper {
       @Override
       public void handleEvent( Event event ) {
         try {
-          event.doit = Spoon.getInstance().quitFile( false );
+          event.doit = HopUi.getInstance().quitFile( false );
         } catch ( HopException e ) {
           e.printStackTrace();
         }
@@ -149,7 +149,7 @@ public class OsHelper {
 
               @Override
               public void handleEvent( Event event ) {
-                Spoon.getInstance().helpAbout();
+                HopUi.getInstance().helpAbout();
               }
 
             } );
@@ -160,7 +160,7 @@ public class OsHelper {
 
               @Override
               public void handleEvent( Event event ) {
-                Spoon.getInstance().editOptions();
+                HopUi.getInstance().editOptions();
 
               }
 
@@ -184,11 +184,11 @@ public class OsHelper {
 
       if ( isMac() ) {
         // remove about from the original info menu, handled by system menu
-        Spoon.getInstance().removeMenuItem( "help-about", true );
+        HopUi.getInstance().removeMenuItem( "help-about", true );
         // remove the file/quit menu item, handled by system menu
-        Spoon.getInstance().removeMenuItem( "file-quit", true );
+        HopUi.getInstance().removeMenuItem( "file-quit", true );
         // remove the options menu (preferences), handled by system menu
-        Spoon.getInstance().removeMenuItem( "edit-options", true );
+        HopUi.getInstance().removeMenuItem( "edit-options", true );
 
       }
 

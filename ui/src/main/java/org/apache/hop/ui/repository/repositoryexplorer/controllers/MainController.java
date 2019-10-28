@@ -32,8 +32,8 @@ import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.repository.dialog.RepositoryExplorerDialog;
 import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorerCallback;
-import org.apache.hop.ui.spoon.SharedObjectSyncUtil;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.SharedObjectSyncUtil;
+import org.apache.hop.ui.hopui.HopUi;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
@@ -122,7 +122,7 @@ public class MainController extends AbstractXulEventHandler implements DialogCon
   public void closeDialog() {
     lastClicked = CANCELLED;
     this.dialog.hide();
-    Spoon.getInstance().refreshTree();
+    HopUi.getInstance().refreshTree();
 
     // listeners may remove themselves, old-style iteration
     for ( int i = 0; i < listeners.size(); i++ ) {

@@ -435,7 +435,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>For this sample to work, you&#x27;ll need to put the JTwitter jar into libext and restart  spoon&#xa;JTwitter is hosted at http&#x3a;&#x2f;&#x2f;www.winterwell.com&#x2f;software&#x2f;jtwitter.php &#xa;&#xa;The sample is tested to work against JTwitter 2.4&#xa;Don&#x27;t forget to specify your username, password and search term on the paramters pane&#xa;of the UDJC step&#x21;</note>
+      <note>For this sample to work, you&#x27;ll need to put the JTwitter jar into libext and restart  hopUi&#xa;JTwitter is hosted at http&#x3a;&#x2f;&#x2f;www.winterwell.com&#x2f;software&#x2f;jtwitter.php &#xa;&#xa;The sample is tested to work against JTwitter 2.4&#xa;Don&#x27;t forget to specify your username, password and search term on the paramters pane&#xa;of the UDJC step&#x21;</note>
       <xloc>48</xloc>
       <yloc>50</yloc>
       <width>618</width>

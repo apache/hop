@@ -10,23 +10,23 @@
     <toolbarbutton id="toolbar-file-new" image="images/new.svg" tooltiptext="${Spoon.Tooltip.NewFile}" menu="new-file-popup" />
     <toolbarseparator />
     <toolbarbutton id="toolbar-file-open" image="images/open.svg"
-      tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="spoon.openFile()" />
+      tooltiptext="${Spoon.Tooltip.OpenTranformation}" onclick="hopUi.openFile()" />
     <toolbarbutton id="toolbar-expore-repository" image="images/exploreRepo.svg" 
-      tooltiptext="${Spoon.Tooltip.ExploreRepository}" onclick="spoon.exploreRepository()" />      
+      tooltiptext="${Spoon.Tooltip.ExploreRepository}" onclick="hopUi.exploreRepository()" />
     <toolbarbutton id="toolbar-file-save" image="images/save.svg"
-      tooltiptext="${Spoon.Tooltip.SaveCurrentTranformation}" onclick="spoon.saveFile()" />
+      tooltiptext="${Spoon.Tooltip.SaveCurrentTranformation}" onclick="hopUi.saveFile()" />
     <toolbarbutton id="toolbar-file-save-as" image="images/saveas.svg"
-      tooltiptext="${Spoon.Tooltip.SaveDifferentNameTranformation}" onclick="spoon.saveFileAs()"/>
+      tooltiptext="${Spoon.Tooltip.SaveDifferentNameTranformation}" onclick="hopUi.saveFileAs()"/>
     <toolbarseparator />
     <toolbarspacer flex="1"/>
   </toolbar>
   
   <menupopup id="new-file-popup">
-    <menuitem label="${Spoon.Menubar.File.NewJob}" command="spoon.newJobFile()" image="images/chefgraph.svg"/>
-    <menuitem id="menubar-new-trans" label="${Spoon.Menubar.File.NewTrans}" command="spoon.newTransFile()" image="images/spoongraph.svg"/>
+    <menuitem label="${Spoon.Menubar.File.NewJob}" command="hopUi.newJobFile()" image="images/chefgraph.svg"/>
+    <menuitem id="menubar-new-trans" label="${Spoon.Menubar.File.NewTrans}" command="hopUi.newTransFile()" image="images/spoongraph.svg"/>
     <menuseparator />
-    <menuitem id="menubar-new-database" label="${Spoon.Menubar.File.NewDatabaseConn}" command="spoon.newConnection()" image="images/CNC.svg"/>
-    <menuitem label="${Spoon.Menubar.File.NewSlave}" command="spoon.newSlaveServer()" image="images/slave.svg"/>
+    <menuitem id="menubar-new-database" label="${Spoon.Menubar.File.NewDatabaseConn}" command="hopUi.newConnection()" image="images/CNC.svg"/>
+    <menuitem label="${Spoon.Menubar.File.NewSlave}" command="hopUi.newSlaveServer()" image="images/slave.svg"/>
   </menupopup>
   
   <deck flex="1" id="canvas-deck">

@@ -143,7 +143,7 @@ public class EnterStringDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     shell.setText( shellText );
 
     int margin = Const.MARGIN;

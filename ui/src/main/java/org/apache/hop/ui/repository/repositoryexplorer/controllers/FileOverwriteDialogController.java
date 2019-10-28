@@ -32,7 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorer;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryObject;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryObjectsList;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulRunner;
@@ -81,7 +81,7 @@ public class FileOverwriteDialogController extends AbstractXulEventHandler {
     try {
       HopXulLoader swtLoader = new HopXulLoader();
       swtLoader.setOuterContext( shell );
-      swtLoader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
+      swtLoader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
       XulDomContainer container =
         swtLoader.loadXul(
           "org.apache.hop/ui/repository/repositoryexplorer/xul/file-overwrite-dialog.xul", resourceBundle );

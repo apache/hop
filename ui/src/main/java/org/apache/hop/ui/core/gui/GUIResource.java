@@ -223,15 +223,9 @@ public class GUIResource {
 
   private SwtUniversalImage imageMissing;
 
-  private Image imageSpoon;
-
-  private Image imageSpoonLow;
+  private Image imageHopUi;
 
   private Image imageJob;
-
-  private Image imagePentaho;
-
-  private Image imagePentahoSwirl;
 
   private SwtUniversalImage imageVariable;
 
@@ -383,8 +377,6 @@ public class GUIResource {
   private Map<String, Image> imageMap;
 
   private Map<RGB, Color> colorMap;
-
-  private Image imageSpoonHigh;
 
   private Image imageHadoop;
 
@@ -612,11 +604,8 @@ public class GUIResource {
       imageStart.dispose();
       imageDummy.dispose();
       imageMissing.dispose();
-      imageSpoon.dispose();
-      imageSpoonLow.dispose();
+      imageHopUi.dispose();
       imageJob.dispose();
-      imagePentaho.dispose();
-      imagePentahoSwirl.dispose();
       imageVariable.dispose();
       imageTransGraph.dispose();
       imagePartitionSchema.dispose();
@@ -946,22 +935,10 @@ public class GUIResource {
         .getProperty( "MIS_image" ) );
 
     // "ui/images/spoon.ico"
-    imageSpoon = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image" ), 0 );
-
-    // "ui/images/spoon_lowres.ico"
-    imageSpoonLow = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image_low" ), 48 );
-
-    // "ui/images/spoon_highres.png"
-    imageSpoonHigh = ImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "spoon_image_high" ) );
+    imageHopUi = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image" ), 0 );
 
     // "ui/images/chef.png"
     imageJob = loadAsResource( display, BasePropertyHandler.getProperty( "Chef_image" ), ConstUI.ICON_SIZE );
-
-    // "ui/images/PentahoLogo.png"
-    imagePentaho = loadAsResource( display, BasePropertyHandler.getProperty( "CorpLogo_image" ), 0 );
-
-    // "ui/images/pentaho-swirl.png"
-    imagePentahoSwirl = loadAsResource( display, BasePropertyHandler.getProperty( "CorpSwirl_image" ), 0 );
 
     // "ui/images/variable.svg"
     imageVariable = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Variable_image" ) );
@@ -1736,29 +1713,8 @@ public class GUIResource {
   /**
    * @return Returns the imageSpoon.
    */
-  public Image getImageSpoon() {
-    return imageSpoon;
-  }
-
-  /**
-   * @return Returns the imageSpoonLow.
-   */
-  public Image getImageSpoonLow() {
-    return imageSpoonLow;
-  }
-
-  /**
-   * @return Returns the image Pentaho.
-   */
-  public Image getImagePentaho() {
-    return imagePentaho;
-  }
-
-  /**
-   * @return Returns the Pentaho swirl image (64x64).
-   */
-  public Image getImagePentahoSwirl() {
-    return imagePentahoSwirl;
+  public Image getImageHopUi() {
+    return imageHopUi;
   }
 
   /**
@@ -2594,14 +2550,6 @@ public class GUIResource {
 
   public SwtUniversalImage getSwtImageBalance() {
     return imageBalance;
-  }
-
-  public Image getImageSpoonHigh() {
-    return imageSpoonHigh;
-  }
-
-  public void setImageSpoonHigh( Image imageSpoonHigh ) {
-    this.imageSpoonHigh = imageSpoonHigh;
   }
 
   public Image getImageCheckpoint() {

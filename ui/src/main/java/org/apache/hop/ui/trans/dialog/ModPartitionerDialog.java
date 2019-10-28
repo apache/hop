@@ -220,6 +220,6 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
       createHelpButton( shell, stepMeta, plugin );
     }
 
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
   }
 }

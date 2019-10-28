@@ -1584,7 +1584,7 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
       }
       message += Const.CR;
       message += BaseMessages.getString( PKG, "LDAPOutputDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "LDAPOutputDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );

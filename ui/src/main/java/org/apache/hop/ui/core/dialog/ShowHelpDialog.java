@@ -20,6 +20,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -46,7 +47,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 import java.net.MalformedURLException;
@@ -54,9 +54,9 @@ import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
 
-  private static Class<?> PKG = Spoon.class;
+  private static Class<?> PKG = HopUi.class;
 
-  private static final String DOC_URL = Spoon.DOCUMENTATION_URL;
+  private static final String DOC_URL = HopUi.DOCUMENTATION_URL;
   private static final String PREFIX = "https://help";
   private static final String PRINT_PREFIX = "https://f1.help";
   private static final String PRINT_SCRIPT = "javascript:window.print();";
@@ -124,7 +124,7 @@ public class ShowHelpDialog extends Dialog {
     display = parent.getDisplay();
 
     shell = createShell( parent );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();

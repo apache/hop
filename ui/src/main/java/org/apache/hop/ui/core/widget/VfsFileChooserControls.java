@@ -24,6 +24,7 @@ package org.apache.hop.ui.core.widget;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -38,7 +39,6 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.spoon.Spoon;
 import org.pentaho.vfs.ui.CustomVfsUiPanel;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import org.pentaho.vfs.util.VFSScheme;
@@ -89,7 +89,7 @@ public class VfsFileChooserControls extends Composite {
       }
     }
     if ( initialFile == null ) {
-      initialFile = HopVFS.getFileObject( Spoon.getInstance().getLastFileOpened() );
+      initialFile = HopVFS.getFileObject( HopUi.getInstance().getLastFileOpened() );
     }
     return initialFile;
   }
@@ -188,7 +188,7 @@ public class VfsFileChooserControls extends Composite {
     return getSpoon().getVfsFileChooserDialog( rootFile, initialFile );
   }
 
-  private Spoon getSpoon() {
-    return Spoon.getInstance();
+  private HopUi getSpoon() {
+    return HopUi.getInstance();
   }
 }

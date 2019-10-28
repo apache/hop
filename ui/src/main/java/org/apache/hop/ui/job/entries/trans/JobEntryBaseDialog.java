@@ -23,6 +23,7 @@
 package org.apache.hop.ui.job.entries.trans;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -68,7 +69,6 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.spoon.Spoon;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -686,7 +686,7 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
       executorService.submit( () -> {
         List<Object> items = Arrays.asList( runConfiguration, false );
         try {
-          ExtensionPointHandler.callExtensionPoint( Spoon.getInstance().getLog(), HopExtensionPoint
+          ExtensionPointHandler.callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint
                   .RunConfigurationSelection.id, items );
         } catch ( HopException ignored ) {
           // Ignore errors

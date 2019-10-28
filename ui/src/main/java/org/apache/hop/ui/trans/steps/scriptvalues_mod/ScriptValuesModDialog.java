@@ -31,6 +31,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -122,7 +123,6 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 
@@ -1239,7 +1239,7 @@ public class ScriptValuesModDialog extends BaseStepDialog implements StepDialogI
 
         // OK, now we ask the user to edit this dialog...
         //
-        if ( Spoon.getInstance().editStep( transMeta, genStep ) != null ) {
+        if ( HopUi.getInstance().editStep( transMeta, genStep ) != null ) {
           // Now run this transformation and grab the results...
           //
           TransPreviewProgressDialog progressDialog =

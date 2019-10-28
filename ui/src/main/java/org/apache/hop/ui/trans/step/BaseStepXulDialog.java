@@ -57,8 +57,8 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.spoon.XulSpoonResourceBundle;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulException;
@@ -75,12 +75,12 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
 
   @Override
   public XulSettingsManager getSettingsManager() {
-    return XulSpoonSettingsManager.getInstance();
+    return XulHopUiSettingsManager.getInstance();
   }
 
   @Override
   public ResourceBundle getResourceBundle() {
-    return new XulSpoonResourceBundle( getClassForMessages() );
+    return new XulHopUiResourceBundle( getClassForMessages() );
   }
 
   @Override
@@ -305,7 +305,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
             BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
             BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
             BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       int idx = md.open();
       choice = idx & 0xFF;
     }
@@ -465,7 +465,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
             BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
             BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
             BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       int idx = md.open();
       choice = idx & 0xFF;
     }

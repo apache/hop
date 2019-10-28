@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -59,8 +60,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.spoon.Spoon;
-import org.apache.hop.ui.spoon.delegates.SpoonDBDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiDBDelegate;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 
@@ -211,7 +211,7 @@ public class EnterSelectionDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( shellText );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     int margin = Const.MARGIN;
 
@@ -443,7 +443,7 @@ public class EnterSelectionDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( shellText );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     wlSelection = new Label( shell, SWT.NONE );
     wlSelection.setText( lineText );
@@ -698,8 +698,8 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   protected void addDataSource() {
-    Spoon theSpoon = Spoon.getInstance();
-    SpoonDBDelegate theDelegate = new SpoonDBDelegate( theSpoon );
+    HopUi theHopUi = HopUi.getInstance();
+    HopUiDBDelegate theDelegate = new HopUiDBDelegate( theHopUi );
     theDelegate.newConnection( this.databasesInterface );
 
     ArrayList<DatabaseMeta> theDatabases = new ArrayList<DatabaseMeta>();

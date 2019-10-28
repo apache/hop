@@ -169,7 +169,7 @@ public class ShowMessageDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     formLayout = new FormLayout();
     shell.setLayout( formLayout );

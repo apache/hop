@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon;
+package org.apache.hop.ui.hopui;
 
 import static org.mockito.Mockito.mock;
 
@@ -31,6 +31,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.ui.hopui.delegates.HopUiJobDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiPartitionsDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiTransformationDelegate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -56,13 +59,10 @@ import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.spoon.delegates.SpoonClustersDelegate;
-import org.apache.hop.ui.spoon.delegates.SpoonDBDelegate;
-import org.apache.hop.ui.spoon.delegates.SpoonDelegates;
-import org.apache.hop.ui.spoon.delegates.SpoonJobDelegate;
-import org.apache.hop.ui.spoon.delegates.SpoonPartitionsDelegate;
-import org.apache.hop.ui.spoon.delegates.SpoonSlaveDelegate;
-import org.apache.hop.ui.spoon.delegates.SpoonTransformationDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiClustersDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiDBDelegate;
+import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopui.delegates.HopUiSlaveDelegate;
 
 
 /**
@@ -78,11 +78,11 @@ public class SharedObjectSyncUtilTest {
 
   private static final String SHARED_OBJECTS_FILE = "ram:/shared.xml";
 
-  private SpoonDelegates spoonDelegates;
+  private HopUiDelegates hopUiDelegates;
 
   private SharedObjectSyncUtil sharedUtil;
 
-  private Spoon spoon;
+  private HopUi hopUi;
 
   private Repository repository;
 
@@ -93,17 +93,17 @@ public class SharedObjectSyncUtilTest {
 
   @Before
   public void setUp() {
-    spoon = mock( Spoon.class );
+    hopUi = mock( HopUi.class );
     //when( spoon.getRepository() ).thenReturn( spoon.rep );
-    spoonDelegates = mock( SpoonDelegates.class );
-    spoonDelegates.jobs = new SpoonJobDelegate( spoon );
-    spoonDelegates.trans = new SpoonTransformationDelegate( spoon );
-    spoonDelegates.db = new SpoonDBDelegate( spoon );
-    spoonDelegates.slaves = new SpoonSlaveDelegate( spoon );
-    spoonDelegates.partitions = new SpoonPartitionsDelegate( spoon );
-    spoonDelegates.clusters = new SpoonClustersDelegate( spoon );
-    spoon.delegates = spoonDelegates;
-    sharedUtil = new SharedObjectSyncUtil( spoon );
+    hopUiDelegates = mock( HopUiDelegates.class );
+    hopUiDelegates.jobs = new HopUiJobDelegate( hopUi );
+    hopUiDelegates.trans = new HopUiTransformationDelegate( hopUi );
+    hopUiDelegates.db = new HopUiDBDelegate( hopUi );
+    hopUiDelegates.slaves = new HopUiSlaveDelegate( hopUi );
+    hopUiDelegates.partitions = new HopUiPartitionsDelegate( hopUi );
+    hopUiDelegates.clusters = new HopUiClustersDelegate( hopUi );
+    hopUi.delegates = hopUiDelegates;
+    sharedUtil = new SharedObjectSyncUtil( hopUi );
     repository = mock( Repository.class );
   }
 
@@ -124,9 +124,9 @@ public class SharedObjectSyncUtilTest {
 
     JobMeta job1 = createJobMeta();
 
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     DatabaseMeta sharedDB2 = job2.getDatabase( 0 );
     assertEquals( databaseName, sharedDB2.getName() );
@@ -151,17 +151,17 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     DatabaseMeta sharedDB1 = job1.getDatabase( 0 );
 
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     DatabaseMeta unsharedDB2 = createDatabaseMeta( databaseName, false );
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
     job2.removeDatabase( 0 );
     job2.addDatabase( unsharedDB2 );
 
     JobMeta job3 = createJobMeta();
     DatabaseMeta sharedDB3 = job3.getDatabase( 0 );
-    spoonDelegates.jobs.addJob( job3 );
+    hopUiDelegates.jobs.addJob( job3 );
     job3.addDatabase( sharedDB3 );
 
     sharedDB3.setHostname( AFTER_SYNC_VALUE );
@@ -176,10 +176,10 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     DatabaseMeta sharedDB1 = createDatabaseMeta( databaseName, true );
     job1.addDatabase( sharedDB1 );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
     DatabaseMeta db2 = createDatabaseMeta( databaseName, false );
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
     job2.addDatabase( db2 );
 
     db2.setHostname( AFTER_SYNC_VALUE );
@@ -192,10 +192,10 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     DatabaseMeta sharedDB1 = createDatabaseMeta( "DB", true );
     job1.addDatabase( sharedDB1 );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
     DatabaseMeta sharedDB2 = createDatabaseMeta( "Db", true );
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
     job2.addDatabase( sharedDB2 );
 
     sharedDB2.setHostname( AFTER_SYNC_VALUE );
@@ -211,10 +211,10 @@ public class SharedObjectSyncUtilTest {
 
 
     JobMeta job1 = createJobMeta();
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     DatabaseMeta sharedDB2 = job2.getDatabase( 0 );
     assertEquals( databaseName, sharedDB2.getName() );
@@ -236,20 +236,20 @@ public class SharedObjectSyncUtilTest {
     saveSharedObjects( SHARED_OBJECTS_FILE, sharedDB0 );
 
     TransMeta t1 = createTransMeta();
-    spoonDelegates.trans.addTransformation( t1 );
+    hopUiDelegates.trans.addTransformation( t1 );
 
     TransMeta t2 = createTransMeta();
-    spoonDelegates.trans.addTransformation( t2 );
+    hopUiDelegates.trans.addTransformation( t2 );
 
     final String name2 = "NAME 2";
     DatabaseMeta sharedDB1 = t1.getDatabase( 0 );
     sharedDB1.setName( name2 );
-    when( spoon.getActiveMeta() ).thenReturn( t1 );
+    when( hopUi.getActiveMeta() ).thenReturn( t1 );
     sharedUtil.synchronizeConnections( sharedDB1, databaseName );
 
     DatabaseMeta sharedDB2 = t2.getDatabase( 0 );
     assertTrue( sharedDB2.getName().equals( name2 ) );
-    when( spoon.getActiveMeta() ).thenReturn( t2 );
+    when( hopUi.getActiveMeta() ).thenReturn( t2 );
     sharedDB2.setName( "name3" );
     sharedUtil.synchronizeConnections( sharedDB2, name2 );
     assertTrue( sharedDB1.getName().equals( sharedDB2.getName() ) );
@@ -262,20 +262,20 @@ public class SharedObjectSyncUtilTest {
     saveSharedObjects( SHARED_OBJECTS_FILE, server0 );
 
     JobMeta j1 = createJobMeta();
-    spoonDelegates.jobs.addJob( j1 );
+    hopUiDelegates.jobs.addJob( j1 );
 
     JobMeta j2 = createJobMeta();
-    spoonDelegates.jobs.addJob( j2 );
+    hopUiDelegates.jobs.addJob( j2 );
 
     final String name2 = "NAME 2";
-    when( spoon.getActiveMeta() ).thenReturn( j1 );
+    when( hopUi.getActiveMeta() ).thenReturn( j1 );
     SlaveServer server1 = j1.getSlaveServers().get( 0 );
     server1.setName( name2 );
     sharedUtil.synchronizeSlaveServers( server1, serverName );
 
     SlaveServer server2 = j2.getSlaveServers().get( 0 );
     assertTrue( server2.getName().equals( name2 ) );
-    when( spoon.getActiveMeta() ).thenReturn( j2 );
+    when( hopUi.getActiveMeta() ).thenReturn( j2 );
     server2.setName( "name3" );
     sharedUtil.synchronizeSlaveServers( server2, name2 );
     assertTrue( server1.getName().equals( server2.getName() ) );
@@ -284,7 +284,7 @@ public class SharedObjectSyncUtilTest {
   @Test
   public void synchronizeSlaveServerRenameRepository() throws Exception {
     try {
-      spoon.rep = repository;
+      hopUi.rep = repository;
 
       final String objectId = "object-id";
       final String serverName = "SharedServer";
@@ -295,14 +295,14 @@ public class SharedObjectSyncUtilTest {
       SlaveServer server1 = createSlaveServer( serverName, false );
       server1.setObjectId( new StringObjectId( objectId ) );
       job1.addOrReplaceSlaveServer( server1 );
-      spoonDelegates.jobs.addJob( job1 );
+      hopUiDelegates.jobs.addJob( job1 );
 
       JobMeta job2 = createJobMeta();
       job2.setRepository( repository );
       job2.setSharedObjects( createSharedObjects( SHARED_OBJECTS_FILE ) );
       SlaveServer server2 = createSlaveServer( serverName, false );
       server2.setObjectId( new StringObjectId( objectId ) );
-      spoonDelegates.jobs.addJob( job2 );
+      hopUiDelegates.jobs.addJob( job2 );
 
       server2.setName( AFTER_SYNC_VALUE );
       sharedUtil.synchronizeSlaveServers( server2 );
@@ -310,7 +310,7 @@ public class SharedObjectSyncUtilTest {
 
       assertEquals( AFTER_SYNC_VALUE, job1.getSlaveServers().get( 0 ).getName() );
     } finally {
-      spoon.rep = null;
+      hopUi.rep = null;
     }
   }
 
@@ -318,8 +318,8 @@ public class SharedObjectSyncUtilTest {
   @Test
   public void synchronizeSlaveServerDeleteFromRepository() throws Exception {
     try {
-      spoon.rep = repository;
-      when( spoon.getRepository() ).thenReturn( repository );
+      hopUi.rep = repository;
+      when( hopUi.getRepository() ).thenReturn( repository );
 
       final String objectId = "object-id";
       final String serverName = "SharedServer";
@@ -330,7 +330,7 @@ public class SharedObjectSyncUtilTest {
       SlaveServer server1 = createSlaveServer( serverName, false );
       server1.setObjectId( new StringObjectId( objectId ) );
       trans.addOrReplaceSlaveServer( server1 );
-      spoon.delegates.trans.addTransformation( trans );
+      hopUi.delegates.trans.addTransformation( trans );
 
       JobMeta job = createJobMeta();
       job.setRepository( repository );
@@ -338,7 +338,7 @@ public class SharedObjectSyncUtilTest {
       SlaveServer server3 = createSlaveServer( serverName, false );
       server3.setObjectId( new StringObjectId( objectId ) );
       job.addOrReplaceSlaveServer( server3 );
-      spoon.delegates.jobs.addJob( job );
+      hopUi.delegates.jobs.addJob( job );
 
       TransMeta trans2 = createTransMeta();
       trans2.setRepository( repository );
@@ -346,26 +346,26 @@ public class SharedObjectSyncUtilTest {
       SlaveServer server2 = createSlaveServer( serverName, false );
       server2.setObjectId( new StringObjectId( objectId ) );
       trans2.addOrReplaceSlaveServer( server2 );
-      spoon.delegates.trans.addTransformation( trans2 );
+      hopUi.delegates.trans.addTransformation( trans2 );
 
       assertFalse( trans.getSlaveServers().isEmpty() );
       assertFalse( job.getSlaveServers().isEmpty() );
-      spoon.delegates.slaves.delSlaveServer( trans2, server2 );
+      hopUi.delegates.slaves.delSlaveServer( trans2, server2 );
       verify( repository ).deleteSlave( server2.getObjectId() );
 
       assertTrue( trans.getSlaveServers().isEmpty() );
       assertTrue( job.getSlaveServers().isEmpty() );
     } finally {
-      spoon.rep = null;
-      when( spoon.getRepository() ).thenReturn( null );
+      hopUi.rep = null;
+      when( hopUi.getRepository() ).thenReturn( null );
     }
   }
 
   @Test
   public void synchronizePartitionSchemasDeleteFromRepository() throws Exception {
     try {
-      spoon.rep = repository;
-      when( spoon.getRepository() ).thenReturn( repository );
+      hopUi.rep = repository;
+      when( hopUi.getRepository() ).thenReturn( repository );
 
       final String objectId = "object-id";
       final String partitionName = "partsch";
@@ -376,7 +376,7 @@ public class SharedObjectSyncUtilTest {
       PartitionSchema part1 = createPartitionSchema( partitionName, false );
       part1.setObjectId( new StringObjectId( objectId ) );
       trans1.addOrReplacePartitionSchema( part1 );
-      spoon.delegates.trans.addTransformation( trans1 );
+      hopUi.delegates.trans.addTransformation( trans1 );
 
       TransMeta trans2 = createTransMeta();
       trans2.setRepository( repository );
@@ -384,15 +384,15 @@ public class SharedObjectSyncUtilTest {
       PartitionSchema part2 = createPartitionSchema( partitionName, false );
       part2.setObjectId( new StringObjectId( objectId ) );
       trans2.addOrReplacePartitionSchema( part2 );
-      spoon.delegates.trans.addTransformation( trans2 );
+      hopUi.delegates.trans.addTransformation( trans2 );
 
       assertFalse( trans1.getPartitionSchemas().isEmpty() );
-      spoon.delegates.partitions.delPartitionSchema( trans2, part2 );
+      hopUi.delegates.partitions.delPartitionSchema( trans2, part2 );
       verify( repository ).deletePartitionSchema( part2.getObjectId() );
       assertTrue( trans1.getPartitionSchemas().isEmpty() );
     } finally {
-      spoon.rep = null;
-      when( spoon.getRepository() ).thenReturn( null );
+      hopUi.rep = null;
+      when( hopUi.getRepository() ).thenReturn( null );
     }
   }
 
@@ -404,11 +404,11 @@ public class SharedObjectSyncUtilTest {
 
 
     JobMeta job1 = createJobMeta();
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
     DatabaseMeta sharedDB1 = job1.getDatabase( 0 );
 
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
     DatabaseMeta sharedDB2 = job2.getDatabase( 0 );
 
 
@@ -419,7 +419,7 @@ public class SharedObjectSyncUtilTest {
     assertThat( sharedDB1.getHostname(), equalTo( AFTER_SYNC_VALUE ) );
 
     JobMeta job3 = createJobMeta();
-    spoonDelegates.jobs.addJob( job3 );
+    hopUiDelegates.jobs.addJob( job3 );
     DatabaseMeta sharedDB3 = job3.getDatabase( 0 );
     assertThat( sharedDB3.getHostname(), equalTo( AFTER_SYNC_VALUE ) );
   }
@@ -430,12 +430,12 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     SlaveServer slaveServer1 = createSlaveServer( slaveServerName, true );
     job1.setSlaveServers( Collections.singletonList( slaveServer1 ) );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
     SlaveServer slaveServer2 = createSlaveServer( slaveServerName, true );
     job2.setSlaveServers( Collections.singletonList( slaveServer2 ) );
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     slaveServer2.setHostname( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSlaveServers( slaveServer2 );
@@ -448,17 +448,17 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     SlaveServer slaveServer1 = createSlaveServer( slaveServerName, true );
     job1.setSlaveServers( Collections.singletonList( slaveServer1 ) );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
     SlaveServer unsharedSlaveServer2 = createSlaveServer( slaveServerName, false );
     job2.setSlaveServers( Collections.singletonList( unsharedSlaveServer2 ) );
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     JobMeta job3 = createJobMeta();
     SlaveServer slaveServer3 = createSlaveServer( slaveServerName, true );
     job3.setSlaveServers( Collections.singletonList( slaveServer3 ) );
-    spoonDelegates.jobs.addJob( job3 );
+    hopUiDelegates.jobs.addJob( job3 );
 
     slaveServer3.setHostname( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSlaveServers( slaveServer3 );
@@ -472,12 +472,12 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     SlaveServer slaveServer1 = createSlaveServer( slaveServerName, true );
     job1.setSlaveServers( Collections.singletonList( slaveServer1 ) );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
     SlaveServer slaveServer2 = createSlaveServer( slaveServerName, false );
     job2.setSlaveServers( Collections.singletonList( slaveServer2 ) );
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     slaveServer2.setHostname( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSlaveServers( slaveServer2 );
@@ -489,12 +489,12 @@ public class SharedObjectSyncUtilTest {
     JobMeta job1 = createJobMeta();
     SlaveServer slaveServer1 = createSlaveServer( "SlaveServer", true );
     job1.setSlaveServers( Collections.singletonList( slaveServer1 ) );
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
     SlaveServer slaveServer2 = createSlaveServer( "Slaveserver", true );
     job2.setSlaveServers( Collections.singletonList( slaveServer2 ) );
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     slaveServer2.setHostname( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSlaveServers( slaveServer2 );
@@ -509,10 +509,10 @@ public class SharedObjectSyncUtilTest {
 
 
     JobMeta job1 = createJobMeta();
-    spoonDelegates.jobs.addJob( job1 );
+    hopUiDelegates.jobs.addJob( job1 );
 
     JobMeta job2 = createJobMeta();
-    spoonDelegates.jobs.addJob( job2 );
+    hopUiDelegates.jobs.addJob( job2 );
 
     SlaveServer server1 = job1.getSlaveServers().get( 0 );
     SlaveServer server2 = job2.getSlaveServers().get( 0 );
@@ -533,12 +533,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     ClusterSchema clusterSchema1 = createClusterSchema( clusterSchemaName, true );
     transformarion1.setClusterSchemas( Collections.singletonList( clusterSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     ClusterSchema clusterSchema2 = createClusterSchema( clusterSchemaName, true );
     transformarion2.setClusterSchemas( Collections.singletonList( clusterSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     clusterSchema2.setDynamic( true );
     sharedUtil.synchronizeClusterSchemas( clusterSchema2 );
@@ -551,17 +551,17 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     ClusterSchema clusterSchema1 = createClusterSchema( clusterSchemaName, true );
     transformarion1.setClusterSchemas( Collections.singletonList( clusterSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     ClusterSchema unsharedClusterSchema2 = createClusterSchema( clusterSchemaName, false );
     transformarion2.setClusterSchemas( Collections.singletonList( unsharedClusterSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     TransMeta transformarion3 = createTransMeta();
     ClusterSchema clusterSchema3 = createClusterSchema( clusterSchemaName, true );
     transformarion3.setClusterSchemas( Collections.singletonList( clusterSchema3 ) );
-    spoonDelegates.trans.addTransformation( transformarion3 );
+    hopUiDelegates.trans.addTransformation( transformarion3 );
 
     clusterSchema3.setDynamic( true );
     sharedUtil.synchronizeClusterSchemas( clusterSchema3 );
@@ -575,12 +575,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     ClusterSchema clusterSchema1 = createClusterSchema( clusterSchemaName, true );
     transformarion1.setClusterSchemas( Collections.singletonList( clusterSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     ClusterSchema clusterSchema2 = createClusterSchema( clusterSchemaName, false );
     transformarion2.setClusterSchemas( Collections.singletonList( clusterSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     clusterSchema2.setDynamic( true );
     sharedUtil.synchronizeClusterSchemas( clusterSchema2 );
@@ -592,12 +592,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     ClusterSchema clusterSchema1 = createClusterSchema( "ClusterSchema", true );
     transformarion1.setClusterSchemas( Collections.singletonList( clusterSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     ClusterSchema clusterSchema2 = createClusterSchema( "Clusterschema", true );
     transformarion2.setClusterSchemas( Collections.singletonList( clusterSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     clusterSchema2.setDynamic( true );
     sharedUtil.synchronizeClusterSchemas( clusterSchema2 );
@@ -610,12 +610,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     PartitionSchema partitionSchema1 = createPartitionSchema( partitionSchemaName, true );
     transformarion1.setPartitionSchemas( Collections.singletonList( partitionSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     PartitionSchema partitionSchema2 = createPartitionSchema( partitionSchemaName, true );
     transformarion2.setPartitionSchemas( Collections.singletonList( partitionSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     partitionSchema2.setNumberOfPartitionsPerSlave( AFTER_SYNC_VALUE );
     sharedUtil.synchronizePartitionSchemas( partitionSchema2 );
@@ -628,17 +628,17 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     PartitionSchema partitionSchema1 = createPartitionSchema( partitionSchemaName, true );
     transformarion1.setPartitionSchemas( Collections.singletonList( partitionSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     PartitionSchema unsharedPartitionSchema2 = createPartitionSchema( partitionSchemaName, false );
     transformarion2.setPartitionSchemas( Collections.singletonList( unsharedPartitionSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     TransMeta transformarion3 = createTransMeta();
     PartitionSchema partitionSchema3 = createPartitionSchema( partitionSchemaName, true );
     transformarion3.setPartitionSchemas( Collections.singletonList( partitionSchema3 ) );
-    spoonDelegates.trans.addTransformation( transformarion3 );
+    hopUiDelegates.trans.addTransformation( transformarion3 );
 
     partitionSchema3.setNumberOfPartitionsPerSlave( AFTER_SYNC_VALUE );
     sharedUtil.synchronizePartitionSchemas( partitionSchema3 );
@@ -652,12 +652,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     PartitionSchema partitionSchema1 = createPartitionSchema( partitionSchemaName, true );
     transformarion1.setPartitionSchemas( Collections.singletonList( partitionSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     PartitionSchema partitionSchema2 = createPartitionSchema( partitionSchemaName, false );
     transformarion2.setPartitionSchemas( Collections.singletonList( partitionSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     partitionSchema2.setNumberOfPartitionsPerSlave( AFTER_SYNC_VALUE );
     sharedUtil.synchronizePartitionSchemas( partitionSchema2 );
@@ -669,12 +669,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     PartitionSchema partitionSchema1 = createPartitionSchema( "PartitionSchema", true );
     transformarion1.setPartitionSchemas( Collections.singletonList( partitionSchema1 ) );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     PartitionSchema partitionSchema2 = createPartitionSchema( "Partitionschema", true );
     transformarion2.setPartitionSchemas( Collections.singletonList( partitionSchema2 ) );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     partitionSchema2.setNumberOfPartitionsPerSlave( AFTER_SYNC_VALUE );
     sharedUtil.synchronizePartitionSchemas( partitionSchema2 );
@@ -687,12 +687,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     StepMeta step1 = createStepMeta( stepName, true );
     transformarion1.addStep( step1 );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     StepMeta step2 = createStepMeta( stepName, true );
     transformarion2.addStep( step2 );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     step2.setDescription( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSteps( step2 );
@@ -705,17 +705,17 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     StepMeta step1 = createStepMeta( stepName, true );
     transformarion1.addStep( step1 );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     StepMeta unsharedStep2 = createStepMeta( stepName, false );
     transformarion2.addStep( unsharedStep2 );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     TransMeta transformarion3 = createTransMeta();
     StepMeta step3 = createStepMeta( stepName, true );
     transformarion3.addStep( step3 );
-    spoonDelegates.trans.addTransformation( transformarion3 );
+    hopUiDelegates.trans.addTransformation( transformarion3 );
 
     step3.setDescription( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSteps( step3 );
@@ -729,12 +729,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     StepMeta step1 = createStepMeta( stepName, true );
     transformarion1.addStep( step1 );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     StepMeta step2 = createStepMeta( stepName, false );
     transformarion2.addStep( step2 );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     step2.setDescription( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSteps( step2 );
@@ -746,12 +746,12 @@ public class SharedObjectSyncUtilTest {
     TransMeta transformarion1 = createTransMeta();
     StepMeta step1 = createStepMeta( "STEP", true );
     transformarion1.addStep( step1 );
-    spoonDelegates.trans.addTransformation( transformarion1 );
+    hopUiDelegates.trans.addTransformation( transformarion1 );
 
     TransMeta transformarion2 = createTransMeta();
     StepMeta step2 = createStepMeta( "Step", true );
     transformarion2.addStep( step2 );
-    spoonDelegates.trans.addTransformation( transformarion2 );
+    hopUiDelegates.trans.addTransformation( transformarion2 );
 
     step2.setDescription( AFTER_SYNC_VALUE );
     sharedUtil.synchronizeSteps( step2 );
@@ -765,7 +765,7 @@ public class SharedObjectSyncUtilTest {
     jobMeta.setRepositoryDirectory( mock( RepositoryDirectory.class ) );
 //    jobMeta.setSharedObjectsFile( SHARED_OBJECTS_FILE );
     initSharedObjects( jobMeta, SHARED_OBJECTS_FILE );
-    when( spoon.getActiveMeta() ).thenReturn( jobMeta );
+    when( hopUi.getActiveMeta() ).thenReturn( jobMeta );
     return jobMeta;
   }
 
@@ -778,7 +778,7 @@ public class SharedObjectSyncUtilTest {
     doCallRealMethod().when( repositoryDirectory ).getName();
     transMeta.setRepositoryDirectory( repositoryDirectory );
     initSharedObjects( transMeta, SHARED_OBJECTS_FILE );
-    when( spoon.getActiveMeta() ).thenReturn( transMeta );
+    when( hopUi.getActiveMeta() ).thenReturn( transMeta );
     return transMeta;
   }
 

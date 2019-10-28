@@ -30,6 +30,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.dnd.DND;
@@ -118,7 +119,6 @@ import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.partition.dialog.PartitionSchemaDialog;
 import org.apache.hop.ui.repository.RepositoryDirectoryUI;
 import org.apache.hop.ui.repository.RepositorySecurityUI;
-import org.apache.hop.ui.spoon.Spoon;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.w3c.dom.Document;
 
@@ -2700,7 +2700,7 @@ public class RepositoryExplorerDialog extends Dialog {
   }
 
   public void exportAll( RepositoryDirectoryInterface dir ) {
-    FileDialog dialog = Spoon.getInstance().getExportFileDialog(); // new FileDialog( shell, SWT.SAVE | SWT.SINGLE );
+    FileDialog dialog = HopUi.getInstance().getExportFileDialog(); // new FileDialog( shell, SWT.SAVE | SWT.SINGLE );
     if ( dialog.open() == null ) {
       return;
     }

@@ -910,7 +910,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     }
     // show a confirm dialog if some misconfiguration was found
     if ( missingFields.length() > 0 ) {
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell,
           BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFoundTitle" ),

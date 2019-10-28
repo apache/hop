@@ -1215,7 +1215,7 @@ public class BaseStepDialog extends Dialog {
         BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
         BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
         BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
-    MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+    MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
     return messageDialog;
   }
 

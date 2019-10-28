@@ -70,7 +70,7 @@ public class StyledTextCompReplace extends org.eclipse.swt.widgets.Dialog {
 
     Shell parent = getParent();
     sShell = new Shell( parent, SWT.DIALOG_TRIM | SWT.NO_REDRAW_RESIZE | SWT.APPLICATION_MODAL );
-    sShell.setImage( GUIResource.getInstance().getImageSpoon() );
+    sShell.setImage( GUIResource.getInstance().getImageHopUi() );
     sShell.setText( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.Replace" ) );
     sShell.setSize( new Point( 351, 178 ) );
     FormLayout formLayout = new FormLayout();

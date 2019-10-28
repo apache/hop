@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -56,7 +57,6 @@ import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryContent
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryDirectory;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryObject;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryObjects;
-import org.apache.hop.ui.spoon.Spoon;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.Binding;
@@ -568,7 +568,7 @@ public class BrowseController extends AbstractXulEventHandler implements IUISupp
 
         // Export the directories one by one...
         //
-        if ( Spoon.getInstance().exportRepositoryDirectory( repoDir.getDirectory() ) ) {
+        if ( HopUi.getInstance().exportRepositoryDirectory( repoDir.getDirectory() ) ) {
           return;
         }
       }

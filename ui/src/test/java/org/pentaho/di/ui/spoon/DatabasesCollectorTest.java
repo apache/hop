@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon;
+package org.apache.hop.ui.hopui;
 
 import org.junit.Test;
 import org.apache.hop.base.AbstractMeta;

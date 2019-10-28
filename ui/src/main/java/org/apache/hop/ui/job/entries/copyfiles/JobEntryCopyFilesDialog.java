@@ -73,7 +73,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -474,7 +474,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
               defaultInitialFile = HopVFS.getFileObject( "file:///c:/" );
               rootFile = initialFile.getFileSystem().getRoot();
             } else {
-              defaultInitialFile = HopVFS.getFileObject( Spoon.getInstance().getLastFileOpened() );
+              defaultInitialFile = HopVFS.getFileObject( HopUi.getInstance().getLastFileOpened() );
             }
           }
 
@@ -482,7 +482,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
             rootFile = defaultInitialFile.getFileSystem().getRoot();
             initialFile = defaultInitialFile;
           }
-          VfsFileChooserDialog fileChooserDialog = Spoon.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
+          VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
           fileChooserDialog.defaultInitialFile = defaultInitialFile;
 
           selectedFile =

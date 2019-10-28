@@ -43,7 +43,7 @@ import org.apache.hop.ui.repository.repositoryexplorer.ControllerInitializationE
 import org.apache.hop.ui.repository.repositoryexplorer.IUISupportController;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UISlave;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UISlaves;
-import org.apache.hop.ui.spoon.SharedObjectSyncUtil;
+import org.apache.hop.ui.hopui.SharedObjectSyncUtil;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.BindingFactory;

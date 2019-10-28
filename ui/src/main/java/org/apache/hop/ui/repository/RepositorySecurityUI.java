@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.repository;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -33,7 +34,6 @@ import org.apache.hop.repository.RepositoryOperation;
 import org.apache.hop.repository.RepositorySecurityProvider;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.spoon.Spoon;
 
 public class RepositorySecurityUI {
 
@@ -71,11 +71,11 @@ public class RepositorySecurityUI {
       // always ok if there is no repository
       return false;
     } catch ( HopRepositoryLostException krle ) {
-      Spoon.getInstance().handleRepositoryLost( krle );
+      HopUi.getInstance().handleRepositoryLost( krle );
     } catch ( HopException e ) {
       HopRepositoryLostException krle = HopRepositoryLostException.lookupStackStrace( e );
       if ( krle != null ) {
-        Spoon.getInstance().handleRepositoryLost( krle );
+        HopUi.getInstance().handleRepositoryLost( krle );
       } else if ( displayError == true ) {
         new ErrorDialog( shell, "Security error",
             "There was a security error performing operations:" + Const.CR + operationsDesc, e );

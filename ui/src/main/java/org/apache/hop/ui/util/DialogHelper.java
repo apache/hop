@@ -42,7 +42,7 @@ public class DialogHelper {
       if ( !Utils.isEmpty( filter ) ) {
         fileDialogOperation.setFilter( filter );
       }
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.SpoonOpenSaveRepository.id,
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiOpenSaveRepository.id,
         fileDialogOperation );
       return (RepositoryObject) fileDialogOperation.getRepositoryObject();
     } catch ( HopException ke ) {

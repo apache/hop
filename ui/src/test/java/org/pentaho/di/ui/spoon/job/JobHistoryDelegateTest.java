@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon.job;
+package org.apache.hop.ui.hopui.job;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.junit.Test;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -29,7 +30,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.spoon.Spoon;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +53,7 @@ public class JobHistoryDelegateTest {
     setInternalState( model, "logDisplayTableView", view );
     setInternalState( model, "logTableFields", getLogTableFields() );
 
-    JobHistoryDelegate history = new JobHistoryDelegate( mock( Spoon.class ), mock( JobGraph.class ) );
+    JobHistoryDelegate history = new JobHistoryDelegate( mock( HopUi.class ), mock( JobGraph.class ) );
     Map<String, Integer> map = history.getColumnMappings( model );
 
     assertEquals( 0, (int) map.get( "COLUMN_1" ) );
@@ -65,7 +65,7 @@ public class JobHistoryDelegateTest {
 
   @Test
   public void getValueMetaForStringColumn() {
-    JobHistoryDelegate history = new JobHistoryDelegate( mock( Spoon.class ), mock( JobGraph.class ) );
+    JobHistoryDelegate history = new JobHistoryDelegate( mock( HopUi.class ), mock( JobGraph.class ) );
     ValueMetaInterface
       valueMeta = history.getValueMetaForColumn( getColumnInfo(), new LogTableField( "COLUMN 2", "COLUMN_2", null ) );
 
@@ -75,7 +75,7 @@ public class JobHistoryDelegateTest {
 
   @Test
   public void getValueMetaForIntegerColumn() {
-    JobHistoryDelegate history = new JobHistoryDelegate( mock( Spoon.class ), mock( JobGraph.class ) );
+    JobHistoryDelegate history = new JobHistoryDelegate( mock( HopUi.class ), mock( JobGraph.class ) );
     ValueMetaInterface valueMeta = history.getValueMetaForColumn( getColumnInfo(), new LogTableField( "COLUMN 5", "COLUMN_5", null ) );
 
     assertEquals( "COLUMN_5", valueMeta.getName() );

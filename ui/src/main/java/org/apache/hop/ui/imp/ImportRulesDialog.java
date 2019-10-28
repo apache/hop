@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.DisposeEvent;
@@ -66,9 +67,8 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.imp.rule.ImportRuleCompositeInterface;
-import org.apache.hop.ui.spoon.Spoon;
-import org.apache.hop.ui.spoon.XulSpoonResourceBundle;
-import org.apache.hop.ui.spoon.XulSpoonSettingsManager;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
@@ -219,8 +219,8 @@ public class ImportRulesDialog extends Dialog implements XulEventHandler {
 
     try {
       XulLoader loader = new HopXulLoader();
-      loader.setSettingsManager( XulSpoonSettingsManager.getInstance() );
-      ResourceBundle bundle = new XulSpoonResourceBundle( Spoon.class );
+      loader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
+      ResourceBundle bundle = new XulHopUiResourceBundle( HopUi.class );
       XulDomContainer xulDomContainer = loader.loadXul( XUL_FILE_TOOLBAR, bundle );
       xulDomContainer.addEventHandler( this );
       toolbar = (XulToolbar) xulDomContainer.getDocumentRoot().getElementById( "import-rules-toolbar" );

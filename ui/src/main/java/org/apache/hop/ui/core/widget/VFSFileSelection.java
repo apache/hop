@@ -40,7 +40,7 @@ import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.repository.dialog.SelectObjectDialog;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.IOException;
@@ -105,7 +105,7 @@ public class VFSFileSelection extends Composite {
     try {
       root = HopVFS.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
 
-      VfsFileChooserDialog vfsFileChooser = Spoon.getInstance().getVfsFileChooserDialog( root.getParent(), root );
+      VfsFileChooserDialog vfsFileChooser = HopUi.getInstance().getVfsFileChooserDialog( root.getParent(), root );
       FileObject file =
         vfsFileChooser.open( getShell(), null, fileFilters, fileFilterNames, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
       if ( file == null ) {

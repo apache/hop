@@ -83,7 +83,7 @@ public class ShowBrowserDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.RESIZE | SWT.MAX | SWT.MIN );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();

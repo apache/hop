@@ -917,7 +917,7 @@ public class SynchronizeAfterMergeDialog extends BaseStepDialog implements StepD
       message +=
         BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.DoMapping.SomeFieldsNotFoundContinue" )
           + Const.CR;
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
+      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell, BaseMessages.getString(
           PKG, "SynchronizeAfterMergeDialog.DoMapping.SomeFieldsNotFoundTitle" ), message );

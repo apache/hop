@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.ui.spoon.trans;
+package org.apache.hop.ui.hopui.trans;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.spoon.Spoon;
+import org.apache.hop.ui.hopui.HopUi;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenu;
 import org.pentaho.ui.xul.dom.Document;
@@ -75,9 +75,9 @@ public class TransGraphTest {
   public void testEnableHopGetsSelected() {
     TransGraph transGraph = mock( TransGraph.class );
     doCallRealMethod().when( transGraph ).setTransMeta( any( TransMeta.class ) );
-    doCallRealMethod().when( transGraph ).setSpoon( any( Spoon.class ) );
+    doCallRealMethod().when( transGraph ).setHopUi( any( HopUi.class ) );
     transGraph.setTransMeta( new TransMeta() );
-    transGraph.setSpoon( mock( Spoon.class ) );
+    transGraph.setHopUi( mock( HopUi.class ) );
     StepMeta stepMeta = mock( StepMeta.class );
     StepErrorMeta errorMeta = new StepErrorMeta( null, null );
     TransHopMeta selectedHop = new TransHopMeta();
@@ -107,13 +107,13 @@ public class TransGraphTest {
     XulMenuitem xulItem = mock( XulMenuitem.class );
     XulMenu xulMenu = mock( XulMenu.class );
     StepErrorMeta stepErrorMeta = mock( StepErrorMeta.class );
-    Spoon spoon = mock( Spoon.class );
+    HopUi hopUi = mock( HopUi.class );
     List<StepMeta> selection = Arrays.asList( new StepMeta(), stepMeta, new StepMeta() );
 
     doCallRealMethod().when( transGraph ).setTransMeta( any( TransMeta.class ) );
-    doCallRealMethod().when( transGraph ).setSpoon( any( Spoon.class ) );
+    doCallRealMethod().when( transGraph ).setHopUi( any( HopUi.class ) );
     transGraph.setTransMeta( transMeta );
-    transGraph.setSpoon( spoon );
+    transGraph.setHopUi( hopUi );
 
     when( stepMeta.getStepErrorMeta() ).thenReturn( stepErrorMeta );
     when( stepMeta.isDrawn() ).thenReturn( true );

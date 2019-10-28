@@ -20,14 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.spoon;
+package org.apache.hop.ui.hopui;
 
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.junit.Test;
-import org.apache.hop.ui.spoon.trans.TransGraph;
+import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabSet;
 
@@ -105,13 +105,13 @@ public class ExpandedContentManagerTest {
   }
 
   private Composite setupExpandedContentMocks( TransGraph transGraph, Browser browser, SashForm sashForm ) {
-    Spoon spoon = mock( Spoon.class );
+    HopUi hopUi = mock( HopUi.class );
     Composite parent = mock( Composite.class );
     TabSet tabSet = mock( TabSet.class );
     TabItem tabItem = mock( TabItem.class );
-    ExpandedContentManager.spoonSupplier = () -> spoon;
-    when( spoon.getDesignParent() ).thenReturn( sashForm );
-    when( spoon.getTabSet() ).thenReturn( tabSet );
+    ExpandedContentManager.spoonSupplier = () -> hopUi;
+    when( hopUi.getDesignParent() ).thenReturn( sashForm );
+    when( hopUi.getTabSet() ).thenReturn( tabSet );
     when( tabSet.getSelected() ).thenReturn( tabItem );
     when( tabItem.getSashWeights() ).thenReturn( new int[] { 3, 2, 1 } );
     when( transGraph.getChildren() ).thenReturn( new Control[]{ browser } );

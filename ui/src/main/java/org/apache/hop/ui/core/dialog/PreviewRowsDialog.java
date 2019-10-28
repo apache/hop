@@ -160,7 +160,7 @@ public class PreviewRowsDialog {
   public void open() {
     shell = new Shell( parentShell, style );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
