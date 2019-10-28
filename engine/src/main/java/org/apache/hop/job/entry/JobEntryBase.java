@@ -980,7 +980,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   @Deprecated
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.di\\.", ".di.ui." );
+    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     className += "Dialog";
     return className;
   }

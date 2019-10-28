@@ -138,7 +138,7 @@ public abstract class BaseImportRule implements ImportRuleInterface {
   @Override
   public String getCompositeClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.di\\.", ".di.ui." );
+    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     className += "Composite";
     return className;
   }

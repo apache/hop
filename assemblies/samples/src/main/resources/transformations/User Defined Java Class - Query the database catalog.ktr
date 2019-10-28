@@ -527,7 +527,7 @@
         <class_name>Processor</class_name>
 
         <class_source><![CDATA[import java.sql.*;
-import org.pentaho.di.core.database.*;
+import org.apache.hop.core.database.*;
 
 private DatabaseMeta databaseMeta;
 private Database database;

@@ -62,7 +62,7 @@ public class BaseRepositoryMeta {
    */
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.di\\.", ".di.ui." );
+    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     if ( className.endsWith( "Meta" ) ) {
       className = className.substring( 0, className.length() - 4 );
     }
@@ -84,7 +84,7 @@ public class BaseRepositoryMeta {
    */
   public String getRevisionBrowserDialogClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.di\\.", ".di.ui." );
+    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     if ( className.endsWith( "Meta" ) ) {
       className = className.substring( 0, className.length() - 4 );
     }

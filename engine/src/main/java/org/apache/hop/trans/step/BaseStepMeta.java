@@ -498,7 +498,7 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   @Deprecated
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.di\\.", ".di.ui." );
+    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     if ( className.endsWith( "Meta" ) ) {
       className = className.substring( 0, className.length() - 4 );
     }
