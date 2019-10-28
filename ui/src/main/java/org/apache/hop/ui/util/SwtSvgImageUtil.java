@@ -58,6 +58,8 @@ public class SwtSvgImageUtil {
 
   private static FileObject base;
 
+  private static float zoomFactor = 2.0f;
+
   static {
     try {
       base = HopVFS.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
@@ -83,7 +85,7 @@ public class SwtSvgImageUtil {
     gc.drawLine( 4, 4, ConstUI.ICON_SIZE - 4, ConstUI.ICON_SIZE - 4 );
     gc.drawLine( ConstUI.ICON_SIZE - 4, 4, 4, ConstUI.ICON_SIZE - 4 );
     gc.dispose();
-    return new SwtUniversalImageBitmap( img );
+    return new SwtUniversalImageBitmap( img, zoomFactor );
   }
 
   /**
@@ -292,7 +294,7 @@ public class SwtSvgImageUtil {
   private static SwtUniversalImage loadImage( Display display, InputStream in, String filename ) {
     if ( !SvgSupport.isSvgName( filename ) ) {
       // bitmap image
-      return new SwtUniversalImageBitmap( new Image( display, in ) );
+      return new SwtUniversalImageBitmap( new Image( display, in ), zoomFactor );
     } else {
       // svg image - need to convert to bitmap
       try {

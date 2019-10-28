@@ -670,7 +670,7 @@ public class Spoon extends ApplicationWindow implements AddUndoPositionInterface
 
       // The core plugin types don't know about UI classes. Add them in now
       // before the PluginRegistry is inited.
-      splash = new Splash( display );
+      // splash = new Splash( display );
 
       List<String> args = new ArrayList<>( Arrays.asList( a ) );
 
@@ -7851,8 +7851,6 @@ public class Spoon extends ApplicationWindow implements AddUndoPositionInterface
       HopLogStore.getAppender().removeLoggingEventListener( fileLoggingEventListener );
     }
   }
-
-  // public Splash splash;
 
   // public CommandLineOption options[];
 

@@ -29,9 +29,11 @@ import org.eclipse.swt.graphics.Transform;
 
 public class SwtUniversalImageBitmap extends SwtUniversalImage {
   private final Image bitmap;
+  private final float zoomFactor;
 
-  public SwtUniversalImageBitmap( Image bitmap ) {
+  public SwtUniversalImageBitmap( Image bitmap, float zoomFactor ) {
     this.bitmap = bitmap;
+    this.zoomFactor = zoomFactor;
   }
 
   @Override
@@ -49,13 +51,7 @@ public class SwtUniversalImageBitmap extends SwtUniversalImage {
 
   @Override
   protected Image renderSimple( Device device, int width, int height ) {
-    int xsize = bitmap.getBounds().width;
-    int ysize = bitmap.getBounds().height;
-    Image result = new Image( device, width, height );
-    GC gc = new GC( result );
-    gc.drawImage( bitmap, 0, 0, xsize, ysize, 0, 0, width, height );
-    gc.dispose();
-    return result;
+    return renderRotated( device, width, height, 0d );
   }
 
   @Override
@@ -69,7 +65,7 @@ public class SwtUniversalImageBitmap extends SwtUniversalImage {
     Transform affineTransform = new Transform( device );
     affineTransform.translate( width, height );
     affineTransform.rotate( (float) Math.toDegrees( angleRadians ) );
-    affineTransform.scale( (float) 1.0 * width / bw, (float) 1.0 * height / bh );
+    affineTransform.scale( (float) zoomFactor * width / bw, (float) zoomFactor * height / bh );
     gc.setTransform( affineTransform );
 
     gc.drawImage( bitmap, 0, 0, bw, bh, -bw / 2, -bh / 2, bw, bh );
