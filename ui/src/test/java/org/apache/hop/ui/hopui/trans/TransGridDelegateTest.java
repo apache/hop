@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.ui.hopui.trans;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +33,7 @@ public class TransGridDelegateTest {
   public void testSubStepCompare() {
 
     //Equal
-    assertEquals( 0, TransGridDelegate.subStepCompare( "1", "1" ) );
+    Assert.assertEquals( 0, TransGridDelegate.subStepCompare( "1", "1" ) );
 
     //object1 less than object2
     assertTrue( TransGridDelegate.subStepCompare( "1", "2" ) < 0 );

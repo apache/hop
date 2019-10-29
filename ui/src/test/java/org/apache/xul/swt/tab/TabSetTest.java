@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.xul.swt.tab;
+package org.apache.xul.swt.tab;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.Event;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.pentaho.xul.swt.tab.TabItem;
+import org.pentaho.xul.swt.tab.TabSet;
 
 public class TabSetTest {
 

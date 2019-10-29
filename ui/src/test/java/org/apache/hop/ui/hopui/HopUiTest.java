@@ -74,7 +74,7 @@ import org.pentaho.xul.swt.tab.TabItem;
 import org.pentaho.xul.swt.tab.TabSet;
 
 /**
- * Spoon tests
+ * HopUI tests
  *
  * @author Pavel Sakun
  * @see HopUi
@@ -203,7 +203,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, false, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] transformationName v1.0" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] transformationName v1.0" );
   }
 
   @Test
@@ -213,7 +213,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, true, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - transformationName v1.0" );
+    verify( mockShell ).setText( "Hop - transformationName v1.0" );
   }
 
   @Test
@@ -223,7 +223,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, true, true, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - transformationName" );
+    verify( mockShell ).setText( "Hop - transformationName" );
   }
 
   @Test
@@ -233,7 +233,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, false, false, true, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] transformationName v1.0 " + BaseMessages
+    verify( mockShell ).setText( "Hop - [RepositoryName] transformationName v1.0 " + BaseMessages
         .getString( HopUi.class, "Spoon.Various.Changed" ) );
   }
 
@@ -244,7 +244,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, false, false, false, true, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] transformationFilename v1.0" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] transformationFilename v1.0" );
   }
 
   @Test
@@ -254,7 +254,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, false, false, false, true, true, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] tabName v1.0" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] tabName v1.0" );
   }
 
   @Test
@@ -265,7 +265,7 @@ public class HopUiTest {
         prepareSetShellTextTests( hopUi, mockTransMeta, true, true, false, false, false, true, true, true );
 
     verify( mockShell )
-        .setText( "Spoon - [RepositoryName] " + BaseMessages.getString( HopUi.class, "Spoon.Various.NoName" ) + " v1.0" );
+        .setText( "Hop - [RepositoryName] " + BaseMessages.getString( HopUi.class, "Spoon.Various.NoName" ) + " v1.0" );
   }
 
   @Test
@@ -275,7 +275,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockTransMeta, false, true, false, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] transformationName" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] transformationName" );
   }
 
   @Test
@@ -285,7 +285,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockJobMeta, true, false, false, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] jobName v1.0" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] jobName v1.0" );
   }
 
   @Test
@@ -295,7 +295,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockJobMeta, true, false, true, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - jobName v1.0" );
+    verify( mockShell ).setText( "Hop - jobName v1.0" );
   }
 
   @Test
@@ -305,7 +305,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockJobMeta, true, false, true, true, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - jobName" );
+    verify( mockShell ).setText( "Hop - jobName" );
   }
 
   @Test
@@ -315,7 +315,7 @@ public class HopUiTest {
         mockShell =
         prepareSetShellTextTests( hopUi, mockJobMeta, false, false, false, false, false, false, false, false );
 
-    verify( mockShell ).setText( "Spoon - [RepositoryName] jobName" );
+    verify( mockShell ).setText( "Hop - [RepositoryName] jobName" );
   }
 
   private static Shell prepareSetShellTextTests( HopUi hopUi, AbstractMeta abstractMeta, boolean versionEnabled,
@@ -332,7 +332,7 @@ public class HopUiTest {
     hopUi.delegates = mockDelegate;
     mockDelegate.tabs = mockDelegateTabs;
 
-    doCallRealMethod().when( hopUi ).openSpoon();
+    doCallRealMethod().when( hopUi ).openHopUi();
     doCallRealMethod().when( hopUi ).setShellText();
 
     doReturn( mockShell ).when( hopUi ).getShell();
@@ -360,7 +360,7 @@ public class HopUiTest {
     doReturn( new ArrayList<TabMapEntry>() ).when( mockDelegateTabs ).getTabs();
 
     try {
-      hopUi.openSpoon();
+      hopUi.openHopUi();
     } catch ( NullPointerException e ) {
       //ignore work is done
     }

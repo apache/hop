@@ -26,6 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import java.io.BufferedReader;
@@ -64,17 +66,17 @@ public class EnvironmentUtilsTest {
   @Test
   public void getBrowserName( ) {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock( Case.UBUNTU_16 );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "Midori" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "Midori" );
     mock = new EnvironmentUtilsMock( Case.UBUNTU_14 );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "Midori" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "Midori" );
     mock = new EnvironmentUtilsMock( Case.MAC_OS_X );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "Safari" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "Safari" );
     mock = new EnvironmentUtilsMock( Case.MACOS_X_WRONG );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "Safari" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "Safari" );
     mock = new EnvironmentUtilsMock( Case.WINDOWS );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
     mock = new EnvironmentUtilsMock( Case.WINDOWS_WRONG );
-    assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
+    Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
   }
 
   class EnvironmentUtilsMock extends EnvironmentUtils {

@@ -1362,7 +1362,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     esd.open();
   }
 
-  public void openSpoon() {
+  public void openHopUi() {
     shell = getShell();
     shell.setText( APP_TITLE );
     mainComposite.setRedraw( true );
@@ -9133,7 +9133,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     init( null );
 
-    openSpoon();
+    openHopUi();
 
     // listeners
     //

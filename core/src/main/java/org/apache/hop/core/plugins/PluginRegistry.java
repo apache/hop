@@ -813,7 +813,7 @@ public class PluginRegistry {
     try {
       if ( plugin.isNativePlugin() ) {
         return (T) Class.forName( className );
-      } else if ( plugin instanceof ClassLoadingPluginInterface ) {
+      } else if (( plugin instanceof ClassLoadingPluginInterface ) && ( (ClassLoadingPluginInterface) plugin ).getClassLoader()!=null) {
         return (T) ( (ClassLoadingPluginInterface) plugin ).getClassLoader().loadClass( className );
       } else {
         URLClassLoader ucl;
