@@ -25,7 +25,6 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.PostgreSQLDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -542,7 +541,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
 
     String retval = null;
-    if ( databaseInterface instanceof PostgreSQLDatabaseMeta ) {
+    if ( databaseInterface.isPostgresVariant() ) {
       if ( add_fieldname ) {
         retval = getName() + " ";
       } else {

@@ -37,7 +37,6 @@ public class SequenceMetaTest {
     DatabaseInterface[] support = new DatabaseInterface[] {
       new AS400DatabaseMeta(),
       new DB2DatabaseMeta(),
-      new GreenplumDatabaseMeta(),
       new HypersonicDatabaseMeta(),
       new KingbaseESDatabaseMeta(),
       new MonetDBDatabaseMeta(),
@@ -46,8 +45,6 @@ public class SequenceMetaTest {
       new NetezzaDatabaseMeta(),
       new OracleDatabaseMeta(),
       new OracleRDBDatabaseMeta(),
-      new PostgreSQLDatabaseMeta(),
-      new RedshiftDatabaseMeta(),
       new VerticaDatabaseMeta(),
       new Vertica5DatabaseMeta(),
     };
@@ -131,24 +128,6 @@ public class SequenceMetaTest {
     databaseInterface = new VerticaDatabaseMeta();
     assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
     assertEquals( "SELECT currval('sequence_name')", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-
-    databaseInterface = new PostgreSQLDatabaseMeta();
-    assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", databaseInterface
-      .getSQLCurrentSequenceValue( sequenceName ) );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", databaseInterface
-      .getSQLListOfSequences() );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'sequence_name'",
-      databaseInterface.getSQLSequenceExists( sequenceName ) );
-
-    databaseInterface = new GreenplumDatabaseMeta();
-    assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", databaseInterface
-      .getSQLCurrentSequenceValue( sequenceName ) );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", databaseInterface
-      .getSQLListOfSequences() );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'sequence_name'",
-      databaseInterface.getSQLSequenceExists( sequenceName ) );
 
     databaseInterface = new AS400DatabaseMeta();
     assertEquals( "SELECT NEXT VALUE FOR sequence_name FROM SYSIBM.SYSDUMMY1", databaseInterface

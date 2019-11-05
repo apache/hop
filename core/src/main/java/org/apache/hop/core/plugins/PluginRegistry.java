@@ -1089,4 +1089,27 @@ public class PluginRegistry {
         ? pluginInterface
         : waitForPluginToBeAvailable( pluginType, pluginId, waitLimit );
   }
+
+  /**
+   * Try to register the given annotated class, present in the classpath, as a plugin
+   * @param pluginClassName The name of the class to register
+   * @param pluginTypeClass The type of plugin to register
+   * @param annotationClass The type of annotation to consider
+   */
+  public void registerPluginClass(String pluginClassName, Class<? extends PluginTypeInterface> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
+    PluginTypeInterface pluginType = getPluginType( pluginTypeClass );
+    try {
+      Class<?> pluginClass = Class.forName( pluginClassName );
+      Annotation annotation = pluginClass.getAnnotation( annotationClass );
+      if (annotation==null) {
+        throw new HopPluginException( "The requested annotation '"+annotationClass.getName()+" couldn't be found in the plugin class" );
+      }
+
+      // Register the plugin using the metadata in the annotation
+      //
+      pluginType.handlePluginAnnotation( pluginClass, annotation, new ArrayList<String>(), true, null );
+    } catch(ClassNotFoundException e) {
+      throw new HopPluginException( "Sorry, the plugin class you want to register '"+pluginClassName+"' can't be found in the classpath", e );
+    }
+  }
 }

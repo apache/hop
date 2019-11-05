@@ -910,7 +910,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * Prepare inserting values into a table, using the fields & values in a Row
    *
    * @param rowMeta The row metadata to determine which values need to be inserted
-   * @param table   The name of the table in which we want to insert rows
+   * @param tableName   The name of the table in which we want to insert rows
    * @throws HopDatabaseException if something went wrong.
    */
   public void prepareInsert( RowMetaInterface rowMeta, String tableName ) throws HopDatabaseException {
@@ -1383,7 +1383,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    *
    * @param ps             The prepared statement to empty and close.
    * @param batch          true if you are using batch processing
-   * @param psBatchCounter The number of rows on the batch queue
+   * @param batchCounter The number of rows on the batch queue
    * @throws HopDatabaseException
    */
   public void emptyAndCommit( PreparedStatement ps, boolean batch, int batchCounter ) throws HopDatabaseException {
@@ -1457,7 +1457,6 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    *
    * @param ps             The prepared statement to empty and close.
    * @param batch          true if you are using batch processing (typically true for this method)
-   * @param psBatchCounter The number of rows on the batch queue
    * @throws HopDatabaseException
    * @deprecated use emptyAndCommit() instead (pass in the number of rows left in the batch)
    */
@@ -1778,7 +1777,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   private boolean canWeSetFetchSize( Statement statement ) throws SQLException {
     return databaseMeta.isFetchSizeSupported()
       && ( statement.getMaxRows() > 0
-      || databaseMeta.getDatabaseInterface() instanceof PostgreSQLDatabaseMeta
+      || databaseMeta.getDatabaseInterface().isPostgresVariant()
       || ( databaseMeta.isMySQLVariant() && databaseMeta.isStreamingResults() ) );
   }
 
@@ -1951,7 +1950,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Retrieves the table description matching the schema and table name.
    *
-   * @param shema the schema name pattern
+   * @param schema the schema name pattern
    * @param table the table name pattern
    * @return table description row set
    * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
@@ -1975,9 +1974,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Retrieves the columns metadata matching the schema and table name.
    *
-   * @param shema the schema name pattern
+   * @param schema the schema name pattern
    * @param table the table name pattern
-   * @return columns description row set
    * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
    */
   private ResultSet getColumnsMetaData( String schema, String table ) throws HopDatabaseException {
@@ -2005,7 +2003,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * <p>Contrary to previous versions of similar duplicated methods, this implementation
    * does not require quoted identifiers.
    *
-   * @param schema     The name of the schema to check.
+   * @param schemaname The name of the schema to check.
    * @param tablename  The name of the table to check.
    * @param columnname The name of the column to check.
    * @return true if the table exists, false if it doesn't.
@@ -2132,7 +2130,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Check if an index on certain fields in a table exists.
    *
-   * @param tablename  The table on which the index is checked
+   * @param schemaName  The schema on which the index is checked
+   * @param tableName  The table on which the index is checked
    * @param idx_fields The fields on which the indexe is checked
    * @return True if the index exists
    */
@@ -4717,8 +4716,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Return SQL TRUNCATE statement for a Table
    *
-   * @param schema              The schema
-   * @param tableNameWithSchema The table to create
+   * @param schema     The schema
+   * @param tablename  The table to create
    * @throws HopDatabaseException
    */
   public String getDDLTruncateTable( String schema, String tablename ) throws HopDatabaseException {
@@ -5022,7 +5021,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Execute an SQL statement inside a file on the database connection (has to be open)
    *
-   * @param sql The file that contains SQL to execute
+   * @param filename the file containing the SQL to execute
+   * @param sendSinglestatement set to true if you want to send the whole file as a single statement. If false separate statements will be isolated and executed.
    * @return a Result object indicating the number of lines read, deleted, inserted, updated, ...
    * @throws HopDatabaseException in case anything goes wrong.
    * @sendSinglestatement send one statement

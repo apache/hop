@@ -1065,6 +1065,27 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isMySQLVariant();
 
   /**
+   * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift and so on.
+   */
+  public boolean isPostgresVariant();
+
+  /**
+   * @return true if the database is an Oracle variant.
+   */
+  public boolean isOracleVariant();
+
+  /**
+   * @return true if the database is an Netezza variant.
+   */
+  public boolean isNetezzaVariant();
+
+  /**
+   * @return true if the database is a SQLite variant.
+   */
+  public boolean isSQLiteVariant();
+
+
+  /**
    * Returns a true of savepoints can be release, false if not.
    *
    * @return

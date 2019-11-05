@@ -1966,6 +1966,36 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   }
 
   /**
+   * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift and so on.
+   */
+  @Override
+  public boolean isPostgresVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is an Oracle variant.
+   */
+  public boolean isOracleVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is an Netezza variant.
+   */
+  public boolean isNetezzaVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a SQLite variant.
+   */
+  public boolean isSQLiteVariant() {
+    return false;
+  }
+
+
+  /**
    * @return true if the database type can be tested against a database instance
    */
   public boolean canTest() {

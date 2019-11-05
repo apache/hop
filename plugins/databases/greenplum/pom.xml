@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.hop</groupId>
+  <artifactId>hop-plugins-databases-greenplum</artifactId>
+  <version>0.1.0</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <scope>compile</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-plugins-databases-postgresql</artifactId>
+      <scope>compile</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-plugins-databases-postgresql</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <packaging>pom</packaging>
+
+  <name>Hop Plugins Databases Greenplum</name>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins-databases</artifactId>
+    <version>0.1.0</version>
+  </parent>
+
+  <properties>
+    <!-- Test running configuration -->
+    <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
+    <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-databases-postgresql</artifactId>
+        <scope>compile</scope>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.pivotal</groupId>
+        <artifactId>greenplum-jdbc</artifactId>
+        <version>5.1.4</version>
+      </dependency>
+
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-databases-postgresql</artifactId>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-engine</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-databases-postgresql</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

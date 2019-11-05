@@ -35,11 +35,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.GreenplumDatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.core.database.NetezzaDatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
-import org.apache.hop.core.database.PostgreSQLDatabaseMeta;
 import org.apache.hop.core.database.SQLiteDatabaseMeta;
 import org.apache.hop.core.database.TeradataDatabaseMeta;
 import org.apache.hop.core.database.Vertica5DatabaseMeta;
@@ -964,55 +962,6 @@ public class ValueMetaBaseTest {
     assertEquals( expectedTimestamp, timestamp );
   }
 
-  /**
-   * When data is shorter than value meta length all is good. Values well bellow DB max text field length.
-   */
-  @Test
-  public void test_PDI_17126_Postgres() throws Exception {
-    String data = StringUtils.repeat( "*", 10 );
-    initValueMeta( new PostgreSQLDatabaseMeta(), 20, data );
-
-    verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
-  }
-
-  /**
-   * When data is longer than value meta length all is good as well. Values well bellow DB max text field length.
-   */
-  @Test
-  public void test_Pdi_17126_postgres_DataLongerThanMetaLength() throws Exception {
-    String data = StringUtils.repeat( "*", 20 );
-    initValueMeta( new PostgreSQLDatabaseMeta(), 10, data );
-
-    verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
-  }
-
-  /**
-   * Only truncate when the data is larger that what is supported by the DB.
-   * For test purposes we're mocking it at 1KB instead of the real value which is 2GB for PostgreSQL
-   */
-  @Test
-  public void test_Pdi_17126_postgres_truncate() throws Exception {
-    List<HopLoggingEvent> events = listener.getEvents();
-    assertEquals( 0, events.size() );
-
-    databaseMetaSpy.setDatabaseInterface( new PostgreSQLDatabaseMeta() );
-    doReturn( 1024 ).when( databaseMetaSpy ).getMaxTextFieldLength();
-    doReturn( false ).when( databaseMetaSpy ).supportsSetCharacterStream();
-
-    String data = StringUtils.repeat( "*", 2048 );
-
-    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, ValueMetaInterface.TYPE_STRING, 2048, 0 );
-    valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
-
-    verify( preparedStatementMock, never() ).setString( 0, data );
-    verify( preparedStatementMock, times( 1 ) ).setString( anyInt(), anyString() );
-
-    // check that truncated string was logged
-    assertEquals( 1, events.size() );
-    assertEquals( "ValueMetaBase - Truncating 1024 symbols of original message in 'LOG_FIELD' field",
-      events.get( 0 ).getMessage().toString() );
-  }
-
   @Test
   public void test_Pdi_17126_mysql() throws Exception {
     String data = StringUtils.repeat( "*", 10 );
@@ -1275,18 +1224,6 @@ public class ValueMetaBaseTest {
     assertEquals( -1, valueMeta.getLength() );
   }
 
-  @Test
-  public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecisionUsingPostgesSQL() throws SQLException, HopDatabaseException {
-    doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 18 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
 
   @Test
   public void testMetdataPreviewSqlDoubleWithPrecisionGreaterThanLengthUsingMySQLVariant() throws SQLException, HopDatabaseException {
@@ -1336,32 +1273,6 @@ public class ValueMetaBaseTest {
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingPostgesSQL() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
   }
 
   @Test
@@ -1456,36 +1367,11 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
   public void testMetdataPreviewSqlBinaryToPentahoStringUsingSQLite() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( SQLiteDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlBlobToPentahoBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-    assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
   }
 
   @Test
@@ -1507,14 +1393,6 @@ public class ValueMetaBaseTest {
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
     assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlLongVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
   }
 
   @Test

@@ -32,7 +32,8 @@
       </activation>
       <modules>
        <module>core</module>
-       <module>dummy</module>
+        <module>dummy</module>
+        <module>databases</module>
        <!--- <module>log4j</module> -->
       </modules>
     </profile>
