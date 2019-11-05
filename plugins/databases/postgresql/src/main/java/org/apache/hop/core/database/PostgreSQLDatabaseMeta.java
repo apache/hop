@@ -39,6 +39,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final int GB_LIMIT = 1_073_741_824;
 
+  @Override
+  public boolean isPostgresVariant() {
+    return true;
+  }
+
   /**
    * @return The extra option separator in database URL for this platform
    */
