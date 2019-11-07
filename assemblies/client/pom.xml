@@ -41,7 +41,7 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins</artifactId>
+      <artifactId>hop-assemblies-plugins-dist</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>

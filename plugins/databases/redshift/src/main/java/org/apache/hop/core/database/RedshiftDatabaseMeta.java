@@ -21,11 +21,16 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
+
 /**
  * @author mbatchelor
  *
  */
-
+@DatabaseMetaPlugin(
+        type = "REDSHIFT",
+        typeDescription = "Redshift"
+)
 public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
 
   public RedshiftDatabaseMeta() {

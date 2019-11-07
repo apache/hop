@@ -16,4 +16,12 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
     </dependencySet>
   </dependencySets>
+  <fileSets>
+    <fileSet>
+      <directory>databases</directory>
+      <includes>
+        <include>**/*.zip</include>
+      </includes>
+    </fileSet>
+  </fileSets>
 </assembly>

@@ -20,7 +20,7 @@
         <include>org.hop:hop-assemblies-static:zip</include>
         <include>org.hop:hop-assemblies-samples:zip</include>
         <include>org.hop:hop-assemblies-libs:zip</include>
-        <include>org.hop:hop-assemblies-plugins:zip</include>
+        <include>org.hop:hop-assemblies-plugins-dist:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>

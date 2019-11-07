@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>hop-assemblies-plugins</artifactId>
+        <groupId>org.hop</groupId>
+        <version>0.1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>hop-assemblies-plugins-dist</artifactId>
+
+    <name>Hop Assemblies Plugins Dist</name>
+    <description></description>
+
+    <properties>
+        <!-- plugins -->
+        <hop-plugins-dummy.version>${project.version}</hop-plugins-dummy.version>
+        <hop-plugins-core.version>${project.version}</hop-plugins-core.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-core-plugins</artifactId>
+            <version>${hop-plugins-core.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-dummy-plugins</artifactId>
+            <version>${hop-plugins-dummy.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Database plugins -->
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-postgresql</artifactId>
+            <version>${hop-plugins-dummy.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-redshift</artifactId>
+            <version>${hop-plugins-dummy.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-greenplum</artifactId>
+            <version>${hop-plugins-dummy.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+    </dependencies>
+</project>

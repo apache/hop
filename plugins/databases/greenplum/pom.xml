@@ -53,9 +53,14 @@
       <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.pivotal</groupId>
+      <artifactId>greenplum-jdbc</artifactId>
+      <version>${greenplum.version}</version>
+    </dependency>
   </dependencies>
 
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>Hop Plugins Databases Greenplum</name>
 
@@ -69,6 +74,7 @@
     <!-- Test running configuration -->
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+    <greenplum.version>5.1.4</greenplum.version>
   </properties>
 
   <dependencyManagement>
@@ -84,12 +90,6 @@
         <artifactId>hop-plugins-databases-postgresql</artifactId>
         <scope>compile</scope>
         <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.pivotal</groupId>
-        <artifactId>greenplum-jdbc</artifactId>
-        <version>5.1.4</version>
       </dependency>
 
       <!-- test dependencies -->
@@ -128,4 +128,29 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>pivotal</id>
+      <name>Pivotal Repository</name>
+      <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
+    </repository>
+  </repositories>
 </project>
