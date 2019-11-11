@@ -67,8 +67,7 @@ public class ReleaseSavePointTest {
     new SybaseDatabaseMeta(),
     new SybaseIQDatabaseMeta(),
     new TeradataDatabaseMeta(),
-    new UniVerseDatabaseMeta(),
-    new VerticaDatabaseMeta()
+    new UniVerseDatabaseMeta()
   };
 
   @Test

@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
@@ -38,7 +39,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @author Jens
  * @since Aug-2012
  */
-
+@DatabaseMetaPlugin(
+        type = "VERTICA5",
+        typeDescription = "Vertica 5"
+)
 public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
   @Override
   public String getDriverClass() {

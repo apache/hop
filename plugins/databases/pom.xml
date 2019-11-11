@@ -6,7 +6,10 @@
   <groupId>org.hop</groupId>
   <artifactId>hop-plugins-databases</artifactId>
   <version>0.1.0</version>
-  <packaging>pom</packaging>
+    <modules>
+        <module>vertica</module>
+    </modules>
+    <packaging>pom</packaging>
 
   <name>Hop Plugins Databases</name>
 
@@ -46,6 +49,7 @@
         <module>postgresql</module>
         <module>greenplum</module>
         <module>redshift</module>
+        <module>vertica</module>
       </modules>
     </profile>
 

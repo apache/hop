@@ -25,22 +25,65 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.plugins.DatabasePluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.*;
+import org.apache.hop.junit.rules.RestorePDIEnvironment;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.row.value.ValueMetaBinary;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaInternetAddress;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.mockito.Spy;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VerticaDatabaseMetaTest {
+  @ClassRule
+  public static RestorePDIEnvironment env = new RestorePDIEnvironment();
 
   private VerticaDatabaseMeta nativeMeta, odbcMeta;
+
+  // Get PKG from class under test
+  private Class<?> PKG = ValueMetaBase.PKG;
+  private StoreLoggingEventListener listener;
+
+  @Spy
+  private DatabaseMeta databaseMetaSpy = spy( new DatabaseMeta() );
+  private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
+  private ResultSet resultSet;
+  private DatabaseMeta dbMeta;
+  private ValueMetaInterface valueMetaBase;
+
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
+    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
+    PluginRegistry.init();
+    HopLogStore.init();
+  }
+
+  @Before
+  public void setUp() throws HopPluginException {
+    listener = new VerticaDatabaseMetaTest.StoreLoggingEventListener();
+    HopLogStore.getAppender().addLoggingEventListener( listener );
+
+    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE);
+
+    dbMeta = spy( new DatabaseMeta() );
+    resultSet = mock( ResultSet.class );
+  }
 
   @Before
   public void setupBefore() {
@@ -165,4 +208,36 @@ public class VerticaDatabaseMetaTest {
         nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
   }
 
+    @Test
+    public void testVericaSequence() {
+        DatabaseInterface databaseInterface;
+        final String sequenceName = "sequence_name";
+
+        databaseInterface = new VerticaDatabaseMeta();
+        assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
+        assertEquals( "SELECT currval('sequence_name')", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
+    }
+
+    @Test
+    public void testVerticaReleaseSavePoint() {
+        DatabaseInterface databaseInterface;
+
+        databaseInterface = new VerticaDatabaseMeta();
+        assertTrue( databaseInterface.releaseSavepoint() );
+    }
+
+
+  private class StoreLoggingEventListener implements HopLoggingEventListener {
+
+    private List<HopLoggingEvent> events = new ArrayList<>();
+
+    @Override
+    public void eventAdded( HopLoggingEvent event ) {
+      events.add( event );
+    }
+
+    public List<HopLoggingEvent> getEvents() {
+      return events;
+    }
+  }
 }

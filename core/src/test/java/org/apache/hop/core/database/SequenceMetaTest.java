@@ -45,8 +45,6 @@ public class SequenceMetaTest {
       new NetezzaDatabaseMeta(),
       new OracleDatabaseMeta(),
       new OracleRDBDatabaseMeta(),
-      new VerticaDatabaseMeta(),
-      new Vertica5DatabaseMeta(),
     };
 
     DatabaseInterface[] doNotSupport = new DatabaseInterface[] {
@@ -124,10 +122,6 @@ public class SequenceMetaTest {
       .getSQLNextSequenceValue( sequenceName ) );
     assertEquals( "SELECT sequence_name.currval FROM DUAL", databaseInterface
       .getSQLCurrentSequenceValue( sequenceName ) );
-
-    databaseInterface = new VerticaDatabaseMeta();
-    assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
 
     databaseInterface = new AS400DatabaseMeta();
     assertEquals( "SELECT NEXT VALUE FOR sequence_name FROM SYSIBM.SYSDUMMY1", databaseInterface

@@ -242,49 +242,6 @@ public class PostgreSQLValueMetaBaseTest {
   }
 
   @Test
-  public void testGetBinaryWithLength_WhenBinarySqlTypesOfVertica() throws Exception {
-    final int binaryColumnIndex = 1;
-    final int varbinaryColumnIndex = 2;
-    final int expectedBinarylength = 1;
-    final int expectedVarBinarylength = 80;
-
-    ValueMetaBase obj = new ValueMetaBase();
-    DatabaseMeta dbMeta = spy( new DatabaseMeta() );
-    DatabaseInterface databaseInterface = new Vertica5DatabaseMeta();
-    dbMeta.setDatabaseInterface( databaseInterface );
-
-    ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-
-    when( resultSet.getMetaData() ).thenReturn( metaData );
-    when( metaData.getColumnType( binaryColumnIndex ) ).thenReturn( Types.BINARY );
-    when( metaData.getPrecision( binaryColumnIndex ) ).thenReturn( expectedBinarylength );
-    when( metaData.getColumnDisplaySize( binaryColumnIndex ) ).thenReturn( expectedBinarylength * 2 );
-
-    when( metaData.getColumnType( varbinaryColumnIndex ) ).thenReturn( Types.BINARY );
-    when( metaData.getPrecision( varbinaryColumnIndex ) ).thenReturn( expectedVarBinarylength );
-    when( metaData.getColumnDisplaySize( varbinaryColumnIndex ) ).thenReturn( expectedVarBinarylength * 2 );
-
-    // get value meta for binary type
-    ValueMetaInterface binaryValueMeta =
-      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
-    assertNotNull( binaryValueMeta );
-    assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
-    assertTrue( ValueMetaInterface.TYPE_BINARY == binaryValueMeta.getType() );
-    assertTrue( expectedBinarylength == binaryValueMeta.getLength() );
-    assertFalse( binaryValueMeta.isLargeTextField() );
-
-    // get value meta for varbinary type
-    ValueMetaInterface varbinaryValueMeta =
-      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
-    assertNotNull( varbinaryValueMeta );
-    assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
-    assertTrue( ValueMetaInterface.TYPE_BINARY == varbinaryValueMeta.getType() );
-    assertTrue( expectedVarBinarylength == varbinaryValueMeta.getLength() );
-    assertFalse( varbinaryValueMeta.isLargeTextField() );
-
-  }
-
-  @Test
   public void testGetValueFromSQLTypeTypeOverride() throws Exception {
     final int varbinaryColumnIndex = 2;
 
@@ -299,23 +256,6 @@ public class PostgreSQLValueMetaBaseTest {
 
     verify( databaseInterface, times( 1 ) ).customizeValueFromSQLType( any( ValueMetaInterface.class ),
       any( ResultSetMetaData.class ), anyInt() );
-  }
-
-  @Test
-  public void testVerticaTimeType() throws Exception {
-    // PDI-12244
-    ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-    ValueMetaInterface valueMetaInterface = mock( ValueMetaInternetAddress.class );
-
-    when( resultSet.getMetaData() ).thenReturn( metaData );
-    when( metaData.getColumnType( 1 ) ).thenReturn( Types.TIME );
-    when( resultSet.getTime( 1 ) ).thenReturn( new Time( 0 ) );
-    when( valueMetaInterface.getOriginalColumnType() ).thenReturn( Types.TIME );
-    when( valueMetaInterface.getType() ).thenReturn( ValueMetaInterface.TYPE_DATE );
-
-    DatabaseInterface databaseInterface = new Vertica5DatabaseMeta();
-    Object ret = databaseInterface.getValueFromResultSet( resultSet, valueMetaInterface, 0 );
-    assertEquals( new Time( 0 ), ret );
   }
 
   @Test

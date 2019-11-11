@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
@@ -33,7 +34,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @author Matt
  * @since May-2008
  */
-
+@DatabaseMetaPlugin(
+        type = "VERTICA",
+        typeDescription = "Vertica"
+)
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
