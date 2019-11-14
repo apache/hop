@@ -2167,7 +2167,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     cr_index += "CREATE ";
 
-    if ( unique || ( tk && databaseInterface instanceof SybaseDatabaseMeta ) ) {
+    if ( unique || ( tk && databaseInterface.isSybaseVariant() ) ) {
       cr_index += "UNIQUE ";
     }
 
@@ -3233,7 +3233,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
     retval.append( databaseMeta.getDatabaseInterface().getDataTablespaceDDL( variables, databaseMeta ) );
 
-    if ( pk == null && tk == null && databaseMeta.getDatabaseInterface() instanceof NeoviewDatabaseMeta ) {
+    if ( pk == null && tk == null && databaseMeta.getDatabaseInterface().isNeoviewVariant() ) {
       retval.append( "NO PARTITION" ); // use this as a default when no pk/tk is
       // there, otherwise you get an error
     }
@@ -3869,9 +3869,9 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   public List<Object[]> getFirstRows( String table_name, int limit, ProgressMonitorListener monitor )
     throws HopDatabaseException {
     String sql = "SELECT";
-    if ( databaseMeta.getDatabaseInterface() instanceof NeoviewDatabaseMeta ) {
+    if ( databaseMeta.getDatabaseInterface().isNeoviewVariant() ) {
       sql += " [FIRST " + limit + "]";
-    } else if ( databaseMeta.getDatabaseInterface() instanceof SybaseIQDatabaseMeta ) {
+    } else if ( databaseMeta.getDatabaseInterface().isSybaseIQVariant() ) {
       // improve support for Sybase IQ
       sql += " TOP " + limit + " ";
     }

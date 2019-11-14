@@ -45,7 +45,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.InfobrightDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginInterface;
@@ -127,7 +126,6 @@ public class JobEntryEvalTableContentTest {
   public static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
     dbMap.put( DatabaseInterface.class, DBMockIface.class.getName() );
-    dbMap.put( InfobrightDatabaseMeta.class, InfobrightDatabaseMeta.class.getName() );
 
     PluginRegistry preg = PluginRegistry.getInstance();
 

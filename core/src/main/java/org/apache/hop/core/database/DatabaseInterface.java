@@ -1070,6 +1070,21 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isPostgresVariant();
 
   /**
+   * @return true if the database is a Sybase variant.
+   */
+  public boolean isSybaseVariant();
+
+  /**
+   * @return true if the database is a SybaseIQ variant.
+   */
+  public boolean isSybaseIQVariant();
+
+  /**
+   * @return true if the database is a neoview variant.
+   */
+  public boolean isNeoviewVariant();
+
+  /**
    * @return true if the database is an Oracle variant.
    */
   public boolean isOracleVariant();
@@ -1083,6 +1098,11 @@ public interface DatabaseInterface extends Cloneable {
    * @return true if the database is a SQLite variant.
    */
   public boolean isSQLiteVariant();
+
+  /**
+   * @return true if the database is a SQLite variant.
+   */
+  public boolean isTeradataVariant();
 
 
   /**

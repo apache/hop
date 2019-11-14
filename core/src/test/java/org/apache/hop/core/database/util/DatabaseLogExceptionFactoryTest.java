@@ -24,6 +24,7 @@ package org.apache.hop.core.database.util;
 
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.PacketTooBigException;
+import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +34,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.MariaDBDatabaseMeta;
-import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogTableCoreInterface;
 
@@ -93,7 +92,8 @@ public class DatabaseLogExceptionFactoryTest {
    * PDI-5153
    * Test that in case of PacketTooBigException exception there will be no stack trace in log
    */
-  @Test public void testExceptionStrategyWithPacketTooBigException() {
+  @Test
+  public void testExceptionStrategyWithPacketTooBigException() {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     DatabaseInterface databaseInterface = new MySQLDatabaseMeta();
     PacketTooBigException e = new PacketTooBigException();
@@ -102,31 +102,11 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-      exceptionStrategy =
-      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+            exceptionStrategy =
+            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( SUPPRESSABLE_WITH_SHORT_MESSAGE, strategyName );
   }
-
-  /**
-   * PDI-5153
-   * Test that in case of MaxAllowedPacketException exception there will be no stack trace in log (MariaDB)
-   */
-  @Test public void testExceptionStrategyWithMaxAllowedPacketException() {
-    DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    DatabaseInterface databaseInterface = new MariaDBDatabaseMeta();
-    MaxAllowedPacketException e = new MaxAllowedPacketException();
-
-    when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
-    when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
-
-    LogExceptionBehaviourInterface
-      exceptionStrategy =
-      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
-    String strategyName = exceptionStrategy.getClass().getName();
-    assertEquals( SUPPRESSABLE_WITH_SHORT_MESSAGE, strategyName );
-  }
-
 
   /**
    * PDI-5153
@@ -141,8 +121,8 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-      exceptionStrategy =
-      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+            exceptionStrategy =
+            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( SUPPRESSABLE_WITH_SHORT_MESSAGE, strategyName );
   }
@@ -161,9 +141,10 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-      exceptionStrategy =
-      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+            exceptionStrategy =
+            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( THROWABLE, strategyName );
   }
+
 }

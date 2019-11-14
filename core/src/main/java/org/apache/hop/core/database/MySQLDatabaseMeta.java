@@ -41,7 +41,6 @@ import java.util.Set;
  * @author Matt
  * @since 11-mrt-2005
  */
-
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 

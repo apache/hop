@@ -1,10 +1,5 @@
 <database-types>
 
-   <database-type id="AS/400">                                                        
-    <description>AS/400</description>                                                
-    <classname>org.apache.hop.core.database.AS400DatabaseMeta</classname>            
-  </database-type>                                                                   
-
   <database-type id="CACHE">
     <description>Intersystems Cache</description>
     <classname>org.apache.hop.core.database.CacheDatabaseMeta</classname>
@@ -33,21 +28,11 @@
   <database-type id="EXTENDB">
     <description>ExtenDB</description>
     <classname>org.apache.hop.core.database.ExtenDBDatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="FIREBIRD">
-    <description>Firebird SQL</description>
-    <classname>org.apache.hop.core.database.FirebirdDatabaseMeta</classname>
-  </database-type>                                                          
+  </database-type>
 
   <database-type id="GENERIC">
     <description>Generic database</description>
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="INFINIDB">
-    <description>Calpont InfiniDB</description>
-    <classname>org.apache.hop.core.database.InfiniDbDatabaseMeta</classname>
   </database-type>
  
   <database-type id="SQLBASE">
@@ -73,17 +58,7 @@
   <database-type id="INFORMIX">
     <description>Informix</description>
     <classname>org.apache.hop.core.database.InformixDatabaseMeta</classname>
-  </database-type>                                                          
-
-  <database-type id="INGRES">
-    <description>Ingres</description>
-    <classname>org.apache.hop.core.database.IngresDatabaseMeta</classname>
-  </database-type>                                                        
-
-  <database-type id="VECTORWISE">
-    <description>Ingres VectorWise</description>
-    <classname>org.apache.hop.core.database.VectorWiseDatabaseMeta</classname>
-  </database-type>                                                        
+  </database-type>
 
   <database-type id="INTERBASE">
     <description>Borland Interbase</description>
@@ -133,12 +108,7 @@
   <database-type id="MONDRIAN">
     <description>Native Mondrian</description>
     <classname>org.apache.hop.core.database.MondrianNativeDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="NEOVIEW">
-    <description>Neoview</description>
-    <classname>org.apache.hop.core.database.NeoviewDatabaseMeta</classname>
-  </database-type>                                                         
+  </database-type>
 
   <database-type id="NETEZZA">
     <description>Netezza</description>
@@ -168,36 +138,6 @@
   <database-type id="SQLITE">
     <description>SQLite</description>
     <classname>org.apache.hop.core.database.SQLiteDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="SYBASE">
-    <description>Sybase</description>
-    <classname>org.apache.hop.core.database.SybaseDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="SYBASEIQ">
-    <description>SybaseIQ</description>
-    <classname>org.apache.hop.core.database.SybaseIQDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="TERADATA">
-    <description>Teradata</description>
-    <classname>org.apache.hop.core.database.TeradataDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="UNIVERSE">
-    <description>UniVerse database</description>
-    <classname>org.apache.hop.core.database.UniVerseDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="VERTICA">
-    <description>Vertica</description>
-    <classname>org.apache.hop.core.database.VerticaDatabaseMeta</classname>
-  </database-type>
-  
-  <database-type id="VERTICA5">
-    <description>Vertica 5+</description>
-    <classname>org.apache.hop.core.database.Vertica5DatabaseMeta</classname>
   </database-type>
 
   <database-type id="GOOGLEBIGQUERY">
