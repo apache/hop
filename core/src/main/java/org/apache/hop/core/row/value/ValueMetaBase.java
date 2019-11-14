@@ -30,7 +30,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.NetezzaDatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.database.SQLiteDatabaseMeta;
-import org.apache.hop.core.database.TeradataDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
@@ -4863,7 +4862,7 @@ public class ValueMetaBase implements ValueMetaInterface {
           break;
 
         case java.sql.Types.DATE:
-          if ( databaseMeta.getDatabaseInterface() instanceof TeradataDatabaseMeta ) {
+          if ( databaseMeta.getDatabaseInterface().isTeradataVariant() ) {
             precision = 1;
           }
         case java.sql.Types.TIME:
@@ -5156,7 +5155,7 @@ public class ValueMetaBase implements ValueMetaInterface {
           break;
 
         case java.sql.Types.DATE:
-          if ( databaseMeta.getDatabaseInterface() instanceof TeradataDatabaseMeta ) {
+          if ( databaseMeta.getDatabaseInterface().isTeradataVariant() ) {
             precision = 1;
           }
         case java.sql.Types.TIME:

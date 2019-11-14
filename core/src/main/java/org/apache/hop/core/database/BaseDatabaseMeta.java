@@ -1974,6 +1974,38 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   }
 
   /**
+   * @return true if the database is a Teradata variant.
+   */
+  @Override
+  public boolean isTeradataVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Sybase variant.
+   */
+  @Override
+  public boolean isSybaseVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Sybase variant.
+   */
+  @Override
+  public boolean isSybaseIQVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Neoview variant.
+   */
+  @Override
+  public boolean isNeoviewVariant() {
+    return false;
+  }
+
+  /**
    * @return true if the database is an Oracle variant.
    */
   public boolean isOracleVariant() {

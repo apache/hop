@@ -55,11 +55,7 @@ import javax.naming.spi.InitialContextFactoryBuilder;
 import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DataSourceProviderInterface.DatasourceType;
@@ -149,26 +145,6 @@ public class DatabaseTest {
     assertEquals( conn, db.getConnection() );
   }
 
-  @Test
-  public void testGetQueryFieldsFromPreparedStatement() throws Exception {
-    when( rsMetaData.getColumnCount() ).thenReturn( 1 );
-    when( rsMetaData.getColumnName( 1 ) ).thenReturn( columnName );
-    when( rsMetaData.getColumnLabel( 1 ) ).thenReturn( columnName );
-    when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
-
-    when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
-    when( conn.prepareStatement( sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY ) ).thenReturn( ps );
-    when( ps.getMetaData() ).thenReturn( rsMetaData );
-
-    Database db = new Database( log, meta );
-    db.setConnection( conn );
-    RowMetaInterface rowMetaInterface = db.getQueryFieldsFromPreparedStatement( sql );
-
-    assertEquals( rowMetaInterface.size(), 1 );
-    assertEquals( rowMetaInterface.getValueMeta( 0 ).getName(), columnName );
-    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber );
-  }
 
   @Test
   public void testGetQueryFieldsFromDatabaseMetaData() throws Exception {
@@ -196,27 +172,7 @@ public class DatabaseTest {
     assertEquals( rowMetaInterface.getValueMeta( 0 ).getLength(), columnSize );
   }
 
-  @Test
-  public void testGetQueryFieldsFallback() throws Exception {
-    when( rsMetaData.getColumnCount() ).thenReturn( 1 );
-    when( rsMetaData.getColumnName( 1 ) ).thenReturn( columnName );
-    when( rsMetaData.getColumnLabel( 1 ) ).thenReturn( columnName );
-    when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
-    when( ps.executeQuery() ).thenReturn( rs );
 
-    when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
-    when( conn.prepareStatement( sql ) ).thenReturn( ps );
-    when( rs.getMetaData() ).thenReturn( rsMetaData );
-
-    Database db = new Database( log, meta );
-    db.setConnection( conn );
-    RowMetaInterface rowMetaInterface = db.getQueryFieldsFallback( sql, false, null, null );
-
-    assertEquals( rowMetaInterface.size(), 1 );
-    assertEquals( rowMetaInterface.getValueMeta( 0 ).getName(), columnName );
-    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber );
-  }
 
   /**
    * PDI-11363. when using getLookup calls there is no need to make attempt to retrieve row set metadata for every call.
@@ -582,38 +538,6 @@ public class DatabaseTest {
     }
   }
 
-  @Test
-  public void mySqlVarBinaryIsConvertedToStringType() throws Exception {
-    ResultSetMetaData rsMeta = mock( ResultSetMetaData.class );
-    when( rsMeta.getColumnCount() ).thenReturn( 1 );
-    when( rsMeta.getColumnLabel( 1 ) ).thenReturn( "column" );
-    when( rsMeta.getColumnName( 1 ) ).thenReturn( "column" );
-    when( rsMeta.getColumnType( 1 ) ).thenReturn( java.sql.Types.VARBINARY );
-    when( rs.getMetaData() ).thenReturn( rsMeta );
-    when( ps.executeQuery() ).thenReturn( rs );
-
-    DatabaseMeta meta = new DatabaseMeta();
-    meta.setDatabaseInterface( new MySQLDatabaseMeta() );
-
-    Database db = new Database( log, meta );
-    db.setConnection( mockConnection( dbMetaData ) );
-    db.getLookup( ps, false );
-
-    RowMetaInterface rowMeta = db.getReturnRowMeta();
-    assertEquals( 1, db.getReturnRowMeta().size() );
-
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, valueMeta.getType() );
-  }
-
-  private String concatWordsForRegexp( String... words ) {
-    String emptySpace = "\\s*";
-    StringBuilder sb = new StringBuilder( emptySpace );
-    for ( String word : words ) {
-      sb.append( word ).append( emptySpace );
-    }
-    return sb.toString();
-  }
 
   private Connection mockConnection( DatabaseMetaData dbMetaData ) throws SQLException {
     Connection conn = mock( Connection.class );
@@ -874,6 +798,82 @@ public class DatabaseTest {
 
     //verify( db, times( 0 ) ).getQueryFields( any(), any() );
     verify( db, times( 1 ) ).getTableFieldsMetaByDbMeta( any(), any() );
+  }
+
+  private String concatWordsForRegexp( String... words ) {
+    String emptySpace = "\\s*";
+    StringBuilder sb = new StringBuilder( emptySpace );
+    for ( String word : words ) {
+      sb.append( word ).append( emptySpace );
+    }
+    return sb.toString();
+  }
+
+  @Test
+  public void testGetQueryFieldsFromPreparedStatement() throws Exception {
+    when( rsMetaData.getColumnCount() ).thenReturn( 1 );
+    when( rsMetaData.getColumnName( 1 ) ).thenReturn( columnName );
+    when( rsMetaData.getColumnLabel( 1 ) ).thenReturn( columnName );
+    when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
+
+    when( meta.stripCR( anyString() ) ).thenReturn( sql );
+    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
+    when( conn.prepareStatement( sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY ) ).thenReturn( ps );
+    when( ps.getMetaData() ).thenReturn( rsMetaData );
+
+    Database db = new Database( log, meta );
+    db.setConnection( conn );
+    RowMetaInterface rowMetaInterface = db.getQueryFieldsFromPreparedStatement( sql );
+
+    assertEquals( rowMetaInterface.size(), 1 );
+    assertEquals( rowMetaInterface.getValueMeta( 0 ).getName(), columnName );
+    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber);
+  }
+
+  @Test
+  public void testGetQueryFieldsFallback() throws Exception {
+    when( rsMetaData.getColumnCount() ).thenReturn( 1 );
+    when( rsMetaData.getColumnName( 1 ) ).thenReturn( columnName );
+    when( rsMetaData.getColumnLabel( 1 ) ).thenReturn( columnName );
+    when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
+    when( ps.executeQuery() ).thenReturn( rs );
+
+    when( meta.stripCR( anyString() ) ).thenReturn( sql );
+    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
+    when( conn.prepareStatement( sql ) ).thenReturn( ps );
+    when( rs.getMetaData() ).thenReturn( rsMetaData );
+
+    Database db = new Database( log, meta );
+    db.setConnection( conn );
+    RowMetaInterface rowMetaInterface = db.getQueryFieldsFallback( sql, false, null, null );
+
+    assertEquals( rowMetaInterface.size(), 1 );
+    assertEquals( rowMetaInterface.getValueMeta( 0 ).getName(), columnName );
+    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber );
+  }
+
+  @Test
+  public void mySqlVarBinaryIsConvertedToStringType() throws Exception {
+    ResultSetMetaData rsMeta = mock( ResultSetMetaData.class );
+    when( rsMeta.getColumnCount() ).thenReturn( 1 );
+    when( rsMeta.getColumnLabel( 1 ) ).thenReturn( "column" );
+    when( rsMeta.getColumnName( 1 ) ).thenReturn( "column" );
+    when( rsMeta.getColumnType( 1 ) ).thenReturn( java.sql.Types.VARBINARY );
+    when( rs.getMetaData() ).thenReturn( rsMeta );
+    when( ps.executeQuery() ).thenReturn( rs );
+
+    DatabaseMeta meta = new DatabaseMeta();
+    meta.setDatabaseInterface( new MySQLDatabaseMeta() );
+
+    Database db = new Database( log, meta );
+    db.setConnection( mockConnection( dbMetaData ) );
+    db.getLookup( ps, false );
+
+    RowMetaInterface rowMeta = db.getReturnRowMeta();
+    assertEquals( 1, db.getReturnRowMeta().size() );
+
+    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
+    assertEquals( ValueMetaInterface.TYPE_BINARY, valueMeta.getType() );
   }
 
 

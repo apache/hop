@@ -10,47 +10,15 @@
   <dependencies>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-plugins-databases-postgresql</artifactId>
       <scope>compile</scope>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-engine</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-plugins-databases-postgresql</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -81,12 +49,6 @@
     <dependencies>
       <dependency>
         <groupId>org.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hop</groupId>
         <artifactId>hop-plugins-databases-postgresql</artifactId>
         <scope>compile</scope>
         <version>${project.version}</version>
@@ -94,30 +56,10 @@
 
       <!-- test dependencies -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.hop</groupId>
         <artifactId>hop-plugins-databases-postgresql</artifactId>
         <scope>test</scope>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-engine</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.hop</groupId>

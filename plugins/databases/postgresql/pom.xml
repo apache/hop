@@ -8,60 +8,10 @@
   <version>0.1.0</version>
 
   <dependencies>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${postgresql.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-engine</artifactId>
-      <version>0.1.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
+     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-ui-swt</artifactId>
-      <version>0.1.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-engine</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -85,48 +35,10 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgresql.version}</version>
         <scope>runtime</scope>
-      </dependency>
-
-      <!-- test dependencies -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <classifier>test</classifier>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-engine</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
