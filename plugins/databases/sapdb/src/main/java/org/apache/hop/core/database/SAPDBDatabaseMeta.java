@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
@@ -32,6 +33,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 30-06-2005
  */
 
+@DatabaseMetaPlugin(
+        type = "SAPDB",
+        typeDescription = "MaxDB (SAP DB)"
+)
 public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {

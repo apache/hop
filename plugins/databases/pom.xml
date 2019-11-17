@@ -81,6 +81,9 @@
         <module>mssql</module>
         <module>mondrian</module>
         <module>netezza</module>
+        <module>oraclerdb</module>
+        <module>remedy-ar-system</module>
+        <module>sapdb</module>
       </modules>
     </profile>
 

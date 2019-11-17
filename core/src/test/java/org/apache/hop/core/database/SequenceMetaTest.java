@@ -36,13 +36,10 @@ public class SequenceMetaTest {
 
     DatabaseInterface[] support = new DatabaseInterface[] {
       new OracleDatabaseMeta(),
-      new OracleRDBDatabaseMeta(),
     };
 
     DatabaseInterface[] doNotSupport = new DatabaseInterface[] {
       new GenericDatabaseMeta(),
-      new RemedyActionRequestSystemDatabaseMeta(),
-      new SAPDBDatabaseMeta(),
       new SQLiteDatabaseMeta(),
       new MySQLDatabaseMeta()
     };
@@ -85,26 +82,12 @@ public class SequenceMetaTest {
     assertEquals( "SELECT sequence_name.currval FROM DUAL", databaseInterface
       .getSQLCurrentSequenceValue( sequenceName ) );
 
-    databaseInterface = new OracleRDBDatabaseMeta();
-    assertEquals( "SELECT sequence_name.nextval FROM dual", databaseInterface
-      .getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT sequence_name.currval FROM DUAL", databaseInterface
-      .getSQLCurrentSequenceValue( sequenceName ) );
-
-
     // the rest of the database metas say they don't support sequences
 
     databaseInterface = new GenericDatabaseMeta();
     assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
     assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-
-    databaseInterface = new RemedyActionRequestSystemDatabaseMeta();
-    assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-
-    databaseInterface = new SAPDBDatabaseMeta();
-    assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
+    
 
     databaseInterface = new SQLiteDatabaseMeta();
     assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );

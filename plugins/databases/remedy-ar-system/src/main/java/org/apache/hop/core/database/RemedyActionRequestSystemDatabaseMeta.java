@@ -22,6 +22,8 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
+
 /**
  * Contains Database Connection information through static final members for a BMW Remedy Action Request System. These
  * connections are typically read-only ODBC only.
@@ -29,7 +31,10 @@ package org.apache.hop.core.database;
  * @author Matt
  * @since 11-Sep-2007
  */
-
+@DatabaseMetaPlugin(
+        type = "REMEDY-AR-SYSTEM",
+        typeDescription = "Remedy Action Request System"
+)
 public class RemedyActionRequestSystemDatabaseMeta extends GenericDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {

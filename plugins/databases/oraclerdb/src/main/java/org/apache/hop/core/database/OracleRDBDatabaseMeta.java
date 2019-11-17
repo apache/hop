@@ -24,6 +24,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
@@ -32,7 +33,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @author Matt
  * @since 27-jul-2006
  */
-
+@DatabaseMetaPlugin(
+        type = "ORACLERDB",
+        typeDescription = "Oracle RDB"
+)
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {

@@ -18,22 +18,7 @@
   <database-type id="ORACLE">
     <description>Oracle</description>
     <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
-  </database-type>                                                        
-
-  <database-type id="ORACLERDB">
-    <description>Oracle RDB</description>
-    <classname>org.apache.hop.core.database.OracleRDBDatabaseMeta</classname>
   </database-type>
-
-  <database-type id="REMEDY-AR-SYSTEM">
-    <description>Remedy Action Request System</description>
-    <classname>org.apache.hop.core.database.RemedyActionRequestSystemDatabaseMeta</classname>                                                                                           
-  </database-type>                                                                          
-
-  <database-type id="SAPDB">
-    <description>MaxDB (SAP DB)</description>
-    <classname>org.apache.hop.core.database.SAPDBDatabaseMeta</classname>
-  </database-type>                                                       
 
   <database-type id="SQLITE">
     <description>SQLite</description>

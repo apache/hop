@@ -35,9 +35,6 @@ public class ReleaseSavePointTest {
 
   DatabaseInterface[] support = new DatabaseInterface[] {
     new GenericDatabaseMeta(),
-    new OracleRDBDatabaseMeta(),
-    new RemedyActionRequestSystemDatabaseMeta(),
-    new SAPDBDatabaseMeta(),
     new SQLiteDatabaseMeta()
   };
 
