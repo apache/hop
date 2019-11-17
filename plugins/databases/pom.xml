@@ -84,6 +84,8 @@
         <module>oraclerdb</module>
         <module>remedy-ar-system</module>
         <module>sapdb</module>
+        <module>sqlite</module>
+        <module>googlebigquery</module>
       </modules>
     </profile>
 

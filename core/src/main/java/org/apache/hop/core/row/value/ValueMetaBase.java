@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
-import org.apache.hop.core.database.SQLiteDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
@@ -4904,7 +4903,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getDatabaseInterface() instanceof SQLiteDatabaseMeta ) {
+          } else if ( databaseMeta.getDatabaseInterface().isSQLiteVariant() ) {
             valtype = ValueMetaInterface.TYPE_STRING;
           } else {
             length = -1;
@@ -5197,7 +5196,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getDatabaseInterface() instanceof SQLiteDatabaseMeta ) {
+          } else if ( databaseMeta.getDatabaseInterface().isSQLiteVariant() ) {
             valtype = ValueMetaInterface.TYPE_STRING;
           } else {
             length = -1;

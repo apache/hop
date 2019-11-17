@@ -1125,7 +1125,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isSQLiteVariant();
 
   /**
-   * @return true if the database is a SQLite variant.
+   * @return true if the database is a Terradata variant.
    */
   public boolean isTeradataVariant();
 

@@ -2056,6 +2056,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   /**
    * @return true if the database is a SQLite variant.
    */
+  @Override
   public boolean isSQLiteVariant() {
     return false;
   }

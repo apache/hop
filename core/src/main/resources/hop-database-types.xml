@@ -20,14 +20,4 @@
     <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
   </database-type>
 
-  <database-type id="SQLITE">
-    <description>SQLite</description>
-    <classname>org.apache.hop.core.database.SQLiteDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="GOOGLEBIGQUERY">
-    <description>Google BigQuery</description>
-    <classname>org.apache.hop.core.database.GoogleBigQueryDatabaseMeta</classname>
-  </database-type>
-
  </database-types>

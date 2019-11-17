@@ -22,10 +22,14 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
-
+@DatabaseMetaPlugin(
+        type = "GOOGLEBIGQUERY",
+        typeDescription = "Google BigQuery"
+)
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   private static Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes

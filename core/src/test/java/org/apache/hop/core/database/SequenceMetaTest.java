@@ -40,7 +40,6 @@ public class SequenceMetaTest {
 
     DatabaseInterface[] doNotSupport = new DatabaseInterface[] {
       new GenericDatabaseMeta(),
-      new SQLiteDatabaseMeta(),
       new MySQLDatabaseMeta()
     };
 
@@ -87,12 +86,6 @@ public class SequenceMetaTest {
     databaseInterface = new GenericDatabaseMeta();
     assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
     assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-    
-
-    databaseInterface = new SQLiteDatabaseMeta();
-    assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-
 
   }
 }

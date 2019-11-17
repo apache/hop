@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
@@ -31,7 +32,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @author Matt
  * @since 11-mrt-2005
  */
-
+@DatabaseMetaPlugin(
+        type = "SQLITE",
+        typeDescription = "SQLite"
+)
 public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -224,6 +228,11 @@ public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   @Override
   public boolean supportsErrorHandling() {
     return false;
+  }
+
+  @Override
+  public boolean isSQLiteVariant() {
+    return true;
   }
 
 }

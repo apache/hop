@@ -34,8 +34,7 @@ public class ReleaseSavePointTest {
   };
 
   DatabaseInterface[] support = new DatabaseInterface[] {
-    new GenericDatabaseMeta(),
-    new SQLiteDatabaseMeta()
+    new GenericDatabaseMeta()
   };
 
   @Test
