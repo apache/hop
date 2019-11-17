@@ -23,8 +23,8 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Hypersonic specific information through static final members
@@ -32,7 +32,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @author Matt
  * @since 11-mrt-2005
  */
-
 public class H2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -95,7 +94,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfac
   }
 
   /**
-   * @see DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
+   * @see DatabaseInterface#getSchemaTableCombination(String, String)
    */
   @Override
   @SuppressWarnings( "deprecation" )

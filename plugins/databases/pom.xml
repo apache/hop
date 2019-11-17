@@ -63,6 +63,24 @@
         <module>mariadb</module>
         <module>infobright</module>
         <module>infinidb</module>
+        <module>derby</module>
+        <module>monetdb</module>
+        <module>cache</module>
+        <module>dbase</module>
+        <module>exasol4</module>
+        <module>extendb</module>
+        <module>sqlbase</module>
+        <module>h2</module>
+        <module>hypersonic</module>
+        <module>informix</module>
+        <module>interbase</module>
+        <module>kingbasees</module>
+        <module>lucidb</module>
+        <module>msaccess</module>
+        <module>mssqlnative</module>
+        <module>mssql</module>
+        <module>mondrian</module>
+        <module>netezza</module>
       </modules>
     </profile>
 

@@ -278,59 +278,6 @@ public class DatabaseMetaTest {
     assertEquals( DROP_STATEMENT_FALLBACK, statement );
   }
 
-  @Test
-  public void databases_WithSameDbConnTypes_AreTheSame() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
-  }
-
-  @Test
-  public void databases_WithSameDbConnTypes_AreNotSame_IfPluginIdIsNull() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( null );
-    assertFalse(
-      databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
-  }
-
-  @Test
-  public void databases_WithDifferentDbConnTypes_AreDifferent_IfNonOfThemIsSubsetOfAnother() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface oracleDatabaseMeta = new OracleDatabaseMeta();
-    oracleDatabaseMeta.setPluginId( "ORACLE" );
-
-    assertFalse( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, oracleDatabaseMeta ) );
-  }
-
-  @Test
-  public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
-    mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
-
-    assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,
-      mssqlServerNativeDatabaseMeta ) );
-  }
-
-  @Test
-  public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_3LevelHierarchy() {
-    class MSSQLServerNativeDatabaseMetaChild extends MSSQLServerDatabaseMeta {
-      @Override
-      public String getPluginId() {
-        return "MSSQLNATIVE_CHILD";
-      }
-    }
-
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
-
-    assertTrue(
-      databaseMeta
-        .databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerNativeDatabaseMetaChild ) );
-  }
 
   @Test
   public void testCheckParameters() {
@@ -342,25 +289,6 @@ public class DatabaseMetaTest {
     when( meta.isPartitioned() ).thenReturn( false );
     when( meta.checkParameters() ).thenCallRealMethod();
     assertEquals( 2, meta.checkParameters().length );
-  }
-
-  @Test
-  public void setSQLServerInstanceTest() {
-    DatabaseMeta dbmeta = new DatabaseMeta();
-    DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    DatabaseInterface mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
-    mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
-    dbmeta.setDatabaseInterface( mssqlServerDatabaseMeta );
-    dbmeta.setSQLServerInstance( "" );
-    assertEquals( dbmeta.getSQLServerInstance(), null );
-    dbmeta.setSQLServerInstance( "instance1" );
-    assertEquals( dbmeta.getSQLServerInstance(), "instance1" );
-    dbmeta.setDatabaseInterface( mssqlServerNativeDatabaseMeta );
-    dbmeta.setSQLServerInstance( "" );
-    assertEquals( dbmeta.getSQLServerInstance(), null );
-    dbmeta.setSQLServerInstance( "instance1" );
-    assertEquals( dbmeta.getSQLServerInstance(), "instance1" );
   }
 
   @Test

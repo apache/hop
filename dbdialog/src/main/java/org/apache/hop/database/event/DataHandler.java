@@ -44,7 +44,7 @@ import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.database.GenericDatabaseMeta;
-import org.apache.hop.core.database.MSSQLServerNativeDatabaseMeta;
+//import org.apache.hop.core.database.MSSQLServerNativeDatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.database.PartitionDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -1310,12 +1310,12 @@ public class DataHandler extends AbstractXulEventHandler {
     }
 
     // Microsoft SQL Server Use Integrated Security
-    if ( useIntegratedSecurityCheck != null ) {
+/*    if ( useIntegratedSecurityCheck != null ) {
       Boolean useIntegratedSecurity = useIntegratedSecurityCheck.isChecked();
       meta.getAttributes().put(
         MSSQLServerNativeDatabaseMeta.ATTRIBUTE_USE_INTEGRATED_SECURITY,
         useIntegratedSecurity != null ? useIntegratedSecurity.toString() : "false" );
-    }
+    }*/
 
     if ( webAppName != null ) {
       meta.setDBName( webAppName.getValue() );
@@ -1420,7 +1420,7 @@ public class DataHandler extends AbstractXulEventHandler {
     }
 
     // Microsoft SQL Server Use Integrated Security
-    if ( useIntegratedSecurityCheck != null ) {
+/*    if ( useIntegratedSecurityCheck != null ) {
       Object value = meta.getAttributes().get( MSSQLServerNativeDatabaseMeta.ATTRIBUTE_USE_INTEGRATED_SECURITY );
       if ( value != null && value instanceof String ) {
         String useIntegratedSecurity = (String) value;
@@ -1428,7 +1428,7 @@ public class DataHandler extends AbstractXulEventHandler {
       } else {
         useIntegratedSecurityCheck.setChecked( false );
       }
-    }
+    }*/
 
     if ( webAppName != null ) {
       // Insert default value only for new connection, allowing it to be empty in case of editing existing one

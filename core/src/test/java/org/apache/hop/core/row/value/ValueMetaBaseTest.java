@@ -171,33 +171,6 @@ public class ValueMetaBaseTest {
     assertEquals( base.getStorageType(), ValueMetaInterface.STORAGE_TYPE_NORMAL );
   }
 
-  /**
-   * PDI-10877 Table input step returns no data when pulling a timestamp column from IBM Netezza
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetValueFromSqlTypeNetezza() throws Exception {
-    ValueMetaBase obj = new ValueMetaBase();
-    DatabaseInterface databaseInterface = new NetezzaDatabaseMeta();
-
-    ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-    when( resultSet.getMetaData() ).thenReturn( metaData );
-
-    when( metaData.getColumnType( 1 ) ).thenReturn( Types.DATE );
-    when( metaData.getColumnType( 2 ) ).thenReturn( Types.TIME );
-
-    obj.type = ValueMetaInterface.TYPE_DATE;
-    // call to testing method
-    obj.getValueFromResultSet( databaseInterface, resultSet, 0 );
-    // for jdbc Date type getDate method called
-    verify( resultSet, times( 1 ) ).getDate( anyInt() );
-
-    obj.getValueFromResultSet( databaseInterface, resultSet, 1 );
-    // for jdbc Time type getTime method called
-    verify( resultSet, times( 1 ) ).getTime( anyInt() );
-  }
-
   @Test
   public void testGetDataXML() throws IOException {
     BigDecimal bigDecimal = BigDecimal.ONE;

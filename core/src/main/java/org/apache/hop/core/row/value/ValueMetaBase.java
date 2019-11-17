@@ -27,7 +27,6 @@ import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.NetezzaDatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.database.SQLiteDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -5287,7 +5286,7 @@ public class ValueMetaBase implements ValueMetaInterface {
           if ( getPrecision() != 1 && databaseInterface.supportsTimeStampToDateConversion() ) {
             data = resultSet.getTimestamp( index + 1 );
             break; // Timestamp extends java.util.Date
-          } else if ( databaseInterface instanceof NetezzaDatabaseMeta ) {
+          } else if ( databaseInterface.isNetezzaVariant() ) {
             // PDI-10877 workaround for IBM netezza jdbc 'special' implementation
             data = getNetezzaDateValueWorkaround( databaseInterface, resultSet, index + 1 );
             break;

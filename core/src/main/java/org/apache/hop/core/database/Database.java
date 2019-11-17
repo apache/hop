@@ -560,7 +560,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
           // Allow for empty username with given password, in this case username must be given with one space
           properties.put( "user", Const.NVL( username, " " ) );
           properties.put( "password", Const.NVL( password, "" ) );
-          if ( databaseMeta.getDatabaseInterface() instanceof MSSQLServerNativeDatabaseMeta ) {
+          if ( databaseMeta.getDatabaseInterface().isMSSQLServerNativeVariant() ) {
             // Handle MSSQL Instance name. Would rather this was handled in the dialect
             // but cannot (without refactor) get to variablespace for variable substitution from
             // a BaseDatabaseMeta subclass.
@@ -2161,7 +2161,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     DatabaseInterface databaseInterface = databaseMeta.getDatabaseInterface();
 
     // Exasol does not support explicit handling of indexes
-    if ( databaseInterface instanceof Exasol4DatabaseMeta ) {
+    if ( databaseInterface.isExasolVariant() ) {
       return "";
     }
 
@@ -2515,7 +2515,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       if ( ( inform == null
         // Hack for MSSQL jtds 1.2 when using xxx NOT IN yyy we have to use a
         // prepared statement (see BugID 3214)
-        && databaseMeta.getDatabaseInterface() instanceof MSSQLServerDatabaseMeta )
+        && databaseMeta.getDatabaseInterface().isMSSQLServerVariant() )
         || databaseMeta.getDatabaseInterface().supportsResultSetMetadataRetrievalOnly() ) {
         sel_stmt = connection.createStatement( ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY );
         try {

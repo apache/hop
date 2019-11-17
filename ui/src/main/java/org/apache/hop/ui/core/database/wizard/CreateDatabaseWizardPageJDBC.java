@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.InformixDatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
@@ -226,7 +225,7 @@ public class CreateDatabaseWizardPageJDBC extends WizardPage {
     IWizardPage nextPage;
     if ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
       nextPage = wiz.getPage( "oracle" ); // Oracle
-    } else if ( databaseMeta.getDatabaseInterface() instanceof InformixDatabaseMeta ) {
+    } else if ( databaseMeta.getDatabaseInterface().isInformixVariant() ) {
       nextPage = wiz.getPage( "ifx" ); // Informix
     } else {
       nextPage = wiz.getPage( "2" ); // page 2

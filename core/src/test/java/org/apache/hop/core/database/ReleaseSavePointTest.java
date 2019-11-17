@@ -29,29 +29,12 @@ import org.junit.Test;
 public class ReleaseSavePointTest {
 
   DatabaseInterface[] noSupport = new DatabaseInterface[] {
-    new Exasol4DatabaseMeta(),
     new OracleDatabaseMeta(),
     new MySQLDatabaseMeta()
   };
 
   DatabaseInterface[] support = new DatabaseInterface[] {
-    new DbaseDatabaseMeta(),
-    new DerbyDatabaseMeta(),
-    new ExtenDBDatabaseMeta(),
     new GenericDatabaseMeta(),
-    new GuptaDatabaseMeta(),
-    new H2DatabaseMeta(),
-    new HypersonicDatabaseMeta(),
-    new InformixDatabaseMeta(),
-    new InterbaseDatabaseMeta(),
-    new KingbaseESDatabaseMeta(),
-    new LucidDBDatabaseMeta(),
-    new MondrianNativeDatabaseMeta(),
-    new MSAccessDatabaseMeta(),
-    new MSSQLServerDatabaseMeta(),
-    new MSSQLServerNativeDatabaseMeta(),
-    new MonetDBDatabaseMeta(),
-    new NetezzaDatabaseMeta(),
     new OracleRDBDatabaseMeta(),
     new RemedyActionRequestSystemDatabaseMeta(),
     new SAPDBDatabaseMeta(),
