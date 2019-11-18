@@ -24,21 +24,16 @@ package org.apache.hop.www;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.jaas.JAASLoginService;
-import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.*;
 import org.eclipse.jetty.server.*;
-//import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-//import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Password;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -57,7 +52,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import javax.servlet.Servlet;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -164,6 +158,7 @@ public class WebServer {
       securityHandler.setLoginService( jaasLoginService );
     } else {
       roles.add( "default" );
+      System.out.println("Default role added.");
       HashLoginService hashLoginService;
       SlaveServer slaveServer = transformationMap.getSlaveServerConfig().getSlaveServer();
       if ( !Utils.isEmpty( slaveServer.getPassword() ) ) {
@@ -171,8 +166,6 @@ public class WebServer {
         UserStore userStore = new UserStore();
         userStore.addUser(slaveServer.getUsername(), new Password(slaveServer.getPassword()), new String[]{"default"});
         hashLoginService.setUserStore(userStore);
-//        hashLoginService.putUser( slaveServer.getUsername(), new Password( slaveServer.getPassword() ),
-//            new String[] { "default" } );
       } else {
         // See if there is a kettle.pwd file in the HOP_HOME directory:
         if ( Utils.isEmpty( passwordFile ) ) {
@@ -187,14 +180,6 @@ public class WebServer {
         PropertyUserStore userStore = new PropertyUserStore();
         userStore.setConfig(passwordFile);
         hashLoginService.setUserStore(userStore);
-//        hashLoginService = new HashLoginService( "Hop", passwordFile ) {
-//          @Override public synchronized UserIdentity putUser( String userName, Credential credential, String[] roles ) {
-//            List<String> newRoles = new ArrayList<String>();
-//            newRoles.add( "default" );
-//            Collections.addAll( newRoles, roles );
-//            return super.putUser( userName, credential, newRoles.toArray( new String[newRoles.size()] ) );
-//          }
-//        };
       }
       securityHandler.setLoginService( hashLoginService );
     }
@@ -349,17 +334,10 @@ public class WebServer {
       SslConnectionFactory connector = new SslConnectionFactory();
 
       SslContextFactory contextFactory = new SslContextFactory();
-
-//      SslSocketConnector connector = new SslSocketConnector();
-
       contextFactory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
-      //connector.setKeystore( sslConfig.getKeyStore() );
       contextFactory.setKeyStorePassword(sslConfig.getKeyStorePassword());
-//      connector.setPassword( sslConfig.getKeyStorePassword() );
       contextFactory.setKeyManagerPassword(sslConfig.getKeyPassword());
-//      connector.setKeyPassword( sslConfig.getKeyPassword() );
       contextFactory.setKeyStoreType( sslConfig.getKeyStoreType() );
-//      return connector;
       return new ServerConnector(server, connector);
     } else {
       return new ServerConnector(server);
@@ -376,7 +354,6 @@ public class WebServer {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
     if ( validProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) {
       server.addBean(new ConnectionLimit(Integer.parseInt(System.getProperty(Const.HOP_CARTE_JETTY_ACCEPTORS))));
-      //connector.setAcceptors( Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) );
       log.logBasic(
           BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "acceptors", connector.getAcceptors() ) );
     }
@@ -390,12 +367,9 @@ public class WebServer {
 
     if ( validProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) {
       connector.setIdleTimeout(Integer.parseInt(System.getProperty(Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME)));
-//      connector.setLowResourceMaxIdleTime(
-//          Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) );
       log.logBasic( BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "lowResourcesMaxIdleTime",
           connector.getIdleTimeout() ) );
     }
-
   }
 
   /**
