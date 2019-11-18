@@ -2112,7 +2112,7 @@ public class Const {
    * @return The local Carte password file.
    */
   public static String getHopLocalCartePasswordFile() {
-    return "pwd/kettle.pwd";
+    return "pwd/hop.pwd";
   }
 
   /**

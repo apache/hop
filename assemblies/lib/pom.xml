@@ -62,12 +62,14 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
+<!--
       <exclusions>
         <exclusion>
           <groupId>javax.servlet</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
+-->
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>

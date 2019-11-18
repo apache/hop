@@ -158,7 +158,6 @@ public class WebServer {
       securityHandler.setLoginService( jaasLoginService );
     } else {
       roles.add( "default" );
-      System.out.println("Default role added.");
       HashLoginService hashLoginService;
       SlaveServer slaveServer = transformationMap.getSlaveServerConfig().getSlaveServer();
       if ( !Utils.isEmpty( slaveServer.getPassword() ) ) {
