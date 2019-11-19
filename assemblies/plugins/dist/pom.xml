@@ -18,6 +18,7 @@
         <!-- plugins -->
         <hop-plugins-dummy.version>${project.version}</hop-plugins-dummy.version>
         <hop-plugins-core.version>${project.version}</hop-plugins-core.version>
+        <hop-plugins-databases.version>${project.version}</hop-plugins-databases.version>
     </properties>
 
     <dependencies>
@@ -49,10 +50,10 @@
 
         <!-- Database plugins -->
 
-        <dependency>
+      <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-postgresql</artifactId>
-            <version>${hop-plugins-dummy.version}</version>
+            <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -65,7 +66,7 @@
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-redshift</artifactId>
-            <version>${hop-plugins-dummy.version}</version>
+            <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -78,7 +79,7 @@
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-greenplum</artifactId>
-            <version>${hop-plugins-dummy.version}</version>
+            <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -88,6 +89,434 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-vertica</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-sybase</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-sybaseiq</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-vectorwise</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-teradata</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-universe</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-neoview</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-firebird</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-ingres</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-as400</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-db2</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-mariadb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-infobright</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-infinidb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-derby</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-monetdb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-cache</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-dbase</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-exasol4</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-extendb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-sqlbase</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-h2</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-hypersonic</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-informix</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-itnerbase</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-kingbasees</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-luciddb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-msaccess</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-mssqlnative</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-mssql</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-mondrian</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-netezza</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-oraclerdb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 </project>

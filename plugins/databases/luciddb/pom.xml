@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-plugins-databases-lucidb</artifactId>
+    <artifactId>hop-plugins-databases-luciddb</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Databases LuciDB</name>
+    <name>Hop Plugins Databases Lucid DB</name>
 
 </project>

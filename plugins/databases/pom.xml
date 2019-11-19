@@ -75,7 +75,7 @@
         <module>informix</module>
         <module>interbase</module>
         <module>kingbasees</module>
-        <module>lucidb</module>
+        <module>luciddb</module>
         <module>msaccess</module>
         <module>mssqlnative</module>
         <module>mssql</module>

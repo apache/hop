@@ -1,0 +1,37 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>hop-assemblies-plugins-databases-redshift</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <baseDirectory>databases/oraclerdb</baseDirectory>
+    <files>
+        <file>
+            <source>${project.basedir}/src/main/resources/version.xml</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
+            <outputDirectory>lib</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+    </files>
+    <fileSets>
+        <fileSet>
+            <outputDirectory>lib</outputDirectory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>org.hop:hop-plugins-databases-oraclerdb:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
