@@ -56,7 +56,7 @@ import static org.powermock.reflect.Whitebox.getInternalState;
  */
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( Client.class )
-public class CarteTest {
+public class HopServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   // this test isn't consistent/doesn't work.
@@ -78,25 +78,25 @@ public class CarteTest {
     SlaveServerConfig config = new SlaveServerConfig();
     config.setSlaveServer( master );
 
-    Carte carte = new Carte( config );
+    HopServer hopServer = new HopServer( config );
 
     SlaveServerDetection slaveServerDetection = mock( SlaveServerDetection.class );
-    carte.getWebServer().getDetections().add( slaveServerDetection );
+    hopServer.getWebServer().getDetections().add( slaveServerDetection );
 
     SlaveServer slaveServer = mock( SlaveServer.class, RETURNS_MOCKS );
     when( slaveServerDetection.getSlaveServer() ).thenReturn( slaveServer );
     when( slaveServer.getStatus() ).thenAnswer( new Answer<SlaveServerStatus>() {
       @Override public SlaveServerStatus answer( InvocationOnMock invocation ) throws Throwable {
         SlaveServerDetection anotherDetection = mock( SlaveServerDetection.class );
-        carte.getWebServer().getDetections().add( anotherDetection );
+        hopServer.getWebServer().getDetections().add( anotherDetection );
         latch.countDown();
         return new SlaveServerStatus();
       }
     } );
 
     latch.await( 10, TimeUnit.SECONDS );
-    assertEquals( carte.getWebServer().getDetections().size(), 2 );
-    carte.getWebServer().stopServer();
+    assertEquals( hopServer.getWebServer().getDetections().size(), 2 );
+    hopServer.getWebServer().stopServer();
   }
 
   @Test
@@ -110,13 +110,13 @@ public class CarteTest {
     Client client = mock( Client.class );
     doCallRealMethod().when( client ).addFilter( any( HTTPBasicAuthFilter.class ) );
     doCallRealMethod().when( client ).getHeadHandler();
-    doReturn( status ).when( client ).resource( "http://localhost:8080/kettle/status/?xml=Y" );
-    doReturn( stop ).when( client ).resource( "http://localhost:8080/kettle/stopCarte" );
+    doReturn( status ).when( client ).resource( "http://localhost:8080/hop/status/?xml=Y" );
+    doReturn( stop ).when( client ).resource( "http://localhost:8080/hop/stopCarte" );
 
     mockStatic( Client.class );
     when( Client.create( any( ClientConfig.class ) ) ).thenReturn( client );
 
-    Carte.callStopCarteRestService( "localhost", "8080", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde" );
+    HopServer.callStopHopServerRestService( "localhost", "8080", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde" );
 
     // the expected value is: "Basic <base64 encoded username:password>"
     assertEquals( "Basic " + new String( Base64.getEncoder().encode( "admin:password".getBytes( "utf-8" ) ) ),

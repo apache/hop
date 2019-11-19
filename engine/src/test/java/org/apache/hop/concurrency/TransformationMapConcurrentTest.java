@@ -23,7 +23,7 @@ package org.apache.hop.concurrency;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.www.CarteObjectEntry;
+import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.SocketPortAllocation;
 import org.apache.hop.www.TransformationMap;
 
@@ -74,8 +74,8 @@ public class TransformationMapConcurrentTest {
     }
 
     for ( int i = 0; i < numberOfDeallocateTasks; i++ ) {
-      CarteObjectEntry carteObjectEntry = new CarteObjectEntry( "trans" + i, "id" + 1 );
-      concurrentDeallocateTasks.add( new ConcurrentDeallocate( i, "host" + i, carteObjectEntry ) );
+      HopServerObjectEntry hopServerObjectEntry = new HopServerObjectEntry( "trans" + i, "id" + 1 );
+      concurrentDeallocateTasks.add( new ConcurrentDeallocate( i, "host" + i, hopServerObjectEntry) );
     }
 
   }
@@ -132,9 +132,9 @@ public class TransformationMapConcurrentTest {
 
     int port;
     String hostname;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
 
-    ConcurrentDeallocate( int port, String hostname, CarteObjectEntry entry ) {
+    ConcurrentDeallocate( int port, String hostname, HopServerObjectEntry entry ) {
       this.port = port;
       this.hostname = hostname;
       this.entry = entry;

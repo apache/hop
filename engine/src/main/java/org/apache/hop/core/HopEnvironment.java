@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.lifecycle.HopLifecycleSupport;
 import org.apache.hop.core.logging.LogTablePluginType;
-import org.apache.hop.core.plugins.CartePluginType;
+import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.ImportRulePluginType;
 import org.apache.hop.core.plugins.JobEntryDialogFragmentType;
 import org.apache.hop.core.plugins.JobEntryPluginType;
@@ -108,7 +108,7 @@ public class HopEnvironment {
       LifecyclePluginType.getInstance(),
       HopLifecyclePluginType.getInstance(),
       ImportRulePluginType.getInstance(),
-      CartePluginType.getInstance(),
+      HopServerPluginType.getInstance(),
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
       AuthenticationConsumerPluginType.getInstance()

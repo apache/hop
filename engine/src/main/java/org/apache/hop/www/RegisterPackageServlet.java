@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
 
 public class RegisterPackageServlet extends BaseJobServlet {
 
-  public static final String CONTEXT_PATH = "/kettle/registerPackage";
+  public static final String CONTEXT_PATH = "/hop/registerPackage";
 
   private static final long serialVersionUID = -7582587179862317791L;
 

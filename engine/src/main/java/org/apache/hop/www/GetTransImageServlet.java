@@ -43,26 +43,26 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransPainter;
 import org.apache.hop.trans.step.StepMeta;
 
-public class GetTransImageServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetTransImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = -4365372274638005929L;
 
   private static Class<?> PKG = GetTransImageServlet.class; // for i18n purposes, needed by Translator2!!
 
-  public static final String CONTEXT_PATH = "/kettle/transImage";
+  public static final String CONTEXT_PATH = "/hop/transImage";
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/transImage</h1>
+    <h1>/hop/transImage</h1>
     <a name="GET"></a>
     <h2>GET</h2>
-    <p>Generates PNG image of the specified transformation currently present on Carte server.
-  Transformation name and Carte transformation ID (optional) are used for specifying which
+    <p>Generates PNG image of the specified transformation currently present on HopServer server.
+  Transformation name and HopServer transformation ID (optional) are used for specifying which
   transformation to get information for. Response is a binary of the PNG image.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/transImage?name=dummy-trans
+    GET /hop/transImage?name=dummy-trans
     </pre>
 
     </p>
@@ -81,7 +81,7 @@ public class GetTransImageServlet extends BaseHttpServlet implements CartePlugin
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte id of the transformation to be used for image generation.</td>
+    <td>HopServer id of the transformation to be used for image generation.</td>
     <td>query, optional</td>
     </tr>
     </tbody>
@@ -138,7 +138,7 @@ public class GetTransImageServlet extends BaseHttpServlet implements CartePlugin
     // ID is optional...
     //
     Trans trans;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -152,7 +152,7 @@ public class GetTransImageServlet extends BaseHttpServlet implements CartePlugin
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( transName, id );
+      entry = new HopServerObjectEntry( transName, id );
       trans = getTransformationMap().getTransformation( entry );
     }
 

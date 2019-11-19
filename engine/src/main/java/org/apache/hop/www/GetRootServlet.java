@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.hop.i18n.BaseMessages;
 
-public class GetRootServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetRootServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
@@ -44,7 +44,7 @@ public class GetRootServlet extends BaseHttpServlet implements CartePluginInterf
     <h1>/</h1>
     <a name="GET"></a>
     <h2>GET</h2>
-    <p>Display initial Carte page.</p>
+    <p>Display initial HopServer page.</p>
     
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
@@ -78,7 +78,7 @@ public class GetRootServlet extends BaseHttpServlet implements CartePluginInterf
       <BODY>
         <H2>Slave server menu</H2>
         <p>
-          <a href="/kettle/status">Show status</a><br>
+          <a href="/hop/status">Show status</a><br>
         <p>
       </BODY>
     </HTML>

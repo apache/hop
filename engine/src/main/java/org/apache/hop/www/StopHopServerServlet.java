@@ -29,26 +29,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.CarteServlet;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 
-@CarteServlet( id = "StopCarteServlet", name = "StopCarteServlet" )
-public class StopCarteServlet extends BaseHttpServlet implements CartePluginInterface {
+@HopServerServlet( id = "StopHopServerServlet", name = "StopHopServerServlet" )
+public class StopHopServerServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
-  private static Class<?> PKG = StopCarteServlet.class;
+  private static Class<?> PKG = StopHopServerServlet.class;
 
   private static final long serialVersionUID = -5459379367791045161L;
-  public static final String CONTEXT_PATH = "/kettle/stopCarte";
+  public static final String CONTEXT_PATH = "/hop/stopCarte";
   public static final String REQUEST_ACCEPTED = "request_accepted";
   private final DelayedExecutor delayedExecutor;
 
-  public StopCarteServlet() {
+  public StopHopServerServlet() {
     this( new DelayedExecutor() );
   }
 
-  public StopCarteServlet( DelayedExecutor delayedExecutor ) {
+  public StopHopServerServlet(DelayedExecutor delayedExecutor ) {
     this.delayedExecutor = delayedExecutor;
   }
 
@@ -78,10 +78,10 @@ public class StopCarteServlet extends BaseHttpServlet implements CartePluginInte
     }
 
     PrintStream out = new PrintStream( response.getOutputStream() );
-    final Carte carte = CarteSingleton.getCarte();
+    final HopServer hopServer = HopServerSingleton.getHopServer();
     if ( useXML ) {
       out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
-      out.print( XMLHandler.addTagValue( REQUEST_ACCEPTED, carte != null ) );
+      out.print( XMLHandler.addTagValue( REQUEST_ACCEPTED, hopServer != null ) );
       out.flush();
     } else {
       out.println( "<HTML>" );
@@ -90,21 +90,21 @@ public class StopCarteServlet extends BaseHttpServlet implements CartePluginInte
       out.println( "<BODY>" );
       out.println( "<H1>" + BaseMessages.getString( PKG, "StopCarteServlet.status.label" ) +  "</H1>" );
       out.println( "<p>" );
-      if ( carte != null ) {
+      if ( hopServer != null ) {
         out.println( BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest.status.ok" ) );
       } else {
-        out.println( BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest.status.notFound" ) );
+        out.println( BaseMessages.getString( PKG, "StopHopServerServlet.shutdownRequest.status.notFound" ) );
       }
       out.println( "</p>" );
       out.println( "</BODY>" );
       out.println( "</HTML>" );
       out.flush();
     }
-    if ( carte != null ) {
+    if ( hopServer != null ) {
       delayedExecutor.execute( new Runnable() {
         @Override
         public void run() {
-          carte.getWebServer().stopServer();
+          hopServer.getWebServer().stopServer();
           exitJVM( 0 );
         }
       }, 1000 );

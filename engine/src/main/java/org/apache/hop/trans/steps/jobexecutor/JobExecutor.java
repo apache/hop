@@ -231,7 +231,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
     //
     for ( DelegationListener delegationListener : getTrans().getDelegationListeners() ) {
       // TODO: copy some settings in the job execution configuration, not strictly needed
-      // but the execution configuration information is useful in case of a job re-start on Carte
+      // but the execution configuration information is useful in case of a job re-start on HopServer
       //
       delegationListener.jobDelegationStarted( data.executorJob, new JobExecutionConfiguration() );
     }

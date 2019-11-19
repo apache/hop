@@ -245,7 +245,7 @@ public class TransSplitter {
    * Get the port for the given cluster schema, slave server and step.
    *
    * If a port was allocated, that is returned, otherwise a new one is allocated. We need to verify that the port wasn't
-   * already used on the same host with perhaps several Carte instances on it. In order
+   * already used on the same host with perhaps several HopServer instances on it. In order
    *
    * @param clusterSchema
    *          The cluster schema to use

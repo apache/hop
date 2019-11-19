@@ -236,7 +236,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
       // Inform the parent transformation we started something here...
       for ( DelegationListener delegationListener : getTrans().getDelegationListeners() ) {
         // TODO: copy some settings in the transformation execution configuration, not strictly needed
-        // but the execution configuration information is useful in case of a transformation re-start on Carte
+        // but the execution configuration information is useful in case of a transformation re-start on HopServer
         delegationListener.transformationDelegationStarted( executorTrans, new TransExecutionConfiguration() );
       }
 

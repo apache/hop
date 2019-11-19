@@ -35,7 +35,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 
-public class GetSlavesServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetSlavesServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetSlavesServlet.class; // for i18n purposes,
   // needed by
   // Translator2!!
@@ -43,7 +43,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements CartePluginInte
   public static final String XML_TAG_SLAVESERVER_DETECTIONS = "SlaveServerDetections";
 
   private static final long serialVersionUID = -5472184538138241050L;
-  public static final String CONTEXT_PATH = "/kettle/getSlaves";
+  public static final String CONTEXT_PATH = "/hop/getSlaves";
 
   public GetSlavesServlet() {
   }
@@ -58,7 +58,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements CartePluginInte
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/getSlaves</h1>
+    <h1>/hop/getSlaves</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Gets list of slave servers.
@@ -66,7 +66,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements CartePluginInte
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/getSlaves
+    GET /hop/getSlaves
     </pre>
     </p>
 

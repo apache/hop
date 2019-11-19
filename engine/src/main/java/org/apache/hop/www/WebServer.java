@@ -43,7 +43,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.CartePluginType;
+import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
@@ -115,7 +115,7 @@ public class WebServer {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteStartup.id, this );
     } catch ( HopException e ) {
-      // Log error but continue regular operations to make sure Carte continues to run properly
+      // Log error but continue regular operations to make sure HopServer continues to run properly
       //
       log.logError( "Error calling extension point CarteStartup", e );
     }
@@ -208,10 +208,10 @@ public class WebServer {
     root.addServlet( new ServletHolder( rootServlet ), "/*" );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( CartePluginType.class );
+    List<PluginInterface> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
     for ( PluginInterface plugin : plugins ) {
 
-      CartePluginInterface servlet = pluginRegistry.loadClass( plugin, CartePluginInterface.class );
+      HopServerPluginInterface servlet = pluginRegistry.loadClass( plugin, HopServerPluginInterface.class );
       servlet.setup( transformationMap, jobMap, socketRepository, detections );
       servlet.setJettyMode( true );
 
@@ -262,10 +262,10 @@ public class WebServer {
     server.start();
   }
 
-  public String getContextPath( CartePluginInterface servlet ) {
+  public String getContextPath( HopServerPluginInterface servlet ) {
     String contextPath = servlet.getContextPath();
-    if ( !contextPath.startsWith( "/kettle" ) ) {
-      contextPath = "/kettle" + contextPath;
+    if ( !contextPath.startsWith( "/hop" ) ) {
+      contextPath = "/hop" + contextPath;
     }
     return contextPath;
   }
@@ -281,7 +281,7 @@ public class WebServer {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteShutdown.id, this );
     } catch ( HopException e ) {
-      // Log error but continue regular operations to make sure Carte can be shut down properly.
+      // Log error but continue regular operations to make sure HopServer can be shut down properly.
       //
       log.logError( "Error calling extension point CarteStartup", e );
     }

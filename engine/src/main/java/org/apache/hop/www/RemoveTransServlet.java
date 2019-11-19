@@ -37,18 +37,18 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class RemoveTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class RemoveTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = RemoveTransServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 6618979989596401783L;
 
-  public static final String CONTEXT_PATH = "/kettle/removeTrans";
+  public static final String CONTEXT_PATH = "/hop/removeTrans";
 
   @VisibleForTesting
-  private CarteStatusCache cache = CarteStatusCache.getInstance();
+  private HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public RemoveTransServlet() {
   }
@@ -58,14 +58,14 @@ public class RemoveTransServlet extends BaseHttpServlet implements CartePluginIn
   }
   /**
   <div id="mindtouch">
-      <h1>/kettle/removeTrans</h1>
+      <h1>/hop/removeTrans</h1>
       <a name="GET"></a>
       <h2>GET</h2>
-      <p>Removes specified transformation from Carte server.</p>
+      <p>Removes specified transformation from HopServer server.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/removeTrans/?name=dummy-trans&xml=Y
+      GET /hop/removeTrans/?name=dummy-trans&xml=Y
       </pre>
 
       </p>
@@ -89,7 +89,7 @@ public class RemoveTransServlet extends BaseHttpServlet implements CartePluginIn
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte transformation ID of the transformation to be removed. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer transformation ID of the transformation to be removed. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -171,7 +171,7 @@ public class RemoveTransServlet extends BaseHttpServlet implements CartePluginIn
     // ID is optional...
     //
     Trans trans;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -185,7 +185,7 @@ public class RemoveTransServlet extends BaseHttpServlet implements CartePluginIn
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( transName, id );
+      entry = new HopServerObjectEntry( transName, id );
       trans = getTransformationMap().getTransformation( entry );
     }
 

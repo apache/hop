@@ -36,20 +36,20 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 
-public class CarteStatusCacheTest {
+public class HopServerStatusCacheTest {
 
-  CarteStatusCache cache = null;
-  CarteStatusCache cacheSpy = null;
+  HopServerStatusCache cache = null;
+  HopServerStatusCache cacheSpy = null;
 
   @Before
   public void setup() {
-    cache = CarteStatusCache.getInstance();
+    cache = HopServerStatusCache.getInstance();
     cacheSpy = spy( cache );
   }
 
   @Test
   public void testGetInstance() {
-    Assert.assertTrue( CarteStatusCache.getInstance() == CarteStatusCache.getInstance() );
+    Assert.assertTrue( HopServerStatusCache.getInstance() == HopServerStatusCache.getInstance() );
   }
 
   @Test

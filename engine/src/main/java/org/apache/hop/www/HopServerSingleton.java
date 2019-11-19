@@ -46,13 +46,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
 
-public class CarteSingleton {
+public class HopServerSingleton {
 
-  private static Class<?> PKG = Carte.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator2!!
 
   private static SlaveServerConfig slaveServerConfig;
-  private static CarteSingleton carteSingleton;
-  private static Carte carte;
+  private static HopServerSingleton hopServerSingleton;
+  private static HopServer hopServer;
 
   private LogChannelInterface log;
 
@@ -61,11 +61,11 @@ public class CarteSingleton {
   private List<SlaveServerDetection> detections;
   private SocketRepository socketRepository;
 
-  private CarteSingleton( SlaveServerConfig config ) throws HopException {
+  private HopServerSingleton(SlaveServerConfig config ) throws HopException {
     HopEnvironment.init();
     HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
 
-    this.log = new LogChannel( "Carte" );
+    this.log = new LogChannel( "HopServer" );
     transformationMap = new TransformationMap();
     transformationMap.setSlaveServerConfig( config );
     jobMap = new JobMap();
@@ -152,7 +152,7 @@ public class CarteSingleton {
             try {
               // Check all transformations...
               //
-              for ( CarteObjectEntry entry : transformationMap.getTransformationObjects() ) {
+              for ( HopServerObjectEntry entry : transformationMap.getTransformationObjects() ) {
                 Trans trans = transformationMap.getTransformation( entry );
 
                 // See if the transformation is finished or stopped.
@@ -183,7 +183,7 @@ public class CarteSingleton {
 
               // And the jobs...
               //
-              for ( CarteObjectEntry entry : jobMap.getJobObjects() ) {
+              for ( HopServerObjectEntry entry : jobMap.getJobObjects() ) {
                 Job job = jobMap.getJob( entry );
 
                 // See if the job is finished or stopped.
@@ -220,26 +220,26 @@ public class CarteSingleton {
     }
   }
 
-  public static CarteSingleton getInstance() {
+  public static HopServerSingleton getInstance() {
     try {
-      if ( carteSingleton == null ) {
+      if ( hopServerSingleton == null ) {
         if ( slaveServerConfig == null ) {
           slaveServerConfig = new SlaveServerConfig();
           SlaveServer slaveServer = new SlaveServer();
           slaveServerConfig.setSlaveServer( slaveServer );
         }
 
-        carteSingleton = new CarteSingleton( slaveServerConfig );
+        hopServerSingleton = new HopServerSingleton( slaveServerConfig );
 
         String carteObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject( "CarteSingleton", LoggingObjectType.CARTE, null );
+          new SimpleLoggingObject( "HopServerSingleton", LoggingObjectType.CARTE, null );
         servletLoggingObject.setContainerObjectId( carteObjectId );
         servletLoggingObject.setLogLevel( LogLevel.BASIC );
 
-        return carteSingleton;
+        return hopServerSingleton;
       } else {
-        return carteSingleton;
+        return hopServerSingleton;
       }
     } catch ( HopException ke ) {
       throw new RuntimeException( ke );
@@ -283,15 +283,15 @@ public class CarteSingleton {
   }
 
   public static void setSlaveServerConfig( SlaveServerConfig slaveServerConfig ) {
-    CarteSingleton.slaveServerConfig = slaveServerConfig;
+    HopServerSingleton.slaveServerConfig = slaveServerConfig;
   }
 
-  public static void setCarte( Carte carte ) {
-    CarteSingleton.carte = carte;
+  public static void setHopServer(HopServer hopServer) {
+    HopServerSingleton.hopServer = hopServer;
   }
 
-  public static Carte getCarte() {
-    return CarteSingleton.carte;
+  public static HopServer getHopServer() {
+    return HopServerSingleton.hopServer;
   }
 
   public LogChannelInterface getLog() {

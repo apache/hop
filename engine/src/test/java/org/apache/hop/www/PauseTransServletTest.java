@@ -99,7 +99,7 @@ public class PauseTransServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( PauseTransServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
     when( mockTransMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );

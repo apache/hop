@@ -40,24 +40,24 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.CartePluginType;
+import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeListener;
 
-public class CarteServlet extends HttpServlet {
+public class HopServerServlet extends HttpServlet {
 
   private static final long serialVersionUID = 2434694833497859776L;
 
-  public static final String STRING_CARTE_SERVLET = "Carte Servlet";
+  public static final String STRING_HOP_SERVER_SERVLET = "HopServer Servlet";
 
-  private Map<String, CartePluginInterface> cartePluginRegistry;
+  private Map<String, HopServerPluginInterface> hopServerPluginRegistry;
 
   private final LogChannelInterface log;
   private List<SlaveServerDetection> detections;
 
-  public CarteServlet() {
-    this.log = new LogChannel( STRING_CARTE_SERVLET );
+  public HopServerServlet() {
+    this.log = new LogChannel(STRING_HOP_SERVER_SERVLET);
   }
 
   public void doPost( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException {
@@ -69,7 +69,7 @@ public class CarteServlet extends HttpServlet {
     if ( servletPath.endsWith( "/" ) ) {
       servletPath = servletPath.substring( 0, servletPath.length() - 1 );
     }
-    CartePluginInterface plugin = cartePluginRegistry.get( servletPath );
+    HopServerPluginInterface plugin = hopServerPluginRegistry.get( servletPath );
     if ( plugin != null ) {
       try {
         plugin.doGet( req, resp );
@@ -80,34 +80,34 @@ public class CarteServlet extends HttpServlet {
       }
     } else {
       if ( log.isDebug() ) {
-        log.logDebug( "Unable to find CartePlugin for key: /kettle" + req.getPathInfo() );
+        log.logDebug( "Unable to find Hop Server Plugin for key: /hop" + req.getPathInfo() );
       }
       resp.sendError( 404 );
     }
   }
 
-  private String getServletKey( CartePluginInterface servlet ) {
+  private String getServletKey( HopServerPluginInterface servlet ) {
     String key = servlet.getContextPath();
-    if ( key.startsWith( "/kettle" ) ) {
-      key = key.substring( "/kettle".length() );
+    if ( key.startsWith( "/hop" ) ) {
+      key = key.substring( "/hop".length() );
     }
     return key;
   }
 
   @Override
   public void init( ServletConfig config ) throws ServletException {
-    cartePluginRegistry = new ConcurrentHashMap<String, CartePluginInterface>();
+    hopServerPluginRegistry = new ConcurrentHashMap<String, HopServerPluginInterface>();
     detections = Collections.synchronizedList( new ArrayList<SlaveServerDetection>() );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( CartePluginType.class );
+    List<PluginInterface> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
 
     // Initial Registry scan
     for ( PluginInterface plugin : plugins ) {
       try {
         registerServlet( loadServlet( plugin ) );
       } catch ( HopPluginException e ) {
-        log.logError( "Unable to instantiate plugin for use with CarteServlet " + plugin.getName() );
+        log.logError( "Unable to instantiate plugin for use with HopServerServlet " + plugin.getName() );
       }
     }
 
@@ -120,7 +120,7 @@ public class CarteServlet extends HttpServlet {
       final Class<?> clazz;
       try {
         clazz = Class.forName( className );
-        registerServlet( (CartePluginInterface) clazz.newInstance() );
+        registerServlet( (HopServerPluginInterface) clazz.newInstance() );
       } catch ( ClassNotFoundException e ) {
         log.logError( "Unable to find configured " + paramName + " of " + className, e );
       } catch ( InstantiationException e ) {
@@ -129,12 +129,12 @@ public class CarteServlet extends HttpServlet {
         log.logError( "Unable to access configured " + paramName + " of " + className, e );
       } catch ( ClassCastException e ) {
         log.logError( "Unable to cast configured "
-          + paramName + " of " + className + " to " + CartePluginInterface.class, e );
+          + paramName + " of " + className + " to " + HopServerPluginInterface.class, e );
       }
     }
 
     // Catch servlets as they become available
-    pluginRegistry.addPluginListener( CartePluginType.class, new PluginTypeListener() {
+    pluginRegistry.addPluginListener( HopServerPluginType.class, new PluginTypeListener() {
       @Override public void pluginAdded( Object serviceObject ) {
         try {
           registerServlet( loadServlet( (PluginInterface) serviceObject ) );
@@ -146,7 +146,7 @@ public class CarteServlet extends HttpServlet {
       @Override public void pluginRemoved( Object serviceObject ) {
         try {
           String key = getServletKey( loadServlet( (PluginInterface) serviceObject ) );
-          cartePluginRegistry.remove( key );
+          hopServerPluginRegistry.remove( key );
         } catch ( HopPluginException e ) {
           log.logError( MessageFormat.format( "Unable to load plugin: {0}", serviceObject ), e );
         }
@@ -158,16 +158,16 @@ public class CarteServlet extends HttpServlet {
     } );
   }
 
-  private CartePluginInterface loadServlet( PluginInterface plugin ) throws HopPluginException {
-    return PluginRegistry.getInstance().loadClass( plugin, CartePluginInterface.class );
+  private HopServerPluginInterface loadServlet(PluginInterface plugin ) throws HopPluginException {
+    return PluginRegistry.getInstance().loadClass( plugin, HopServerPluginInterface.class );
   }
 
-  private void registerServlet( CartePluginInterface servlet ) {
-    TransformationMap transformationMap = CarteSingleton.getInstance().getTransformationMap();
-    JobMap jobMap = CarteSingleton.getInstance().getJobMap();
-    SocketRepository socketRepository = CarteSingleton.getInstance().getSocketRepository();
+  private void registerServlet( HopServerPluginInterface servlet ) {
+    TransformationMap transformationMap = HopServerSingleton.getInstance().getTransformationMap();
+    JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
+    SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
-    cartePluginRegistry.put( getServletKey( servlet ), servlet );
+    hopServerPluginRegistry.put( getServletKey( servlet ), servlet );
     servlet.setup( transformationMap, jobMap, socketRepository, detections );
     servlet.setJettyMode( false );
   }

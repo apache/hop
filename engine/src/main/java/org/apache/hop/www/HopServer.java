@@ -60,32 +60,32 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 
-public class Carte {
-  private static Class<?> PKG = Carte.class; // for i18n purposes, needed by Translator2!!
+public class HopServer {
+  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator2!!
 
   private WebServer webServer;
   private SlaveServerConfig config;
   private boolean allOK;
   private static Options options;
 
-  public Carte( final SlaveServerConfig config ) throws Exception {
+  public HopServer(final SlaveServerConfig config ) throws Exception {
     this( config, null );
   }
 
-  public Carte( final SlaveServerConfig config, Boolean joinOverride ) throws Exception {
+  public HopServer(final SlaveServerConfig config, Boolean joinOverride ) throws Exception {
     this.config = config;
 
     allOK = true;
 
-    CarteSingleton.setSlaveServerConfig( config );
-    LogChannelInterface log = CarteSingleton.getInstance().getLog();
+    HopServerSingleton.setSlaveServerConfig( config );
+    LogChannelInterface log = HopServerSingleton.getInstance().getLog();
 
-    final TransformationMap transformationMap = CarteSingleton.getInstance().getTransformationMap();
+    final TransformationMap transformationMap = HopServerSingleton.getInstance().getTransformationMap();
     transformationMap.setSlaveServerConfig( config );
-    final JobMap jobMap = CarteSingleton.getInstance().getJobMap();
+    final JobMap jobMap = HopServerSingleton.getInstance().getJobMap();
     jobMap.setSlaveServerConfig( config );
     List<SlaveServerDetection> detections = new CopyOnWriteArrayList<SlaveServerDetection>();
-    SocketRepository socketRepository = CarteSingleton.getInstance().getSocketRepository();
+    SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
     SlaveServer slaveServer = config.getSlaveServer();
 
@@ -145,7 +145,7 @@ public class Carte {
 
     // If we need to time out finished or idle objects, we should create a timer in the background to clean
     // this is done automatically now
-    // CarteSingleton.installPurgeTimer(config, log, transformationMap, jobMap);
+    // HopServerSingleton.installPurgeTimer(config, log, transformationMap, jobMap);
 
     if ( allOK ) {
       boolean shouldJoin = config.isJoining();
@@ -194,7 +194,7 @@ public class Carte {
     SlaveServerConfig config = null;
     if ( arguments.length == 1 && !Utils.isEmpty( arguments[0] ) ) {
       if ( cmd.hasOption( 's' ) ) {
-        throw new Carte.CarteCommandException( BaseMessages.getString( PKG, "Carte.Error.illegalStop" ) );
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.illegalStop" ) );
       }
       usingConfigFile = true;
       FileObject file = HopVFS.getFileObject( arguments[0] );
@@ -233,7 +233,7 @@ public class Carte {
     if ( !usingConfigFile ) {
       setHopEnvironment();
     }
-    runCarte( config );
+    runHopServer( config );
   }
 
   private static void setHopEnvironment() throws Exception {
@@ -241,15 +241,15 @@ public class Carte {
     HopEnvironment.init();
   }
 
-  public static void runCarte( SlaveServerConfig config ) throws Exception {
+  public static void runHopServer(SlaveServerConfig config ) throws Exception {
     HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
 
     config.setJoining( true );
 
-    Carte carte = new Carte( config, false );
-    CarteSingleton.setCarte( carte );
+    HopServer hopServer = new HopServer( config, false );
+    HopServerSingleton.setHopServer(hopServer);
 
-    carte.getWebServer().join();
+    hopServer.getWebServer().join();
   }
 
   /**
@@ -268,7 +268,7 @@ public class Carte {
   }
 
   /**
-   * @return the slave server (Carte) configuration
+   * @return the slave server (HopServer) configuration
    */
   public SlaveServerConfig getConfig() {
     return config;
@@ -276,7 +276,7 @@ public class Carte {
 
   /**
    * @param config
-   *          the slave server (Carte) configuration
+   *          the slave server (HopServer) configuration
    */
   public void setConfig( SlaveServerConfig config ) {
     this.config = config;
@@ -294,14 +294,14 @@ public class Carte {
     formatter.printHelp( printWriter, 80, "CarteDummy", header, options, 5, 5, "", false );
     System.err.println( stripOff( stringWriter.toString(), "usage: CarteDummy" ) );
 
-    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": Carte 127.0.0.1 8080" );
-    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": Carte 192.168.1.221 8081" );
+    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": HopServer 127.0.0.1 8080" );
+    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": HopServer 192.168.1.221 8081" );
     System.err.println();
-    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": Carte /foo/bar/carte-config.xml" );
+    System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": HopServer /foo/bar/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" )
-        + ": Carte http://www.example.com/carte-config.xml" );
+        + ": HopServer http://www.example.com/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" )
-        + ": Carte 127.0.0.1 8080 -s -u cluster -p cluster" );
+        + ": HopServer 127.0.0.1 8080 -s -u cluster -p cluster" );
 
     System.exit( 1 );
   }
@@ -320,25 +320,25 @@ public class Carte {
 
   private static void shutdown( String hostname, String port, String username, String password ) {
     try {
-      callStopCarteRestService( hostname, port, username, password );
+      callStopHopServerRestService( hostname, port, username, password );
     } catch ( Exception e ) {
       e.printStackTrace();
     }
   }
 
   /**
-   * Checks that Carte is running and if so, shuts down the Carte server
+   * Checks that HopServer is running and if so, shuts down the HopServer server
    *
    * @param hostname
    * @param port
    * @param username
    * @param password
    * @throws ParseException
-   * @throws CarteCommandException
+   * @throws HopServerCommandException
    */
   @VisibleForTesting
-  static void callStopCarteRestService( String hostname, String port, String username, String password )
-    throws ParseException, CarteCommandException {
+  static void callStopHopServerRestService(String hostname, String port, String username, String password )
+    throws ParseException, HopServerCommandException {
     // get information about the remote connection
     try {
       HopClientEnvironment.init();
@@ -349,25 +349,25 @@ public class Carte {
 
       client.addFilter( new HTTPBasicAuthFilter( username, Encr.decryptPasswordOptionallyEncrypted( password ) ) );
 
-      // check if the user can access the carte server. Don't really need this call but may want to check it's output at
+      // check if the user can access the hop server. Don't really need this call but may want to check it's output at
       // some point
-      String contextURL = "http://" + hostname + ":" + port + "/kettle";
+      String contextURL = "http://" + hostname + ":" + port + "/hop";
       WebResource resource = client.resource( contextURL + "/status/?xml=Y" );
       String response = resource.get( String.class );
       if ( response == null || !response.contains( "<serverstatus>" ) ) {
-        throw new Carte.CarteCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
             + port ) );
       }
 
       // This is the call that matters
-      resource = client.resource( contextURL + "/stopCarte" );
+      resource = client.resource( contextURL + "/stopHopServer" );
       response = resource.get( String.class );
       if ( response == null || !response.contains( "Shutting Down" ) ) {
-        throw new Carte.CarteCommandException( BaseMessages.getString( PKG, "Carte.Error.NoShutdown", hostname, ""
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoShutdown", hostname, ""
             + port ) );
       }
     } catch ( Exception e ) {
-      throw new Carte.CarteCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
+      throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
           + port ), e );
     }
   }
@@ -375,21 +375,21 @@ public class Carte {
   /**
    * Exception generated when command line fails
    */
-  public static class CarteCommandException extends Exception {
+  public static class HopServerCommandException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public CarteCommandException() {
+    public HopServerCommandException() {
     }
 
-    public CarteCommandException( final String message ) {
+    public HopServerCommandException(final String message ) {
       super( message );
     }
 
-    public CarteCommandException( final String message, final Throwable cause ) {
+    public HopServerCommandException(final String message, final Throwable cause ) {
       super( message, cause );
     }
 
-    public CarteCommandException( final Throwable cause ) {
+    public HopServerCommandException(final Throwable cause ) {
       super( cause );
     }
   }

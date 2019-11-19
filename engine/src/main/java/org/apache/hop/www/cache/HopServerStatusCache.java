@@ -40,7 +40,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 
-public class CarteStatusCache implements Cache {
+public class HopServerStatusCache implements Cache {
 
   public static final String CARTE_STATUS_CACHE = "CARTE_CACHE";
 
@@ -52,27 +52,27 @@ public class CarteStatusCache implements Cache {
       public Thread newThread( Runnable r ) {
         Thread t = Executors.defaultThreadFactory().newThread( r );
         t.setDaemon( true );
-        t.setName( CarteStatusCache.class.getSimpleName() );
+        t.setName( HopServerStatusCache.class.getSimpleName() );
         return t;
       }
     } );
 
   private final Map<String, CachedItem> cachedMap = new ConcurrentHashMap<>();
 
-  private static CarteStatusCache instance = null;
+  private static HopServerStatusCache instance = null;
 
   private int period = 0;
 
   private TimeUnit timeUnit = null;
 
-  public static synchronized CarteStatusCache getInstance() {
+  public static synchronized HopServerStatusCache getInstance() {
     if ( instance == null ) {
-      instance = new CarteStatusCache();
+      instance = new HopServerStatusCache();
     }
     return instance;
   }
 
-  private CarteStatusCache() {
+  private HopServerStatusCache() {
     period = Integer.parseInt( Const.getEnvironmentVariable( "CARTE_CLEAR_PERIOD", "1" ) );
     timeUnit = TimeUnit.valueOf( Const.getEnvironmentVariable( "CARTE_CLEAR_TIMEUNIT", "DAYS" ) );
 

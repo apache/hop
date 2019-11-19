@@ -35,10 +35,10 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XMLHandler;
 
-public class NextSequenceValueServlet extends BaseHttpServlet implements CartePluginInterface {
+public class NextSequenceValueServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/nextSequence";
+  public static final String CONTEXT_PATH = "/hop/nextSequence";
 
   public static final String PARAM_NAME = "name";
   public static final String PARAM_INCREMENT = "increment";
@@ -57,16 +57,16 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements CartePl
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/nextSequence</h1>
+    <h1>/hop/nextSequence</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Increments specified pre-configured sequence.
-  Method is used for reserving a number of IDs and incrementing a sequence pre-configured in Carte server configuration
+  Method is used for reserving a number of IDs and incrementing a sequence pre-configured in HopServer server configuration
   by specified amount. If no increment value provided 10000 is used by default.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/nextSequence?name=test_seq
+    GET /hop/nextSequence?name=test_seq
     </pre>
 
     </p>
@@ -80,7 +80,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements CartePl
     </tr>
     <tr>
     <td>name</td>
-    <td>name of the sequence specified in Carte configuration file.</td>
+    <td>name of the sequence specified in HopServer configuration file.</td>
     <td>query</td>
     </tr>
     <tr>
@@ -167,7 +167,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements CartePl
         response.sendError( HttpServletResponse.SC_NOT_FOUND );
         out.println( XMLHandler.addTagValue( XML_TAG_ERROR, "Slave sequence '" + name + "' could not be found." ) );
       } else {
-        LoggingObjectInterface loggingObject = new SimpleLoggingObject( "Carte", LoggingObjectType.CARTE, null );
+        LoggingObjectInterface loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.CARTE, null );
         long nextValue = slaveSequence.getNextValue( loggingObject, increment );
         out.println( XMLHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
         out.println( XMLHandler.addTagValue( XML_TAG_INCREMENT, increment ) );

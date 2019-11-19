@@ -90,7 +90,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     // Do we need to expand the job when it's running?
     // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
     if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-      job.addDelegationListener( new CarteDelegationHandler( getTransformationMap(), getJobMap() ) );
+      job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
     }
 
     // Make sure to disconnect from the repository when the job finishes.

@@ -43,26 +43,26 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.JobPainter;
 import org.apache.hop.job.entry.JobEntryCopy;
 
-public class GetJobImageServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetJobImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = -4365372274638005929L;
 
   private static Class<?> PKG = GetTransStatusServlet.class; // for i18n purposes, needed by Translator2!!
 
-  public static final String CONTEXT_PATH = "/kettle/jobImage";
+  public static final String CONTEXT_PATH = "/hop/jobImage";
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/jobImage</h1>
+    <h1>/hop/jobImage</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Generates and returns image of the specified job.
-  Generates PNG image of the specified job currently present on Carte server. Job name and Carte job ID (optional)
+  Generates PNG image of the specified job currently present on HopServer server. Job name and HopServer job ID (optional)
   is used for specifying job to get information for. Response is binary of the PNG image.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/jobImage?name=dummy_job
+    GET /hop/jobImage?name=dummy_job
     </pre>
 
     </p>
@@ -81,7 +81,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements CartePluginIn
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte id of the job to be used for image generation.</td>
+    <td>HopServer id of the job to be used for image generation.</td>
     <td>query, optional</td>
     </tr>
     </tbody>
@@ -139,7 +139,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements CartePluginIn
     // ID is optional...
     //
     Job job;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -153,7 +153,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements CartePluginIn
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( jobName, id );
+      entry = new HopServerObjectEntry( jobName, id );
       job = getJobMap().getJob( entry );
     }
 

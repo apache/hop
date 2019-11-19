@@ -40,8 +40,8 @@ import org.apache.hop.job.JobConfiguration;
  *
  */
 public class JobMap {
-  private final Map<CarteObjectEntry, Job> jobMap;
-  private final Map<CarteObjectEntry, JobConfiguration> configurationMap;
+  private final Map<HopServerObjectEntry, Job> jobMap;
+  private final Map<HopServerObjectEntry, JobConfiguration> configurationMap;
 
   private SlaveServerConfig slaveServerConfig;
 
@@ -51,19 +51,19 @@ public class JobMap {
   }
 
   public synchronized void addJob( String jobName, String carteObjectId, Job job, JobConfiguration jobConfiguration ) {
-    CarteObjectEntry entry = new CarteObjectEntry( jobName, carteObjectId );
+    HopServerObjectEntry entry = new HopServerObjectEntry( jobName, carteObjectId );
     jobMap.put( entry, job );
     configurationMap.put( entry, jobConfiguration );
   }
 
   public synchronized void registerJob( Job job, JobConfiguration jobConfiguration ) {
     job.setContainerObjectId( UUID.randomUUID().toString() );
-    CarteObjectEntry entry = new CarteObjectEntry( job.getJobMeta().getName(), job.getContainerObjectId() );
+    HopServerObjectEntry entry = new HopServerObjectEntry( job.getJobMeta().getName(), job.getContainerObjectId() );
     jobMap.put( entry, job );
     configurationMap.put( entry, jobConfiguration );
   }
 
-  public synchronized void replaceJob( CarteObjectEntry entry, Job job, JobConfiguration jobConfiguration ) {
+  public synchronized void replaceJob(HopServerObjectEntry entry, Job job, JobConfiguration jobConfiguration ) {
     jobMap.put( entry, job );
     configurationMap.put( entry, jobConfiguration );
   }
@@ -75,7 +75,7 @@ public class JobMap {
    * @return the first transformation with the specified name
    */
   public synchronized Job getJob( String jobName ) {
-    for ( CarteObjectEntry entry : jobMap.keySet() ) {
+    for ( HopServerObjectEntry entry : jobMap.keySet() ) {
       if ( entry.getName().equals( jobName ) ) {
         return getJob( entry );
       }
@@ -85,15 +85,15 @@ public class JobMap {
 
   /**
    * @param entry
-   *          The Carte job object
+   *          The HopServer job object
    * @return the job with the specified entry
    */
-  public synchronized Job getJob( CarteObjectEntry entry ) {
+  public synchronized Job getJob( HopServerObjectEntry entry ) {
     return jobMap.get( entry );
   }
 
   public synchronized JobConfiguration getConfiguration( String jobName ) {
-    for ( CarteObjectEntry entry : configurationMap.keySet() ) {
+    for ( HopServerObjectEntry entry : configurationMap.keySet() ) {
       if ( entry.getName().equals( jobName ) ) {
         return getConfiguration( entry );
       }
@@ -103,24 +103,24 @@ public class JobMap {
 
   /**
    * @param entry
-   *          The Carte job object
+   *          The HopServer job object
    * @return the job configuration with the specified entry
    */
-  public synchronized JobConfiguration getConfiguration( CarteObjectEntry entry ) {
+  public synchronized JobConfiguration getConfiguration( HopServerObjectEntry entry ) {
     return configurationMap.get( entry );
   }
 
-  public synchronized void removeJob( CarteObjectEntry entry ) {
+  public synchronized void removeJob( HopServerObjectEntry entry ) {
     jobMap.remove( entry );
     configurationMap.remove( entry );
   }
 
-  public synchronized List<CarteObjectEntry> getJobObjects() {
+  public synchronized List<HopServerObjectEntry> getJobObjects() {
     return new ArrayList<>( jobMap.keySet() );
   }
 
-  public synchronized CarteObjectEntry getFirstCarteObjectEntry( String jobName ) {
-    for ( CarteObjectEntry key : jobMap.keySet() ) {
+  public synchronized HopServerObjectEntry getFirstCarteObjectEntry(String jobName ) {
+    for ( HopServerObjectEntry key : jobMap.keySet() ) {
       if ( key.getName().equals( jobName ) ) {
         return key;
       }

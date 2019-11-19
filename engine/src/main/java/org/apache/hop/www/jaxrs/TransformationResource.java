@@ -47,8 +47,8 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepStatus;
-import org.apache.hop.www.CarteObjectEntry;
-import org.apache.hop.www.CarteSingleton;
+import org.apache.hop.www.HopServerObjectEntry;
+import org.apache.hop.www.HopServerSingleton;
 
 @Path( "/carte/trans" )
 public class TransformationResource {
@@ -68,7 +68,7 @@ public class TransformationResource {
   @Produces( { MediaType.TEXT_PLAIN } )
   public String getTransformationLog( @PathParam( "id" ) String id, @PathParam( "logStart" ) int startLineNr ) {
     int lastLineNr = HopLogStore.getLastBufferLineNr();
-    Trans trans = CarteResource.getTransformation( id );
+    Trans trans = HopServerResource.getTransformation( id );
     String logText =
       HopLogStore.getAppender().getBuffer(
         trans.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();
@@ -81,8 +81,8 @@ public class TransformationResource {
   public TransformationStatus getTransformationStatus( @PathParam( "id" ) String id ) {
     TransformationStatus status = new TransformationStatus();
     // find trans
-    Trans trans = CarteResource.getTransformation( id );
-    CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+    Trans trans = HopServerResource.getTransformation( id );
+    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
 
     status.setId( entry.getId() );
     status.setName( entry.getName() );
@@ -103,7 +103,7 @@ public class TransformationResource {
   @Path( "/start/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus startTransformation( @PathParam( "id" ) String id ) {
-    Trans trans = CarteResource.getTransformation( id );
+    Trans trans = HopServerResource.getTransformation( id );
     try {
       // Discard old log lines from old transformation runs
       //
@@ -127,12 +127,12 @@ public class TransformationResource {
   @Path( "/prepare/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus prepareTransformation( @PathParam( "id" ) String id ) {
-    Trans trans = CarteResource.getTransformation( id );
+    Trans trans = HopServerResource.getTransformation( id );
     try {
 
-      CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+      HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
       TransConfiguration transConfiguration =
-        CarteSingleton.getInstance().getTransformationMap().getConfiguration( entry );
+        HopServerSingleton.getInstance().getTransformationMap().getConfiguration( entry );
       TransExecutionConfiguration executionConfiguration = transConfiguration.getTransExecutionConfiguration();
       // Set the appropriate logging, variables, arguments, replay date, ...
       // etc.
@@ -155,7 +155,7 @@ public class TransformationResource {
   @Path( "/pause/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus pauseTransformation( @PathParam( "id" ) String id ) {
-    CarteResource.getTransformation( id ).pauseRunning();
+    HopServerResource.getTransformation( id ).pauseRunning();
     return getTransformationStatus( id );
   }
 
@@ -164,7 +164,7 @@ public class TransformationResource {
   @Path( "/resume/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus resumeTransformation( @PathParam( "id" ) String id ) {
-    CarteResource.getTransformation( id ).resumeRunning();
+    HopServerResource.getTransformation( id ).resumeRunning();
     return getTransformationStatus( id );
   }
 
@@ -173,7 +173,7 @@ public class TransformationResource {
   @Path( "/stop/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus stopTransformation( @PathParam( "id" ) String id ) {
-    CarteResource.getTransformation( id ).stopAll();
+    HopServerResource.getTransformation( id ).stopAll();
     return getTransformationStatus( id );
   }
 
@@ -182,7 +182,7 @@ public class TransformationResource {
   @Path( "/safeStop/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus safeStopTransformation( @PathParam( "id" ) String id ) {
-    CarteResource.getTransformation( id ).safeStop();
+    HopServerResource.getTransformation( id ).safeStop();
     return getTransformationStatus( id );
   }
 
@@ -190,10 +190,10 @@ public class TransformationResource {
   @GET
   @Path( "/remove/{id : .+}" )
   public Response removeTransformation( @PathParam( "id" ) String id ) {
-    Trans trans = CarteResource.getTransformation( id );
-    CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+    Trans trans = HopServerResource.getTransformation( id );
+    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
     HopLogStore.discardLines( trans.getLogChannelId(), true );
-    CarteSingleton.getInstance().getTransformationMap().removeTransformation( entry );
+    HopServerSingleton.getInstance().getTransformationMap().removeTransformation( entry );
     return Response.ok().build();
   }
 
@@ -202,7 +202,7 @@ public class TransformationResource {
   @Path( "/cleanup/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public TransformationStatus cleanupTransformation( @PathParam( "id" ) String id ) {
-    CarteResource.getTransformation( id ).cleanup();
+    HopServerResource.getTransformation( id ).cleanup();
     return getTransformationStatus( id );
   }
 
@@ -217,7 +217,7 @@ public class TransformationResource {
       TransExecutionConfiguration transExecutionConfiguration =
         transConfiguration.getTransExecutionConfiguration();
       transMeta.setLogLevel( transExecutionConfiguration.getLogLevel() );
-      LogChannelInterface log = CarteSingleton.getInstance().getLog();
+      LogChannelInterface log = HopServerSingleton.getInstance().getLog();
       if ( log.isDetailed() ) {
         log.logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
@@ -247,9 +247,9 @@ public class TransformationResource {
       final Trans trans = new Trans( transMeta, servletLoggingObject );
 
       trans.setRepository( repository );
-      trans.setSocketRepository( CarteSingleton.getInstance().getSocketRepository() );
+      trans.setSocketRepository( HopServerSingleton.getInstance().getSocketRepository() );
 
-      CarteSingleton.getInstance().getTransformationMap().addTransformation(
+      HopServerSingleton.getInstance().getTransformationMap().addTransformation(
         transMeta.getName(), carteObjectId, trans, transConfiguration );
       trans.setContainerObjectId( carteObjectId );
 

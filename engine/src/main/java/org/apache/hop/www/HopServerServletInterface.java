@@ -22,6 +22,6 @@
 
 package org.apache.hop.www;
 
-public interface CarteServletInterface {
+public interface HopServerServletInterface {
   public String getService();
 }

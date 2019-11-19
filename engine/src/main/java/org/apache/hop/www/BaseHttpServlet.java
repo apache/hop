@@ -109,21 +109,21 @@ public class BaseHttpServlet extends HttpServlet {
 
   public TransformationMap getTransformationMap() {
     if ( transformationMap == null ) {
-      return CarteSingleton.getInstance().getTransformationMap();
+      return HopServerSingleton.getInstance().getTransformationMap();
     }
     return transformationMap;
   }
 
   public JobMap getJobMap() {
     if ( jobMap == null ) {
-      return CarteSingleton.getInstance().getJobMap();
+      return HopServerSingleton.getInstance().getJobMap();
     }
     return jobMap;
   }
 
   public SocketRepository getSocketRepository() {
     if ( socketRepository == null ) {
-      return CarteSingleton.getInstance().getSocketRepository();
+      return HopServerSingleton.getInstance().getSocketRepository();
     }
     return socketRepository;
   }
