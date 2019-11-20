@@ -52,6 +52,10 @@
         <module>mondrian-assemblies</module>
         <module>netezza-assemblies</module>
         <module>oraclerdb-assemblies</module>
+        <module>remedy-ar-system-assemblies</module>
+        <module>sapdb-assemblies</module>
+        <module>sqlite-assemblies</module>
+        <module>googlebigquery-assemblies</module>
     </modules>
 
 

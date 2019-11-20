@@ -39,9 +39,9 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
   }
 
   @Override public String[] getUsedLibraries() {
-    return new String[] { "google-api-client-1.22.0.jar", "google-api-services-bigquery-v2-rev355-1.22.0.jar",
-      "google-http-client-1.22.0.jar", "google-http-client-jackson2-1.22.0.jar",
-      "google-oauth-client-1.22.0.jar", "GoogleBigQueryJDBC42.jar", "jackson-core-2.1.3.jar"};
+    return new String[] { "google-api-client-1.30.5.jar", "google-api-services-bigquery-v2-rev20190907-1.30.3.jar",
+      "google-http-client-1.33.0.jar", "google-http-client-jackson2-1.33.0.jar",
+      "google-oauth-client-1.30.4.jar", "GoogleBigQueryJDBC42.jar"};
   }
 
   @Override public String getDriverClass() {

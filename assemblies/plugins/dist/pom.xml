@@ -518,5 +518,57 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-remedy-ar-system</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-sapdb</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-sqlite</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-assemblies-plugins-databases-googlebigquery</artifactId>
+            <version>${hop-plugins-databases.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 </project>
