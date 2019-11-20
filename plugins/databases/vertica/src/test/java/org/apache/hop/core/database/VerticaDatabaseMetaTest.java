@@ -208,24 +208,6 @@ public class VerticaDatabaseMetaTest {
         nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
   }
 
-    @Test
-    public void testVericaSequence() {
-        DatabaseInterface databaseInterface;
-        final String sequenceName = "sequence_name";
-
-        databaseInterface = new VerticaDatabaseMeta();
-        assertEquals( "SELECT nextval('sequence_name')", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
-        assertEquals( "SELECT currval('sequence_name')", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
-    }
-
-    @Test
-    public void testVerticaReleaseSavePoint() {
-        DatabaseInterface databaseInterface;
-
-        databaseInterface = new VerticaDatabaseMeta();
-        assertTrue( databaseInterface.releaseSavepoint() );
-    }
-
 
   private class StoreLoggingEventListener implements HopLoggingEventListener {
 

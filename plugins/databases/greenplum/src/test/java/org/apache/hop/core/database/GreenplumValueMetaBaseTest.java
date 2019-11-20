@@ -189,15 +189,6 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDateToPentahoDateUsingTeradata() throws SQLException, HopDatabaseException {
-    doReturn( Types.DATE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( TeradataDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isDate() );
-    assertEquals( 1, valueMeta.getPrecision() );
-  }
-
-  @Test
   public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
@@ -238,14 +229,6 @@ public class GreenplumValueMetaBaseTest {
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlBinaryToPentahoStringUsingSQLite() throws SQLException, HopDatabaseException {
-    doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( SQLiteDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
   }
 
   @Test

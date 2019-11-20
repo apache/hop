@@ -1,208 +1,23 @@
 <database-types>
 
-   <database-type id="AS/400">                                                        
-    <description>AS/400</description>                                                
-    <classname>org.apache.hop.core.database.AS400DatabaseMeta</classname>            
-  </database-type>                                                                   
-
-  <database-type id="CACHE">
-    <description>Intersystems Cache</description>
-    <classname>org.apache.hop.core.database.CacheDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="DB2">
-    <description>IBM DB2</description>
-    <classname>org.apache.hop.core.database.DB2DatabaseMeta</classname>
-  </database-type>                                                     
-
-  <database-type id="DBASE">
-    <description>dBase III, IV or 5</description>
-    <classname>org.apache.hop.core.database.DbaseDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="DERBY">
-    <description>Apache Derby</description>
-    <classname>org.apache.hop.core.database.DerbyDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="EXASOL4">
-    <description>Exasol 4</description>
-    <classname>org.apache.hop.core.database.Exasol4DatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="EXTENDB">
-    <description>ExtenDB</description>
-    <classname>org.apache.hop.core.database.ExtenDBDatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="FIREBIRD">
-    <description>Firebird SQL</description>
-    <classname>org.apache.hop.core.database.FirebirdDatabaseMeta</classname>
-  </database-type>                                                          
-
   <database-type id="GENERIC">
     <description>Generic database</description>
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
   </database-type>
 
-  <database-type id="INFINIDB">
-    <description>Calpont InfiniDB</description>
-    <classname>org.apache.hop.core.database.InfiniDbDatabaseMeta</classname>
-  </database-type>
- 
-  <database-type id="SQLBASE">
-    <description>Gupta SQL Base</description>
-    <classname>org.apache.hop.core.database.GuptaDatabaseMeta</classname>
-  </database-type>                                                        
-
   <database-type id="H2">
     <description>H2</description>
     <classname>org.apache.hop.core.database.H2DatabaseMeta</classname>
-  </database-type>                                                    
-
-  <database-type id="HYPERSONIC">
-    <description>Hypersonic</description>
-    <classname>org.apache.hop.core.database.HypersonicDatabaseMeta</classname>
-  </database-type>                                                            
-
-  <database-type id="INFOBRIGHT">
-    <description>Infobright</description>
-    <classname>org.apache.hop.core.database.InfobrightDatabaseMeta</classname>
-  </database-type>                                                            
-
-  <database-type id="INFORMIX">
-    <description>Informix</description>
-    <classname>org.apache.hop.core.database.InformixDatabaseMeta</classname>
-  </database-type>                                                          
-
-  <database-type id="INGRES">
-    <description>Ingres</description>
-    <classname>org.apache.hop.core.database.IngresDatabaseMeta</classname>
-  </database-type>                                                        
-
-  <database-type id="VECTORWISE">
-    <description>Ingres VectorWise</description>
-    <classname>org.apache.hop.core.database.VectorWiseDatabaseMeta</classname>
-  </database-type>                                                        
-
-  <database-type id="INTERBASE">
-    <description>Borland Interbase</description>
-    <classname>org.apache.hop.core.database.InterbaseDatabaseMeta</classname>
-  </database-type>                                                           
-
-  <database-type id="KINGBASEES">
-    <description>KingbaseES</description>
-    <classname>org.apache.hop.core.database.KingbaseESDatabaseMeta</classname>
-  </database-type>                                                            
-
-  <database-type id="LucidDB">
-    <description>LucidDB</description>
-    <classname>org.apache.hop.core.database.LucidDBDatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="MARIADB">
-    <description>MariaDB</description>
-    <classname>org.apache.hop.core.database.MariaDBDatabaseMeta</classname>
   </database-type>
-
-  <database-type id="MONETDB">
-    <description>MonetDB</description>
-    <classname>org.apache.hop.core.database.MonetDBDatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="MSACCESS">
-    <description>MS Access</description>
-    <classname>org.apache.hop.core.database.MSAccessDatabaseMeta</classname>
-  </database-type>                                                          
-
-  <database-type id="MSSQLNATIVE">
-    <description>MS SQL Server (Native)</description>
-    <classname>org.apache.hop.core.database.MSSQLServerNativeDatabaseMeta</classname>
-  </database-type>                                                             
-
-  <database-type id="MSSQL">
-    <description>MS SQL Server</description>
-    <classname>org.apache.hop.core.database.MSSQLServerDatabaseMeta</classname>
-  </database-type>                                                             
 
   <database-type id="MYSQL">
     <description>MySQL</description>
     <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="MONDRIAN">
-    <description>Native Mondrian</description>
-    <classname>org.apache.hop.core.database.MondrianNativeDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="NEOVIEW">
-    <description>Neoview</description>
-    <classname>org.apache.hop.core.database.NeoviewDatabaseMeta</classname>
-  </database-type>                                                         
-
-  <database-type id="NETEZZA">
-    <description>Netezza</description>
-    <classname>org.apache.hop.core.database.NetezzaDatabaseMeta</classname>
-  </database-type>                                                         
+  </database-type>
 
   <database-type id="ORACLE">
     <description>Oracle</description>
     <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
-  </database-type>                                                        
-
-  <database-type id="ORACLERDB">
-    <description>Oracle RDB</description>
-    <classname>org.apache.hop.core.database.OracleRDBDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="REMEDY-AR-SYSTEM">
-    <description>Remedy Action Request System</description>
-    <classname>org.apache.hop.core.database.RemedyActionRequestSystemDatabaseMeta</classname>                                                                                           
-  </database-type>                                                                          
-
-  <database-type id="SAPDB">
-    <description>MaxDB (SAP DB)</description>
-    <classname>org.apache.hop.core.database.SAPDBDatabaseMeta</classname>
-  </database-type>                                                       
-
-  <database-type id="SQLITE">
-    <description>SQLite</description>
-    <classname>org.apache.hop.core.database.SQLiteDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="SYBASE">
-    <description>Sybase</description>
-    <classname>org.apache.hop.core.database.SybaseDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="SYBASEIQ">
-    <description>SybaseIQ</description>
-    <classname>org.apache.hop.core.database.SybaseIQDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="TERADATA">
-    <description>Teradata</description>
-    <classname>org.apache.hop.core.database.TeradataDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="UNIVERSE">
-    <description>UniVerse database</description>
-    <classname>org.apache.hop.core.database.UniVerseDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="VERTICA">
-    <description>Vertica</description>
-    <classname>org.apache.hop.core.database.VerticaDatabaseMeta</classname>
-  </database-type>
-  
-  <database-type id="VERTICA5">
-    <description>Vertica 5+</description>
-    <classname>org.apache.hop.core.database.Vertica5DatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="GOOGLEBIGQUERY">
-    <description>Google BigQuery</description>
-    <classname>org.apache.hop.core.database.GoogleBigQueryDatabaseMeta</classname>
   </database-type>
 
  </database-types>
