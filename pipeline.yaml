@@ -1,0 +1,8 @@
+type: java
+targetFolder: target
+runTests: true
+notifySlack: false
+saveArtifacts: true
+buildsToKeep: 5
+daysToKeep:
+slackChannel:
