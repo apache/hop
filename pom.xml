@@ -165,7 +165,7 @@
     <compilerArgument/>
     <checkstyle.version>8.0</checkstyle.version>
     <coding-standards.version>8.2.0.7-719</coding-standards.version>
-    <spotbugs.version>3.1.3</spotbugs.version>
+<!--    <spotbugs.version>3.1.3</spotbugs.version>-->
 
     <!-- PHASE BINDINGS -->
     <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
@@ -753,22 +753,22 @@
           </configuration>
         </plugin>
 
-        <plugin>
-          <groupId>com.github.spotbugs</groupId>
-          <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>${spotbugs.version}</version>
-          <configuration>
-            <includeFilterFile>findbugs/pentaho_checks.xml</includeFilterFile>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.pentaho</groupId>
-              <artifactId>coding-standards</artifactId>
-              <version>${coding-standards.version}</version>
-              <type>zip</type>
-            </dependency>
-          </dependencies>
-        </plugin>
+<!--        <plugin>-->
+<!--          <groupId>com.github.spotbugs</groupId>-->
+<!--          <artifactId>spotbugs-maven-plugin</artifactId>-->
+<!--          <version>${spotbugs.version}</version>-->
+<!--          <configuration>-->
+<!--            <includeFilterFile>findbugs/pentaho_checks.xml</includeFilterFile>-->
+<!--          </configuration>-->
+<!--          <dependencies>-->
+<!--            <dependency>-->
+<!--              <groupId>org.pentaho</groupId>-->
+<!--              <artifactId>coding-standards</artifactId>-->
+<!--              <version>${coding-standards.version}</version>-->
+<!--              <type>zip</type>-->
+<!--            </dependency>-->
+<!--          </dependencies>-->
+<!--        </plugin>-->
 
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
@@ -1142,26 +1142,26 @@
       </build>
     </profile>
 
-    <profile>
-      <id>spotbugs</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>spotbugs-check</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+<!--    <profile>-->
+<!--      <id>spotbugs</id>-->
+<!--      <build>-->
+<!--        <plugins>-->
+<!--          <plugin>-->
+<!--            <groupId>com.github.spotbugs</groupId>-->
+<!--            <artifactId>spotbugs-maven-plugin</artifactId>-->
+<!--            <executions>-->
+<!--              <execution>-->
+<!--                <id>spotbugs-check</id>-->
+<!--                <phase>verify</phase>-->
+<!--                <goals>-->
+<!--                  <goal>check</goal>-->
+<!--                </goals>-->
+<!--              </execution>-->
+<!--            </executions>-->
+<!--          </plugin>-->
+<!--        </plugins>-->
+<!--      </build>-->
+<!--    </profile>-->
 
 
     <profile>
@@ -1315,9 +1315,9 @@
 
   <repositories>
     <repository>
-      <id>pentaho-public</id>
-      <name>Pentaho Public</name>
-      <url>http://nexus.pentaho.org/content/groups/omni/</url>
+      <id>hop</id>
+      <name>Hop Repository</name>
+      <url>https://artifactory.project-hop.org/artifactory/hop-releases/</url>
       <releases>
         <enabled>true</enabled>
         <updatePolicy>daily</updatePolicy>
