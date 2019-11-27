@@ -100,7 +100,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>Run this transfromation in clustered mode&#xa;setup carte servers according to &#x27;test-cluster&#x27; clustered schema.&#xd;&#xa;&#xd;&#xa;Select &#x27;show transfromation&#x27; checkbox.&#xd;&#xa;Appropriate tabs &#x28;master and slaves&#x29; should be opened.</note>
+      <note>Run this transfromation in clustered mode&#xa;setup hopServer servers according to &#x27;test-cluster&#x27; clustered schema.&#xd;&#xa;&#xd;&#xa;Select &#x27;show transfromation&#x27; checkbox.&#xd;&#xa;Appropriate tabs &#x28;master and slaves&#x29; should be opened.</note>
       <xloc>36</xloc>
       <yloc>81</yloc>
       <width>379</width>

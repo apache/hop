@@ -35,10 +35,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class RegisterSlaveServlet extends BaseHttpServlet implements CartePluginInterface {
+public class RegisterSlaveServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = 8513820270964866132L;
 
-  public static final String CONTEXT_PATH = "/kettle/registerSlave";
+  public static final String CONTEXT_PATH = "/hop/registerSlave";
 
   public RegisterSlaveServlet() {
   }
@@ -54,7 +54,7 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements CartePlugin
   /**
 
   <div id="mindtouch">
-  <h1>/kettle/registerSlave/</h1>
+  <h1>/hop/registerSlave/</h1>
   <a name="POST"></a>
   <h2>POST</h2>
   <p>Registers slave server in the master.
@@ -62,7 +62,7 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements CartePlugin
 
   <p><b>Example Request:</b><br />
   <pre function="syntax.xml">
-  POST /kettle/registerSlave/
+  POST /hop/registerSlave/
   </pre>
   Request body should contain xml containing slave server description.
   </p>

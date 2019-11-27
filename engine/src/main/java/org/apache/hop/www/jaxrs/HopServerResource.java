@@ -32,34 +32,34 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.www.CarteObjectEntry;
-import org.apache.hop.www.CarteSingleton;
+import org.apache.hop.www.HopServerObjectEntry;
+import org.apache.hop.www.HopServerSingleton;
 import org.apache.hop.www.SlaveServerConfig;
 
 @Path( "/carte" )
-public class CarteResource {
+public class HopServerResource {
 
-  public CarteResource() {
+  public HopServerResource() {
   }
 
   public static Trans getTransformation( String id ) {
-    return CarteSingleton.getInstance().getTransformationMap().getTransformation( getCarteObjectEntry( id ) );
+    return HopServerSingleton.getInstance().getTransformationMap().getTransformation( getCarteObjectEntry( id ) );
   }
 
   public static Job getJob( String id ) {
-    return CarteSingleton.getInstance().getJobMap().getJob( getCarteObjectEntry( id ) );
+    return HopServerSingleton.getInstance().getJobMap().getJob( getCarteObjectEntry( id ) );
   }
 
-  public static CarteObjectEntry getCarteObjectEntry( String id ) {
-    List<CarteObjectEntry> transList =
-      CarteSingleton.getInstance().getTransformationMap().getTransformationObjects();
-    for ( CarteObjectEntry entry : transList ) {
+  public static HopServerObjectEntry getCarteObjectEntry(String id ) {
+    List<HopServerObjectEntry> transList =
+      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
+    for ( HopServerObjectEntry entry : transList ) {
       if ( entry.getId().equals( id ) ) {
         return entry;
       }
     }
-    List<CarteObjectEntry> jobList = CarteSingleton.getInstance().getJobMap().getJobObjects();
-    for ( CarteObjectEntry entry : jobList ) {
+    List<HopServerObjectEntry> jobList = HopServerSingleton.getInstance().getJobMap().getJobObjects();
+    for ( HopServerObjectEntry entry : jobList ) {
       if ( entry.getId().equals( id ) ) {
         return entry;
       }
@@ -80,7 +80,7 @@ public class CarteResource {
   @Path( "/configDetails" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<NVPair> getConfigDetails() {
-    SlaveServerConfig serverConfig = CarteSingleton.getInstance().getTransformationMap().getSlaveServerConfig();
+    SlaveServerConfig serverConfig = HopServerSingleton.getInstance().getTransformationMap().getSlaveServerConfig();
     List<NVPair> list = new ArrayList<NVPair>();
     list.add( new NVPair( "maxLogLines", "" + serverConfig.getMaxLogLines() ) );
     list.add( new NVPair( "maxLogLinesAge", "" + serverConfig.getMaxLogTimeoutMinutes() ) );
@@ -92,9 +92,9 @@ public class CarteResource {
   @GET
   @Path( "/transformations" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<CarteObjectEntry> getTransformations() {
-    List<CarteObjectEntry> transEntries =
-      CarteSingleton.getInstance().getTransformationMap().getTransformationObjects();
+  public List<HopServerObjectEntry> getTransformations() {
+    List<HopServerObjectEntry> transEntries =
+      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
     return transEntries;
   }
 
@@ -102,13 +102,13 @@ public class CarteResource {
   @Path( "/transformations/detailed" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<TransformationStatus> getTransformationsDetails() {
-    List<CarteObjectEntry> transEntries =
-      CarteSingleton.getInstance().getTransformationMap().getTransformationObjects();
+    List<HopServerObjectEntry> transEntries =
+      HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
 
     List<TransformationStatus> details = new ArrayList<TransformationStatus>();
 
     TransformationResource transRes = new TransformationResource();
-    for ( CarteObjectEntry entry : transEntries ) {
+    for ( HopServerObjectEntry entry : transEntries ) {
       details.add( transRes.getTransformationStatus( entry.getId() ) );
     }
     return details;
@@ -117,8 +117,8 @@ public class CarteResource {
   @GET
   @Path( "/jobs" )
   @Produces( { MediaType.APPLICATION_JSON } )
-  public List<CarteObjectEntry> getJobs() {
-    List<CarteObjectEntry> jobEntries = CarteSingleton.getInstance().getJobMap().getJobObjects();
+  public List<HopServerObjectEntry> getJobs() {
+    List<HopServerObjectEntry> jobEntries = HopServerSingleton.getInstance().getJobMap().getJobObjects();
     return jobEntries;
   }
 
@@ -126,12 +126,12 @@ public class CarteResource {
   @Path( "/jobs/detailed" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<JobStatus> getJobsDetails() {
-    List<CarteObjectEntry> jobEntries = CarteSingleton.getInstance().getJobMap().getJobObjects();
+    List<HopServerObjectEntry> jobEntries = HopServerSingleton.getInstance().getJobMap().getJobObjects();
 
     List<JobStatus> details = new ArrayList<JobStatus>();
 
     JobResource jobRes = new JobResource();
-    for ( CarteObjectEntry entry : jobEntries ) {
+    for ( HopServerObjectEntry entry : jobEntries ) {
       details.add( jobRes.getJobStatus( entry.getId() ) );
     }
     return details;

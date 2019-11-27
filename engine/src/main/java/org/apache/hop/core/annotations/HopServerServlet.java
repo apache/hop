@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation signals to the Hop plugin registry that it needs to consider the annotated class as a carte
- * servlet plugin. The class needs to implement the CartePluginInterface interface
+ * servlet plugin. The class needs to implement the HopServerPluginInterface interface
  *
  * @author Matt Casters
  *
@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )
-public @interface CarteServlet {
+public @interface HopServerServlet {
 
   /**
    * @return The ID of the plugin. You can specify more than one ID in a comma separated format: id1,id2,id3 for

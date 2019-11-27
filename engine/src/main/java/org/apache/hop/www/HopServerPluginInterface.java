@@ -27,7 +27,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface CartePluginInterface extends CarteServletInterface {
+public interface HopServerPluginInterface extends HopServerServletInterface {
 
   public void setup( TransformationMap transformationMap, JobMap jobMap, SocketRepository socketRepository,
     List<SlaveServerDetection> detections );

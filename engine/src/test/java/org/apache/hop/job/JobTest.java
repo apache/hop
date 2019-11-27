@@ -159,7 +159,7 @@ public class JobTest {
 
   /**
    * This test demonstrates the fix for PDI-17398.
-   * Two schedules -> two Carte object Ids -> two log channel Ids
+   * Two schedules -> two HopServer object Ids -> two log channel Ids
    */
   @Test
   public void testTwoJobsGetDifferentLogChannelIdWithDifferentCarteId() {

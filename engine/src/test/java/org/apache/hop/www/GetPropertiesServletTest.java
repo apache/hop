@@ -35,6 +35,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -75,6 +76,16 @@ public class GetPropertiesServletTest {
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
 
     when( mockHttpServletResponse.getOutputStream() ).thenReturn( new ServletOutputStream() {
+      @Override
+      public boolean isReady() {
+        return false;
+      }
+
+      @Override
+      public void setWriteListener(WriteListener writeListener) {
+
+      }
+
       private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
       @Override public void write( int b ) throws IOException {

@@ -54,13 +54,13 @@ import org.apache.hop.repository.RepositoryDirectory;
 import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.repository.RepositoryMeta;
 
-public class ExecuteJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class ExecuteJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static Class<?> PKG = ExecuteJobServlet.class; // i18n
 
   private static final long serialVersionUID = -5879219287669847357L;
 
-  public static final String CONTEXT_PATH = "/kettle/executeJob";
+  public static final String CONTEXT_PATH = "/hop/executeJob";
 
   public ExecuteJobServlet() {
   }
@@ -72,7 +72,7 @@ public class ExecuteJobServlet extends BaseHttpServlet implements CartePluginInt
 
   /**
  <div id="mindtouch">
-    <h1>/kettle/executeJob</h1>
+    <h1>/hop/executeJob</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Executes job from the specified repository.
@@ -82,7 +82,7 @@ public class ExecuteJobServlet extends BaseHttpServlet implements CartePluginInt
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/executeJob/?rep=my_repository&user=my_user&pass=my_password&job=my_job&level=INFO
+    GET /hop/executeJob/?rep=my_repository&user=my_user&pass=my_password&job=my_job&level=INFO
     </pre>
 
     </p>
@@ -143,7 +143,7 @@ public class ExecuteJobServlet extends BaseHttpServlet implements CartePluginInt
       </tr>
     </tbody>
   </table>
-    <p>Response contains error output of the job executed or Carte object Id
+    <p>Response contains error output of the job executed or HopServer object Id
   if the execution was successful.</p>
 
     <p><b>Example Error Response:</b></p>

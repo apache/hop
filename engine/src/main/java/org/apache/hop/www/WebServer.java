@@ -23,24 +23,17 @@
 package org.apache.hop.www;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import org.eclipse.jetty.plus.jaas.JAASLoginService;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.UserIdentity;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.security.*;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Password;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -50,15 +43,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.CartePluginType;
+import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.Servlet;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -122,7 +115,7 @@ public class WebServer {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteStartup.id, this );
     } catch ( HopException e ) {
-      // Log error but continue regular operations to make sure Carte continues to run properly
+      // Log error but continue regular operations to make sure HopServer continues to run properly
       //
       log.logError( "Error calling extension point CarteStartup", e );
     }
@@ -169,8 +162,9 @@ public class WebServer {
       SlaveServer slaveServer = transformationMap.getSlaveServerConfig().getSlaveServer();
       if ( !Utils.isEmpty( slaveServer.getPassword() ) ) {
         hashLoginService = new HashLoginService( "Hop" );
-        hashLoginService.putUser( slaveServer.getUsername(), new Password( slaveServer.getPassword() ),
-            new String[] { "default" } );
+        UserStore userStore = new UserStore();
+        userStore.addUser(slaveServer.getUsername(), new Password(slaveServer.getPassword()), new String[]{"default"});
+        hashLoginService.setUserStore(userStore);
       } else {
         // See if there is a kettle.pwd file in the HOP_HOME directory:
         if ( Utils.isEmpty( passwordFile ) ) {
@@ -181,14 +175,10 @@ public class WebServer {
             passwordFile = Const.getHopLocalCartePasswordFile();
           }
         }
-        hashLoginService = new HashLoginService( "Hop", passwordFile ) {
-          @Override public synchronized UserIdentity putUser( String userName, Credential credential, String[] roles ) {
-            List<String> newRoles = new ArrayList<String>();
-            newRoles.add( "default" );
-            Collections.addAll( newRoles, roles );
-            return super.putUser( userName, credential, newRoles.toArray( new String[newRoles.size()] ) );
-          }
-        };
+        hashLoginService = new HashLoginService("Hop");
+        PropertyUserStore userStore = new PropertyUserStore();
+        userStore.setConfig(passwordFile);
+        hashLoginService.setUserStore(userStore);
       }
       securityHandler.setLoginService( hashLoginService );
     }
@@ -218,10 +208,10 @@ public class WebServer {
     root.addServlet( new ServletHolder( rootServlet ), "/*" );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pluginRegistry.getPlugins( CartePluginType.class );
+    List<PluginInterface> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
     for ( PluginInterface plugin : plugins ) {
 
-      CartePluginInterface servlet = pluginRegistry.loadClass( plugin, CartePluginInterface.class );
+      HopServerPluginInterface servlet = pluginRegistry.loadClass( plugin, HopServerPluginInterface.class );
       servlet.setup( transformationMap, jobMap, socketRepository, detections );
       servlet.setJettyMode( true );
 
@@ -272,10 +262,10 @@ public class WebServer {
     server.start();
   }
 
-  public String getContextPath( CartePluginInterface servlet ) {
+  public String getContextPath( HopServerPluginInterface servlet ) {
     String contextPath = servlet.getContextPath();
-    if ( !contextPath.startsWith( "/kettle" ) ) {
-      contextPath = "/kettle" + contextPath;
+    if ( !contextPath.startsWith( "/hop" ) ) {
+      contextPath = "/hop" + contextPath;
     }
     return contextPath;
   }
@@ -291,7 +281,7 @@ public class WebServer {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.CarteShutdown.id, this );
     } catch ( HopException e ) {
-      // Log error but continue regular operations to make sure Carte can be shut down properly.
+      // Log error but continue regular operations to make sure HopServer can be shut down properly.
       //
       log.logError( "Error calling extension point CarteStartup", e );
     }
@@ -326,7 +316,8 @@ public class WebServer {
 
   private void createListeners() {
 
-    SocketConnector connector = getConnector();
+    ServerConnector connector = getConnector();
+
     setupJettyOptions( connector );
     connector.setPort( port );
     connector.setHost( hostname );
@@ -336,17 +327,19 @@ public class WebServer {
     server.setConnectors( new Connector[] { connector } );
   }
 
-  private SocketConnector getConnector() {
+  private ServerConnector getConnector() {
     if ( sslConfig != null ) {
       log.logBasic( BaseMessages.getString( PKG, "WebServer.Log.SslModeUsing" ) );
-      SslSocketConnector connector = new SslSocketConnector();
-      connector.setKeystore( sslConfig.getKeyStore() );
-      connector.setPassword( sslConfig.getKeyStorePassword() );
-      connector.setKeyPassword( sslConfig.getKeyPassword() );
-      connector.setKeystoreType( sslConfig.getKeyStoreType() );
-      return connector;
+      SslConnectionFactory connector = new SslConnectionFactory();
+
+      SslContextFactory contextFactory = new SslContextFactory();
+      contextFactory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
+      contextFactory.setKeyStorePassword(sslConfig.getKeyStorePassword());
+      contextFactory.setKeyManagerPassword(sslConfig.getKeyPassword());
+      contextFactory.setKeyStoreType( sslConfig.getKeyStoreType() );
+      return new ServerConnector(server, connector);
     } else {
-      return new SocketConnector();
+      return new ServerConnector(server);
     }
 
   }
@@ -356,9 +349,10 @@ public class WebServer {
    *
    * @param connector
    */
-  protected void setupJettyOptions( SocketConnector connector ) {
+  protected void setupJettyOptions( ServerConnector connector ) {
+    LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
     if ( validProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) {
-      connector.setAcceptors( Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) );
+      server.addBean(new ConnectionLimit(Integer.parseInt(System.getProperty(Const.HOP_CARTE_JETTY_ACCEPTORS))));
       log.logBasic(
           BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "acceptors", connector.getAcceptors() ) );
     }
@@ -371,12 +365,10 @@ public class WebServer {
     }
 
     if ( validProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) {
-      connector.setLowResourceMaxIdleTime(
-          Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) );
+      connector.setIdleTimeout(Integer.parseInt(System.getProperty(Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME)));
       log.logBasic( BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "lowResourcesMaxIdleTime",
-          connector.getLowResourceMaxIdleTime() ) );
+          connector.getIdleTimeout() ) );
     }
-
   }
 
   /**

@@ -28,11 +28,11 @@ import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.CarteServlet;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.www.CartePluginInterface;
+import org.apache.hop.www.HopServerPluginInterface;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -42,22 +42,22 @@ import org.w3c.dom.Node;
  * @author matt
  *
  */
-@PluginMainClassType( CartePluginInterface.class )
-@PluginAnnotationType( CarteServlet.class )
-public class CartePluginType extends BasePluginType implements PluginTypeInterface {
+@PluginMainClassType( HopServerPluginInterface.class )
+@PluginAnnotationType( HopServerServlet.class )
+public class HopServerPluginType extends BasePluginType implements PluginTypeInterface {
 
-  private static CartePluginType cartePluginType;
+  private static HopServerPluginType hopServerPluginType;
 
-  private CartePluginType() {
-    super( CarteServlet.class, "CARTE_SERVLET", "Carte Servlet" );
+  private HopServerPluginType() {
+    super( HopServerServlet.class, "CARTE_SERVLET", "HopServer Servlet" );
     populateFolders( "servlets" );
   }
 
-  public static CartePluginType getInstance() {
-    if ( cartePluginType == null ) {
-      cartePluginType = new CartePluginType();
+  public static HopServerPluginType getInstance() {
+    if ( hopServerPluginType == null ) {
+      hopServerPluginType = new HopServerPluginType();
     }
-    return cartePluginType;
+    return hopServerPluginType;
   }
 
   @Override
@@ -112,17 +112,17 @@ public class CartePluginType extends BasePluginType implements PluginTypeInterfa
 
   @Override
   protected String extractDesc( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).description();
+    return ( (HopServerServlet) annotation ).description();
   }
 
   @Override
   protected String extractID( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).id();
+    return ( (HopServerServlet) annotation ).id();
   }
 
   @Override
   protected String extractName( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).name();
+    return ( (HopServerServlet) annotation ).name();
   }
 
   @Override
@@ -132,12 +132,12 @@ public class CartePluginType extends BasePluginType implements PluginTypeInterfa
 
   @Override
   protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).isSeparateClassLoaderNeeded();
+    return ( (HopServerServlet) annotation ).isSeparateClassLoaderNeeded();
   }
 
   @Override
   protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).i18nPackageName();
+    return ( (HopServerServlet) annotation ).i18nPackageName();
   }
 
   @Override
@@ -166,6 +166,6 @@ public class CartePluginType extends BasePluginType implements PluginTypeInterfa
 
   @Override
   protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (CarteServlet) annotation ).classLoaderGroup();
+    return ( (HopServerServlet) annotation ).classLoaderGroup();
   }
 }

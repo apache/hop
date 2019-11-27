@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMultimap;
-import org.apache.hop.core.annotations.CarteServlet;
+import org.apache.hop.core.annotations.HopServerServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * @author nhudak
  */
-public abstract class BaseCartePlugin extends BaseHttpServlet implements CartePluginInterface, CarteRequestHandler {
+public abstract class BaseHopServerPlugin extends BaseHttpServlet implements HopServerPluginInterface, HopServerRequestHandler {
   /**
    * @param req  http servlet request
    * @param resp http servlet response
@@ -71,8 +71,8 @@ public abstract class BaseCartePlugin extends BaseHttpServlet implements CartePl
   }
 
   public String toString() {
-    CarteServlet carteServlet = this.getClass().getAnnotation( CarteServlet.class );
-    return carteServlet != null ? carteServlet.name() : super.toString();
+    HopServerServlet hopServerServlet = this.getClass().getAnnotation( HopServerServlet.class );
+    return hopServerServlet != null ? hopServerServlet.name() : super.toString();
   }
 
   private static FluentIterable<String> fromEnumeration( Enumeration enumeration ) {

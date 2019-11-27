@@ -37,12 +37,12 @@ import org.apache.hop.trans.TransExecutionConfiguration;
  * @author matt
  *
  */
-public class CarteDelegationHandler implements DelegationListener {
+public class HopServerDelegationHandler implements DelegationListener {
 
   protected TransformationMap transformationMap;
   protected JobMap jobMap;
 
-  public CarteDelegationHandler( TransformationMap transformationMap, JobMap jobMap ) {
+  public HopServerDelegationHandler(TransformationMap transformationMap, JobMap jobMap ) {
     super();
     this.transformationMap = transformationMap;
     this.jobMap = jobMap;

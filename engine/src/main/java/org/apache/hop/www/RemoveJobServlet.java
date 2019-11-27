@@ -37,18 +37,18 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class RemoveJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class RemoveJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static Class<?> PKG = RemoveJobServlet.class; // for i18n purposes, needed by Translator2!!
   private static final long serialVersionUID = -2051906998698124039L;
 
-  public static final String CONTEXT_PATH = "/kettle/removeJob";
+  public static final String CONTEXT_PATH = "/hop/removeJob";
 
   @VisibleForTesting
-  private CarteStatusCache cache = CarteStatusCache.getInstance();
+  private HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public RemoveJobServlet() {
   }
@@ -58,14 +58,14 @@ public class RemoveJobServlet extends BaseHttpServlet implements CartePluginInte
   }
   /**
   <div id="mindtouch">
-      <h1>/kettle/removeJob</h1>
+      <h1>/hop/removeJob</h1>
       <a name="GET"></a>
       <h2>GET</h2>
-      <p>Remove specified job from Carte server.</p>
+      <p>Remove specified job from HopServer server.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/removeJob/?name=dummy_job&xml=Y
+      GET /hop/removeJob/?name=dummy_job&xml=Y
       </pre>
 
       </p>
@@ -89,7 +89,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements CartePluginInte
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte job ID of the job to be removed. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer job ID of the job to be removed. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -169,7 +169,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements CartePluginInte
     // ID is optional...
     //
     Job job;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -183,7 +183,7 @@ public class RemoveJobServlet extends BaseHttpServlet implements CartePluginInte
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( jobName, id );
+      entry = new HopServerObjectEntry( jobName, id );
       job = getJobMap().getJob( entry );
     }
 

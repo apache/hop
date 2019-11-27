@@ -38,12 +38,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 
 
-public class CleanupTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class CleanupTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = CleanupTransServlet.class; // i18n
 
   private static final long serialVersionUID = -5879200987669847357L;
 
-  public static final String CONTEXT_PATH = "/kettle/cleanupTrans";
+  public static final String CONTEXT_PATH = "/hop/cleanupTrans";
 
   public CleanupTransServlet() {
   }
@@ -54,16 +54,16 @@ public class CleanupTransServlet extends BaseHttpServlet implements CartePluginI
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/cleanupTrans</h1>
+    <h1>/hop/cleanupTrans</h1>
     <a name="GET"></a>
     <h2>GET</h2>
-    <p>Cleans up transformation on Carte server.
-  Method is used for cleaning previously uploaded transformation by its name on Carte server. There are
+    <p>Cleans up transformation on HopServer server.
+  Method is used for cleaning previously uploaded transformation by its name on HopServer server. There are
   two modes for this method: 1) Clean the server sockets only or 2) Clean everything, including the transformation.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/cleanupTrans/?name=dummy-trans2&xml=Y
+    GET /hop/cleanupTrans/?name=dummy-trans2&xml=Y
     </pre>
 
     </p>
@@ -87,7 +87,7 @@ public class CleanupTransServlet extends BaseHttpServlet implements CartePluginI
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte transformation ID of the transformation to be cleaned.</td>
+    <td>HopServer transformation ID of the transformation to be cleaned.</td>
     <td>query, optional</td>
     </tr>
     <tr>
@@ -191,7 +191,7 @@ public class CleanupTransServlet extends BaseHttpServlet implements CartePluginI
         // ID is optional...
         //
         Trans trans;
-        CarteObjectEntry entry;
+        HopServerObjectEntry entry;
         if ( Utils.isEmpty( id ) ) {
           // get the first transformation that matches...
           //
@@ -205,7 +205,7 @@ public class CleanupTransServlet extends BaseHttpServlet implements CartePluginI
         } else {
           // Take the ID into account!
           //
-          entry = new CarteObjectEntry( transName, id );
+          entry = new HopServerObjectEntry( transName, id );
           trans = getTransformationMap().getTransformation( entry );
         }
 

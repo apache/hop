@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -105,7 +105,7 @@ public class GetJobStatusServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( GetJobStatusServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockJobMap.getJob( any( CarteObjectEntry.class ) ) ).thenReturn( mockJob );
+    when( mockJobMap.getJob( any( HopServerObjectEntry.class ) ) ).thenReturn( mockJob );
     PowerMockito.when( mockJob.getJobname() ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     PowerMockito.when( mockJob.getLogChannel() ).thenReturn( mockLogChannelInterface );
     PowerMockito.when( mockJob.getJobMeta() ).thenReturn( mockJobMeta );
@@ -122,7 +122,7 @@ public class GetJobStatusServletTest {
   @PrepareForTest( { Job.class } )
   public void testGetJobStatus() throws ServletException, IOException {
     HopLogStore.init();
-    CarteStatusCache cacheMock = mock( CarteStatusCache.class );
+    HopServerStatusCache cacheMock = mock( HopServerStatusCache.class );
     getJobStatusServlet.cache = cacheMock;
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );

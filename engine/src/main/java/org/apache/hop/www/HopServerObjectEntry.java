@@ -33,28 +33,28 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
-public class CarteObjectEntry implements Comparator<CarteObjectEntry>, Comparable<CarteObjectEntry> {
+public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {
   private String name;
   private String id;
 
-  public CarteObjectEntry() {
+  public HopServerObjectEntry() {
   }
 
-  public CarteObjectEntry( String name, String id ) {
+  public HopServerObjectEntry(String name, String id ) {
     this.name = name;
     this.id = id;
   }
 
   @Override
   public boolean equals( Object obj ) {
-    if ( !( obj instanceof CarteObjectEntry ) ) {
+    if ( !( obj instanceof HopServerObjectEntry) ) {
       return false;
     }
     if ( obj == this ) {
       return true;
     }
 
-    CarteObjectEntry entry = (CarteObjectEntry) obj;
+    HopServerObjectEntry entry = (HopServerObjectEntry) obj;
 
     return entry.getId().equals( id );
   }
@@ -63,7 +63,7 @@ public class CarteObjectEntry implements Comparator<CarteObjectEntry>, Comparabl
     return id.hashCode();
   }
 
-  public int compare( CarteObjectEntry o1, CarteObjectEntry o2 ) {
+  public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
     int cmpName = o1.getName().compareTo( o2.getName() );
     if ( cmpName != 0 ) {
       return cmpName;
@@ -72,7 +72,7 @@ public class CarteObjectEntry implements Comparator<CarteObjectEntry>, Comparabl
     return o1.getId().compareTo( o2.getId() );
   }
 
-  public int compareTo( CarteObjectEntry o ) {
+  public int compareTo( HopServerObjectEntry o ) {
     return compare( this, o );
   }
 

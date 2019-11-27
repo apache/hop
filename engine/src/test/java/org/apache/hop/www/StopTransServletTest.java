@@ -99,7 +99,7 @@ public class StopTransServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( StopTransServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getLogChannelId() ).thenReturn( "test" );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
@@ -129,7 +129,7 @@ public class StopTransServletTest {
     when( mockHttpServletRequest.getParameter( "name" ) ).thenReturn( "test" );
     when( mockHttpServletRequest.getParameter( "id" ) ).thenReturn( "123" );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getLogChannelId() ).thenReturn( "test" );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );

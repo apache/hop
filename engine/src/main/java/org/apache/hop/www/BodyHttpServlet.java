@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public abstract class BodyHttpServlet extends BaseHttpServlet implements CartePluginInterface {
+public abstract class BodyHttpServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = 6576714217004890327L;
   private final PackageMessages messages;

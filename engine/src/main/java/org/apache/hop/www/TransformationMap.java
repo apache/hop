@@ -46,7 +46,7 @@ import org.apache.hop.trans.TransConfiguration;
  *
  */
 public class TransformationMap {
-  private final Map<CarteObjectEntry, TransData> transMap;
+  private final Map<HopServerObjectEntry, TransData> transMap;
 
   private final Map<String, List<SocketPortAllocation>> hostServerSocketPortsMap;
 
@@ -71,13 +71,13 @@ public class TransformationMap {
    */
   public void addTransformation( String transformationName, String containerObjectId, Trans trans,
     TransConfiguration transConfiguration ) {
-    CarteObjectEntry entry = new CarteObjectEntry( transformationName, containerObjectId );
+    HopServerObjectEntry entry = new HopServerObjectEntry( transformationName, containerObjectId );
     transMap.put( entry, new TransData( trans, transConfiguration ) );
   }
 
   public void registerTransformation( Trans trans, TransConfiguration transConfiguration ) {
     trans.setContainerObjectId( UUID.randomUUID().toString() );
-    CarteObjectEntry entry = new CarteObjectEntry( trans.getTransMeta().getName(), trans.getContainerObjectId() );
+    HopServerObjectEntry entry = new HopServerObjectEntry( trans.getTransMeta().getName(), trans.getContainerObjectId() );
     transMap.put( entry, new TransData( trans, transConfiguration ) );
   }
 
@@ -88,7 +88,7 @@ public class TransformationMap {
    * @return the first transformation with the specified name
    */
   public Trans getTransformation( String transformationName ) {
-    for ( CarteObjectEntry entry : transMap.keySet() ) {
+    for ( HopServerObjectEntry entry : transMap.keySet() ) {
       if ( entry.getName().equals( transformationName ) ) {
         return transMap.get( entry ).getTrans();
       }
@@ -98,10 +98,10 @@ public class TransformationMap {
 
   /**
    * @param entry
-   *          The Carte transformation object
+   *          The HopServer transformation object
    * @return the transformation with the specified entry
    */
-  public Trans getTransformation( CarteObjectEntry entry ) {
+  public Trans getTransformation( HopServerObjectEntry entry ) {
     return transMap.get( entry ).getTrans();
   }
 
@@ -110,7 +110,7 @@ public class TransformationMap {
    * @return The first transformation configuration with the specified name
    */
   public TransConfiguration getConfiguration( String transformationName ) {
-    for ( CarteObjectEntry entry : transMap.keySet() ) {
+    for ( HopServerObjectEntry entry : transMap.keySet() ) {
       if ( entry.getName().equals( transformationName ) ) {
         return transMap.get( entry ).getConfiguration();
       }
@@ -120,23 +120,23 @@ public class TransformationMap {
 
   /**
    * @param entry
-   *          The Carte transformation object
+   *          The HopServer transformation object
    * @return the transformation configuration with the specified entry
    */
-  public TransConfiguration getConfiguration( CarteObjectEntry entry ) {
+  public TransConfiguration getConfiguration( HopServerObjectEntry entry ) {
     return transMap.get( entry ).getConfiguration();
   }
 
   /**
    *
    * @param entry
-   *          the Carte object entry
+   *          the HopServer object entry
    */
-  public void removeTransformation( CarteObjectEntry entry ) {
+  public void removeTransformation( HopServerObjectEntry entry ) {
     transMap.remove( entry );
   }
 
-  public List<CarteObjectEntry> getTransformationObjects() {
+  public List<HopServerObjectEntry> getTransformationObjects() {
     return new ArrayList<>( transMap.keySet() );
   }
 
@@ -313,7 +313,7 @@ public class TransformationMap {
    * @param entry
    *          the transformation object entry name to release the sockets for
    */
-  public void deallocateServerSocketPorts( CarteObjectEntry entry ) {
+  public void deallocateServerSocketPorts( HopServerObjectEntry entry ) {
     for ( String hostname : hostServerSocketPortsMap.keySet() ) {
       List<SocketPortAllocation> serverSocketPorts = hostServerSocketPortsMap.get( hostname );
       for ( SocketPortAllocation spa : hostServerSocketPortsMap.get( hostname ) ) {
@@ -346,8 +346,8 @@ public class TransformationMap {
     }
   }
 
-  public CarteObjectEntry getFirstCarteObjectEntry( String transName ) {
-    for ( CarteObjectEntry key : transMap.keySet() ) {
+  public HopServerObjectEntry getFirstCarteObjectEntry(String transName ) {
+    for ( HopServerObjectEntry key : transMap.keySet() ) {
       if ( key.getName().equals( transName ) ) {
         return key;
       }

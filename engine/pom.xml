@@ -74,14 +74,16 @@
     <mstor.version>0.9.13</mstor.version>
     <snappy-java.version>1.1.0</snappy-java.version>
     <commons-cli.version>1.2</commons-cli.version>
-    <jetty-plus.version>8.1.22.v20160922</jetty-plus.version>
-    <jetty-server.version>8.1.22.v20160922</jetty-server.version>
-    <jetty-security.version>8.1.22.v20160922</jetty-security.version>
-    <jetty-servlet.version>8.1.22.v20160922</jetty-servlet.version>
-    <jetty-xml.version>8.1.22.v20160922</jetty-xml.version>
-    <jetty-webapp.version>8.1.22.v20160922</jetty-webapp.version>
+    <jetty-plus.version>9.4.22.v20191022</jetty-plus.version>
+    <jetty-server.version>9.4.22.v20191022</jetty-server.version>
+    <jetty-security.version>9.4.22.v20191022</jetty-security.version>
+    <jetty-servlets.version>9.4.22.v20191022</jetty-servlets.version>
+    <jetty-xml.version>9.4.22.v20191022</jetty-xml.version>
+    <jetty-webapp.version>9.4.22.v20191022</jetty-webapp.version>
+    <jetty-jaas.version>9.4.22.v20191022</jetty-jaas.version>
+    <jetty-util.version>9.4.22.v20191022</jetty-util.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+    <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <oro.version>2.0.8</oro.version>
     <javax.websocket-api.version>1.1</javax.websocket-api.version>
     <xmlunit.version>1.5</xmlunit.version>
@@ -779,8 +781,19 @@
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlets</artifactId>
+      <version>${jetty-servlets.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>${jetty-servlet.version}</version>
+      <version>${jetty-servlets.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -811,6 +824,28 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jaas</artifactId>
+      <version>${jetty-jaas.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util</artifactId>
+      <version>${jetty-util.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.googlecode.log4jdbc</groupId>
       <artifactId>log4jdbc</artifactId>
       <version>${log4jdbc.version}</version>
@@ -825,7 +860,6 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>${javax.servlet-api.version}</version>
-      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

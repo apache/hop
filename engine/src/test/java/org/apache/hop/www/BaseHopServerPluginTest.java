@@ -45,23 +45,23 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class BaseCartePluginTest {
+public class BaseHopServerPluginTest {
 
   HttpServletRequest req = mock( HttpServletRequest.class );
   HttpServletResponse resp = mock( HttpServletResponse.class );
   LogChannelInterface log = mock( LogChannelInterface.class );
-  CarteRequestHandler.WriterResponse writerResponse = mock( CarteRequestHandler.WriterResponse.class );
-  CarteRequestHandler.OutputStreamResponse outputStreamResponse = mock( CarteRequestHandler.OutputStreamResponse.class );
+  HopServerRequestHandler.WriterResponse writerResponse = mock( HopServerRequestHandler.WriterResponse.class );
+  HopServerRequestHandler.OutputStreamResponse outputStreamResponse = mock( HopServerRequestHandler.OutputStreamResponse.class );
   PrintWriter printWriter = mock( PrintWriter.class );
   javax.servlet.ServletOutputStream outputStream = mock( javax.servlet.ServletOutputStream.class );
 
-  ArgumentCaptor<CarteRequestHandler.CarteRequest> carteReqCaptor = ArgumentCaptor.forClass( CarteRequestHandler.CarteRequest.class );
+  ArgumentCaptor<HopServerRequestHandler.CarteRequest> carteReqCaptor = ArgumentCaptor.forClass( HopServerRequestHandler.CarteRequest.class );
 
-  BaseCartePlugin baseCartePlugin;
+  BaseHopServerPlugin baseHopServerPlugin;
 
   @Before
   public void before() {
-    baseCartePlugin = spy( new BaseCartePlugin() {
+    baseHopServerPlugin = spy(new BaseHopServerPlugin() {
       @Override
       public void handleRequest( CarteRequest request ) throws IOException {
       }
@@ -71,35 +71,35 @@ public class BaseCartePluginTest {
         return null;
       }
     } );
-    baseCartePlugin.log = log;
+    baseHopServerPlugin.log = log;
   }
 
   @Test
   @SuppressWarnings( "deprecation" )
   public void testDoGet() throws Exception {
-    baseCartePlugin.doGet( req, resp );
+    baseHopServerPlugin.doGet( req, resp );
     // doGet should delegate to .service
-    verify( baseCartePlugin ).service( req, resp );
+    verify(baseHopServerPlugin).service( req, resp );
   }
 
   @Test
   public void testService() throws Exception {
     when( req.getContextPath() ).thenReturn( "/Path" );
-    when( baseCartePlugin.getContextPath() ).thenReturn( "/Path" );
+    when( baseHopServerPlugin.getContextPath() ).thenReturn( "/Path" );
     when( log.isDebug() ).thenReturn( true );
 
-    baseCartePlugin.service( req, resp );
+    baseHopServerPlugin.service( req, resp );
 
-    verify( log ).logDebug( baseCartePlugin.getService() );
-    verify( baseCartePlugin ).handleRequest( carteReqCaptor.capture() );
+    verify( log ).logDebug( baseHopServerPlugin.getService() );
+    verify(baseHopServerPlugin).handleRequest( carteReqCaptor.capture() );
 
-    CarteRequestHandler.CarteRequest carteRequest = carteReqCaptor.getValue();
+    HopServerRequestHandler.CarteRequest carteRequest = carteReqCaptor.getValue();
 
     testCarteRequest( carteRequest );
     testCarteResponse( carteRequest.respond( 200 ) );
   }
 
-  private void testCarteResponse( CarteRequestHandler.CarteResponse response ) throws IOException {
+  private void testCarteResponse( HopServerRequestHandler.CarteResponse response ) throws IOException {
     when( resp.getWriter() ).thenReturn( printWriter );
     when( resp.getOutputStream() ).thenReturn( outputStream );
 
@@ -118,7 +118,7 @@ public class BaseCartePluginTest {
     verify( printWriter ).println( "Message" );
   }
 
-  private void testCarteRequest( CarteRequestHandler.CarteRequest carteRequest ) {
+  private void testCarteRequest( HopServerRequestHandler.CarteRequest carteRequest ) {
     when( req.getMethod() ).thenReturn( "POST" );
     when( req.getHeader( "Connection" ) ).thenReturn( "Keep-Alive" );
     when( req.getParameter( "param1" ) ).thenReturn( "val1" );
@@ -152,8 +152,8 @@ public class BaseCartePluginTest {
 
   @Test
   public void testGetService() throws Exception {
-    when( baseCartePlugin.getContextPath() )
+    when( baseHopServerPlugin.getContextPath() )
       .thenReturn( "/Path" );
-    assertThat( baseCartePlugin.getService().startsWith( "/Path" ), is( true ) );
+    assertThat( baseHopServerPlugin.getService().startsWith( "/Path" ), is( true ) );
   }
 }

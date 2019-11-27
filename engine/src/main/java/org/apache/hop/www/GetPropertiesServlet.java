@@ -39,7 +39,7 @@ public class GetPropertiesServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 4872614637561572356L;
 
-  public static final String CONTEXT_PATH = "/kettle/properties";
+  public static final String CONTEXT_PATH = "/hop/properties";
 
   @Override
   public String getContextPath() {
@@ -49,12 +49,12 @@ public class GetPropertiesServlet extends BodyHttpServlet {
   @Override
   WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws Exception {
     ServletOutputStream out = response.getOutputStream();
-    Properties kettleProperties = EnvUtil.readProperties( Const.HOP_PROPERTIES );
+    Properties hopProperties = EnvUtil.readProperties( Const.HOP_PROPERTIES );
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     if ( useXML ) {
-      kettleProperties.storeToXML( os, "" );
+      hopProperties.storeToXML( os, "" );
     } else {
-      kettleProperties.store( os, "" );
+      hopProperties.store( os, "" );
     }
     out.write( Encr.encryptPassword( os.toString() ).getBytes() );
     return null;

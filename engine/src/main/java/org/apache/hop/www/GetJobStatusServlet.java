@@ -44,21 +44,21 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetJobStatusServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/jobStatus";
+  public static final String CONTEXT_PATH = "/hop/jobStatus";
 
   private static final byte[] XML_HEADER =
     XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
 
   @VisibleForTesting
-  CarteStatusCache cache = CarteStatusCache.getInstance();
+  HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public GetJobStatusServlet() {
   }
@@ -69,7 +69,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginI
 
   /**
    <div id="mindtouch">
-   <h1>/kettle/jobStatus</h1>
+   <h1>/hop/jobStatus</h1>
    <a name="GET"></a>
    <h2>GET</h2>
    <p>Retrieves status of the specified job.
@@ -78,7 +78,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginI
 
    <p><b>Example Request:</b><br />
    <pre function="syntax.xml">
-   GET /kettle/jobStatus/?name=dummy_job&xml=Y
+   GET /hop/jobStatus/?name=dummy_job&xml=Y
    </pre>
 
    </p>
@@ -103,7 +103,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginI
    </tr>
    <tr>
    <td>id</td>
-   <td>Carte id of the job to be used for status generation.</td>
+   <td>HopServer id of the job to be used for status generation.</td>
    <td>query, optional</td>
    </tr>
    <tr>
@@ -213,7 +213,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginI
     // ID is optional...
     //
     Job job;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first job that matches...
       //
@@ -232,7 +232,7 @@ public class GetJobStatusServlet extends BaseHttpServlet implements CartePluginI
         //
         job = getJobMap().findJob( id );
       } else {
-        entry = new CarteObjectEntry( jobName, id );
+        entry = new HopServerObjectEntry( jobName, id );
         job = getJobMap().getJob( entry );
         if ( job != null ) {
           jobName = job.getJobname();
