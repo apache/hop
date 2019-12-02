@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopui;
 
 import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.pentaho.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabItem;
 
 public class TabMapEntry {
   public enum ObjectType {

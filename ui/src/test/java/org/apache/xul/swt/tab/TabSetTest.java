@@ -33,8 +33,8 @@ import org.eclipse.swt.widgets.Event;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class TabSetTest {
 

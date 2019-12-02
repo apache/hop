@@ -76,7 +76,7 @@ import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage1;
 import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage2;
 import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage3;
-import org.pentaho.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

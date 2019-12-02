@@ -91,7 +91,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -4553,7 +4552,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       ret = new RowMetaAndData();
       int pos = 1;
       if ( resultname != null && resultname.length() != 0 ) {
-        ValueMeta vMeta = new ValueMeta( resultname, resulttype );
+        ValueMetaInterface vMeta = ValueMetaFactory.createValueMeta( resultname, resulttype );
         Object v = null;
         switch ( resulttype ) {
           case ValueMetaInterface.TYPE_BOOLEAN:

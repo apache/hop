@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.encryption.Encr;
@@ -53,7 +55,7 @@ import org.apache.hop.repository.ObjectId;
  * @author Matt
  * @since 11-mrt-2005
  */
-public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceExtended {
+public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   /**
    * The port number of the database as string: allows for parameterization.
    */
@@ -272,10 +274,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   private String name;
   private String displayName;
   private int accessType; // Database.TYPE_ODBC / NATIVE / OCI
-  private String hostname;
-  private String databaseName;
-  private String username;
-  private String password;
+
+  @GuiElement( id = "hostname", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String hostname;
+
+  @GuiElement( id = "port", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String port;
+
+  @GuiElement( id = "databaseName", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String databaseName;
+
+  @GuiElement( id = "username", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String username;
+
+  @GuiElement( id = "password", type = GuiElementType.TEXT, password = true, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String password;
+
   private String servername; // Informix only!
 
   private String dataTablespace; // data storage location, For Oracle & perhaps others
@@ -428,25 +442,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   }
 
   /**
-   * @param databasePortNumberString
-   *          The databasePortNumber string to set.
-   */
-  @Override
-  public void setDatabasePortNumberString( String databasePortNumberString ) {
-    if ( databasePortNumberString != null ) {
-      getAttributes().put( BaseDatabaseMeta.ATTRIBUTE_PORT_NUMBER, databasePortNumberString );
-    }
-  }
-
-  /**
-   * @return Returns the databasePortNumber string.
-   */
-  @Override
-  public String getDatabasePortNumberString() {
-    return getAttributes().getProperty( ATTRIBUTE_PORT_NUMBER, "-1" );
-  }
-
-  /**
    * @return Returns the hostname.
    */
   @Override
@@ -461,6 +456,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterfaceEx
   @Override
   public void setHostname( String hostname ) {
     this.hostname = hostname;
+  }
+
+  /**
+   * Gets port
+   *
+   * @return value of port
+   */
+  public String getPort() {
+    return port;
+  }
+
+  /**
+   * @param port The port to set
+   */
+  public void setPort( String port ) {
+    this.port = port;
   }
 
   /**

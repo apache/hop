@@ -24,6 +24,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.encryption.Encr;
@@ -87,6 +88,8 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
   public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.DATABASE;
 
   private static final String DROP_TABLE_STATEMENT = "DROP TABLE IF EXISTS ";
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DatabaseMeta-PluginSpecific-Options";
 
   // Comparator for sorting databases alphabetically by name
   public static final Comparator<DatabaseMeta> comparator = new Comparator<DatabaseMeta>() {
@@ -618,7 +621,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
   public void replaceMeta( DatabaseMeta databaseMeta ) {
     this.setValues(
       databaseMeta.getName(), databaseMeta.getPluginId(), databaseMeta.getAccessTypeDesc(), databaseMeta
-        .getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getDatabasePortNumberString(),
+        .getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getPort(),
       databaseMeta.getUsername(), databaseMeta.getPassword() );
     this.setServername( databaseMeta.getServername() );
     this.setDataTablespace( databaseMeta.getDataTablespace() );
@@ -642,7 +645,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     setAccessType( getAccessType( access ) );
     setHostname( host );
     setDBName( db );
-    setDBPort( port );
+    setPort( port );
     setUsername( user );
     setPassword( pass );
     setServername( null );
@@ -663,7 +666,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     setAccessType( oldInterface.getAccessType() );
     setHostname( oldInterface.getHostname() );
     setDBName( oldInterface.getDatabaseName() );
-    setDBPort( oldInterface.getDatabasePortNumberString() );
+    setPort( oldInterface.getPort() );
     setUsername( oldInterface.getUsername() );
     setPassword( oldInterface.getPassword() );
     setServername( oldInterface.getServername() );
@@ -809,18 +812,18 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
    *
    * @return The database port.
    */
-  public String getDatabasePortNumberString() {
-    return databaseInterface.getDatabasePortNumberString();
+  public String getPort() {
+    return databaseInterface.getPort();
   }
 
   /**
    * Sets the port on which the database listens.
    *
-   * @param db_port
+   * @param port
    *          The port number on which the database listens
    */
-  public void setDBPort( String db_port ) {
-    databaseInterface.setDatabasePortNumberString( db_port );
+  public void setPort( String port ) {
+    databaseInterface.setPort(port );
   }
 
   /**
@@ -991,7 +994,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
 
       // The DB port is read here too for backward compatibility! getName()
       //
-      setDBPort( XMLHandler.getTagValue( con, "port" ) );
+      setPort( XMLHandler.getTagValue( con, "port" ) );
       setUsername( XMLHandler.getTagValue( con, "username" ) );
       setPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( con, "password" ) ) );
       setServername( XMLHandler.getTagValue( con, "servername" ) );
@@ -1010,7 +1013,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
           if ( code != null && attribute != null ) {
             databaseInterface.addAttribute( code, attribute );
           }
-          getDatabasePortNumberString();
+          getPort();
         }
       }
     } catch ( Exception e ) {
@@ -1028,7 +1031,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     retval.append( "    " ).append( XMLHandler.addTagValue( "type", getPluginId() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "access", getAccessTypeDesc() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "database", getDatabaseName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "port", getDatabasePortNumberString() ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( "port", getPort() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "username", getUsername() ) );
     retval.append( "    " ).append(
       XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
@@ -1100,7 +1103,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
       databaseName = environmentSubstitute( partition.getDatabaseName() );
     } else {
       hostname = environmentSubstitute( getHostname() );
-      port = environmentSubstitute( getDatabasePortNumberString() );
+      port = environmentSubstitute( getPort() );
       databaseName = environmentSubstitute( getDatabaseName() );
     }
     baseUrl = databaseInterface.getURL( environmentSubstitute( hostname ), environmentSubstitute( port ),
@@ -2041,7 +2044,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
       // Port number
       r = new RowMetaAndData();
       r.addValue( par, ValueMetaInterface.TYPE_STRING, "Service port" );
-      r.addValue( val, ValueMetaInterface.TYPE_STRING, getDatabasePortNumberString() );
+      r.addValue( val, ValueMetaInterface.TYPE_STRING, getPort() );
       list.add( r );
       // Username
       r = new RowMetaAndData();
@@ -3063,12 +3066,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
    * @see <a href="http://jira.pentaho.com/browse/BISERVER-13024">BISERVER-13024</a>
    */
   public String getDropTableIfExistsStatement( String tableName ) {
-    if ( databaseInterface instanceof DatabaseInterfaceExtended ) {
-      return ( (DatabaseInterfaceExtended) databaseInterface ).getDropTableIfExistsStatement( tableName );
-    }
-    // A fallback statement in case somehow databaseInterface is of an old version.
-    // This is the previous, and in fact, buggy implementation. See BISERVER-13024.
-    return DROP_TABLE_STATEMENT + tableName;
+    return databaseInterface.getDropTableIfExistsStatement( tableName );
   }
 
   /**

@@ -117,7 +117,7 @@ public class TeradataDatabaseMetaTest {
       "VARGRAPHIC", "VARYING", "VIEW", "VOLATILE", "WHEN", "WHERE", "WHILE", "WIDTH_BUCKET", "WITH", "WITHOUT",
       "WORK", "YEAR", "ZEROIFNULL", "ZONE" }, nativeMeta.getReservedWords() );
 
-    nativeMeta.setDatabasePortNumberString( "1025" );
+    nativeMeta.setPort( "1025" );
     nativeMeta.setPluginId( "FOOPLUGIN" );
     Map<String, String> xtraOptions = nativeMeta.getExtraOptions();
     assertTrue( xtraOptions.containsKey( "FOOPLUGIN.DBS_PORT" ) );

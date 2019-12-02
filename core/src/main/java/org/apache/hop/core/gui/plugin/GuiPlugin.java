@@ -20,15 +20,31 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.core.database.wizard;
+package org.apache.hop.core.gui.plugin;
 
-import org.eclipse.jface.wizard.WizardPage;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.ui.core.PropsUI;
+import com.sun.org.apache.xpath.internal.objects.XNull;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by bmorrise on 3/9/16.
+ * This annotation signals to the plugin system that the class is a GUI plugin.
+ *
+ * @author matt
+ *
  */
-public interface WizardPageFactory {
-  WizardPage createWizardPage( PropsUI props, DatabaseMeta info );
+@Documented
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
+public @interface GuiPlugin {
+  String id();
+
+  String description() default "";
+
+  String classLoaderGroup() default "";
+
+  String i18nPackage() default "";
 }

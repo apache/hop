@@ -337,8 +337,8 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   public Map<String, String> getExtraOptions() {
     Map<String, String> map = super.getExtraOptions();
 
-    if ( !Utils.isEmpty( getDatabasePortNumberString() ) ) {
-      map.put( getPluginId() + ".DBS_PORT", getDatabasePortNumberString() );
+    if ( !Utils.isEmpty( getPort() ) ) {
+      map.put( getPluginId() + ".DBS_PORT", getPort() );
     }
 
     return map;

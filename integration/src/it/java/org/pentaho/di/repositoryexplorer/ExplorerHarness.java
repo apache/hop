@@ -49,7 +49,7 @@ public class ExplorerHarness {
     connection.setDatabaseType( "Hypersonic" );
     connection.setHostname( "localhost" );
     connection.setDBName( "kettle_repository_4x" );
-    connection.setDBPort( "9002" );
+    connection.setPort( "9002" );
     connection.setUsername( "sa" );
 
     repositoryMeta.setConnection( connection );

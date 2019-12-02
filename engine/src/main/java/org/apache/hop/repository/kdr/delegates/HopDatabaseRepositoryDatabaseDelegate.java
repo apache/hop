@@ -132,7 +132,7 @@ public class HopDatabaseRepositoryDatabaseDelegate extends HopDatabaseRepository
 
         databaseMeta.setHostname( r.getString( HopDatabaseRepository.FIELD_DATABASE_HOST_NAME, "" ) );
         databaseMeta.setDBName( r.getString( HopDatabaseRepository.FIELD_DATABASE_DATABASE_NAME, "" ) );
-        databaseMeta.setDBPort( r.getString( HopDatabaseRepository.FIELD_DATABASE_PORT, "" ) );
+        databaseMeta.setPort( r.getString( HopDatabaseRepository.FIELD_DATABASE_PORT, "" ) );
         databaseMeta.setUsername( r.getString( HopDatabaseRepository.FIELD_DATABASE_USERNAME, "" ) );
         databaseMeta.setPassword( Encr.decryptPasswordOptionallyEncrypted( r.getString(
           HopDatabaseRepository.FIELD_DATABASE_PASSWORD, "" ) ) );
@@ -180,7 +180,7 @@ public class HopDatabaseRepositoryDatabaseDelegate extends HopDatabaseRepository
         databaseMeta.setObjectId( insertDatabase(
           databaseMeta.getName(), databaseMeta.getPluginId(), DatabaseMeta.getAccessTypeDesc( databaseMeta
             .getAccessType() ), databaseMeta.getHostname(), databaseMeta.getDatabaseName(), databaseMeta
-            .getDatabasePortNumberString(), databaseMeta.getUsername(), databaseMeta.getPassword(),
+            .getPort(), databaseMeta.getUsername(), databaseMeta.getPassword(),
           databaseMeta.getServername(), databaseMeta.getDataTablespace(), databaseMeta.getIndexTablespace() ) );
       } else {
         // --> found entry with the same name...
@@ -189,7 +189,7 @@ public class HopDatabaseRepositoryDatabaseDelegate extends HopDatabaseRepository
         updateDatabase(
           databaseMeta.getObjectId(), databaseMeta.getName(), databaseMeta.getPluginId(), DatabaseMeta
             .getAccessTypeDesc( databaseMeta.getAccessType() ), databaseMeta.getHostname(), databaseMeta
-            .getDatabaseName(), databaseMeta.getDatabasePortNumberString(), databaseMeta.getUsername(),
+            .getDatabaseName(), databaseMeta.getPort(), databaseMeta.getUsername(),
           databaseMeta.getPassword(), databaseMeta.getServername(), databaseMeta.getDataTablespace(),
           databaseMeta.getIndexTablespace() );
       }

@@ -46,40 +46,6 @@ import org.w3c.dom.Node;
 public class ValueMeta extends ValueMetaBase {
   private static Class<?> PKG = Const.class;
 
-  public static final String DEFAULT_DATE_FORMAT_MASK = "yyyy/MM/dd HH:mm:ss.SSS";
-
-  public static final String DEFAULT_TIMESTAMP_FORMAT_MASK  = "yyyy/MM/dd HH:mm:ss.SSSSSSSSS";
-
-  public static final String XML_META_TAG = "value-meta";
-  public static final String XML_DATA_TAG = "value-data";
-
-  public static final boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = convertStringToBoolean( Const.NVL( System
-    .getProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" ), "N" ) );
-
-  /**
-   * The trim type codes
-   */
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
-
-  /**
-   * The trim description
-   */
-  public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "ValueMeta.TrimType.None" ),
-    BaseMessages.getString( PKG, "ValueMeta.TrimType.Left" ),
-    BaseMessages.getString( PKG, "ValueMeta.TrimType.Right" ),
-    BaseMessages.getString( PKG, "ValueMeta.TrimType.Both" ) };
-
-  public static final String[] SINGLE_BYTE_ENCODINGS = new String[] {
-    "ISO8859_1", "Cp1252", "ASCII", "Cp037", "Cp273", "Cp277", "Cp278", "Cp280", "Cp284", "Cp285", "Cp297",
-    "Cp420", "Cp424", "Cp437", "Cp500", "Cp737", "Cp775", "Cp850", "Cp852", "Cp855", "Cp856", "Cp857", "Cp858",
-    "Cp860", "Cp861", "Cp862", "Cp863", "Cp865", "Cp866", "Cp869", "Cp870", "Cp871", "Cp875", "Cp918", "Cp921",
-    "Cp922", "Cp1140", "Cp1141", "Cp1142", "Cp1143", "Cp1144", "Cp1145", "Cp1146", "Cp1147", "Cp1148", "Cp1149",
-    "Cp1250", "Cp1251", "Cp1253", "Cp1254", "Cp1255", "Cp1257", "ISO8859_2", "ISO8859_3", "ISO8859_5",
-    "ISO8859_5", "ISO8859_6", "ISO8859_7", "ISO8859_8", "ISO8859_9", "ISO8859_13", "ISO8859_15",
-    "ISO8859_15_FDIS", "MacCentralEurope", "MacCroatian", "MacCyrillic", "MacDingbat", "MacGreek", "MacHebrew",
-    "MacIceland", "MacRoman", "MacRomania", "MacSymbol", "MacTurkish", "MacUkraine", };
-
   private ValueMetaInterface nativeType; // Used only for getNativeDataTypeClass(), not a "deep" clone of this object
 
   public ValueMeta() {

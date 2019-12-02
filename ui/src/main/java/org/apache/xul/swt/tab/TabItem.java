@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.xul.swt.tab;
+package org.apache.xul.swt.tab;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -33,8 +33,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
 import org.apache.hop.ui.hopui.job.JobGraph;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class HopUiActiveJobGraphTest {
 

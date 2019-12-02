@@ -227,7 +227,6 @@ import org.apache.hop.ui.core.FileDialogOperation;
 import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.auth.AuthProviderDialog;
-import org.apache.hop.ui.core.database.wizard.CreateDatabaseWizard;
 import org.apache.hop.ui.core.dialog.AboutDialog;
 import org.apache.hop.ui.core.dialog.BrowserEnvironmentWarningDialog;
 import org.apache.hop.ui.core.dialog.CheckResultDialog;
@@ -321,9 +320,9 @@ import org.pentaho.ui.xul.jface.tags.JfaceMenuitem;
 import org.pentaho.ui.xul.jface.tags.JfaceMenupopup;
 import org.pentaho.ui.xul.swt.tags.SwtDeck;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabListener;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabListener;
+import org.apache.xul.swt.tab.TabSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -7549,25 +7548,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       return transMeta;
     }
     return getActiveJob();
-  }
-
-  /**
-   * Shows a wizard that creates a new database connection...
-   *
-   */
-  public void createDatabaseWizard() {
-    HasDatabasesInterface hasDatabasesInterface = getActiveHasDatabasesInterface();
-    if ( hasDatabasesInterface == null ) {
-      return; // nowhere to put the new database
-    }
-
-    CreateDatabaseWizard cdw = new CreateDatabaseWizard();
-    DatabaseMeta newDBInfo = cdw.createAndRunDatabaseWizard( shell, props, hasDatabasesInterface.getDatabases() );
-    if ( newDBInfo != null ) { // finished
-      hasDatabasesInterface.addDatabase( newDBInfo );
-      refreshTree( DBConnectionFolderProvider.STRING_CONNECTIONS );
-      refreshGraph();
-    }
   }
 
   public List<DatabaseMeta> getActiveDatabases() {

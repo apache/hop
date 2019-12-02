@@ -122,7 +122,7 @@ public class DatabaseDialogHarness {
             .concat( database.getName() ).concat( carriageReturn ).concat( "Database Name: " ).concat(
               database.getDatabaseName() ).concat( carriageReturn ).concat( "Host Name: " ).concat(
               database.getHostname() ).concat( carriageReturn ).concat( "Port Number: " ).concat(
-              database.getDatabasePortNumberString() ).concat( carriageReturn ).concat( "User Name: " )
+              database.getPort() ).concat( carriageReturn ).concat( "User Name: " )
             .concat( database.getUsername() ).concat( carriageReturn ).concat( "Password: " ).concat(
               database.getPassword() ).concat( carriageReturn ).concat( "Driver Class: " ).concat(
               database.getDriverClass() ).concat( carriageReturn ).concat( "URL: " ).concat(

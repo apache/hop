@@ -65,8 +65,8 @@ import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.util.Launch;
 import org.apache.hop.util.Launch.Status;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class HopUiTabsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!

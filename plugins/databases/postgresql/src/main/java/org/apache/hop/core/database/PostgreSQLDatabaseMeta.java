@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,8 +37,14 @@ import org.apache.hop.core.row.ValueMetaInterface;
   type = "POSTGRESQL",
   typeDescription = "PostgreSQL"
 )
+@GuiPlugin(
+  id = "PostgreSQLDatabaseMetaGuiPlugin",
+  description = "Provides GUI element information for PostgreSQL specific options"
+)
 public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final int GB_LIMIT = 1_073_741_824;
+
+
 
   @Override
   public boolean isPostgresVariant() {

@@ -252,30 +252,17 @@ public class DatabaseMetaTest {
    * Given that the {@link DatabaseInterface} object is of a new extended type.
    * <br/>
    * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then the underlying new method of {@link DatabaseInterfaceExtended} should be used.
+   * then the underlying new method of {@link DatabaseInterface} should be used.
    */
   @Test
   public void shouldCallNewMethodWhenDatabaseInterfaceIsOfANewType() {
-    DatabaseInterfaceExtended databaseInterfaceNew = mock( DatabaseInterfaceExtended.class );
+    DatabaseInterface databaseInterfaceNew = mock( DatabaseInterface.class );
     databaseMeta.setDatabaseInterface( databaseInterfaceNew );
     when( databaseInterfaceNew.getDropTableIfExistsStatement( TABLE_NAME ) ).thenReturn( DROP_STATEMENT );
 
     String statement = databaseMeta.getDropTableIfExistsStatement( TABLE_NAME );
 
     assertEquals( DROP_STATEMENT, statement );
-  }
-
-  /**
-   * Given that the {@link DatabaseInterface} object is of an old type.
-   * <br/>
-   * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then a fallback statement should be returned.
-   */
-  @Test
-  public void shouldFallBackWhenDatabaseInterfaceIsOfAnOldType() {
-    String statement = databaseMeta.getDropTableIfExistsStatement( TABLE_NAME );
-
-    assertEquals( DROP_STATEMENT_FALLBACK, statement );
   }
 
   @Test

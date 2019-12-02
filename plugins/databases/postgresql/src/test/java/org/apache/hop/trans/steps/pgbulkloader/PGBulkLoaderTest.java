@@ -123,7 +123,7 @@ public class PGBulkLoaderTest {
     // Check additionally other connection information
     assertEquals( CONNECTION_NAME, database.getDatabaseMeta().getName() );
     assertEquals( CONNECTION_DB_HOST, database.getDatabaseMeta().getHostname() );
-    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getDatabasePortNumberString() );
+    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getPort() );
     assertEquals( CONNECTION_DB_USERNAME, database.getDatabaseMeta().getUsername() );
     assertEquals( CONNECTION_DB_PASSWORD, database.getDatabaseMeta().getPassword() );
   }
@@ -139,7 +139,7 @@ public class PGBulkLoaderTest {
     // Check additionally other connection information
     assertEquals( CONNECTION_NAME, database.getDatabaseMeta().getName() );
     assertEquals( CONNECTION_DB_HOST, database.getDatabaseMeta().getHostname() );
-    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getDatabasePortNumberString() );
+    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getPort() );
     assertEquals( CONNECTION_DB_USERNAME, database.getDatabaseMeta().getUsername() );
     assertEquals( CONNECTION_DB_PASSWORD, database.getDatabaseMeta().getPassword() );
   }
@@ -155,7 +155,7 @@ public class PGBulkLoaderTest {
     // Check additionally other connection information
     assertEquals( CONNECTION_NAME, database.getDatabaseMeta().getName() );
     assertEquals( CONNECTION_DB_HOST, database.getDatabaseMeta().getHostname() );
-    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getDatabasePortNumberString() );
+    assertEquals( CONNECTION_DB_PORT, database.getDatabaseMeta().getPort() );
     assertEquals( CONNECTION_DB_USERNAME, database.getDatabaseMeta().getUsername() );
     assertEquals( CONNECTION_DB_PASSWORD, database.getDatabaseMeta().getPassword() );
   }

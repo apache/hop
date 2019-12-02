@@ -136,7 +136,7 @@ public class DatabaseFactory implements DatabaseFactoryInterface {
     }
 
     return appendConnectionInfo( report, db.environmentSubstitute( databaseMeta.getHostname() ), db
-      .environmentSubstitute( databaseMeta.getDatabasePortNumberString() ), db
+      .environmentSubstitute( databaseMeta.getPort() ), db
       .environmentSubstitute( databaseMeta.getDatabaseName() ) );
   }
 

@@ -70,8 +70,8 @@ import org.apache.hop.ui.core.FileDialogOperation;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 /**
  * HopUI tests

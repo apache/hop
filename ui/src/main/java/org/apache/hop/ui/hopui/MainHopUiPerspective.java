@@ -39,8 +39,8 @@ import org.apache.hop.ui.util.ImageUtil;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 import org.pentaho.ui.xul.impl.XulEventHandler;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class MainHopUiPerspective implements HopUiPerspectiveImageProvider {
 

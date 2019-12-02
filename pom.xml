@@ -36,13 +36,11 @@
       <name>GNU Lesser General Public License, Version 2.1</name>
       <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
       <distribution>repo</distribution>
-      <comments></comments>
     </license>
     <license>
       <name>GNU Lesser General Public License, Version 3.0</name>
       <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
       <distribution>repo</distribution>
-      <comments></comments>
     </license>
   </licenses>
 
@@ -278,7 +276,6 @@
         <module>metastore</module>
         <module>core</module>
         <module>engine</module>
-        <module>dbdialog</module>
         <module>ui</module>
         <module>plugins</module>
       </modules>
