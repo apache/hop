@@ -73,17 +73,6 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-dbdialog</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <exclusions>

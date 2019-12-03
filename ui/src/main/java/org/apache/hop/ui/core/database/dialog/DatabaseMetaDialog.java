@@ -23,6 +23,7 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -176,6 +177,15 @@ public class DatabaseMetaDialog extends Dialog {
 
     addGeneralTab();
 
+    BaseStepDialog.setSize( shell );
+
+    shell.open();
+    Display display = parent.getDisplay();
+    while ( !shell.isDisposed() ) {
+      if ( !display.readAndDispatch() ) {
+        display.sleep();
+      }
+    }
     return null;
   }
 
@@ -382,12 +392,40 @@ public class DatabaseMetaDialog extends Dialog {
   }
 
   public static void main( String[] args ) throws HopException {
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog START");
     Display display = new Display(  );
-    Shell shell = new Shell( display );
+    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
+    shell.setSize( 500, 500 );
+    shell.open();
+
+    System.out.println(">>>>>>>>>>>>>>>> Main shell opened");
+
+    HopClientEnvironment.init();
+    System.out.println(">>>>>>>>>>>>>>>> Hop client environment initialized");
+
+    List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
+    System.out.println(">>>>>>>>>>>>>>>> Nr of database plugins found: "+plugins.size());
+
+    PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+    System.out.println(">>>>>>>>>>>>>>>> PropsUI initialized");
+
     HopEnvironment.init();
+    System.out.println(">>>>>>>>>>>>>>>> Hop Environment initialized");
+
     IMetaStore metaStore = new MemoryMetaStore();
     DatabaseMeta databaseMeta = new DatabaseMeta();
+
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
     DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, metaStore, databaseMeta );
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
     dialog.open();
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog opened");
+
+    while ( shell != null && !shell.isDisposed() ) {
+      if ( !display.readAndDispatch() ) {
+        display.sleep();
+      }
+    }
+    display.dispose();
   }
 }

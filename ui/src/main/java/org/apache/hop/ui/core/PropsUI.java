@@ -169,7 +169,8 @@ public class PropsUI extends Props {
       return (PropsUI) props;
     }
 
-    throw new RuntimeException( "Properties, Hop systems settings, not initialised!" );
+    throw
+      new RuntimeException( "Properties, Hop systems settings, not initialised!" );
   }
 
   private PropsUI( int t ) {

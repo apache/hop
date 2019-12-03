@@ -46,11 +46,6 @@
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-dbdialog</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <!-- Pentaho dependencies -->
     <dependency>

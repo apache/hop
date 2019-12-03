@@ -704,7 +704,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
       try {
         Class<?> clazz = urlClassLoader.loadClass( jarFilePlugin.getClassName() );
-        if ( clazz == null ) {
+         if ( clazz == null ) {
           throw new HopPluginException( "Unable to load class: " + jarFilePlugin.getClassName() );
         }
         List<String> libraries = Arrays.stream( urlClassLoader.getURLs() )

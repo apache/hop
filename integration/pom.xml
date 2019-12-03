@@ -46,12 +46,6 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-dbdialog</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
