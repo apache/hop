@@ -578,36 +578,38 @@
     <pluginManagement>
       <plugins>
 
-<!--        <plugin>-->
-<!--          <artifactId>maven-surefire-plugin</artifactId>-->
-<!--          <executions>-->
-<!--            <execution>-->
-<!--              <id>default-test</id>-->
-<!--              <phase>${test-unit-execute-phase}</phase>-->
-<!--              <goals>-->
-<!--                <goal>test</goal>-->
-<!--              </goals>-->
-<!--              <configuration>-->
-<!--                <argLine>-Dfile.encoding=${project.build.sourceEncoding} @{jacocoSurefireArgLine} ${maven-surefire-plugin.argLine}</argLine> &lt;!&ndash; this is set by jacoco's prepare-agent execution &ndash;&gt;-->
-<!--                <forkCount>${maven-surefire-plugin.forkCount}</forkCount>-->
-<!--                <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>-->
-<!--                <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>-->
-<!--              </configuration>-->
-<!--            </execution>-->
-<!--          </executions>-->
-<!--        </plugin>-->
-<!--        <plugin>-->
-<!--          <artifactId>maven-source-plugin</artifactId>-->
-<!--          <executions>-->
-<!--            <execution>-->
-<!--              <id>attach-sources</id>-->
-<!--              <phase>${attach-sources-phase}</phase>-->
-<!--              <goals>-->
-<!--                <goal>jar-no-fork</goal>-->
-<!--              </goals>-->
-<!--            </execution>-->
-<!--          </executions>-->
-<!--        </plugin>-->
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>${test-unit-execute-phase}</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <argLine>-Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine}</argLine> <!-- this is set by jacoco's prepare-agent execution -->
+                <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+                <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
+                <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven-source-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>${attach-sources-phase}</phase>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
 
 <!--        <plugin>-->
 <!--          <groupId>org.apache.maven.plugins</groupId>-->
@@ -644,14 +646,14 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco-maven-plugin.version}</version>
         </plugin>
-        <plugin>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>${maven-source-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin.version}</version>
-        </plugin>
+<!--        <plugin>-->
+<!--          <artifactId>maven-source-plugin</artifactId>-->
+<!--          <version>${maven-source-plugin.version}</version>-->
+<!--        </plugin>-->
+<!--        <plugin>-->
+<!--          <artifactId>maven-surefire-plugin</artifactId>-->
+<!--          <version>${maven-surefire-plugin.version}</version>-->
+<!--        </plugin>-->
 <!--        <plugin>-->
 <!--          <artifactId>maven-surefire-report-plugin</artifactId>-->
 <!--          <version>${maven-surefire-report-plugin.version}</version>-->
