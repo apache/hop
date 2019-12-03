@@ -261,20 +261,6 @@ public class DatabaseMetaTest {
     assertEquals( DROP_STATEMENT, statement );
   }
 
-
-  /**
-   * Given that the {@link DatabaseInterface} object is of an old type.
-   * <br/>
-   * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then a fallback statement should be returned.
-   */
-  @Test
-  public void shouldFallBackWhenDatabaseInterfaceIsOfAnOldType() {
-    String statement = databaseMeta.getDropTableIfExistsStatement( TABLE_NAME );
-
-    assertEquals( DROP_STATEMENT_FALLBACK, statement );
-  }
-
   @Test
   public void testCheckParameters() {
     DatabaseMeta meta = mock( DatabaseMeta.class );
