@@ -103,10 +103,7 @@
 
 
     <!-- Copy from master POM (NEEDS CLEANUP) -->
-
-
     <!-- VERSIONS -->
-    <postgresql.version>42.2.5</postgresql.version>
     <derby.version>10.14.2.0</derby.version>
 
     <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
@@ -170,7 +167,6 @@
     <!-- PHASE BINDINGS -->
     <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
     <node-npm_install-phase>initialize</node-npm_install-phase>
-    <eula-wrap_assign-deps-to-properties-phase>initialize</eula-wrap_assign-deps-to-properties-phase>
     <bundle-javascript_unpack-rjs-phase>initialize</bundle-javascript_unpack-rjs-phase>
     <javascript_unpack-dependencies-phase>initialize</javascript_unpack-dependencies-phase>
     <javascript_transpile_custom_properties-phase>validate</javascript_transpile_custom_properties-phase>
@@ -194,9 +190,6 @@
     <test-integration_add-source-phase>pre-integration-test</test-integration_add-source-phase>
     <test-integration_compile-phase>pre-integration-test</test-integration_compile-phase>
     <test-integration_execute-phase>integration-test</test-integration_execute-phase>
-    <eula-wrap_create-izpack-installer-jar-phase>verify</eula-wrap_create-izpack-installer-jar-phase>
-    <eula-wrap_create-dist-phase>verify</eula-wrap_create-dist-phase>
-    <eula-wrap_attach-dist-phase>verify</eula-wrap_attach-dist-phase>
     <attach-sources-phase>verify</attach-sources-phase>
     <test-integration_report-phase>verify</test-integration_report-phase>
     <javascript-doc_copy-resources-phase>pre-site</javascript-doc_copy-resources-phase>
@@ -246,7 +239,6 @@
     <checkstyle.configLocation>checkstyle/pentaho_checks.xml</checkstyle.configLocation>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     <checkstyle.linkXRef>true</checkstyle.linkXRef>
-    <pentaho-eula-wrap-config.version>8.2.0.7-719</pentaho-eula-wrap-config.version>
 
     <!-- Documentation properties -->
     <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
@@ -425,11 +417,6 @@
         <artifactId>powermock-api-mockito</artifactId>
         <version>${powermock-api-mockito.version}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
@@ -622,15 +609,15 @@
           </executions>
         </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
-          <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-          </configuration>
-        </plugin>
+<!--        <plugin>-->
+<!--          <groupId>org.apache.maven.plugins</groupId>-->
+<!--          <artifactId>maven-compiler-plugin</artifactId>-->
+<!--          <version>3.8.1</version>-->
+<!--          <configuration>-->
+<!--            <source>1.8</source>-->
+<!--            <target>1.8</target>-->
+<!--          </configuration>-->
+<!--        </plugin>-->
         <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>

@@ -39,13 +39,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-plugins-databases-postgresql</artifactId>
-        <scope>compile</scope>
-        <version>${project.version}</version>
-      </dependency>
-
       <!-- test dependencies -->
       <dependency>
         <groupId>org.hop</groupId>
