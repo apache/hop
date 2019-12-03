@@ -1,6 +1,6 @@
 type: java
 targetFolder: target
-runTests: false
+runTests: true
 notifySlack: false
 saveArtifacts: true
 buildsToKeep: 5

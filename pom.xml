@@ -201,17 +201,6 @@
     <test-integration_report-phase>verify</test-integration_report-phase>
     <javascript-doc_copy-resources-phase>pre-site</javascript-doc_copy-resources-phase>
 
-    <pentaho.resolve.repo>http://nexus.pentaho.org/content/groups/omni/</pentaho.resolve.repo>
-    <!-- No default repository URL deployments, these must be defined at build-time -->
-    <pentaho.public.release.repo />
-    <pentaho.public.snapshot.repo />
-    <pentaho.private.release.repo />
-    <pentaho.private.snapshot.repo />
-
-    <site.publish.url>http://nexus.pentaho.org/content/sites/public-site</site.publish.url>
-    <pentaho.staging.repo.root.url>http://10.177.178.195</pentaho.staging.repo.root.url>
-    <nexus.staging.profile.id>0</nexus.staging.profile.id>
-    <nexus.staging.server.id />
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -261,8 +250,8 @@
 
     <!-- Documentation properties -->
     <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
-    <!--<doc.version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}</doc.version> -->
-<!--    <doc.base.url>https://help.pentaho.com/Documentation/${doc.version}</doc.base.url>-->
+
+    <doc.base.url>https://help.pentaho.com/Documentation/${project.version}</doc.base.url>
     <junit.version>4.11</junit.version>
 
     <!-- http://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html -->
@@ -273,20 +262,6 @@
     <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks> <!-- default setting is reuseForks = true -->
     <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount> <!-- default setting is forkCount = 1 -->
     <maven-failsafe-plugin.argLine/>
-
-    <SCM_BRANCH>master</SCM_BRANCH>
-    <sonar.project.name>${project.artifactId}</sonar.project.name>
-    <sonar.host.url>http://sonar.pentaho.com:9000</sonar.host.url>
-    <sonar.language>java</sonar.language>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.projectName>${sonar.project.name}</sonar.projectName>
-    <sonar.branch>${SCM_BRANCH}</sonar.branch>
-    <sonar.jacoco.reportPath>${project.build.directory}/jacoco.exec</sonar.jacoco.reportPath>
-    <sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
-
-    <jacocoSurefireArgLine/> <!-- this is set by jacoco's prepare-agent execution -->
-    <jacocoFailsafeArgLine/> <!-- this is set by jacoco's prepare-agent execution -->
-
   </properties>
 
   <dependencyManagement>
@@ -612,21 +587,6 @@
     </dependency>
   </dependencies>
 
-
-  <distributionManagement>
-    <repository>
-      <id>pentaho.public.release.repo</id>
-      <name>Pentaho Public Release Repository</name>
-      <url>${pentaho.public.release.repo}</url>
-    </repository>
-    <snapshotRepository>
-      <id>pentaho.public.snapshot.repo</id>
-      <name>Pentaho Public Snapshot Repository</name>
-      <url>${pentaho.public.snapshot.repo}</url>
-    </snapshotRepository>
-  </distributionManagement>
-
-
   <build>
     <pluginManagement>
       <plugins>
@@ -751,29 +711,6 @@
             <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
             <cacheFile/>
           </configuration>
-        </plugin>
-
-<!--        <plugin>-->
-<!--          <groupId>com.github.spotbugs</groupId>-->
-<!--          <artifactId>spotbugs-maven-plugin</artifactId>-->
-<!--          <version>${spotbugs.version}</version>-->
-<!--          <configuration>-->
-<!--            <includeFilterFile>findbugs/pentaho_checks.xml</includeFilterFile>-->
-<!--          </configuration>-->
-<!--          <dependencies>-->
-<!--            <dependency>-->
-<!--              <groupId>org.pentaho</groupId>-->
-<!--              <artifactId>coding-standards</artifactId>-->
-<!--              <version>${coding-standards.version}</version>-->
-<!--              <type>zip</type>-->
-<!--            </dependency>-->
-<!--          </dependencies>-->
-<!--        </plugin>-->
-
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>${sonar-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-verifier-plugin</artifactId>
@@ -1142,28 +1079,6 @@
       </build>
     </profile>
 
-<!--    <profile>-->
-<!--      <id>spotbugs</id>-->
-<!--      <build>-->
-<!--        <plugins>-->
-<!--          <plugin>-->
-<!--            <groupId>com.github.spotbugs</groupId>-->
-<!--            <artifactId>spotbugs-maven-plugin</artifactId>-->
-<!--            <executions>-->
-<!--              <execution>-->
-<!--                <id>spotbugs-check</id>-->
-<!--                <phase>verify</phase>-->
-<!--                <goals>-->
-<!--                  <goal>check</goal>-->
-<!--                </goals>-->
-<!--              </execution>-->
-<!--            </executions>-->
-<!--          </plugin>-->
-<!--        </plugins>-->
-<!--      </build>-->
-<!--    </profile>-->
-
-
     <profile>
       <id>unit-test-output-redirect</id>
       <activation>
@@ -1277,7 +1192,7 @@
               <forkCount>${maven-failsafe-plugin.forkCount}</forkCount>
               <reuseForks>${maven-failsafe-plugin.reuseForks}</reuseForks>
               <testClassesDirectory>${project.build.directory}/it-classes</testClassesDirectory>
-              <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory> <!-- SEE https://jira.sonarsource.com/browse/SONARJAVA-45 -->
+              <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
             </configuration>
           </plugin>
         </plugins>
