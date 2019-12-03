@@ -111,7 +111,7 @@ public class HopServerTest {
     doCallRealMethod().when( client ).addFilter( any( HTTPBasicAuthFilter.class ) );
     doCallRealMethod().when( client ).getHeadHandler();
     doReturn( status ).when( client ).resource( "http://localhost:8080/hop/status/?xml=Y" );
-    doReturn( stop ).when( client ).resource( "http://localhost:8080/hop/stopCarte" );
+    doReturn( stop ).when( client ).resource( "http://localhost:8080/hop/stopHopServer" );
 
     mockStatic( Client.class );
     when( Client.create( any( ClientConfig.class ) ) ).thenReturn( client );
