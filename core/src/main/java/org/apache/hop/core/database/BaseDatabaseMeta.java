@@ -1985,6 +1985,72 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   }
 
   /**
+   * @return true if the database is a Teradata variant.
+   */
+  @Override
+  public boolean isTeradataVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Sybase variant.
+   */
+  @Override
+  public boolean isSybaseVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Sybase variant.
+   */
+  @Override
+  public boolean isSybaseIQVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Neoview variant.
+   */
+  @Override
+  public boolean isNeoviewVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Exasol variant.
+   */
+  @Override
+  public boolean isExasolVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a Informix variant.
+   */
+  @Override
+  public boolean isInformixVariant() {
+    return false;
+  }
+
+  /**
+   * @return true if the database is a MS SQL Server (native) variant.
+   */
+  @Override
+  public boolean isMSSQLServerNativeVariant() { return false; }
+
+  /**
+   * @return true if the database is a MS SQL Server variant.
+   */
+  @Override
+  public boolean isMSSQLServerVariant() { return false; }
+
+  /**
+   * @return true if the database is a MS SQL Server variant.
+   */
+  @Override
+  public boolean isNettezaVariant() { return false; }
+
+  /**
    * @return true if the database is an Oracle variant.
    */
   public boolean isOracleVariant() {
@@ -2001,6 +2067,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   /**
    * @return true if the database is a SQLite variant.
    */
+  @Override
   public boolean isSQLiteVariant() {
     return false;
   }

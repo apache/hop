@@ -17,7 +17,7 @@
   </parent>
 
   <properties>
-    <test-jetty-servlet.version>8.1.15.v20140411</test-jetty-servlet.version>
+    <test-jetty-servlet.version>9.4.22.v20191022</test-jetty-servlet.version>
     <nekohtml.version>1.9.7</nekohtml.version>
     <sshd-sftp.version>0.11.0</sshd-sftp.version>
     <ftpserver-core.version>1.0.6</ftpserver-core.version>

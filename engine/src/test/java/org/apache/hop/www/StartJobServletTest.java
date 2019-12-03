@@ -99,7 +99,7 @@ public class StartJobServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( StartJobServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockJobMap.getJob( any( CarteObjectEntry.class ) ) ).thenReturn( mockJob );
+    when( mockJobMap.getJob( any( HopServerObjectEntry.class ) ) ).thenReturn( mockJob );
     when( mockJob.getLogChannelId() ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockJob.getLogChannel() ).thenReturn( mockLogChannelInterface );
     when( mockJob.getJobMeta() ).thenReturn( mockJobMeta );

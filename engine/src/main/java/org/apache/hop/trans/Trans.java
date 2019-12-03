@@ -3708,7 +3708,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
       final Thread[] threads = new Thread[ slaves.length ];
       final Throwable[] errors = new Throwable[ slaves.length ];
 
-      // Keep track of the various Carte object IDs
+      // Keep track of the various HopServer object IDs
       //
       final Map<TransMeta, String> carteObjectMap = transSplitter.getCarteObjectMap();
 
@@ -4244,12 +4244,12 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Send the transformation for execution to a Carte slave server.
+   * Send the transformation for execution to a HopServer slave server.
    *
    * @param transMeta              the transformation meta-data
    * @param executionConfiguration the transformation execution configuration
    * @param repository             the repository
-   * @return The Carte object ID on the server.
+   * @return The HopServer object ID on the server.
    * @throws HopException if any errors occur during the dispatch to the slave server
    */
   public static String sendToSlaveServer( TransMeta transMeta, TransExecutionConfiguration executionConfiguration,
@@ -4784,7 +4784,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Monitors a remote transformation every 5 seconds.
    *
    * @param log               the log channel interface
-   * @param carteObjectId     the Carte object ID
+   * @param carteObjectId     the HopServer object ID
    * @param transName         the transformation name
    * @param remoteSlaveServer the remote slave server
    */
@@ -4797,7 +4797,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Monitors a remote transformation at the specified interval.
    *
    * @param log               the log channel interface
-   * @param carteObjectId     the Carte object ID
+   * @param carteObjectId     the HopServer object ID
    * @param transName         the transformation name
    * @param remoteSlaveServer the remote slave server
    * @param sleepTimeSeconds  the sleep time (in seconds)
@@ -5267,7 +5267,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   /**
    * Gets the container object ID.
    *
-   * @return the Carte object ID
+   * @return the HopServer object ID
    */
   @Override
   public String getContainerObjectId() {
@@ -5277,7 +5277,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   /**
    * Sets the container object ID.
    *
-   * @param containerObjectId the Carte object ID to set
+   * @param containerObjectId the HopServer object ID to set
    */
   public void setContainerObjectId( String containerObjectId ) {
     this.containerObjectId = containerObjectId;

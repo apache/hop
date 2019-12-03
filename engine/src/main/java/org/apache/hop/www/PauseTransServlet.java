@@ -37,11 +37,11 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 
-public class PauseTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class PauseTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = PauseTransServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = -2598233582435767691L;
-  public static final String CONTEXT_PATH = "/kettle/pauseTrans";
+  public static final String CONTEXT_PATH = "/hop/pauseTrans";
 
   public PauseTransServlet() {
   }
@@ -52,7 +52,7 @@ public class PauseTransServlet extends BaseHttpServlet implements CartePluginInt
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/pauseTrans</h1>
+    <h1>/hop/pauseTrans</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Pauses transformation to be executed.
@@ -60,7 +60,7 @@ public class PauseTransServlet extends BaseHttpServlet implements CartePluginInt
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/pauseTrans/?name=dummy-trans&xml=Y
+    GET /hop/pauseTrans/?name=dummy-trans&xml=Y
     </pre>
 
     </p>
@@ -84,7 +84,7 @@ public class PauseTransServlet extends BaseHttpServlet implements CartePluginInt
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte transformation ID of the transformation to be paused. This parameter is optional when xml=Y is used.</td>
+    <td>HopServer transformation ID of the transformation to be paused. This parameter is optional when xml=Y is used.</td>
     <td>query, optional</td>
     </tr>
     </tbody>
@@ -177,7 +177,7 @@ public class PauseTransServlet extends BaseHttpServlet implements CartePluginInt
       // ID is optional...
       //
       Trans trans;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first transformation that matches...
         //
@@ -191,7 +191,7 @@ public class PauseTransServlet extends BaseHttpServlet implements CartePluginInt
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( transName, id );
+        entry = new HopServerObjectEntry( transName, id );
         trans = getTransformationMap().getTransformation( entry );
       }
 

@@ -49,13 +49,13 @@ import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 
-public class RunTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class RunTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = 1192413943669836776L;
 
   private static Class<?> PKG = RunTransServlet.class; // i18n
 
-  public static final String CONTEXT_PATH = "/kettle/runTrans";
+  public static final String CONTEXT_PATH = "/hop/runTrans";
 
   public RunTransServlet() {
   }
@@ -66,15 +66,15 @@ public class RunTransServlet extends BaseHttpServlet implements CartePluginInter
 
   /**
  <div id="mindtouch">
-    <h1>/kettle/runTrans</h1>
+    <h1>/hop/runTrans</h1>
     <a name="GET"></a>
     <h2>GET</h2>
-    <p>Execute transformation from enterprise repository. Repository should be configured in Carte xml file.
+    <p>Execute transformation from enterprise repository. Repository should be configured in HopServer xml file.
   Response contains <code>ERROR</code> result if error happened during transformation execution.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/runTrans?trans=home%2Fadmin%2Fdummy-trans&level=Debug
+    GET /hop/runTrans?trans=home%2Fadmin%2Fdummy-trans&level=Debug
     </pre>
 
     </p>

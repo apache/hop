@@ -48,10 +48,10 @@ import javax.servlet.http.HttpServletResponse;
 
 //has been replaced by RegisterJobServlet
 @Deprecated
-public class AddJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = -6850701762586992604L;
 
-  public static final String CONTEXT_PATH = "/kettle/addJob";
+  public static final String CONTEXT_PATH = "/hop/addJob";
 
   public AddJobServlet() {
   }
@@ -65,7 +65,7 @@ public class AddJobServlet extends BaseHttpServlet implements CartePluginInterfa
  /**
 
     <div id="mindtouch">
-    <h1>/kettle/addJob</h1>
+    <h1>/hop/addJob</h1>
     <a name="POST"></a>
     <h2>POST</h2>
     <p>Uploads and executes job configuration XML file.
@@ -80,7 +80,7 @@ public class AddJobServlet extends BaseHttpServlet implements CartePluginInterfa
     
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    POST /kettle/addJob/?xml=Y
+    POST /hop/addJob/?xml=Y
     </pre>
     <p>Request body should contain xml containing job_configuration (job + job_execution_configuration 
   wrapped in job_configuration tag).</p>
@@ -247,7 +247,7 @@ public class AddJobServlet extends BaseHttpServlet implements CartePluginInterfa
       // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
       //
       if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-        job.addDelegationListener( new CarteDelegationHandler( getTransformationMap(), getJobMap() ) );
+        job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
       }
 
       getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );

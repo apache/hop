@@ -71,12 +71,12 @@ public class SocketRepository {
       long startTime = System.currentTimeMillis();
 
       IOException ioException = null;
-      log.logMinimal( "Carte socket repository : Starting a retry loop to bind the server socket on port "
+      log.logMinimal( "HopServer socket repository : Starting a retry loop to bind the server socket on port "
         + port + ".  We retry for 5 minutes until the socket clears in your operating system." );
       while ( !serverSocket.isBound() && totalWait < 300000 ) {
         try {
           totalWait = System.currentTimeMillis() - startTime;
-          log.logMinimal( "Carte socket repository : Retry binding the server socket on port "
+          log.logMinimal( "HopServer socket repository : Retry binding the server socket on port "
             + port + " after a " + ( totalWait / 1000 ) + " seconds wait..." );
           Thread.sleep( 10000 ); // wait 10 seconds, try again...
           serverSocket.bind( new InetSocketAddress( port ), 100 );
@@ -93,7 +93,7 @@ public class SocketRepository {
         serverSocket.close();
         throw ioException;
       }
-      log.logDetailed( "Carte socket repository : Succesfully bound the server socket on port "
+      log.logDetailed( "HopServer socket repository : Succesfully bound the server socket on port "
         + port + " after " + ( totalWait / 1000 ) + " seconds." );
     }
     return serverSocket;
@@ -136,7 +136,7 @@ public class SocketRepository {
 
     SocketRepositoryEntry entry = socketMap.get( port );
     if ( entry == null ) {
-      throw new IOException( "Port to close was not found in the Carte socket repository!" );
+      throw new IOException( "Port to close was not found in the HopServer socket repository!" );
     }
     entry.setInUse( false );
   }
@@ -174,7 +174,7 @@ public class SocketRepository {
           iterator.remove();
         }
       } catch ( IOException e ) {
-        log.logError( "Carte socket repository : Failed to close socket during shutdown", e );
+        log.logError( "HopServer socket repository : Failed to close socket during shutdown", e );
       }
     }
   }

@@ -39,15 +39,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class PrepareExecutionTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class PrepareExecutionTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = PrepareExecutionTransServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
-  public static final String CONTEXT_PATH = "/kettle/prepareExec";
-  private CarteStatusCache cache = CarteStatusCache.getInstance();
+  public static final String CONTEXT_PATH = "/hop/prepareExec";
+  private HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public PrepareExecutionTransServlet() {
   }
@@ -58,7 +58,7 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Car
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/prepareExec</h1>
+    <h1>/hop/prepareExec</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Prepares previously loaded transformation for execution.
@@ -66,7 +66,7 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Car
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/prepareExec/?name=dummy-trans2&xml=Y
+    GET /hop/prepareExec/?name=dummy-trans2&xml=Y
     </pre>
 
     </p>
@@ -90,7 +90,7 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Car
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte transformation ID of the transformation to be prepared for execution.</td>
+    <td>HopServer transformation ID of the transformation to be prepared for execution.</td>
     <td>query, optional</td>
     </tr>
     </tbody>
@@ -183,7 +183,7 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Car
       // ID is optional...
       //
       Trans trans;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first transformation that matches...
         //
@@ -197,7 +197,7 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Car
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( transName, id );
+        entry = new HopServerObjectEntry( transName, id );
         trans = getTransformationMap().getTransformation( entry );
       }
 

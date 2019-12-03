@@ -47,16 +47,16 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepStatus;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class GetTransStatusServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetTransStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static Class<?> PKG = GetTransStatusServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/transStatus";
+  public static final String CONTEXT_PATH = "/hop/transStatus";
 
   public static final String SEND_RESULT = "sendResult";
 
@@ -64,7 +64,7 @@ public class GetTransStatusServlet extends BaseHttpServlet implements CartePlugi
     XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
 
   @VisibleForTesting
-  CarteStatusCache cache = CarteStatusCache.getInstance();
+  HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public GetTransStatusServlet() {
   }
@@ -75,14 +75,14 @@ public class GetTransStatusServlet extends BaseHttpServlet implements CartePlugi
 
   /**
    <div id="mindtouch">
-   <h1>/kettle/transStatus</h1>
+   <h1>/hop/transStatus</h1>
    <a name="GET"></a>
    <h2>GET</h2>
    <p>Retrieves status of the specified transformation. Status is returned as HTML or XML output
    depending on the input parameters. Status contains information about last execution of the transformation.</p>
    <p><b>Example Request:</b><br />
    <pre function="syntax.xml">
-   GET /kettle/transStatus/?name=dummy-trans&xml=Y
+   GET /hop/transStatus/?name=dummy-trans&xml=Y
    </pre>
 
    </p>
@@ -107,7 +107,7 @@ public class GetTransStatusServlet extends BaseHttpServlet implements CartePlugi
    </tr>
    <tr>
    <td>id</td>
-   <td>Carte id of the transformation to be used for status generation.</td>
+   <td>HopServer id of the transformation to be used for status generation.</td>
    <td>query, optional</td>
    </tr>
    <tr>
@@ -232,7 +232,7 @@ public class GetTransStatusServlet extends BaseHttpServlet implements CartePlugi
     // ID is optional...
     //
     Trans trans;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -246,7 +246,7 @@ public class GetTransStatusServlet extends BaseHttpServlet implements CartePlugi
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( transName, id );
+      entry = new HopServerObjectEntry( transName, id );
       trans = getTransformationMap().getTransformation( entry );
     }
 

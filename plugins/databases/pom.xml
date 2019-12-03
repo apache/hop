@@ -6,7 +6,9 @@
   <groupId>org.hop</groupId>
   <artifactId>hop-plugins-databases</artifactId>
   <version>0.1.0</version>
-  <packaging>pom</packaging>
+    <modules>
+    </modules>
+    <packaging>pom</packaging>
 
   <name>Hop Plugins Databases</name>
 
@@ -20,6 +22,7 @@
     <!-- Test running configuration -->
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+    <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
   </properties>
 
   <profiles>
@@ -46,8 +49,133 @@
         <module>postgresql</module>
         <module>greenplum</module>
         <module>redshift</module>
+        <module>vertica</module>
+        <module>sybase</module>
+        <module>sybaseiq</module>
+        <module>vectorwise</module>
+        <module>teradata</module>
+        <module>universe</module>
+        <module>neoview</module>
+        <module>firebird</module>
+        <module>ingres</module>
+        <module>as400</module>
+        <module>db2</module>
+        <module>mariadb</module>
+        <module>infobright</module>
+        <module>infinidb</module>
+        <module>derby</module>
+        <module>monetdb</module>
+        <module>cache</module>
+        <module>dbase</module>
+        <module>exasol4</module>
+        <module>extendb</module>
+        <module>sqlbase</module>
+        <module>h2</module>
+        <module>hypersonic</module>
+        <module>informix</module>
+        <module>interbase</module>
+        <module>kingbasees</module>
+        <module>luciddb</module>
+        <module>msaccess</module>
+        <module>mssqlnative</module>
+        <module>mssql</module>
+        <module>mondrian</module>
+        <module>netezza</module>
+        <module>oraclerdb</module>
+        <module>remedy-ar-system</module>
+        <module>sapdb</module>
+        <module>sqlite</module>
+        <module>googlebigquery</module>
       </modules>
     </profile>
 
   </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
+      <version>0.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.framework.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <classifier>test</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-engine</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

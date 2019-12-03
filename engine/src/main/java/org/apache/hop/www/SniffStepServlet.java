@@ -45,11 +45,11 @@ import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepInterface;
 
 
-public class SniffStepServlet extends BaseHttpServlet implements CartePluginInterface {
+public class SniffStepServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetTransStatusServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
-  public static final String CONTEXT_PATH = "/kettle/sniffStep";
+  public static final String CONTEXT_PATH = "/hop/sniffStep";
 
   public static final String TYPE_INPUT = "input";
   public static final String TYPE_OUTPUT = "output";
@@ -70,14 +70,14 @@ public class SniffStepServlet extends BaseHttpServlet implements CartePluginInte
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/sniffStep</h1>
+    <h1>/hop/sniffStep</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Sniff metadata and data from the specified step of the specified transformation.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/sniffStep?trans=dummy-trans&step=tf&xml=Y&lines=10
+    GET /hop/sniffStep?trans=dummy-trans&step=tf&xml=Y&lines=10
     </pre>
 
     </p>
@@ -118,7 +118,7 @@ public class SniffStepServlet extends BaseHttpServlet implements CartePluginInte
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte id of the transformation to be used for step lookup.</td>
+    <td>HopServer id of the transformation to be used for step lookup.</td>
     <td>query, optional</td>
     </tr>
     <tr>
@@ -249,7 +249,7 @@ public class SniffStepServlet extends BaseHttpServlet implements CartePluginInte
     // ID is optional...
     //
     Trans trans;
-    CarteObjectEntry entry;
+    HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first transformation that matches...
       //
@@ -263,7 +263,7 @@ public class SniffStepServlet extends BaseHttpServlet implements CartePluginInte
     } else {
       // Take the ID into account!
       //
-      entry = new CarteObjectEntry( transName, id );
+      entry = new HopServerObjectEntry( transName, id );
       trans = getTransformationMap().getTransformation( entry );
     }
 

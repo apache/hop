@@ -103,8 +103,8 @@ public class PrepareExecutionTransServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( PrepareExecutionTransServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
-    when( mockTransformationMap.getConfiguration( any( CarteObjectEntry.class ) ) ).thenReturn( mockTransConf );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getConfiguration( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTransConf );
     when( mockTransConf.getTransExecutionConfiguration() ).thenReturn( mockTransExecutionConf );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );

@@ -89,7 +89,7 @@ public class CleanupTransServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( CleanupTransServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
 
     cleanupTransServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
     assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );

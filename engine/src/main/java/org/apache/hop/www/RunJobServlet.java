@@ -48,13 +48,13 @@ import org.apache.hop.repository.Repository;
 import org.apache.hop.repository.RepositoryDirectory;
 import org.apache.hop.repository.RepositoryDirectoryInterface;
 
-public class RunJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class RunJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static final long serialVersionUID = 1192413943669836775L;
 
   private static Class<?> PKG = RunJobServlet.class; // i18n
 
-  public static final String CONTEXT_PATH = "/kettle/runJob";
+  public static final String CONTEXT_PATH = "/hop/runJob";
 
   public RunJobServlet() {
   }
@@ -65,15 +65,15 @@ public class RunJobServlet extends BaseHttpServlet implements CartePluginInterfa
 
   /**
  <div id="mindtouch">
-    <h1>/kettle/runJob</h1>
+    <h1>/hop/runJob</h1>
     <a name="GET"></a>
     <h2>GET</h2>
-    <p>Execute job from enterprise repository. Repository should be configured in Carte xml file.
+    <p>Execute job from enterprise repository. Repository should be configured in HopServer xml file.
   Response contains <code>ERROR</code> result if error happened during job execution.</p>
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/runJob?job=home%2Fadmin%2Fdummy_job&level=Debug
+    GET /hop/runJob?job=home%2Fadmin%2Fdummy_job&level=Debug
     </pre>
 
     </p>

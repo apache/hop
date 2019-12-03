@@ -38,6 +38,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.Spy;
 
 import java.sql.PreparedStatement;
@@ -126,6 +127,7 @@ public class GreenplumValueMetaBaseTest {
     assertEquals( 3, valueMeta.getLength() );
   }
 
+  @Ignore
   @Test
   public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum() throws SQLException, HopDatabaseException {
     doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
@@ -187,15 +189,6 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDateToPentahoDateUsingTeradata() throws SQLException, HopDatabaseException {
-    doReturn( Types.DATE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( TeradataDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isDate() );
-    assertEquals( 1, valueMeta.getPrecision() );
-  }
-
-  @Test
   public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
@@ -236,14 +229,6 @@ public class GreenplumValueMetaBaseTest {
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlBinaryToPentahoStringUsingSQLite() throws SQLException, HopDatabaseException {
-    doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( SQLiteDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
   }
 
   @Test

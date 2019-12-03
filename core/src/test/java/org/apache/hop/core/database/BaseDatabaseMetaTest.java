@@ -63,13 +63,6 @@ public class BaseDatabaseMetaTest {
   }
 
   @Test
-  public void testShowIsTreatedAsAResultsQuery() throws Exception {
-    List<SqlScriptStatement> sqlScriptStatements =
-      new H2DatabaseMeta().getSqlScriptStatements( "show annotations from service" );
-    assertTrue( sqlScriptStatements.get( 0 ).isQuery() );
-  }
-
-  @Test
   public void testDefaultSettings() throws Exception {
     // Note - this method should only use native or odbc.
     // The jndi meta is used for mutations of the meta, and it would

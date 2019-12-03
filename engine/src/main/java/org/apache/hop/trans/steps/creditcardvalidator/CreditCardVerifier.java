@@ -54,7 +54,7 @@ public class CreditCardVerifier {
   public static final int VOYAGER = 14;
 
   private static final String[] cardNames = {
-    "Visa", "Mastercard", "American Express", "En Route", "Diner's CLub/Carte Blanche", "Discover", "JCB1",
+    "Visa", "Mastercard", "American Express", "En Route", "Diner's CLub/HopServer Blanche", "Discover", "JCB1",
     "JCB2", "BankCard", "Maestro", "Solo", "Switch", "Airplus", "Laser", "Voyager" };
   private static final String[] NotValidCardNames = {
     BaseMessages.getString( PKG, "CreditCardValidator.Log.NotValidVisa" ),

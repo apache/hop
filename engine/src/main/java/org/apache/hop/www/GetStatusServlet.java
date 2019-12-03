@@ -43,12 +43,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
 
-public class GetStatusServlet extends BaseHttpServlet implements CartePluginInterface {
+public class GetStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetStatusServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/status";
+  public static final String CONTEXT_PATH = "/hop/status";
 
   public GetStatusServlet() {
   }
@@ -59,7 +59,7 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
 
   /**
    <div id="mindtouch">
-   <h1>/kettle/status</h1>
+   <h1>/hop/status</h1>
    <a name="GET"></a>
    <h2>GET</h2>
    <p>Retrieve server status. The status contains information about the server itself (OS, memory, etc)
@@ -67,7 +67,7 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
 
    <p><b>Example Request:</b><br />
    <pre function="syntax.xml">
-   GET /kettle/status/?xml=Y
+   GET /hop/status/?xml=Y
    </pre>
 
    </p>
@@ -205,8 +205,8 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
 
     PrintWriter out = response.getWriter();
 
-    List<CarteObjectEntry> transEntries = getTransformationMap().getTransformationObjects();
-    List<CarteObjectEntry> jobEntries = getJobMap().getJobObjects();
+    List<HopServerObjectEntry> transEntries = getTransformationMap().getTransformationObjects();
+    List<HopServerObjectEntry> jobEntries = getJobMap().getJobObjects();
 
     if ( useXML ) {
       out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
@@ -215,7 +215,7 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
 
       getSystemInfo( serverStatus );
 
-      for ( CarteObjectEntry entry : transEntries ) {
+      for ( HopServerObjectEntry entry : transEntries ) {
         Trans trans = getTransformationMap().getTransformation( entry );
         String status = trans.getStatus();
 
@@ -225,7 +225,7 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
         serverStatus.getTransStatusList().add( sstatus );
       }
 
-      for ( CarteObjectEntry entry : jobEntries ) {
+      for ( HopServerObjectEntry entry : jobEntries ) {
         Job job = getJobMap().getJob( entry );
         String status = job.getStatus();
         SlaveServerJobStatus jobStatus = new SlaveServerJobStatus( entry.getName(), entry.getId(), status );
@@ -311,9 +311,9 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
             + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
-        Comparator<CarteObjectEntry> transComparator = new Comparator<CarteObjectEntry>() {
+        Comparator<HopServerObjectEntry> transComparator = new Comparator<HopServerObjectEntry>() {
           @Override
-          public int compare( CarteObjectEntry o1, CarteObjectEntry o2 ) {
+          public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
             Trans t1 = getTransformationMap().getTransformation( o1 );
             Trans t2 = getTransformationMap().getTransformation( o2 );
             Date d1 = t1.getLogDate();
@@ -398,9 +398,9 @@ public class GetStatusServlet extends BaseHttpServlet implements CartePluginInte
             + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
-        Comparator<CarteObjectEntry> jobComparator = new Comparator<CarteObjectEntry>() {
+        Comparator<HopServerObjectEntry> jobComparator = new Comparator<HopServerObjectEntry>() {
           @Override
-          public int compare( CarteObjectEntry o1, CarteObjectEntry o2 ) {
+          public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
             Job t1 = getJobMap().getJob( o1 );
             Job t2 = getJobMap().getJob( o2 );
             Date d1 = t1.getLogDate();

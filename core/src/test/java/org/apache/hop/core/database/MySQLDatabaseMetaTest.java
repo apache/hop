@@ -21,11 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.doReturn;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.Mockito.doThrow;
@@ -46,6 +42,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class MySQLDatabaseMetaTest {
   MySQLDatabaseMeta nativeMeta, odbcMeta;
@@ -406,4 +403,6 @@ public class MySQLDatabaseMetaTest {
 
     new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
   }
+
+
 }

@@ -38,11 +38,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 
 
-public class StopTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class StopTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = StopTransServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
-  public static final String CONTEXT_PATH = "/kettle/stopTrans";
+  public static final String CONTEXT_PATH = "/hop/stopTrans";
 
   public StopTransServlet() {
   }
@@ -53,14 +53,14 @@ public class StopTransServlet extends BaseHttpServlet implements CartePluginInte
 
   /**
   <div id="mindtouch">
-      <h1>/kettle/stopTrans</h1>
+      <h1>/hop/stopTrans</h1>
       <a name="GET"></a>
       <h2>GET</h2>
-      <p>Stops transformation execution on Carte server.</p>
+      <p>Stops transformation execution on HopServer server.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/stopTrans/?name=dummy-trans&xml=Y
+      GET /hop/stopTrans/?name=dummy-trans&xml=Y
       </pre>
 
       </p>
@@ -84,7 +84,7 @@ public class StopTransServlet extends BaseHttpServlet implements CartePluginInte
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte transformation ID of the transformation to be stopped. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer transformation ID of the transformation to be stopped. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       <tr>
@@ -178,7 +178,7 @@ public class StopTransServlet extends BaseHttpServlet implements CartePluginInte
       // ID is optional...
       //
       Trans trans;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first transformation that matches...
         //
@@ -192,7 +192,7 @@ public class StopTransServlet extends BaseHttpServlet implements CartePluginInte
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( transName, id );
+        entry = new HopServerObjectEntry( transName, id );
         trans = getTransformationMap().getTransformation( entry );
       }
 

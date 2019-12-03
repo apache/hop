@@ -38,11 +38,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 
 
-public class StopJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class StopJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = StopJobServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
-  public static final String CONTEXT_PATH = "/kettle/stopJob";
+  public static final String CONTEXT_PATH = "/hop/stopJob";
 
   public StopJobServlet() {
   }
@@ -53,14 +53,14 @@ public class StopJobServlet extends BaseHttpServlet implements CartePluginInterf
 
   /**
   <div id="mindtouch">
-      <h1>/kettle/stopJob</h1>
+      <h1>/hop/stopJob</h1>
       <a name="GET"></a>
       <h2>GET</h2>
-      <p>Stops job execution on Carte server.</p>
+      <p>Stops job execution on HopServer server.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/stopJob/?name=dummy_job&xml=Y
+      GET /hop/stopJob/?name=dummy_job&xml=Y
       </pre>
 
       </p>
@@ -84,7 +84,7 @@ public class StopJobServlet extends BaseHttpServlet implements CartePluginInterf
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte job ID of the job to be stopped. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer job ID of the job to be stopped. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -172,7 +172,7 @@ public class StopJobServlet extends BaseHttpServlet implements CartePluginInterf
       // ID is optional...
       //
       Job job;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first job that matches...
         //
@@ -186,7 +186,7 @@ public class StopJobServlet extends BaseHttpServlet implements CartePluginInterf
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( jobName, id );
+        entry = new HopServerObjectEntry( jobName, id );
         job = getJobMap().getJob( entry );
       }
 

@@ -43,20 +43,20 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class StartJobServlet extends BaseHttpServlet implements CartePluginInterface {
+public class StartJobServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = StartJobServlet.class; // for i18n purposes,
   // needed by
   // Translator2!!
 
   private static final long serialVersionUID = -8487225953910464032L;
 
-  public static final String CONTEXT_PATH = "/kettle/startJob";
+  public static final String CONTEXT_PATH = "/hop/startJob";
 
   @VisibleForTesting
-  CarteStatusCache cache = CarteStatusCache.getInstance();
+  HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public StartJobServlet() {
   }
@@ -67,14 +67,14 @@ public class StartJobServlet extends BaseHttpServlet implements CartePluginInter
 
   /**
   <div id="mindtouch">
-      <h1>/kettle/startJob</h1>
+      <h1>/hop/startJob</h1>
       <a name="GET"></a>
       <h2>GET</h2>
       <p>Starts the job. If the job cannot be started, an error is returned.</p>
       
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/startJob/?name=dummy_job&xml=Y
+      GET /hop/startJob/?name=dummy_job&xml=Y
       </pre>
       
       </p>
@@ -98,7 +98,7 @@ public class StartJobServlet extends BaseHttpServlet implements CartePluginInter
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte job ID of the job to be executed. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer job ID of the job to be executed. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -188,7 +188,7 @@ public class StartJobServlet extends BaseHttpServlet implements CartePluginInter
       // ID is optional...
       //
       Job job;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first job that matches...
         //
@@ -202,7 +202,7 @@ public class StartJobServlet extends BaseHttpServlet implements CartePluginInter
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( jobName, id );
+        entry = new HopServerObjectEntry( jobName, id );
         job = getJobMap().getJob( entry );
       }
 
