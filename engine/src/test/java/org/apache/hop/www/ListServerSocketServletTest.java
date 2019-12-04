@@ -32,6 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -64,6 +65,16 @@ public class ListServerSocketServletTest {
     SocketPortAllocation mockSocketPortAllocation = mock( SocketPortAllocation.class );
     final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     ServletOutputStream servletOutputStream = new ServletOutputStream() {
+
+      @Override
+      public boolean isReady() {
+        return false;
+      }
+
+      @Override
+      public void setWriteListener(WriteListener writeListener) {
+
+      }
 
       @Override
       public void write( int b ) throws IOException {

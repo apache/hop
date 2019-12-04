@@ -244,11 +244,6 @@ public class BaseDatabaseMetaTest {
     assertNull( jndiMeta.getDisplayName() );
     jndiMeta.setDatabaseName( "FOO" );
     assertEquals( "FOO", jndiMeta.getDatabaseName() );
-    assertEquals( "-1", jndiMeta.getDatabasePortNumberString() );
-    jndiMeta.setDatabasePortNumberString( "9876" );
-    assertEquals( "9876", jndiMeta.getDatabasePortNumberString() );
-    jndiMeta.setDatabasePortNumberString( null );
-    assertEquals( "9876", jndiMeta.getDatabasePortNumberString() ); // not sure I agree with this behavior
     jndiMeta.setHostname( "FOO" );
     assertEquals( "FOO", jndiMeta.getHostname() );
     LongObjectId id = new LongObjectId( 9876 );

@@ -28,8 +28,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.junit.Test;
 import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

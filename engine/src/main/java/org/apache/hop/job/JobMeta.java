@@ -2167,8 +2167,8 @@ public class JobMeta extends AbstractMeta
           stringList.add( new StringSearchResult( meta.getPluginId(), meta, this,
               BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
         }
-        if ( meta.getDatabasePortNumberString() != null ) {
-          stringList.add( new StringSearchResult( meta.getDatabasePortNumberString(), meta, this,
+        if ( meta.getPort() != null ) {
+          stringList.add( new StringSearchResult( meta.getPort(), meta, this,
               BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabasePort" ) ) );
         }
         if ( meta.getServername() != null ) {

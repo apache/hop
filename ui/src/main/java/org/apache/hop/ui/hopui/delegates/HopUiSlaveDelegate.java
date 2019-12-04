@@ -39,8 +39,8 @@ import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.tree.provider.SlavesFolderProvider;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!

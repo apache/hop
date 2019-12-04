@@ -92,13 +92,17 @@ public class ValueMetaBase implements ValueMetaInterface {
   // endregion
 
   // region Default Types Format
-  public static final String DEFAULT_INTEGER_FORMAT_MASK = Const.NVL(
-          EnvUtil.getSystemProperty( Const.HOP_DEFAULT_INTEGER_FORMAT ),
-          "####0;-####0" );
+  public static final String DEFAULT_INTEGER_FORMAT_MASK;
+  public static final String DEFAULT_NUMBER_FORMAT_MASK;
 
-  public static final String DEFAULT_NUMBER_FORMAT_MASK = Const.NVL(
-          EnvUtil.getSystemProperty( Const.HOP_DEFAULT_NUMBER_FORMAT ),
-          "####0.0#########;-####0.0#########" );
+  static {
+    DEFAULT_INTEGER_FORMAT_MASK = Const.NVL(
+      EnvUtil.getSystemProperty( Const.HOP_DEFAULT_INTEGER_FORMAT ),
+      "####0;-####0" );
+    DEFAULT_NUMBER_FORMAT_MASK = Const.NVL(
+      EnvUtil.getSystemProperty( Const.HOP_DEFAULT_NUMBER_FORMAT ),
+      "####0.0#########;-####0.0#########" );
+  }
 
   public static final String DEFAULT_BIG_NUMBER_FORMAT_MASK = Const.NVL(
           EnvUtil.getSystemProperty( Const.HOP_DEFAULT_BIGNUMBER_FORMAT ),

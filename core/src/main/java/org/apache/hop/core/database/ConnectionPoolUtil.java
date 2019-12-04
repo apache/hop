@@ -106,7 +106,7 @@ public class ConnectionPoolUtil {
   // BACKLOG-674
   private static String getDataSourceName( DatabaseMeta dbMeta, String partitionId ) {
     return dbMeta.getName() + Const.NVL( dbMeta.getDatabaseName(), "" ) + Const.NVL( dbMeta.getHostname(), "" )
-        + Const.NVL( dbMeta.getDatabasePortNumberString(), "" ) + Const.NVL( partitionId, "" );
+        + Const.NVL( dbMeta.getPort(), "" ) + Const.NVL( partitionId, "" );
   }
 
   /**
@@ -311,7 +311,7 @@ public class ConnectionPoolUtil {
 
   protected static String buildPoolName( DatabaseMeta dbMeta, String partitionId ) {
     return dbMeta.getName() + Const.NVL( dbMeta.getDatabaseName(), "" )
-        + Const.NVL( dbMeta.getHostname(),  ""  ) + Const.NVL( dbMeta.getDatabasePortNumberString(),  ""  )
+        + Const.NVL( dbMeta.getHostname(),  ""  ) + Const.NVL( dbMeta.getPort(),  ""  )
         + Const.NVL( partitionId, "" );
   }
 

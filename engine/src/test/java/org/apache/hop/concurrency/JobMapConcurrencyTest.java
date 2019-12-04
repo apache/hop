@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
-import org.apache.hop.www.CarteObjectEntry;
+import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.JobMap;
 
 import java.util.ArrayList;
@@ -107,11 +107,11 @@ public class JobMapConcurrencyTest {
       while ( condition.get() ) {
 
         int i = random.nextInt( INITIAL_JOB_MAP_SIZE );
-        CarteObjectEntry entry = jobMap.getJobObjects().get( i );
+        HopServerObjectEntry entry = jobMap.getJobObjects().get( i );
 
         if ( entry == null ) {
           throw new IllegalStateException(
-            String.format( "Returned CarteObjectEntry must not be null. EntryId = %d", i ) );
+            String.format( "Returned HopServerObjectEntry must not be null. EntryId = %d", i ) );
         }
         final String jobName = JOB_NAME_STRING + i;
 
@@ -176,7 +176,7 @@ public class JobMapConcurrencyTest {
       final String jobName = JOB_NAME_STRING + i;
       final String jobId = JOB_ID_STRING + i;
 
-      CarteObjectEntry entry = new CarteObjectEntry( jobName, jobId );
+      HopServerObjectEntry entry = new HopServerObjectEntry( jobName, jobId );
 
       jobMap.replaceJob( entry, mockJob( i + 1 ), mock( JobConfiguration.class ) );
 

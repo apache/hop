@@ -22,25 +22,9 @@
 
 package org.apache.hop.core.database;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.row.RowMeta;
@@ -48,12 +32,24 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -252,11 +248,11 @@ public class DatabaseMetaTest {
    * Given that the {@link DatabaseInterface} object is of a new extended type.
    * <br/>
    * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then the underlying new method of {@link DatabaseInterfaceExtended} should be used.
+   * then the underlying new method of {@link DatabaseInterface} should be used.
    */
   @Test
   public void shouldCallNewMethodWhenDatabaseInterfaceIsOfANewType() {
-    DatabaseInterfaceExtended databaseInterfaceNew = mock( DatabaseInterfaceExtended.class );
+    DatabaseInterface databaseInterfaceNew = mock( DatabaseInterface.class );
     databaseMeta.setDatabaseInterface( databaseInterfaceNew );
     when( databaseInterfaceNew.getDropTableIfExistsStatement( TABLE_NAME ) ).thenReturn( DROP_STATEMENT );
 
@@ -264,20 +260,6 @@ public class DatabaseMetaTest {
 
     assertEquals( DROP_STATEMENT, statement );
   }
-
-  /**
-   * Given that the {@link DatabaseInterface} object is of an old type.
-   * <br/>
-   * When {@link DatabaseMeta#getDropTableIfExistsStatement(String)} is called,
-   * then a fallback statement should be returned.
-   */
-  @Test
-  public void shouldFallBackWhenDatabaseInterfaceIsOfAnOldType() {
-    String statement = databaseMeta.getDropTableIfExistsStatement( TABLE_NAME );
-
-    assertEquals( DROP_STATEMENT_FALLBACK, statement );
-  }
-
 
   @Test
   public void testCheckParameters() {

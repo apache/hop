@@ -5251,8 +5251,8 @@ public class TransMeta extends AbstractMeta
           stringList.add( new StringSearchResult( meta.getPluginId(), meta, this,
               BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
         }
-        if ( meta.getDatabasePortNumberString() != null ) {
-          stringList.add( new StringSearchResult( meta.getDatabasePortNumberString(), meta, this,
+        if ( meta.getPort() != null ) {
+          stringList.add( new StringSearchResult( meta.getPort(), meta, this,
               BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabasePort" ) ) );
         }
         if ( meta.getServername() != null ) {

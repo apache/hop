@@ -43,10 +43,10 @@ import org.apache.hop.core.xml.XMLHandler;
  * @author matt
  *
  */
-public class AllocateServerSocketServlet extends BaseHttpServlet implements CartePluginInterface {
+public class AllocateServerSocketServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/allocateSocket";
+  public static final String CONTEXT_PATH = "/hop/allocateSocket";
 
   public static final String PARAM_RANGE_START = "rangeStart";
   public static final String PARAM_HOSTNAME = "host";
@@ -71,15 +71,15 @@ public class AllocateServerSocketServlet extends BaseHttpServlet implements Cart
   /**
 
     <div id="mindtouch">
-    <h1>/kettle/allocateSocket</h1>
+    <h1>/hop/allocateSocket</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Allocates port to use by client.
   Allows any client to ask for a port number to use. This is necessary several slaves can be run on the same host.
   The method ensures the port number is unique for host name provided and makes sure the slaves are using
-  valid port numbers. Data communication across a cluster of Carte servers happens through TCP/IP sockets.
+  valid port numbers. Data communication across a cluster of HopServer servers happens through TCP/IP sockets.
   Slave transformations sometimes open (or listen to) tens to hundreds of sockets.  When you want to allocate
-  the port numbers for data communication between slave transformation in a kettle clustering run, you need
+  the port numbers for data communication between slave transformation in a hop clustering run, you need
   unique combinations of all the parameters below.
 
   <code>port number</code> will be returned in the Response object. If an error occurred you'll receive html output
@@ -87,7 +87,7 @@ public class AllocateServerSocketServlet extends BaseHttpServlet implements Cart
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/allocateSocket/?xml=Y&rangeStart=100&host=locahost&id=clust&trans=my_trans&sourceSlave=slave_1
+    GET /hop/allocateSocket/?xml=Y&rangeStart=100&host=locahost&id=clust&trans=my_trans&sourceSlave=slave_1
   &sourceStep=200&sourceCopy=1&targetSlave=slave_2&targetStep=50&targetCopy=1
     </pre>
 
@@ -118,7 +118,7 @@ public class AllocateServerSocketServlet extends BaseHttpServlet implements Cart
     </tr>
     <tr>
     <td>id</td>
-    <td>Carte container id.</td>
+    <td>HopServer container id.</td>
     <td>query</td>
     </tr>
     <tr>

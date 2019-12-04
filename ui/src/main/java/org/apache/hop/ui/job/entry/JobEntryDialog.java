@@ -47,7 +47,6 @@ import org.apache.hop.repository.RepositoryElementMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.wizard.CreateDatabaseWizard;
 import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 
@@ -171,7 +170,7 @@ public class JobEntryDialog extends Dialog {
   public CCombo addConnectionLine( Composite parent, Control previous, int middle, int margin, final Label wlConnection,
     final Button wbwConnection, final Button wbnConnection, final Button wbeConnection ) {
     final CCombo wConnection;
-    final FormData fdlConnection, fdbConnection, fdeConnection, fdConnection, fdbwConnection;
+    final FormData fdlConnection, fdbConnection, fdeConnection, fdConnection;
 
     wConnection = new CCombo( parent, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wConnection );
@@ -189,29 +188,6 @@ public class JobEntryDialog extends Dialog {
       fdlConnection.top = new FormAttachment( 0, 0 );
     }
     wlConnection.setLayoutData( fdlConnection );
-
-    //
-    // Wizard button
-    //
-    wbwConnection.setText( BaseMessages.getString( PKG, "BaseStepDialog.WizardConnectionButton.Label" ) );
-    wbwConnection.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        CreateDatabaseWizard cdw = new CreateDatabaseWizard();
-        DatabaseMeta newDBInfo = cdw.createAndRunDatabaseWizard( shell, props, jobMeta.getDatabases() );
-        if ( newDBInfo != null ) {
-          jobMeta.addDatabase( newDBInfo );
-          reinitConnectionDropDown( wConnection, newDBInfo.getName() );
-        }
-      }
-    } );
-    fdbwConnection = new FormData();
-    fdbwConnection.right = new FormAttachment( 100, 0 );
-    if ( previous != null ) {
-      fdbwConnection.top = new FormAttachment( previous, margin );
-    } else {
-      fdbwConnection.top = new FormAttachment( 0, 0 );
-    }
-    wbwConnection.setLayoutData( fdbwConnection );
 
     //
     // NEW button

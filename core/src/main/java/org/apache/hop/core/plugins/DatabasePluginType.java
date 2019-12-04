@@ -52,6 +52,10 @@ public class DatabasePluginType extends BasePluginType implements PluginTypeInte
     return pluginType;
   }
 
+  protected void registerPluginJars() throws HopPluginException {
+    super.registerPluginJars();
+  }
+
   @Override
   protected String getXmlPluginFile() {
     return Const.XML_FILE_HOP_DATABASE_TYPES;

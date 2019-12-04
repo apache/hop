@@ -115,12 +115,12 @@ public class DatabaseConfigurationImportRule extends BaseImportRule implements I
 
     // Verify the database port number if it's non-empty
     //
-    if ( !Utils.isEmpty( databaseMeta.getDatabasePortNumberString() ) ) {
-      if ( !databaseMeta.getDatabasePortNumberString().equals( verify.getDatabasePortNumberString() ) ) {
+    if ( !Utils.isEmpty( databaseMeta.getPort() ) ) {
+      if ( !databaseMeta.getPort().equals( verify.getPort() ) ) {
         feedback.add( new ImportValidationFeedback(
           this, ImportValidationResultType.ERROR,
           "The database port of the database is not set to the expected value '"
-            + databaseMeta.getDatabasePortNumberString() + "'." ) );
+            + databaseMeta.getPort() + "'." ) );
       }
     }
 

@@ -49,10 +49,10 @@ import javax.servlet.http.HttpServletResponse;
 
 //has been replaced by RegisterTransServlet
 @Deprecated
-public class AddTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class AddTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = -6850701762586992604L;
 
-  public static final String CONTEXT_PATH = "/kettle/addTrans";
+  public static final String CONTEXT_PATH = "/hop/addTrans";
 
   public AddTransServlet() {
   }
@@ -63,7 +63,7 @@ public class AddTransServlet extends BaseHttpServlet implements CartePluginInter
   /**
 
     <div id="mindtouch">
-    <h1>/kettle/addTrans</h1>
+    <h1>/hop/addTrans</h1>
     <a name="POST"></a>
     <h2>POST</h2>
     <p>Uploads and executes transformation configuration XML file.
@@ -78,7 +78,7 @@ public class AddTransServlet extends BaseHttpServlet implements CartePluginInter
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    POST /kettle/addTrans/?xml=Y
+    POST /hop/addTrans/?xml=Y
     </pre>
     <p>Request body should contain xml containing transformation_configuration (transformation and
   transformation_execution_configuration wrapped in transformation_configuration tag).</p>
@@ -122,7 +122,7 @@ public class AddTransServlet extends BaseHttpServlet implements CartePluginInter
     <?xml version="1.0" encoding="UTF-8"?>
     <webresult>
       <result>OK</result>
-      <message>Transformation &#x27;dummy-trans&#x27; was added to Carte with id eb4a92ff-6852-4307-9f74-3c74bd61f829</message>
+      <message>Transformation &#x27;dummy-trans&#x27; was added to HopServer with id eb4a92ff-6852-4307-9f74-3c74bd61f829</message>
       <id>eb4a92ff-6852-4307-9f74-3c74bd61f829</id>
     </webresult>
     </pre>
@@ -264,7 +264,7 @@ public class AddTransServlet extends BaseHttpServlet implements CartePluginInter
         } );
       }
 
-      String message = "Transformation '" + trans.getName() + "' was added to Carte with id " + carteObjectId;
+      String message = "Transformation '" + trans.getName() + "' was added to HopServer with id " + carteObjectId;
 
       if ( useXML ) {
         // Return the log channel id as well

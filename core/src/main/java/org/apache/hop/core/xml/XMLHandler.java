@@ -55,6 +55,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.owasp.encoder.Encode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
@@ -62,7 +63,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopAttributeInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.vfs.HopVFS;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -83,8 +83,11 @@ public class XMLHandler {
   //TODO Change impl for some standard XML processing (like StAX, for example) because ESAPI has charset processing issues.
 
   private static XMLHandlerCache cache = XMLHandlerCache.getInstance();
-  private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat( ValueMeta.DEFAULT_DATE_FORMAT_MASK );
-  private static final SimpleTimestampFormat simpleTimeStampFormat = new SimpleTimestampFormat( ValueMeta.DEFAULT_TIMESTAMP_FORMAT_MASK );
+
+  // These formats are static and not configurable unlike the default date formats of Hop itself
+  //
+  private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss.SSS" );
+  private static final SimpleTimestampFormat simpleTimeStampFormat = new SimpleTimestampFormat( "yyyy/MM/dd HH:mm:ss.SSSSSSSSS" );
   /**
    * The header string to specify encoding in UTF-8 for XML files
    *
@@ -110,7 +113,7 @@ public class XMLHandler {
    *
    * @param n
    *          The node to look in
-   * @param tag
+   * @param code
    *          The tag to look for
    * @return The value of the tag or null if nothing was found.
    */

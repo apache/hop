@@ -23,7 +23,9 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -45,16 +47,15 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
  * @since 18-05-2003
  *
  */
-public class DatabaseDialog extends XulDatabaseDialog {
+public class DatabaseDialog extends DatabaseMetaDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
 
   public DatabaseDialog( Shell parent ) {
-    super( parent );
+    super( parent, HopUi.getInstance().getMetaStore(), new DatabaseMeta(  ) );
   }
 
   public DatabaseDialog( Shell parent, DatabaseMeta databaseMeta ) {
-    super( parent );
-    setDatabaseMeta( databaseMeta );
+    super( parent, HopUi.getInstance().getMetaStore(), databaseMeta );
   }
 
   public String open() {
@@ -100,40 +101,6 @@ public class DatabaseDialog extends XulDatabaseDialog {
     }
   }
 
-  /**
-   * Test the database connection
-   */
-  public static final void test( Shell shell, DatabaseMeta dbinfo ) {
-    String[] remarks = dbinfo.checkParameters();
-    if ( remarks.length == 0 ) {
-      // Get a "test" report from this database
-      DatabaseTestResults databaseTestResults = dbinfo.testConnectionSuccess();
-      String message = databaseTestResults.getMessage();
-      boolean success = databaseTestResults.isSuccess();
-      String title = success ? BaseMessages.getString( PKG, "DatabaseDialog.DatabaseConnectionTestSuccess.title" )
-        : BaseMessages.getString( PKG, "DatabaseDialog.DatabaseConnectionTest.title" );
-      if ( success && message.contains( Const.CR ) ) {
-        message = message.substring( 0, message.indexOf( Const.CR ) )
-          + Const.CR + message.substring( message.indexOf( Const.CR ) );
-        message = message.substring( 0, message.lastIndexOf( Const.CR ) );
-      }
-      ShowMessageDialog msgDialog = new ShowMessageDialog( shell, SWT.ICON_INFORMATION | SWT.OK,
-        title, message, message.length() > 300 );
-      msgDialog.setType( success ? Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS
-        : Const.SHOW_MESSAGE_DIALOG_DB_TEST_DEFAULT );
-      msgDialog.open();
-    } else {
-      String message = "";
-      for ( int i = 0; i < remarks.length; i++ ) {
-        message += "    * " + remarks[i] + Const.CR;
-      }
-
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "DatabaseDialog.ErrorParameters2.title" ) );
-      mb.setMessage( BaseMessages.getString( PKG, "DatabaseDialog.ErrorParameters2.description", message ) );
-      mb.open();
-    }
-  }
 
   public static void showDatabaseExistsDialog( Shell parent, DatabaseMeta databaseMeta ) {
     String title = BaseMessages.getString( PKG, "DatabaseDialog.DatabaseNameExists.Title" );
@@ -144,4 +111,12 @@ public class DatabaseDialog extends XulDatabaseDialog {
     dialog.open();
   }
 
+  @Deprecated
+  public void setModalDialog(boolean modal) {
+    // Ignore
+  }
+
+  public void setDatabases( List<DatabaseMeta> databases) {
+    // Ignore
+  }
 }

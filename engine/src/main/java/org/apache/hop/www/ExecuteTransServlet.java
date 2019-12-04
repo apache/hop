@@ -54,13 +54,13 @@ import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 
-public class ExecuteTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class ExecuteTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static Class<?> PKG = ExecuteTransServlet.class; // i18n
 
   private static final long serialVersionUID = -5879219287669847357L;
 
-  public static final String CONTEXT_PATH = "/kettle/executeTrans";
+  public static final String CONTEXT_PATH = "/hop/executeTrans";
 
   public ExecuteTransServlet() {
   }
@@ -72,7 +72,7 @@ public class ExecuteTransServlet extends BaseHttpServlet implements CartePluginI
 
   /**
  <div id="mindtouch">
-    <h1>/kettle/executeTrans</h1>
+    <h1>/hop/executeTrans</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Executes transformation from the specified repository.
@@ -82,7 +82,7 @@ public class ExecuteTransServlet extends BaseHttpServlet implements CartePluginI
 
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/executeTrans/?rep=my_repository&user=my_user&pass=my_password&trans=my_trans&level=INFO
+    GET /hop/executeTrans/?rep=my_repository&user=my_user&pass=my_password&trans=my_trans&level=INFO
     </pre>
 
     </p>

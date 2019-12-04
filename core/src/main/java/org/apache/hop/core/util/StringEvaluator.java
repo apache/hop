@@ -37,11 +37,12 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -557,14 +558,18 @@ public class StringEvaluator {
     private int precision;
 
     public StringEvaluationResult build() {
-      ValueMetaInterface meta = new ValueMeta( name, type );
-      meta.setConversionMask( format );
-      meta.setTrimType( trimType );
-      meta.setDecimalSymbol( decimalSymbol );
-      meta.setGroupingSymbol( groupingSymbol );
-      meta.setLength( length );
-      meta.setPrecision( precision );
-      return new StringEvaluationResult( meta );
+      try {
+        ValueMetaInterface meta = ValueMetaFactory.createValueMeta( name, type );
+        meta.setConversionMask( format );
+        meta.setTrimType( trimType );
+        meta.setDecimalSymbol( decimalSymbol );
+        meta.setGroupingSymbol( groupingSymbol );
+        meta.setLength( length );
+        meta.setPrecision( precision );
+        return new StringEvaluationResult( meta );
+      } catch( HopPluginException e ) {
+        throw new RuntimeException( "Unable to create a new value '"+name+"' of type '"+type+"'", e );
+      }
     }
 
     public EvalResultBuilder( String name, int type, int length, int trimType, String decimalSymbol,

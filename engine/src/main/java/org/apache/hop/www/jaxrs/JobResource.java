@@ -43,8 +43,8 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.repository.Repository;
-import org.apache.hop.www.CarteObjectEntry;
-import org.apache.hop.www.CarteSingleton;
+import org.apache.hop.www.HopServerObjectEntry;
+import org.apache.hop.www.HopServerSingleton;
 
 @Path( "/carte/job" )
 public class JobResource {
@@ -64,7 +64,7 @@ public class JobResource {
   @Produces( { MediaType.TEXT_PLAIN } )
   public String getJobLog( @PathParam( "id" ) String id, @PathParam( "logStart" ) int startLineNr ) {
     int lastLineNr = HopLogStore.getLastBufferLineNr();
-    Job job = CarteResource.getJob( id );
+    Job job = HopServerResource.getJob( id );
     String logText =
       HopLogStore.getAppender().getBuffer(
         job.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();
@@ -77,8 +77,8 @@ public class JobResource {
   public JobStatus getJobStatus( @PathParam( "id" ) String id ) {
     JobStatus status = new JobStatus();
     // find job
-    Job job = CarteResource.getJob( id );
-    CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+    Job job = HopServerResource.getJob( id );
+    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
 
     status.setId( entry.getId() );
     status.setName( entry.getName() );
@@ -92,8 +92,8 @@ public class JobResource {
   @Path( "/start/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public JobStatus startJob( @PathParam( "id" ) String id ) {
-    Job job = CarteResource.getJob( id );
-    CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+    Job job = HopServerResource.getJob( id );
+    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
     try {
       if ( job.isInitialized() && !job.isActive() ) {
         // Re-create the job from the jobMeta
@@ -112,7 +112,7 @@ public class JobResource {
         // the new job in the job map
         //
         synchronized ( this ) {
-          JobConfiguration jobConfiguration = CarteSingleton.getInstance().getJobMap().getConfiguration( entry );
+          JobConfiguration jobConfiguration = HopServerSingleton.getInstance().getJobMap().getConfiguration( entry );
 
           String carteObjectId = UUID.randomUUID().toString();
           SimpleLoggingObject servletLoggingObject =
@@ -126,7 +126,7 @@ public class JobResource {
           //
           HopLogStore.discardLines( job.getLogChannelId(), true );
 
-          CarteSingleton.getInstance().getJobMap().replaceJob( entry, newJob, jobConfiguration );
+          HopServerSingleton.getInstance().getJobMap().replaceJob( entry, newJob, jobConfiguration );
           job = newJob;
         }
       }
@@ -141,7 +141,7 @@ public class JobResource {
   @Path( "/stop/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public JobStatus stopJob( @PathParam( "id" ) String id ) {
-    Job job = CarteResource.getJob( id );
+    Job job = HopServerResource.getJob( id );
     job.stopAll();
     return getJobStatus( id );
   }
@@ -149,10 +149,10 @@ public class JobResource {
   @GET
   @Path( "/remove/{id : .+}" )
   public Response removeJob( @PathParam( "id" ) String id ) {
-    Job job = CarteResource.getJob( id );
-    CarteObjectEntry entry = CarteResource.getCarteObjectEntry( id );
+    Job job = HopServerResource.getJob( id );
+    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
     HopLogStore.discardLines( job.getLogChannelId(), true );
-    CarteSingleton.getInstance().getJobMap().removeJob( entry );
+    HopServerSingleton.getInstance().getJobMap().removeJob( entry );
     return Response.ok().build();
   }
 
@@ -211,9 +211,9 @@ public class JobResource {
       }
       jobMeta.activateParameters();
 
-      job.setSocketRepository( CarteSingleton.getInstance().getSocketRepository() );
+      job.setSocketRepository( HopServerSingleton.getInstance().getSocketRepository() );
 
-      CarteSingleton.getInstance().getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
+      HopServerSingleton.getInstance().getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
 
       // Make sure to disconnect from the repository when the job finishes.
       //

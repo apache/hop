@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -103,7 +103,7 @@ public class GetTransStatusServletTest {
     when( mockHttpServletRequest.getContextPath() ).thenReturn( GetTransStatusServlet.CONTEXT_PATH );
     when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
     when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
     when( mockTransMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
@@ -118,7 +118,7 @@ public class GetTransStatusServletTest {
   @Test
   public void testGetTransStatus() throws ServletException, IOException {
     HopLogStore.init();
-    CarteStatusCache cacheMock = mock( CarteStatusCache.class );
+    HopServerStatusCache cacheMock = mock( HopServerStatusCache.class );
     getTransStatusServlet.cache = cacheMock;
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
@@ -135,7 +135,7 @@ public class GetTransStatusServletTest {
     when( mockHttpServletRequest.getParameter( "id" ) ).thenReturn( id );
     when( mockHttpServletRequest.getParameter( "xml" ) ).thenReturn( useXml );
     when( mockHttpServletResponse.getOutputStream() ).thenReturn( outMock );
-    when( mockTransformationMap.getTransformation( any( CarteObjectEntry.class ) ) ).thenReturn( mockTrans );
+    when( mockTransformationMap.getTransformation( any( HopServerObjectEntry.class ) ) ).thenReturn( mockTrans );
     when( mockTrans.getLogChannel() ).thenReturn( mockChannelInterface );
     when( mockTrans.getTransMeta() ).thenReturn( mockTransMeta );
     when( mockTrans.getLogChannelId() ).thenReturn( logId );

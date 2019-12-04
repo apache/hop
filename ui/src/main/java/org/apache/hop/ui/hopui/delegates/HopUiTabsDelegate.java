@@ -63,10 +63,8 @@ import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.apache.hop.util.Launch;
-import org.apache.hop.util.Launch.Status;
-import org.pentaho.xul.swt.tab.TabItem;
-import org.pentaho.xul.swt.tab.TabSet;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 
 public class HopUiTabsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -332,16 +330,10 @@ public class HopUiTabsDelegate extends HopUiDelegate {
       return true;
     } catch ( Throwable e ) {
       boolean ok = false;
-      if ( isURL ) {
-        // Retry to show the welcome page in an external browser.
-        //
-        Status status = Launch.openURL( urlString );
-        ok = status.equals( Status.Success );
-      }
       if ( !ok ) {
         // Log an error
         //
-        log.logError( "Unable to open browser tab", e );
+        log.logError( "Unable to open browser tab for URL: "+urlString, e );
         return false;
       } else {
         return true;

@@ -39,11 +39,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 
 
-public class StartExecutionTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class StartExecutionTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = StartExecutionTransServlet.class; // for i18n purposes, needed by Translator2!!
 
   private static final long serialVersionUID = 3634806745372015720L;
-  public static final String CONTEXT_PATH = "/kettle/startExec";
+  public static final String CONTEXT_PATH = "/hop/startExec";
 
   public StartExecutionTransServlet() {
   }
@@ -54,14 +54,14 @@ public class StartExecutionTransServlet extends BaseHttpServlet implements Carte
 
   /**
   <div id="mindtouch">
-      <h1>/kettle/startExec</h1>
+      <h1>/hop/startExec</h1>
       <a name="GET"></a>
       <h2>GET</h2>
       <p>Starts transformation. If the transformation is not ready, an error is returned.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/startExec/?name=dummy-trans&xml=Y
+      GET /hop/startExec/?name=dummy-trans&xml=Y
       </pre>
 
       </p>
@@ -85,7 +85,7 @@ public class StartExecutionTransServlet extends BaseHttpServlet implements Carte
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte transformation ID of the transformation to be executed. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer transformation ID of the transformation to be executed. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -174,7 +174,7 @@ public class StartExecutionTransServlet extends BaseHttpServlet implements Carte
       // ID is optional...
       //
       Trans trans;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first transformation that matches...
         //
@@ -188,7 +188,7 @@ public class StartExecutionTransServlet extends BaseHttpServlet implements Carte
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( transName, id );
+        entry = new HopServerObjectEntry( transName, id );
         trans = getTransformationMap().getTransformation( entry );
       }
 

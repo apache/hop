@@ -101,13 +101,13 @@ public class DatabaseConfigurationImportRuleIT extends TestCase {
       feedback.get( 0 ).getResultType() == ImportValidationResultType.ERROR );
     verifyMeta.setHostname( HOSTNAME );
 
-    verifyMeta.setDBPort( "incorrect-port" );
+    verifyMeta.setPort( "incorrect-port" );
     feedback = rule.verifyRule( transMeta );
     assertTrue( "We didn't get any feedback from the 'transformation has description rule'", !feedback.isEmpty() );
     assertTrue(
       "An error ruling was expected validating the db port",
       feedback.get( 0 ).getResultType() == ImportValidationResultType.ERROR );
-    verifyMeta.setDBPort( PORT );
+    verifyMeta.setPort( PORT );
 
     verifyMeta.setUsername( "incorrect-username" );
     feedback = rule.verifyRule( transMeta );

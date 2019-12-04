@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.xul.swt.tab;
+package org.apache.xul.swt.tab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,17 +36,19 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabListener;
 
 public class TabSet implements SelectionListener, CTabFolder2Listener {
 
   protected CTabFolder tabfolder;
-  protected List<TabItem> tabList = new ArrayList<TabItem>();
+  protected List<TabItem> tabList = new ArrayList<>();
   protected int selectedIndex = -1;
   protected Font changedFont;
   protected Font unchangedFont;
-  private List<TabListener> listeners = new ArrayList<TabListener>();
+  private List<TabListener> listeners = new ArrayList<>();
 
-  public List<TabItem> lastUsedTabs = new ArrayList<TabItem>();
+  public List<TabItem> lastUsedTabs = new ArrayList<>();
 
   public TabSet( Composite parent ) {
     super();

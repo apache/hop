@@ -20,7 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.xul.swt.tab;
+package org.apache.xul.swt.tab;
+
+import org.apache.xul.swt.tab.TabItem;
 
 public interface TabListener {
 

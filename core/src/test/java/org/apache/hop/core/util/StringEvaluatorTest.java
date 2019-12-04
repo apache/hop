@@ -26,6 +26,8 @@ import static org.junit.Assert.*;
 
 import java.util.*;
 
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,7 +49,8 @@ public class StringEvaluatorTest {
   }
 
   @Before
-  public void setUp() {
+  public void setUp() throws HopException {
+    HopClientEnvironment.init();
     evaluator = new StringEvaluator();
     Locale.setDefault(Locale.US);
   }

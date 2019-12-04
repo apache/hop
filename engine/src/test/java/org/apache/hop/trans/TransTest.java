@@ -533,7 +533,7 @@ public class TransTest {
 
   /**
    * This test demonstrates the fix for PDI-17436.
-   * Two schedules -> two Carte object Ids -> two log channel Ids
+   * Two schedules -> two HopServer object Ids -> two log channel Ids
    */
   @Test
   public void testTwoTransformationsGetDifferentLogChannelIdWithDifferentCarteId() throws Exception {

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 public class RegisterJobServlet extends BaseJobServlet {
 
   private static final long serialVersionUID = 7416802722393075758L;
-  public static final String CONTEXT_PATH = "/kettle/registerJob";
+  public static final String CONTEXT_PATH = "/hop/registerJob";
 
   @Override
   public String getContextPath() {

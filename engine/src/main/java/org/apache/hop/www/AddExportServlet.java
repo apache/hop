@@ -61,7 +61,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 // has been replaced by RegisterPackageServlet
 @Deprecated
-public class AddExportServlet extends BaseHttpServlet implements CartePluginInterface {
+public class AddExportServlet extends BaseHttpServlet implements HopServerPluginInterface {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
 
@@ -69,7 +69,7 @@ public class AddExportServlet extends BaseHttpServlet implements CartePluginInte
   public static final String TYPE_TRANS = "trans";
 
   private static final long serialVersionUID = -6850701762586992604L;
-  public static final String CONTEXT_PATH = "/kettle/addExport";
+  public static final String CONTEXT_PATH = "/hop/addExport";
 
   public AddExportServlet() {
   }
@@ -81,7 +81,7 @@ public class AddExportServlet extends BaseHttpServlet implements CartePluginInte
   /**
 
     <div id="mindtouch">
-    <h1>/kettle/addExport</h1>
+    <h1>/hop/addExport</h1>
     <a name="POST"></a>
     <h2>POST</h2>
     <p>Returns the list of users in the platform. This list is in an xml format as shown in the example response.
@@ -96,9 +96,9 @@ public class AddExportServlet extends BaseHttpServlet implements CartePluginInte
     
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    POST /kettle/addExport/?type=job&load=dummy_job.kjb
+    POST /hop/addExport/?type=job&load=dummy_job.kjb
     </pre>
-    Request body should contain zip file prepared for Carte execution.
+    Request body should contain zip file prepared for HopServer execution.
     </p>
     <h3>Parameters</h3>
     <table class="pentaho-table">
@@ -249,7 +249,7 @@ public class AddExportServlet extends BaseHttpServlet implements CartePluginInte
           // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
           //
           if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
-            job.addDelegationListener( new CarteDelegationHandler( getTransformationMap(), getJobMap() ) );
+            job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
           }
 
           // store it all in the map...

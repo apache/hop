@@ -24,7 +24,6 @@ package org.apache.hop.core.database.util;
 
 import org.apache.hop.compatibility.ValueString;
 import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.DatabaseInterfaceExtended;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogTableCoreInterface;
@@ -90,7 +89,7 @@ public class DatabaseLogExceptionFactory {
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
    */
   public static LogExceptionBehaviourInterface getExceptionStrategy( LogTableCoreInterface table, Exception e ) {
-    DatabaseInterfaceExtended databaseInterface = extractDatabase( table );
+    DatabaseInterface databaseInterface = extractDatabase( table );
     LogExceptionBehaviourInterface suppressableResult = suppressable;
 
     if ( databaseInterface != null && !databaseInterface.fullExceptionLog( e ) ) {
@@ -108,12 +107,10 @@ public class DatabaseLogExceptionFactory {
     return sVal.getBoolean() ? throwable : suppressableResult;
   }
 
-  private static DatabaseInterfaceExtended extractDatabase( LogTableCoreInterface table ) {
-    DatabaseInterfaceExtended result = null;
+  private static DatabaseInterface extractDatabase( LogTableCoreInterface table ) {
+    DatabaseInterface result = null;
     if ( table != null && table.getDatabaseMeta() != null ) {
-      DatabaseInterface databaseInterface = table.getDatabaseMeta().getDatabaseInterface();
-      result =
-          databaseInterface instanceof DatabaseInterfaceExtended ? (DatabaseInterfaceExtended) databaseInterface : null;
+      return table.getDatabaseMeta().getDatabaseInterface();
     }
     return result;
   }

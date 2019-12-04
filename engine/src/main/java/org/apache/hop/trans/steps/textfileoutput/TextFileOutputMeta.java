@@ -79,7 +79,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   public static final String[] formatMapperLineTerminator = new String[] { "DOS", "UNIX", "CR", "None" };
 
-  /** Whether to push the output into the output of a servlet with the executeTrans Carte/DI-Server servlet */
+  /** Whether to push the output into the output of a servlet with the executeTrans HopServer/DI-Server servlet */
   @Injection( name = "PASS_TO_SERVLET" )
   private boolean servletOutput;
 

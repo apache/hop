@@ -143,7 +143,7 @@ public class DatabaseMetaStoreUtil extends MetaStoreUtil {
       .getAccessTypeDesc() ) );
     element.addChild( metaStore.newAttribute( MetaStoreConst.DB_ATTR_ID_HOSTNAME, databaseMeta.getHostname() ) );
     element.addChild( metaStore.newAttribute( MetaStoreConst.DB_ATTR_ID_PORT, databaseMeta
-      .getDatabasePortNumberString() ) );
+      .getPort() ) );
     element.addChild( metaStore.newAttribute( MetaStoreConst.DB_ATTR_ID_DATABASE_NAME, databaseMeta
       .getDatabaseName() ) );
     element.addChild( metaStore.newAttribute( MetaStoreConst.DB_ATTR_ID_USERNAME, databaseMeta.getUsername() ) );
@@ -234,7 +234,7 @@ public class DatabaseMetaStoreUtil extends MetaStoreUtil {
     databaseMeta.setAccessType( DatabaseMeta.getAccessType( accessTypeString ) );
 
     databaseMeta.setHostname( getChildString( element, MetaStoreConst.DB_ATTR_ID_HOSTNAME ) );
-    databaseMeta.setDBPort( getChildString( element, MetaStoreConst.DB_ATTR_ID_PORT ) );
+    databaseMeta.setPort( getChildString( element, MetaStoreConst.DB_ATTR_ID_PORT ) );
     databaseMeta.setDBName( getChildString( element, MetaStoreConst.DB_ATTR_ID_DATABASE_NAME ) );
     databaseMeta.setUsername( getChildString( element, MetaStoreConst.DB_ATTR_ID_USERNAME ) );
     databaseMeta.setPassword( metaStore.getTwoWayPasswordEncoder().decode(

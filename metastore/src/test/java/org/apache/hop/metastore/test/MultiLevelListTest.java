@@ -104,8 +104,7 @@ public class MultiLevelListTest {
 
   @Test( expected = MetaStoreException.class )
   public void testError() throws Exception {
-    MetaStoreFactory<Level4Element> factory =
-        new MetaStoreFactory( Level4Element.class, this.metaStore, "hop" );
+    MetaStoreFactory<Level4Element> factory = new MetaStoreFactory( Level4Element.class, this.metaStore, "hop" );
 
     MyOtherElement myElement = new MyOtherElement();
     myElement.setName( "myElementName" );

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 public class RegisterTransServlet extends BaseJobServlet {
 
   private static final long serialVersionUID = 468054102740138751L;
-  public static final String CONTEXT_PATH = "/kettle/registerTrans";
+  public static final String CONTEXT_PATH = "/hop/registerTrans";
 
   @Override
   public String getContextPath() {
@@ -51,7 +51,7 @@ public class RegisterTransServlet extends BaseJobServlet {
 
     Trans trans = createTrans( transConfiguration );
 
-    String message = "Transformation '" + trans.getName() + "' was added to Carte with id " + trans.getContainerObjectId();
+    String message = "Transformation '" + trans.getName() + "' was added to HopServer with id " + trans.getContainerObjectId();
     return new WebResult( WebResult.STRING_OK, message, trans.getContainerObjectId() );
   }
 

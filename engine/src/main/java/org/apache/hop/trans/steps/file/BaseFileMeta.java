@@ -32,7 +32,7 @@ public abstract class BaseFileMeta extends BaseStepMeta implements StepMetaInter
 
 
   /**
-   * Whether to push the output into the output of a servlet with the executeTrans Carte/DI-Server servlet
+   * Whether to push the output into the output of a servlet with the executeTrans HopServer/DI-Server servlet
    */
   protected boolean servletOutput;
 

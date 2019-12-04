@@ -120,18 +120,7 @@ public interface DatabaseInterface extends Cloneable {
    *          The databaseName to set.
    */
   public void setDatabaseName( String databaseName );
-
-  /**
-   * @return Returns the databasePortNumber as a string.
-   */
-  public String getDatabasePortNumberString();
-
-  /**
-   * @param databasePortNumberString
-   *          The databasePortNumber to set as a string.
-   */
-  public void setDatabasePortNumberString( String databasePortNumberString );
-
+  
   /**
    * @return Returns the hostname.
    */
@@ -1321,4 +1310,26 @@ public interface DatabaseInterface extends Cloneable {
   default String getLegacyColumnName( DatabaseMetaData dbMetaData, ResultSetMetaData rsMetaData, int index ) throws HopDatabaseException {
     return "";
   }
+
+  /**
+   * Forms the drop table statement specific for a certain RDBMS.
+   *
+   * @param tableName Name of the table to drop
+   * @return Drop table statement specific for the current database
+   */
+  String getDropTableIfExistsStatement( String tableName );
+
+  /**
+   * Returns false if exception doesn't require
+   * full exception log. Could be used in cases of DB vendor
+   * specific error which doesn't require stack trace log.
+   *
+   * @param e exception to check
+   * @return decision result
+   */
+  boolean fullExceptionLog( Exception e );
+
+  String getPort();
+
+  void setPort( String port );
 }

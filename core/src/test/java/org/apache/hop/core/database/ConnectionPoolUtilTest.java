@@ -143,7 +143,7 @@ public class ConnectionPoolUtilTest implements Driver {
     assertTrue( connectionName.equals( "CP2pentaholocal" ) );
     assertFalse( connectionName.equals( "CP2pentaholocal3306" ) );
 
-    when( dbMeta.getDatabasePortNumberString() ).thenReturn( "3306" );
+    when( dbMeta.getPort() ).thenReturn( "3306" );
     connectionName = ConnectionPoolUtil.buildPoolName( dbMeta, "" );
     assertTrue( connectionName.equals( "CP2pentaholocal3306" ) );
   }

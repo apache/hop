@@ -388,7 +388,7 @@ public class RepositoryImporter implements IRepositoryImporter, CanLimitDirs {
       return false;
     } else if ( !equals( databaseMeta.getDatabaseName(), databaseMeta2.getDatabaseName() ) ) {
       return false;
-    } else if ( !equals( databaseMeta.getDatabasePortNumberString(), databaseMeta2.getDatabasePortNumberString() ) ) {
+    } else if ( !equals( databaseMeta.getPort(), databaseMeta2.getPort() ) ) {
       return false;
     } else if ( !equals( databaseMeta.getUsername(), databaseMeta2.getUsername() ) ) {
       return false;

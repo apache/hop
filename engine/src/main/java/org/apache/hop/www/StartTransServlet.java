@@ -43,19 +43,19 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.www.cache.CarteStatusCache;
+import org.apache.hop.www.cache.HopServerStatusCache;
 
 
-public class StartTransServlet extends BaseHttpServlet implements CartePluginInterface {
+public class StartTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
   private static Class<?> PKG = StartTransServlet.class;
 
   private static final long serialVersionUID = -5879200987669847357L;
 
-  public static final String CONTEXT_PATH = "/kettle/startTrans";
+  public static final String CONTEXT_PATH = "/hop/startTrans";
 
   @VisibleForTesting
-  CarteStatusCache cache = CarteStatusCache.getInstance();
+  HopServerStatusCache cache = HopServerStatusCache.getInstance();
 
   public StartTransServlet() {
   }
@@ -66,14 +66,14 @@ public class StartTransServlet extends BaseHttpServlet implements CartePluginInt
 
   /**
   <div id="mindtouch">
-      <h1>/kettle/startTrans</h1>
+      <h1>/hop/startTrans</h1>
       <a name="GET"></a>
       <h2>GET</h2>
-      <p>Executes transformation previously uploaded to Carte server.</p>
+      <p>Executes transformation previously uploaded to HopServer server.</p>
 
       <p><b>Example Request:</b><br />
       <pre function="syntax.xml">
-      GET /kettle/startTrans/?name=dummy-trans&xml=Y
+      GET /hop/startTrans/?name=dummy-trans&xml=Y
       </pre>
 
       </p>
@@ -97,7 +97,7 @@ public class StartTransServlet extends BaseHttpServlet implements CartePluginInt
       </tr>
       <tr>
       <td>id</td>
-      <td>Carte transformation ID of the transformation to be executed. This parameter is optional when xml=Y is used.</td>
+      <td>HopServer transformation ID of the transformation to be executed. This parameter is optional when xml=Y is used.</td>
       <td>query, optional</td>
       </tr>
       </tbody>
@@ -190,7 +190,7 @@ public class StartTransServlet extends BaseHttpServlet implements CartePluginInt
       // ID is optional...
       //
       Trans trans;
-      CarteObjectEntry entry;
+      HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first transformation that matches...
         //
@@ -204,7 +204,7 @@ public class StartTransServlet extends BaseHttpServlet implements CartePluginInt
       } else {
         // Take the ID into account!
         //
-        entry = new CarteObjectEntry( transName, id );
+        entry = new HopServerObjectEntry( transName, id );
         trans = getTransformationMap().getTransformation( entry );
       }
 

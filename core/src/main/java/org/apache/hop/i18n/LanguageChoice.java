@@ -43,21 +43,14 @@ public class LanguageChoice {
       loadSettings();
     } catch ( IOException e ) {
       // Can't load settings: set the default
-      defaultLocale = Const.DEFAULT_LOCALE;
-
-      if ( defaultLocale.getLanguage().equals( Locale.GERMAN.getLanguage() ) ) {
-        defaultLocale = Locale.US;
-      }
+      defaultLocale = Locale.getDefault();
     }
   }
 
   public static final LanguageChoice getInstance() {
-    if ( choice != null ) {
-      return choice;
+    if ( choice == null ) {
+      choice = new LanguageChoice();
     }
-
-    choice = new LanguageChoice();
-
     return choice;
   }
 
@@ -105,6 +98,6 @@ public class LanguageChoice {
   }
 
   public String getSettingsFilename() {
-    return Const.getHopDirectory() + Const.FILE_SEPARATOR + ".languageChoice";
+    return Const.getHopDirectory() + System.getProperty( "file.separator" ) + ".languageChoice";
   }
 }

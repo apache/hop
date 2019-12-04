@@ -34,10 +34,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public class ListServerSocketServlet extends BaseHttpServlet implements CartePluginInterface {
+public class ListServerSocketServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = 3634806745372015720L;
 
-  public static final String CONTEXT_PATH = "/kettle/listSocket";
+  public static final String CONTEXT_PATH = "/hop/listSocket";
 
   public static final String PARAM_HOSTNAME = "host";
   public static final String PARAM_ONLY_OPEN = "onlyOpen";
@@ -51,7 +51,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements CartePlu
 
   /**
 <div id="mindtouch">
-    <h1>/kettle/listSocket</h1>
+    <h1>/hop/listSocket</h1>
     <a name="GET"></a>
     <h2>GET</h2>
     <p>Gets list of ports for specified host.
@@ -60,7 +60,7 @@ public class ListServerSocketServlet extends BaseHttpServlet implements CartePlu
     
     <p><b>Example Request:</b><br />
     <pre function="syntax.xml">
-    GET /kettle/listSocket/?host=127.0.0.1
+    GET /hop/listSocket/?host=127.0.0.1
     </pre>
     
     </p>

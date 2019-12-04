@@ -1021,6 +1021,11 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_GUI_PLUGINS = "hop-gui-plugins.xml";
+
+  /**
    * The XML file that contains the list of native Hop compression providers (None, ZIP, GZip, etc.)
    */
   public static final String XML_FILE_HOP_COMPRESSION_PROVIDERS = "hop-compression-providers.xml";
@@ -2058,16 +2063,7 @@ public class Const {
    * @return The Hop absolute directory.
    */
   public static String getHopDirectory() {
-    return getUserHomeDirectory() + FILE_SEPARATOR + getUserBaseDir();
-  }
-
-  /**
-   * Determines the Hop directory in the user's home directory.
-   *
-   * @return The Hop directory.
-   */
-  public static String getUserBaseDir() {
-    return BasePropertyHandler.getProperty( "userBaseDir", ".hop" );
+    return getUserHomeDirectory() + System.getProperty( "file.separator" ) + BasePropertyHandler.getProperty( "userBaseDir", ".hop" );
   }
 
   /**
@@ -2112,7 +2108,7 @@ public class Const {
    * @return The local Carte password file.
    */
   public static String getHopLocalCartePasswordFile() {
-    return "pwd/kettle.pwd";
+    return "pwd/hop.pwd";
   }
 
   /**
