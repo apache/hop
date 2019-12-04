@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins-dummy</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>hop-plugins-dummy-core</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Dummy Core</name>

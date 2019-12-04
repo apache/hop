@@ -5,7 +5,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>metastore</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
   <name>Hop ${project.artifactId}</name>
   <description>A flexible metadata, data and configuration information store</description>
   <url>http://www.project-hop.org</url>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>

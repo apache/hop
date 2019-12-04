@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-engine</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Engine</name>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -100,7 +100,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -476,16 +476,6 @@
       <groupId>org.apache.xmlbeans</groupId>
       <artifactId>xmlbeans</artifactId>
       <version>${xmlbeans.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -974,7 +964,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.0-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>

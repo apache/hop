@@ -5,7 +5,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-plugins-databases-greenplum</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
@@ -35,7 +35,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins-databases</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -47,13 +47,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-plugins-databases-postgresql</artifactId>
-        <scope>compile</scope>
-        <version>${project.version}</version>
-      </dependency>
-
       <!-- test dependencies -->
       <dependency>
         <groupId>org.hop</groupId>
@@ -64,9 +57,9 @@
       <dependency>
         <groupId>org.hop</groupId>
         <artifactId>hop-plugins-databases-postgresql</artifactId>
-        <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

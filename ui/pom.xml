@@ -6,14 +6,14 @@
   <groupId>org.hop</groupId>
   <artifactId>hop-ui-swt</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
 
   <name>Hop GUI</name>
 
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -25,7 +25,6 @@
     <pentaho-capability-manager.version>${project.version}</pentaho-capability-manager.version>
 
     <!-- Third-party dependencies -->
-    <project.version>0.1.0</project.version>
     <common.version>3.111.0</common.version>
     <jface.version>3.17.0</jface.version>
     <commands.version>3.9.400</commands.version>
