@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,6 +42,7 @@ import java.util.Set;
  * @author Matt
  * @since 11-mrt-2005
  */
+@GuiPlugin( id = "MySQL-GUI", description = "MySQL GUI Plugin")
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 

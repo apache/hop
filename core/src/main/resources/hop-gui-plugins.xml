@@ -1,0 +1,23 @@
+<gui-plugins>
+
+  <gui-plugin id="Generic-GUI">
+    <description>Generic database GUI Plugin</description>
+    <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
+  </gui-plugin>
+
+  <database-type id="H2-GUI">
+    <description>H2 GUI Plugin</description>
+    <classname>org.apache.hop.core.database.H2DatabaseMeta</classname>
+  </database-type>
+
+  <database-type id="MySQL-Gui">
+    <description>MySQL GUI Plugin</description>
+    <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
+  </database-type>
+
+  <database-type id="Oracle-GUI">
+    <description>Oracle GUI Plugin</description>
+    <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
+  </database-type>
+
+ </gui-plugins>

@@ -89,29 +89,31 @@ public class HopURLClassLoader extends URLClassLoader {
     return clz;
   }
 
-  protected Class<?> loadClassFromParent( String arg0, boolean arg1 ) throws ClassNotFoundException {
+  protected Class<?> loadClassFromParent( String name, boolean resolve ) throws ClassNotFoundException {
     Class<?> clz;
-    if ( ( clz = getParent().loadClass( arg0 ) ) != null ) {
-      if ( arg1 ) {
+    if ( ( clz = getParent().loadClass( name ) ) != null ) {
+      if ( resolve ) {
         resolveClass( clz );
       }
       return clz;
     }
-    throw new ClassNotFoundException( "Could not find :" + arg0 );
+    throw new ClassNotFoundException( "Could not find :" + name );
   }
 
   @Override
-  protected synchronized Class<?> loadClass( String arg0, boolean arg1 ) throws ClassNotFoundException {
+  protected synchronized Class<?> loadClass( String name, boolean resolve ) throws ClassNotFoundException {
     try {
-      return loadClassFromThisLoader( arg0, arg1 );
+      return loadClassFromThisLoader( name, resolve );
     } catch ( ClassNotFoundException | NoClassDefFoundError e ) {
-      // ignore
+      // Ignore: The class loader tries to load the interface and the base class and obviously this sometimes fails.
+      //
+      // System.err.println("Error loading class from URLClassLoader: "+name);
     } catch ( SecurityException e ) {
       System.err.println( BaseMessages.getString( PKG, "HopURLClassLoader.Exception.UnableToLoadClass",
               e.toString() ) );
     }
 
-    return loadClassFromParent( arg0, arg1 );
+    return loadClassFromParent( name, resolve );
   }
 
   /*

@@ -62,12 +62,12 @@ public class HopSelectiveParentFirstClassLoader extends HopURLClassLoader {
   }
 
   @Override
-  protected synchronized Class<?> loadClass( String arg0, boolean arg1 ) throws ClassNotFoundException {
+  protected synchronized Class<?> loadClass( String name, boolean resolve ) throws ClassNotFoundException {
     for ( Pattern pattern : patterns ) {
-      if ( pattern.matcher( arg0 ).matches() ) {
-        return loadClassParentFirst( arg0, arg1 );
+      if ( pattern.matcher( name ).matches() ) {
+        return loadClassParentFirst( name, resolve );
       }
     }
-    return super.loadClass( arg0, arg1 );
+    return super.loadClass( name, resolve );
   }
 }

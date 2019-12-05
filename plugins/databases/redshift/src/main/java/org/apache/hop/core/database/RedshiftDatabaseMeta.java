@@ -25,11 +25,10 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 /**
  * @author mbatchelor
- *
  */
 @DatabaseMetaPlugin(
-        type = "REDSHIFT",
-        typeDescription = "Redshift"
+  type = "REDSHIFT",
+  typeDescription = "Redshift"
 )
 public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
 
@@ -72,7 +71,7 @@ public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
    * The superclass method checks whether or not the command setFetchSize() is supported by the driver. In the case of
    * Redshift, setFetchSize() is supported, but in the case of LIMIT, the Redshift driver will enforce that the value
    * for fetch size is less than or equal to the value specified in the LIMIT clause.
-   *
+   * <p>
    * To avoid these problems, this method (and supportsSetMaxRows()) returns false
    *
    * @return false

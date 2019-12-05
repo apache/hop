@@ -640,8 +640,10 @@ public abstract class BasePluginType implements PluginTypeInterface {
     // Also append all the files in the underlying lib folder if it exists...
     //
     try {
-      String libFolderName = new File( URLDecoder.decode( jarFileUrl.getFile(), "UTF-8" ) ).getParent()
-        + Const.FILE_SEPARATOR + "lib";
+
+      String parentFolderName = new File( URLDecoder.decode( jarFileUrl.getFile(), "UTF-8" ) ).getParent();
+
+      String libFolderName = parentFolderName + Const.FILE_SEPARATOR + "lib";
       if ( new File( libFolderName ).exists() ) {
         PluginFolder pluginFolder = new PluginFolder( libFolderName, false, true, searchLibDir );
         FileObject[] libFiles = pluginFolder.findJarFiles( true );
@@ -649,10 +651,42 @@ public abstract class BasePluginType implements PluginTypeInterface {
           urls.add( libFile.getURL() );
         }
       }
+
+      // Also get the libraries in the dependency folders of the plugin in question...
+      // The file is called dependencies.xml
+      //
+      String dependenciesFileName = parentFolderName + Const.FILE_SEPARATOR+"dependencies.xml";
+      File dependenciesFile = new File(dependenciesFileName);
+      if (dependenciesFile.exists()) {
+        // Add the files in the dependencies folders to the classpath...
+        //
+        Document document = XMLHandler.loadXMLFile( dependenciesFile );
+        Node dependenciesNode = XMLHandler.getSubNode( document, "dependencies" );
+        List<Node> folderNodes = XMLHandler.getNodes( dependenciesNode, "folder" );
+        for (Node folderNode : folderNodes) {
+          String relativeFolderName = XMLHandler.getNodeValue( folderNode );
+          String dependenciesFolderName = parentFolderName+Const.FILE_SEPARATOR+relativeFolderName;
+          File dependenciesFolder = new File(dependenciesFolderName);
+          if (dependenciesFolder.exists()) {
+            // Now get the jar files in this dependency folder
+            // This includes the possible lib/ folder dependencies in there
+            //
+            PluginFolder pluginFolder = new PluginFolder( dependenciesFolderName, false, false, true );
+            FileObject[] libFiles = pluginFolder.findJarFiles( true );
+            for ( FileObject libFile : libFiles ) {
+              urls.add( libFile.getURL() );
+            }
+          }
+        }
+      }
     } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Unexpected error searching for jar files in lib/ folder next to '"
+      LogChannel.GENERAL.logError( "Unexpected error searching for plugin jar files in lib/ folder and dependencies for jar file '"
         + jarFileUrl + "'", e );
     }
+
+
+
+
 
     urls.add( jarFileUrl );
 
@@ -699,8 +733,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     List<JarFileAnnotationPlugin> jarFilePlugins = findAnnotatedClassFiles( pluginType.getName() );
     for ( JarFileAnnotationPlugin jarFilePlugin : jarFilePlugins ) {
 
-      URLClassLoader urlClassLoader =
-        createUrlClassLoader( jarFilePlugin.getJarFile(), getClass().getClassLoader() );
+      URLClassLoader urlClassLoader = createUrlClassLoader( jarFilePlugin.getJarFile(), getClass().getClassLoader() );
 
       try {
         Class<?> clazz = urlClassLoader.loadClass( jarFilePlugin.getClassName() );
@@ -751,7 +784,6 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
     // Only one ID for now
     String[] ids = idList.split( "," );
-
     String packageName = extractI18nPackageName( annotation );
     String altPackageName = clazz.getPackage().getName();
     String name = getTranslation( extractName( annotation ), packageName, altPackageName, clazz );

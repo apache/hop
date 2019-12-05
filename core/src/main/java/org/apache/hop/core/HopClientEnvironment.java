@@ -22,17 +22,12 @@
 
 package org.apache.hop.core;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
+import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingPluginInterface;
@@ -46,15 +41,22 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This singleton is responsible for initializing the Hop client environment and remembering if it is initialized.
  * More specifically it loads client plugins like value meta plugins and other core Hop functionality.
  *
  * @author matt
- *
  */
 public class HopClientEnvironment {
-  /** For i18n purposes, needed by Translator2!! */
+  /**
+   * For i18n purposes, needed by Translator2!!
+   */
   private static Class<?> PKG = Const.class;
 
   private static HopClientEnvironment instance = null;
@@ -63,6 +65,7 @@ public class HopClientEnvironment {
 
   public enum ClientType {
     SPOON, PAN, KITCHEN, CARTE, DI_SERVER, SCALE, OTHER;
+
     public String getID() {
       if ( this != OTHER ) {
         return this.name();
@@ -82,7 +85,9 @@ public class HopClientEnvironment {
       ValueMetaPluginType.getInstance(),
       DatabasePluginType.getInstance(),
       ExtensionPointPluginType.getInstance(),
-      TwoWayPasswordEncoderPluginType.getInstance() )
+      TwoWayPasswordEncoderPluginType.getInstance(),
+      GuiPluginType.getInstance()
+      )
     );
   }
 
@@ -163,8 +168,7 @@ public class HopClientEnvironment {
   /**
    * Creates the default kettle properties file, containing the standard header.
    *
-   * @param directory
-   *          the directory
+   * @param directory the directory
    */
   private static void createDefaultHopProperties( String directory ) {
 
@@ -202,6 +206,7 @@ public class HopClientEnvironment {
 
   /**
    * Set the Client ID which has significance when the ClientType == OTHER
+   *
    * @param id
    */
   public void setClientID( String id ) {

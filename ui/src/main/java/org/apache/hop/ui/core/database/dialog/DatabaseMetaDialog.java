@@ -215,10 +215,11 @@ public class DatabaseMetaDialog extends Dialog {
     wName = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     FormData fdName = new FormData();
-    fdName.top = new FormAttachment( 0, 0 );
+    fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
     fdName.left = new FormAttachment( middle, margin ); // To the right of the label
     fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
+    Control lastControl = wName;
 
     // What's the type of database access?
     //
@@ -226,7 +227,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlConnectionType );
     wlConnectionType.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionType" ) );
     FormData fdlConnectionType = new FormData();
-    fdlConnectionType.top = new FormAttachment( wName, margin );
+    fdlConnectionType.top = new FormAttachment( lastControl, margin );
     fdlConnectionType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlConnectionType.right = new FormAttachment( middle, 0 );
     wlConnectionType.setLayoutData( fdlConnectionType );
@@ -234,10 +235,11 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wConnectionType );
     wConnectionType.setItems( getConnectionTypes() );
     FormData fdConnectionType = new FormData();
-    fdConnectionType.top = new FormAttachment( wlConnectionType, SWT.CENTER, 0 );
+    fdConnectionType.top = new FormAttachment( wlConnectionType, 0, SWT.CENTER );
     fdConnectionType.left = new FormAttachment( middle, margin ); // To the right of the label
     fdConnectionType.right = new FormAttachment( 100, 0 );
     wConnectionType.setLayoutData( fdConnectionType );
+    lastControl = wConnectionType;
     // TODO: Add listener to refresh the access type specific composite widgets
 
 
@@ -247,7 +249,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlAccessType );
     wlAccessType.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.AccessMethod" ) );
     FormData fdlAccessType = new FormData();
-    fdlAccessType.top = new FormAttachment( wName, margin * 2 );
+    fdlAccessType.top = new FormAttachment( lastControl, margin * 2 );
     fdlAccessType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlAccessType.right = new FormAttachment( middle, -margin );
     wlAccessType.setLayoutData( fdlAccessType );
@@ -255,10 +257,11 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wAccessType );
     wAccessType.setItems( DatabaseMeta.dbAccessTypeDesc );
     FormData fdAccessType = new FormData();
-    fdAccessType.top = new FormAttachment( wName, margin * 2 );
+    fdAccessType.top = new FormAttachment( wlAccessType, 0, SWT.CENTER );
     fdAccessType.left = new FormAttachment( middle, 0 ); // To the right of the label
     fdAccessType.right = new FormAttachment( 100, 0 );
     wAccessType.setLayoutData( fdAccessType );
+    lastControl = wAccessType;
     // TODO: Add listener to refresh the connection specific composite widgets
 
     // Add a composite area
@@ -269,7 +272,7 @@ public class DatabaseMetaDialog extends Dialog {
     FormData fdDatabaseSpecificComp = new FormData(  );
     fdDatabaseSpecificComp.left = new FormAttachment( 0, 0 );
     fdDatabaseSpecificComp.right = new FormAttachment( 100, 0 );
-    fdDatabaseSpecificComp.top = new FormAttachment( wAccessType, margin );
+    fdDatabaseSpecificComp.top = new FormAttachment( lastControl, margin );
     fdDatabaseSpecificComp.bottom = new FormAttachment( 100, 0 );
     wDatabaseSpecificComp.setLayoutData( fdDatabaseSpecificComp );
 
@@ -356,14 +359,14 @@ public class DatabaseMetaDialog extends Dialog {
   }
 
   private String[] getConnectionTypes() {
-    PluginRegistry pr = PluginRegistry.getInstance();
-    List<PluginInterface> plugins = pr.getPlugins( DatabasePluginType.class );
-    String[] items = new String[plugins.size()];
-    for (int i=0;i<items.length;i++) {
-      items[i] = plugins.get( i ).getName();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<PluginInterface> plugins = registry.getPlugins( DatabasePluginType.class );
+    String[] types = new String[plugins.size()];
+    for (int i=0;i<types.length;i++) {
+      types[i] = plugins.get( i ).getName();
     }
-    Arrays.sort(items);
-    return items;
+    Arrays.sort(types);
+    return types;
   }
 
   /**
@@ -395,8 +398,8 @@ public class DatabaseMetaDialog extends Dialog {
     System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog START");
     Display display = new Display(  );
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
-    shell.setSize( 500, 500 );
-    shell.open();
+    // shell.setSize( 500, 500 );
+    // shell.open();
 
     System.out.println(">>>>>>>>>>>>>>>> Main shell opened");
 

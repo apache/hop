@@ -117,11 +117,11 @@ public class SwtSvgImageUtil {
       result = getImageAsResourceInternal( display, SvgSupport.toPngName( location ) );
     }
     if ( result == null && !location.equals( NO_IMAGE ) ) {
-      log.logError( "Unable to load image [" + location + "]" );
+      log.logError( "Unable to load image [" + location + "]", new Exception() );
       result = getImageAsResource( display, NO_IMAGE );
     }
     if ( result == null ) {
-      log.logError( "Unable to load image [" + location + "]" );
+      log.logError( "Unable to load image [" + location + "]", new Exception() );
       result = getMissingImage( display );
     }
     return result;
@@ -164,7 +164,7 @@ public class SwtSvgImageUtil {
    */
   public static SwtUniversalImage getUniversalImage( Display display, ClassLoader classLoader, String filename ) {
     if ( StringUtils.isBlank( filename ) ) {
-      log.logError( "Unable to load image [" + filename + "]" );
+      // log.logError( "Unable to load blank image [" + filename + "]", new Exception() );
       return getImageAsResource( display, NO_IMAGE );
     }
 
@@ -180,7 +180,7 @@ public class SwtSvgImageUtil {
 
     // if we can't load PNG, use default "no_image" graphic
     if ( result == null ) {
-      log.logError( "Unable to load image [" + filename + "]" );
+      log.logError( "Unable to load image [" + filename + "]", new Exception() );
       result = getImageAsResource( display, NO_IMAGE );
     }
     return result;
@@ -201,7 +201,7 @@ public class SwtSvgImageUtil {
     try {
       s = classLoader.getResourceAsStream( location );
     } catch ( Throwable t ) {
-      log.logDebug( "Unable to load image from classloader [" + location + "]" );
+      log.logDebug( "Unable to load image from classloader [" + location + "]", t );
     }
     if ( s == null ) {
       return null;
@@ -227,7 +227,7 @@ public class SwtSvgImageUtil {
     try {
       res = cl.getResource( location );
     } catch ( Throwable t ) {
-      log.logDebug( "Unable to load image from classloader [" + location + "]" );
+      log.logDebug( "Unable to load image from classloader [" + location + "]", t );
     }
     if ( res == null ) {
       return null;
