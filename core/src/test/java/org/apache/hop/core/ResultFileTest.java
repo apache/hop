@@ -39,11 +39,11 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 
 public class ResultFileTest {
 
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   public void testGetRow() throws HopFileException, FileSystemException {

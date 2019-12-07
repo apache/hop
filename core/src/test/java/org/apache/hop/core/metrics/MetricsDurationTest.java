@@ -29,11 +29,11 @@ import java.util.Date;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 
 public class MetricsDurationTest {
 
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   @SuppressWarnings( "deprecation" )

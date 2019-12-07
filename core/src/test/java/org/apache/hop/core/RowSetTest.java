@@ -23,13 +23,13 @@
 package org.apache.hop.core;
 
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
  * @author Sven Boden
  */
 public class RowSetTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   public RowMetaInterface createRowMetaInterface() {
     RowMetaInterface rm = new RowMeta();

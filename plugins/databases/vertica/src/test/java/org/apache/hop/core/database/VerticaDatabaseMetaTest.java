@@ -37,7 +37,7 @@ import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -51,7 +51,7 @@ import java.util.List;
 
 public class VerticaDatabaseMetaTest {
   @ClassRule
-  public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private VerticaDatabaseMeta nativeMeta, odbcMeta;
 

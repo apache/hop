@@ -36,19 +36,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 public class ValueMetaFactoryTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @BeforeClass
   public static void beforeClassSetUp() throws HopException {

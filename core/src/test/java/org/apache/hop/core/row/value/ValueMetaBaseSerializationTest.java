@@ -35,13 +35,13 @@ import java.util.TimeZone;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 
 /**
  * @author Andrey Khayrutdinov
  */
 public class ValueMetaBaseSerializationTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   public void restoresMetaData_storageTypeNormal() throws Exception {

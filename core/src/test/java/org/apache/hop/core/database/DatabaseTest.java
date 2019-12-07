@@ -55,6 +55,7 @@ import javax.naming.spi.InitialContextFactoryBuilder;
 import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -67,14 +68,13 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 @SuppressWarnings( "deprecation" )
 public class DatabaseTest {
 
   @ClassRule
-  public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME_OF_DB_CONNECTION = "TEST_CONNECTION";
   private static final String SQL_MOCK_EXCEPTION_MESSAGE = "SQL mock exception";

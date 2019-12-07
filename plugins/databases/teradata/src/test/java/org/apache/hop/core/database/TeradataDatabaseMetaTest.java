@@ -25,31 +25,17 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
-import org.junit.After;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Spy;
 
 public class TeradataDatabaseMetaTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private TeradataDatabaseMeta nativeMeta, odbcMeta;
 

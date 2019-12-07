@@ -24,12 +24,12 @@ package org.apache.hop.core.encryption;
 
 import static org.junit.Assert.assertTrue;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
@@ -37,7 +37,7 @@ import org.apache.hop.junit.rules.RestorePDIEnvironment;
  * @author Sven Boden
  */
 public class EncrTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {

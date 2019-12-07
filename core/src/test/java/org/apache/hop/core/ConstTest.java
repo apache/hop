@@ -33,9 +33,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 import org.junit.Assert;
 
 import static org.junit.Assert.assertFalse;
@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
  *
  */
 public class ConstTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static String DELIMITER1 = ",";
   private static String DELIMITER2 = "</newpage>";

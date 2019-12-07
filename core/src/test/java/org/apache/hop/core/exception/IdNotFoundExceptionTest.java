@@ -24,7 +24,7 @@ package org.apache.hop.core.exception;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.apache.hop.repository.RepositoryObjectType;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @since 02-10-2015
  */
 public class IdNotFoundExceptionTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private String message = "messageStub";
   String expectedNullMessage = System.lineSeparator() + "null" + System.lineSeparator();

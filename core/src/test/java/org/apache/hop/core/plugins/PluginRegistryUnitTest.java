@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.exception.HopPluginClassMapException;
@@ -31,7 +32,6 @@ import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PluginRegistryUnitTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   public void getGetPluginInformation() throws HopPluginException {

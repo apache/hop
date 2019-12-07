@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.ResultSet;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -50,10 +51,9 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 public class OracleDatabaseMetaTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   private OracleDatabaseMeta nativeMeta, odbcMeta, ociMeta;
 
   @Before

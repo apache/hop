@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import java.util.Locale;
 
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNull;
  * Created by Yury_Bakhmutski on 11/4/2015.
  */
 public class EnvUtilTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   public void vfsUserDirIsRoot_IsPublishedOnInitialisation() throws Exception {

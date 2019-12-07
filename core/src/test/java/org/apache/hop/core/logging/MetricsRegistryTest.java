@@ -23,10 +23,10 @@ package org.apache.hop.core.logging;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MetricsRegistryTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   private MetricsRegistry metricsRegistry;
   private List<String> logIds;
   private int threadCount = 100;

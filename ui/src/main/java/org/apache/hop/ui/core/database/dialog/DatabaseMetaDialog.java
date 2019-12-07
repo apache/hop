@@ -42,8 +42,8 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiElementWidgets;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -76,10 +76,10 @@ public class DatabaseMetaDialog extends Dialog {
   private Shell parent;
   private Shell shell;
   private DatabaseMeta databaseMeta;
+  private DatabaseMeta workingMeta;
   private final IMetaStore metaStore;
 
   private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
 
   private CTabItem wGeneralTab;
   private Composite wGeneralComp;
@@ -89,7 +89,6 @@ public class DatabaseMetaDialog extends Dialog {
   private ComboVar wAccessType;
   private Composite wDatabaseSpecificComp;
   private GuiElementWidgets guiElementWidgets;
-
 
   private CTabItem wAdvancedTab;
   private Composite wAdvancedComp;
@@ -120,6 +119,7 @@ public class DatabaseMetaDialog extends Dialog {
   private int middle;
   private int margin;
 
+  private String returnValue;
 
   /**
    * These are always the 3 parameters provided
@@ -133,7 +133,9 @@ public class DatabaseMetaDialog extends Dialog {
     this.parent = parent;
     this.metaStore = metaStore;
     this.databaseMeta = databaseMeta;
+    this.workingMeta = new DatabaseMeta(databaseMeta);
     props = PropsUI.getInstance();
+    returnValue=null;
   }
 
   public String open() {
@@ -177,6 +179,18 @@ public class DatabaseMetaDialog extends Dialog {
 
     addGeneralTab();
 
+    getData();
+
+    // Select the general tab
+    //
+    wTabFolder.setSelection( 0 );
+    FormData fdTabFolder = new FormData(  );
+    fdTabFolder.left = new FormAttachment( 0, 0 );
+    fdTabFolder.top = new FormAttachment( 0, 0 );
+    fdTabFolder.right = new FormAttachment( 100, 0 );
+    fdTabFolder.bottom = new FormAttachment( wOK, -margin*3 );
+    wTabFolder.setLayoutData( fdTabFolder );
+
     BaseStepDialog.setSize( shell );
 
     shell.open();
@@ -186,21 +200,21 @@ public class DatabaseMetaDialog extends Dialog {
         display.sleep();
       }
     }
-    return null;
+    return returnValue;
   }
 
   private void addGeneralTab() {
 
     wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
-    wGeneralTab.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.General.Label" ) );
+    wGeneralTab.setText( "   "+ BaseMessages.getString( PKG, "EnterOptionsDialog.General.Label" ) +"   " );
 
     wGeneralComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wGeneralComp );
 
-    FormLayout GenLayout = new FormLayout();
-    GenLayout.marginWidth = Const.FORM_MARGIN;
-    GenLayout.marginHeight = Const.FORM_MARGIN;
-    wGeneralComp.setLayout( GenLayout );
+    FormLayout genLayout = new FormLayout();
+    genLayout.marginWidth = Const.FORM_MARGIN*2;
+    genLayout.marginHeight = Const.FORM_MARGIN*2;
+    wGeneralComp.setLayout( genLayout );
 
     // What's the name
     //
@@ -262,11 +276,10 @@ public class DatabaseMetaDialog extends Dialog {
     fdAccessType.right = new FormAttachment( 100, 0 );
     wAccessType.setLayoutData( fdAccessType );
     lastControl = wAccessType;
-    // TODO: Add listener to refresh the connection specific composite widgets
 
     // Add a composite area
     //
-    wDatabaseSpecificComp = new Composite( wGeneralComp, SWT.NONE );
+    wDatabaseSpecificComp = new Composite( wGeneralComp, SWT.BACKGROUND );
     props.setLook(wDatabaseSpecificComp);
     wDatabaseSpecificComp.setLayout( new FormLayout() );
     FormData fdDatabaseSpecificComp = new FormData(  );
@@ -278,8 +291,8 @@ public class DatabaseMetaDialog extends Dialog {
 
     // Now add the database plugin specific widgets
     //
-    guiElementWidgets = new GuiElementWidgets();
-    guiElementWidgets.createWidgets( databaseMeta, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    guiElementWidgets = new GuiElementWidgets(databaseMeta);
+    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -293,32 +306,51 @@ public class DatabaseMetaDialog extends Dialog {
   }
 
   private void ok( Event event ) {
+    getInfo( databaseMeta );
+    returnValue = databaseMeta.getName();
+    dispose();
   }
 
   private void cancel( Event event ) {
+    dispose();
+  }
+
+  private void dispose() {
+    props.setScreen( new WindowProperty( shell ) );
+    shell.dispose();
   }
 
   private void test( Event event ) {
     testConnection( shell, getInfo(new DatabaseMeta()) );
   }
 
-  private DatabaseMeta getInfo( DatabaseMeta databaseMeta ) {
+  /**
+   * Copy data from the metadata into the dialog.
+   */
+  private void getData() {
 
-    databaseMeta.setName(wName.getText());
-    databaseMeta.setDatabaseType( wConnectionType.getText() );
-    databaseMeta.setAccessType( DatabaseMeta.getAccessType( wAccessType.getText() ) );
+    System.out.println("DMD getData()  START");
+    wName.setText( Const.NVL(workingMeta.getName(), "") );
+    wAccessType.setText( Const.NVL(workingMeta.getAccessTypeDesc(), "") );
+    wConnectionType.setText( Const.NVL(workingMeta.getPluginId(), "") );
 
-    if (databaseMeta.getDatabaseInterface()!=null) {
-      String mainClassName = databaseMeta.getDatabaseInterface().getClass().getName();
-      String parentGuiElementId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID;
+    System.out.println("DMD getData()  getWidgetsContents");
+    guiElementWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
-      GuiElements guiElements = GuiRegistry.getInstance().findGuiElements( mainClassName, parentGuiElementId );
+    System.out.println("DMD getData()  END");
+  }
 
+  private DatabaseMeta getInfo( DatabaseMeta meta ) {
 
-    }
+    meta.setName(wName.getText());
+    meta.setDatabaseType( wConnectionType.getText() );
+    meta.setAccessType( DatabaseMeta.getAccessType( wAccessType.getText() ) );
 
+    // Get the database specific information
+    //
+    guiElementWidgets.getWidgetsContents(meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
 
-    return databaseMeta;
+    return meta;
   }
 
 
@@ -416,19 +448,25 @@ public class DatabaseMetaDialog extends Dialog {
     System.out.println(">>>>>>>>>>>>>>>> Hop Environment initialized");
 
     IMetaStore metaStore = new MemoryMetaStore();
-    DatabaseMeta databaseMeta = new DatabaseMeta();
+    DatabaseMeta databaseMeta = new DatabaseMeta("Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password");
 
     System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
     DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, metaStore, databaseMeta );
     System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
-    dialog.open();
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog opened");
+    String name = dialog.open();
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog opened, name="+name);
 
-    while ( shell != null && !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog hostname = "+databaseMeta.getHostname());
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog port     = "+databaseMeta.getPort());
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog db name  = "+databaseMeta.getDatabaseName());
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog username = "+databaseMeta.getUsername());
+    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog password = "+databaseMeta.getPassword());
+
+    // while ( shell != null && !shell.isDisposed() ) {
+    //   if ( !display.readAndDispatch() ) {
+    //    display.sleep();
+    //  }
+    // }
     display.dispose();
   }
 }

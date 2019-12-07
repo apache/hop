@@ -26,14 +26,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 public class OracleRDBDatabaseMetaTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   private OracleRDBDatabaseMeta nativeMeta, odbcMeta, jndiMeta;
 
   @Before

@@ -25,13 +25,13 @@ package org.apache.hop.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
  * @author Matt Casters
  */
 public class BlockingBatchingRowSetTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   public RowMetaInterface createRowMetaInterface() {
     RowMetaInterface rm = new RowMeta();

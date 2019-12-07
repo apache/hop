@@ -24,7 +24,7 @@ package org.apache.hop.junit.rules;
 
 import org.apache.hop.core.HopEnvironment;
 
-public class RestoreHopEngineEnvironment extends RestorePDIEnvironment {
+public class RestoreHopEngineEnvironment extends RestoreHopEnvironment {
 
   @Override void defaultInit() throws Throwable {
     super.defaultInit();

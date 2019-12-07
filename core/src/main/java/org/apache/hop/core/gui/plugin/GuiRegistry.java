@@ -2,6 +2,7 @@ package org.apache.hop.core.gui.plugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This singleton keeps track of the various GUI elements that are made plug-able by the developers.
@@ -55,5 +56,41 @@ public class GuiRegistry {
       return null;
     }
     return elementsMap.get(parentGuiElementId);
+  }
+
+  /**
+   * Add a GUI element to the registry.
+   * If there is no elements objects for the parent ID under which the element belongs, one will be added.
+   *
+   * @param dataClassName
+   * @param guiElement
+   * @param fieldName
+   * @param fieldClass
+   */
+  public void addGuiElement( String dataClassName, GuiElement guiElement, String fieldName, Class<?> fieldClass ) {
+    GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
+    if (guiElements==null) {
+      guiElements= new GuiElements();
+      putGuiElements( dataClassName, guiElement.parentId(), guiElements );
+    }
+    GuiElements child = new GuiElements( guiElement, fieldName, fieldClass );
+
+    guiElements.getChildren().add(child);
+  }
+
+  /**
+   * Sort all the GUI elements in all data classes for all parent IDs
+   * You typically call this only once after loading all the GUI Plugins or when adding more plugins
+   */
+  public void sortAllElements() {
+    Set<String> dataClassNames = dataElementsMap.keySet();
+    for (String dataClassName : dataClassNames) {
+      Map<String, GuiElements> guiElementsMap = dataElementsMap.get( dataClassName );
+      Set<String> parentIds = guiElementsMap.keySet();
+      for (String parentId : parentIds) {
+        GuiElements guiElements = guiElementsMap.get( parentId );
+        guiElements.sortChildren();
+      }
+    }
   }
 }

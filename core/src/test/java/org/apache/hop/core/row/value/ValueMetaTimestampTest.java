@@ -34,19 +34,19 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 /**
  * User: Dzmitry Stsiapanau Date: 3/20/2014 Time: 11:51 AM
  */
 public class ValueMetaTimestampTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   @Test
   public void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();

@@ -10,7 +10,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.mockito.Spy;
 
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.doReturn;
 
 public class TeradataValueMetaBaseTest {
     @ClassRule
-    public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+    public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
     // Get PKG from class under test
     private Class<?> PKG = ValueMetaBase.PKG;

@@ -1,9 +1,18 @@
 package org.apache.hop.core.gui.plugin;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
  *
  */
+@Documented
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.FIELD )
 public @interface GuiElement {
 
   /**
@@ -27,6 +36,17 @@ public @interface GuiElement {
   public String label() default "";
 
   /**
+   * The tooltip of the GUI element (when applicable)
+   * @return The GUI Element tooltip for the widget and the label
+   */
+  public String toolTip() default "";
+
+  /**
+   * The name of the i18n package for the label and tooltip
+   */
+  public String i18nPackage() default "";
+
+  /**
    * The image filename of the GUI Element, usually an SVG icon.
    * @return The
    */
@@ -37,12 +57,6 @@ public @interface GuiElement {
    * @return The ID of the parent GUI element
    */
   public String parentId() default "";
-
-  /**
-   * The ID of the GUI element ID after which this element will be inserted
-   * @return
-   */
-  public String previousId() default "";
 
   /**
    * @return True if the text element you define is a password with an asterisk mask
@@ -68,4 +82,17 @@ public @interface GuiElement {
    * @return The method which returns a String[] to populate a combo box widget GUI element
    */
   public String comboValuesMethod() default "";
+
+  /**
+   * You can use this to order the GUI Elements for a given scenario
+   * @return The value on which the system will sort alphabetically
+   */
+  public String order() default "";
+
+  /**
+   * Set this flag to true if you want to ignore the field as a GUI Element.
+   * You can use this to override a GUI element from a base class.
+   * @return
+   */
+  public boolean ignored() default false;
 }

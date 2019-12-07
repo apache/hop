@@ -42,7 +42,10 @@ import java.util.Set;
  * @author Matt
  * @since 11-mrt-2005
  */
-@GuiPlugin( id = "MySQL-GUI", description = "MySQL GUI Plugin")
+@GuiPlugin(
+  id = "MySQL-GUI",
+  description = "MySQL GUI Plugin"
+)
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 

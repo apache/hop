@@ -22,7 +22,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class H2BaseDatabaseMetaTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   BaseDatabaseMeta nativeMeta, odbcMeta, jndiMeta;
 
   @Before

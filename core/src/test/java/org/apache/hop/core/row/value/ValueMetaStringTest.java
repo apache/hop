@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,7 +40,6 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 import junit.framework.Assert;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,7 +49,7 @@ public class ValueMetaStringTest {
 
   private ConfigurableMeta meta;
 
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Before
   public void setUp() {

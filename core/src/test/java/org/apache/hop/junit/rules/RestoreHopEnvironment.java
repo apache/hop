@@ -51,7 +51,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public class RestorePDIEnvironment extends ExternalResource {
+public class RestoreHopEnvironment extends ExternalResource {
   private Properties originalProperties;
   private Locale originalLocale;
   private Locale originalFormatLocale;
@@ -59,10 +59,10 @@ public class RestorePDIEnvironment extends ExternalResource {
   private Path tmpHopHome;
 
   /**
-   * Creates a {@code RestorePDIEnvironment} rule that restores all system properties and resets any PDI related
+   * Creates a {@code RestoreHopEnvironment} rule that restores all system properties and resets any Hop related
    * environment instances.
    */
-  public RestorePDIEnvironment() { }
+  public RestoreHopEnvironment() { }
 
   void defaultInit() throws Throwable {
     // make sure static class initializers are correctly initialized
@@ -70,7 +70,7 @@ public class RestorePDIEnvironment extends ExternalResource {
     cleanUp();
     HopClientEnvironment.init();
 
-    // initialize some classes, this will fail if some tests init this classes before any PDI init()
+    // initialize some classes, this will fail if some tests init this classes before any Hop init()
     // the best thing to do is to invoke this ClassRule in every test
     Class.forName( Database.class.getName() );
     Class.forName( Timestamp.class.getName() );

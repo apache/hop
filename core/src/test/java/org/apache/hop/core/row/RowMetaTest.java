@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 
 public class RowMetaTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   RowMetaInterface rowMeta = new RowMeta();
   ValueMetaInterface string;

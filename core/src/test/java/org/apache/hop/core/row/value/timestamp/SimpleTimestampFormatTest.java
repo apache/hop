@@ -33,17 +33,17 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 /**
  * User: Dzmitry Stsiapanau Date: 3/17/14 Time: 4:46 PM
  */
 public class SimpleTimestampFormatTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static Locale formatLocale;
   private Set<Locale> locales =

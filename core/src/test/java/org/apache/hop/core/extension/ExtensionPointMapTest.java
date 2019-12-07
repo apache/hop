@@ -20,12 +20,12 @@
 
 package org.apache.hop.core.extension;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ExtensionPointMapTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   public static final String TEST_NAME = "testName";
   private PluginMockInterface pluginInterface;
   private ExtensionPointInterface extensionPoint;

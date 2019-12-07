@@ -55,7 +55,11 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
     return pluginType;
   }
 
-  @Override
+  protected void registerNatives() throws HopPluginException {
+    super.registerNatives();
+  }
+
+    @Override
   protected String getXmlPluginFile() {
     return Const.XML_FILE_HOP_GUI_PLUGINS;
   }

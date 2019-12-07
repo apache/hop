@@ -27,6 +27,7 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -36,7 +37,6 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ExtensionPointIntegrationTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   public static final String EXECUTED_FIELD_NAME = "executed";
   private static final int TOTAL_THREADS_TO_RUN = 2000;
   private static final int MAX_TIMEOUT_SECONDS = 60;

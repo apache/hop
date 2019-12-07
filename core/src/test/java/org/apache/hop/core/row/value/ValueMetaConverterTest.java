@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.apache.hop.core.row.value;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -44,7 +44,7 @@ import static org.junit.Assert.fail;
  * Created by tkafalas on 12/6/2017.
  */
 public class ValueMetaConverterTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final int startSource = 1;
   private static final int endSource = 10;

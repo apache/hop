@@ -27,15 +27,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
 
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
-import org.junit.Before;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class MSSQLServerNativeDatabaseMetaTest {
   @ClassRule
-  public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
   private DatabaseInterface databaseInterface;

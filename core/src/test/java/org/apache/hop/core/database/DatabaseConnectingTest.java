@@ -30,7 +30,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.mock;
  * @author Andrey Khayrutdinov
  */
 public class DatabaseConnectingTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String GROUP = "group";
   private static final String ANOTHER_GROUP = "another-group";

@@ -1,7 +1,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 public class VerticaSequenceAndReleaseSavePointTest {
     @ClassRule
-    public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+    public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
     final String sequenceName = "sequence_name";
 

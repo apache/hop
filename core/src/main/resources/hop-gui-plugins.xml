@@ -5,19 +5,19 @@
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
   </gui-plugin>
 
-  <database-type id="H2-GUI">
+  <gui-plugin id="H2-GUI">
     <description>H2 GUI Plugin</description>
     <classname>org.apache.hop.core.database.H2DatabaseMeta</classname>
-  </database-type>
+  </gui-plugin>
 
-  <database-type id="MySQL-Gui">
+  <gui-plugin id="MySQL-Gui">
     <description>MySQL GUI Plugin</description>
     <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
-  </database-type>
+  </gui-plugin>
 
-  <database-type id="Oracle-GUI">
+  <gui-plugin id="Oracle-GUI">
     <description>Oracle GUI Plugin</description>
     <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
-  </database-type>
+  </gui-plugin>
 
  </gui-plugins>

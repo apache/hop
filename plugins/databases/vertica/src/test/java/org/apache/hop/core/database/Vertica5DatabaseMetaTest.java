@@ -34,7 +34,7 @@ import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 
 public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   @ClassRule
-  public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
   private static final String LOG_FIELD = "LOG_FIELD";

@@ -534,6 +534,12 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     setSupportsTimestampDataType( true );
   }
 
+  public DatabaseMeta( DatabaseMeta databaseMeta ) {
+    this();
+    replaceMeta( databaseMeta );
+    setObjectId( null );
+  }
+
   /**
    * @return the system dependend database interface for this database metadata definition
    */

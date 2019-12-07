@@ -275,19 +275,54 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   private String displayName;
   private int accessType; // Database.TYPE_ODBC / NATIVE / OCI
 
-  @GuiElement( id = "hostname", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @GuiElement(
+    id = "hostname",
+    order="01",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.ServerHostname",
+    type = GuiElementType.TEXT,
+    variables = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String hostname;
 
-  @GuiElement( id = "port", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @GuiElement(
+    id = "port",
+    order="02",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.PortNumber",
+    type = GuiElementType.TEXT,
+    variables = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String port;
 
-  @GuiElement( id = "databaseName", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @GuiElement(
+    id = "databaseName",
+    order="03",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.DatabaseName",
+    type = GuiElementType.TEXT,
+    variables = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String databaseName;
 
-  @GuiElement( id = "username", type = GuiElementType.TEXT, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @GuiElement(
+    id = "username",
+    order="04",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.Username",
+    type = GuiElementType.TEXT,
+    variables = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String username;
 
-  @GuiElement( id = "password", type = GuiElementType.TEXT, password = true, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @GuiElement(
+    id = "password",
+    order="05",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.Password",
+    type = GuiElementType.TEXT,
+    password = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String password;
 
   private String servername; // Informix only!

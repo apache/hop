@@ -26,13 +26,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 public class DateCacheTest {
 
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @SuppressWarnings( "deprecation" )
   @Test

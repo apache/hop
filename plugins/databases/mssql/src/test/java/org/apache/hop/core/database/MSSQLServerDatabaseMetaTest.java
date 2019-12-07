@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.row.value.*;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -43,11 +44,10 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 
 public class MSSQLServerDatabaseMetaTest {
   MSSQLServerDatabaseMeta nativeMeta, odbcMeta;
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
   private DatabaseInterface databaseInterface;

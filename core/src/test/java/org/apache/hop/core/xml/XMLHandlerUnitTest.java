@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.xml;
 
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.junit.rules.RestorePDIEnvironment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXParseException;
@@ -44,10 +44,9 @@ import java.util.GregorianCalendar;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
 
 public class XMLHandlerUnitTest {
-  @ClassRule public static RestorePDIEnvironment env = new RestorePDIEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   /**
    * @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" />
    */
