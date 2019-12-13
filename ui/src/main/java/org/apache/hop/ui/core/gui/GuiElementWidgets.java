@@ -9,6 +9,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -115,6 +116,12 @@ public class GuiElementWidgets {
             control = text;
           }
           break;
+        case CHECKBOX:
+          Button button = new Button( parent, SWT.CHECK | SWT.LEFT );
+          props.setLook( button );
+          widgetsMap.put( guiElements, button );
+          control = button;
+          break;
         case MENU_ITEM:
           break;
         case TOOLBAR_ICON:
@@ -200,8 +207,11 @@ public class GuiElementWidgets {
               text.setText( stringValue );
             }
             break;
-          case COMBO:
           case CHECKBOX:
+            Button button = (Button)control;
+            button.setSelection( (Boolean)value );
+            break;
+          case COMBO:
           default:
             System.out.println( "WARNING: setting data on widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
             break;
@@ -260,8 +270,11 @@ public class GuiElementWidgets {
               value = text.getText();
             }
             break;
-          case COMBO:
           case CHECKBOX:
+            Button button = (Button)control;
+            value = button.getSelection();
+            break;
+          case COMBO:
           default:
             System.out.println( "WARNING: getting data from widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
             break;

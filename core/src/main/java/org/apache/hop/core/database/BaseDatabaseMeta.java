@@ -55,10 +55,6 @@ import java.util.Properties;
  * @since 11-mrt-2005
  */
 public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
-  /**
-   * The port number of the database as string: allows for parameterization.
-   */
-  public static final String ATTRIBUTE_PORT_NUMBER = "PORT_NUMBER";
 
   /**
    * The SQL to execute at connect time (right after connecting)
@@ -66,29 +62,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   public static final String ATTRIBUTE_SQL_CONNECT = "SQL_CONNECT";
 
   /**
-   * A flag to determine if we should use connection pooling or not.
-   */
-  public static final String ATTRIBUTE_USE_POOLING = "USE_POOLING";
-
-  /**
-   * If we use connection pooling, this would contain the maximum pool size
-   */
-  public static final String ATTRIBUTE_MAXIMUM_POOL_SIZE = "MAXIMUM_POOL_SIZE";
-
-  /**
-   * If we use connection pooling, this would contain the initial pool size
-   */
-  public static final String ATTRIBUTE_INITIAL_POOL_SIZE = "INITIAL_POOL_SIZE";
-
-  /**
    * The prefix for all the extra options attributes
    */
   public static final String ATTRIBUTE_PREFIX_EXTRA_OPTION = "EXTRA_OPTION_";
-
-  /**
-   * The pooling parameters
-   */
-  public static final String ATTRIBUTE_POOLING_PARAMETER_PREFIX = "POOLING_";
 
   /**
    * A flag to determine if we should use result streaming on MySQL

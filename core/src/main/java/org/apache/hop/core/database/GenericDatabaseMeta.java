@@ -64,8 +64,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @param driverClass The driverClass to set
    */
   public void setDriverClass( String driverClass ) {
-    this.driverClass = driverClass;
     getAttributes().setProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
+  }
+
+  @Override
+  public String getDriverClass() {
+    return getAttributes().getProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
   }
 
   @Override
@@ -91,12 +95,6 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
       return 1;
     }
     return super.getNotFoundTK( use_autoinc );
-  }
-
-  @Override
-  public String getDriverClass() {
-    String driverClass = getAttributes().getProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
-    return driverClass;
   }
 
   @Override

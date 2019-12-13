@@ -26,6 +26,8 @@ import com.google.common.collect.Sets;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
@@ -48,6 +50,33 @@ import java.util.Set;
 )
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
+
+  @GuiElement(
+    id="resultStreaming",
+    order = "10",
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.CHECKBOX,
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.MySQLStreamResults"
+  )
+  private boolean resultStreaming;
+
+  /**
+   * Gets resultStreaming
+   *
+   * @return value of resultStreaming
+   */
+  public boolean isResultStreaming() {
+    String streaming = getAttributes().getProperty( ATTRIBUTE_USE_RESULT_STREAMING );
+    return "Y".equalsIgnoreCase(streaming);
+  }
+
+  /**
+   * @param resultStreaming The resultStreaming to set
+   */
+  public void setResultStreaming( boolean resultStreaming ) {
+    getAttributes().setProperty( ATTRIBUTE_USE_RESULT_STREAMING, resultStreaming ? "Y" : "N" );
+  }
 
   private static final int VARCHAR_LIMIT = 65_535;
 
