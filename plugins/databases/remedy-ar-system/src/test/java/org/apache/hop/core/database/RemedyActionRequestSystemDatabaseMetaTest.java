@@ -39,11 +39,10 @@ public class RemedyActionRequestSystemDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_ODBC },
         odbcMeta.getAccessTypeList() );
     assertEquals( 1, odbcMeta.getNotFoundTK( true ) );
     assertEquals( 0, odbcMeta.getNotFoundTK( false ) );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:WIBBLE", odbcMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertFalse( odbcMeta.isFetchSizeSupported() );
     assertFalse( odbcMeta.supportsBitmapIndex() );

@@ -36,7 +36,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfac
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -49,12 +49,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfac
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "org.h2.Driver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "org.h2.Driver";
   }
 
   @Override
@@ -266,11 +261,6 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterfac
       "FOR", "FALSE", "FULL", "GROUP", "HAVING", "INNER", "INTERSECT", "IS", "JOIN", "LIKE", "MINUS", "NATURAL",
       "NOT", "NULL", "ON", "ORDER", "PRIMARY", "ROWNUM", "SELECT", "SYSDATE", "SYSTIME", "SYSTIMESTAMP",
       "TODAY", "TRUE", "UNION", "WHERE", };
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "h2.jar" };
   }
 
   /**

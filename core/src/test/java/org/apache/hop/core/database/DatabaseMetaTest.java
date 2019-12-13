@@ -118,13 +118,6 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testDatabaseAccessTypeCode() throws Exception {
-    String expectedJndi = "JNDI";
-    String access = DatabaseMeta.getAccessTypeDesc( DatabaseMeta.getAccessType( expectedJndi ) );
-    assertEquals( expectedJndi, access );
-  }
-
-  @Test
   public void testApplyingDefaultOptions() throws Exception {
     HashMap<String, String> existingOptions = new HashMap<String, String>();
     existingOptions.put( "type1.extra", "extraValue" );
@@ -268,7 +261,6 @@ public class DatabaseMetaTest {
     when( databaseInterface.requiresName() ).thenReturn( true );
     when( meta.getDatabaseInterface() ).thenReturn( databaseInterface );
     when( meta.getName() ).thenReturn( null );
-    when( meta.isPartitioned() ).thenReturn( false );
     when( meta.checkParameters() ).thenCallRealMethod();
     assertEquals( 2, meta.checkParameters().length );
   }

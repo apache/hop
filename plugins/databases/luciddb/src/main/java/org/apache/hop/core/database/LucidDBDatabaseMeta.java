@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -37,10 +38,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "LucidDB",
         typeDescription = "LucidDB"
 )
+@GuiPlugin( id="GUI-LucidDBDatabaseMeta" )
 public class LucidDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override
@@ -281,11 +283,6 @@ public class LucidDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
       "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UPDATE", "UPPER", "USAGE", "USER", "USING", "VALUE", "VALUES",
       "VARBINARY", "VARCHAR", "VAR_POP", "VAR_SAMP", "VARYING", "VIEW", "WHEN", "WHENEVER", "WHERE",
       "WIDTH_BUCKET", "WINDOW", "WITH", "WITHIN", "WITHOUT", "WORK", "WRITE", "YEAR", "ZONE", };
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "LucidDbClient.jar" };
   }
 
   @Override

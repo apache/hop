@@ -31,9 +31,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- *
  * @author matt
- *
  */
 public class DatabaseFactory implements DatabaseFactoryInterface {
 
@@ -49,62 +47,27 @@ public class DatabaseFactory implements DatabaseFactoryInterface {
   @Override
   public String getConnectionTestReport( DatabaseMeta databaseMeta ) throws HopDatabaseException {
     success = true; // default
-    if ( databaseMeta.getAccessType() != DatabaseMeta.TYPE_ACCESS_PLUGIN ) {
 
-      StringBuilder report = new StringBuilder();
-
-      Database db = new Database( loggingObject, databaseMeta );
-      if ( databaseMeta.isPartitioned() ) {
-        PartitionDatabaseMeta[] partitioningInformation = databaseMeta.getPartitioningInformation();
-        for ( int i = 0; i < partitioningInformation.length; i++ ) {
-          try {
-            db.connect( partitioningInformation[i].getPartitionId() );
-            report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionWithPartOk", databaseMeta
-              .getName(), partitioningInformation[i].getPartitionId() )
-              + Const.CR );
-          } catch ( HopException e ) {
-            report.append( BaseMessages.getString(
-              PKG, "DatabaseMeta.report.ConnectionWithPartError", databaseMeta.getName(),
-              partitioningInformation[i].getPartitionId(), e.toString() )
-              + Const.CR );
-            report.append( Const.getStackTracker( e ) + Const.CR );
-            success = false;
-          } finally {
-            db.disconnect();
-          }
-
-          appendConnectionInfo( report, db.environmentSubstitute( partitioningInformation[i].getHostname() ), db
-            .environmentSubstitute( partitioningInformation[i].getPort() ), db
-            .environmentSubstitute( partitioningInformation[i].getDatabaseName() ) );
-          report.append( Const.CR );
-        }
-      } else {
-        try {
-          db.connect();
-          report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionOk", databaseMeta.getName() )
-            + Const.CR );
-        } catch ( HopException e ) {
-          report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionError", databaseMeta
-            .getName() )
-            + e.toString() + Const.CR );
-          report.append( Const.getStackTracker( e ) + Const.CR );
-          success = false;
-        } finally {
-          db.disconnect();
-        }
-        if ( databaseMeta.getAccessType() == DatabaseMeta.TYPE_ACCESS_JNDI ) {
-          appendJndiConnectionInfo( report, db.environmentSubstitute( databaseMeta.getDatabaseName() ) );
-        } else {
-          appendConnectionInfo( report, db, databaseMeta );
-        }
-        report.append( Const.CR );
-      }
-      return report.toString();
-    } else {
+    StringBuilder report = new StringBuilder();
+    Database db = new Database( loggingObject, databaseMeta );
+    try {
+      db.connect();
+      report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionOk", databaseMeta.getName() )
+        + Const.CR );
+    } catch ( HopException e ) {
+      report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.ConnectionError", databaseMeta
+        .getName() )
+        + e.toString() + Const.CR );
+      report.append( Const.getStackTracker( e ) + Const.CR );
       success = false;
-      return BaseMessages.getString( PKG, "BaseDatabaseMeta.TestConnectionReportNotImplemented.Message" );
+    } finally {
+      db.disconnect();
     }
 
+    appendConnectionInfo( report, db, databaseMeta );
+    report.append( Const.CR );
+
+    return report.toString();
   }
 
   public DatabaseTestResults getConnectionTestResults( DatabaseMeta databaseMeta ) throws HopDatabaseException {
@@ -115,19 +78,12 @@ public class DatabaseFactory implements DatabaseFactoryInterface {
     return databaseTestResults;
   }
 
-  private StringBuilder appendJndiConnectionInfo( StringBuilder report, String jndiName ) {
-    report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.JndiName" ) ).append( jndiName ).append(
-      Const.CR );
-    return report;
-  }
-
   private StringBuilder appendConnectionInfo( StringBuilder report, Database db, DatabaseMeta databaseMeta ) {
 
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have hostname and port fields
     if ( databaseMeta.getDatabaseInterface() instanceof GenericDatabaseMeta ) {
-      String customUrl = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_URL );
-      String customDriverClass =
-        databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
+      String customUrl = databaseMeta.getManualUrl();
+      String customDriverClass = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
 
       return report.append( BaseMessages.getString( PKG, "GenericDatabaseMeta.report.customUrl" ) ).append(
         db.environmentSubstitute( customUrl ) ).append( Const.CR ).append(

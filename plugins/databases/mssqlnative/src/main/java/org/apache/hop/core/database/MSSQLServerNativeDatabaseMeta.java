@@ -23,22 +23,20 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
         type = "MSSQLNATIVE",
         typeDescription = "MS SQL Server (Native)"
 )
+@GuiPlugin( id="GUI-MSSQLServerNativeDatabaseMeta" )
 public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   public static final String ATTRIBUTE_USE_INTEGRATED_SECURITY = "MSSQLUseIntegratedSecurity";
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    }
+    return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
   }
 
   @Override

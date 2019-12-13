@@ -75,11 +75,6 @@ public class SQLStatementParserIT extends TestCase {
       boolean use_autoinc, String pk, boolean semicolon ) {
       return null;
     }
-
-    @Override
-    public String[] getUsedLibraries() {
-      return new String[0];
-    }
   }
 
   public void testParseStatements_simple() {

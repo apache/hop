@@ -24,6 +24,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -37,10 +38,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "EXASOL4",
         typeDescription = "Exasol 4"
 )
+@GuiPlugin( id="GUI-ExasolDatabaseMeta" )
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override
@@ -349,11 +351,6 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public String getExtraOptionsHelpText() {
     return "http://www.exasol.com/knowledge-center.html";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "exajdbc.jar" };
   }
 
   /**

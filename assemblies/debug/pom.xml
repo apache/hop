@@ -24,6 +24,9 @@
     <org.eclipse.swt.win32.win32.x86.version>4.6</org.eclipse.swt.win32.win32.x86.version>
     <org.eclipse.swt.win32.win32.x86_64.version>4.6</org.eclipse.swt.win32.win32.x86_64.version>
     <org.eclipse.swt.cocoa.macosx.x86_64.version>4.6</org.eclipse.swt.cocoa.macosx.x86_64.version>
+
+    <jfreechart.version>1.0.13</jfreechart.version>
+    <batik.version>1.11</batik.version>
   </properties>
 
   <dependencies>
@@ -31,35 +34,54 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
-      <type>zip</type>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
-      <type>zip</type>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
-      <type>zip</type>
+      <scope>compile</scope>
     </dependency>
-    <!-- swt -->
+
+    <!-- Batik -->
     <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
-      <version>${org.eclipse.swt.gtk.linux.x86.version}</version>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>xmlgraphics-commons</artifactId>
+      <version>2.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+
+    <!-- swt -->
+
     <dependency>
       <groupId>org.eclipse.swt</groupId>
       <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
       <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.eclipse.swt</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
+      <version>${org.eclipse.swt.gtk.linux.x86.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.swt</groupId>
       <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
       <version>${org.eclipse.swt.win32.win32.x86.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.swt</groupId>
@@ -70,7 +92,9 @@
       <groupId>org.eclipse.swt</groupId>
       <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
       <version>${org.eclipse.swt.cocoa.macosx.x86_64.version}</version>
+      <scope>compile</scope>
     </dependency>
+    -->
   </dependencies>
 
   <build>

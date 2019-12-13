@@ -75,6 +75,18 @@ public class GuiRegistry {
     }
     GuiElements child = new GuiElements( guiElement, fieldName, fieldClass );
 
+    // See if we need to disable something of if something is disabled already...
+    // In those scenarios we ignore the GuiElement
+    //
+    GuiElements existing = guiElements.findChild( guiElement.id() );
+    if (existing!=null && existing.isIgnored()) {
+      return;
+    }
+    if (existing!=null && child.isIgnored()) {
+      existing.setIgnored( true );
+      return;
+    }
+
     guiElements.getChildren().add(child);
   }
 

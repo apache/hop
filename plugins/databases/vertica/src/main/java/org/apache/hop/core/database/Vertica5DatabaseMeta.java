@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -43,15 +44,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "VERTICA5",
         typeDescription = "Vertica 5"
 )
+@GuiPlugin( id = "GUI-Vertica5DatabaseMeta" )
 public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "com.vertica.jdbc.Driver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "com.vertica.jdbc.Driver";
   }
 
   /**

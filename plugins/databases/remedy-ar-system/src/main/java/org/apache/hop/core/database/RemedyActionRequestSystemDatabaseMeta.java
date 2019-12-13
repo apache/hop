@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 /**
@@ -35,10 +36,11 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
         type = "REMEDY-AR-SYSTEM",
         typeDescription = "Remedy Action Request System"
 )
+@GuiPlugin( id = "GUI-RemedyActionRequestSystemDatabaseMeta" )
 public class RemedyActionRequestSystemDatabaseMeta extends GenericDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**

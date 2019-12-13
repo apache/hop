@@ -26,6 +26,9 @@ import java.sql.ResultSet;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -39,7 +42,17 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "MSACCESS",
         typeDescription = "MS Access"
 )
+@GuiPlugin( id="GUI-MSAccessDatabaseMeta" )
 public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+
+  @GuiElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String hostname;
+  @GuiElement( id = "port", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String port;
+  @GuiElement( id = "databaseName", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String databaseName;
+
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_ODBC };
@@ -357,11 +370,6 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   }
 
   @Override
-  public String[] getUsedLibraries() {
-    return new String[] {};
-  }
-
-  @Override
   public boolean supportsGetBlob() {
     return false;
   }
@@ -378,11 +386,11 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idx_fields ) throws HopDatabaseException {
+  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idxFields ) throws HopDatabaseException {
 
     String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
 
-    boolean[] exists = new boolean[idx_fields.length];
+    boolean[] exists = new boolean[idxFields.length];
     for ( int i = 0; i < exists.length; i++ ) {
       exists[i] = false;
     }
@@ -400,7 +408,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
           // int pos = indexList.getShort("ORDINAL_POSITION");
           // int type = indexList.getShort("TYPE");
 
-          int idx = Const.indexOfString( column, idx_fields );
+          int idx = Const.indexOfString( column, idxFields );
           if ( idx >= 0 ) {
             exists[idx] = true;
           }

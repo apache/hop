@@ -92,7 +92,6 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
 
     assertEquals( "com.vertica.jdbc.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertFalse( nativeMeta.supportsTimeStampToDateConversion() );
 
     ResultSet resultSet = mock( ResultSet.class );

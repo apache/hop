@@ -414,13 +414,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   }
 
   /**
-   * @return the libraries that this step or plug-in uses.
-   */
-  public String[] getUsedLibraries() {
-    return new String[] {};
-  }
-
-  /**
    * @return true if this step supports error "reporting" on rows: the ability to send rows to a certain target step.
    */
   public boolean supportsErrorHandling() {

@@ -25,6 +25,7 @@ package org.apache.hop.core.database;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -39,11 +40,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "TERADATA",
         typeDescription = "Teradata"
 )
+@GuiPlugin( id = "GUI-TeradataDatabaseMeta" )
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
 
@@ -65,12 +67,7 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "com.teradata.jdbc.TeraDriver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // JDBC-ODBC bridge
-    }
-
+    return "com.teradata.jdbc.TeraDriver";
   }
 
   @Override
@@ -273,11 +270,6 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   public String getExtraOptionsHelpText() {
     return "http://www.info.ncr.com/eTeradata-BrowseBy-Results.cfm?pl=&PID=&title=%25&release="
       + "&kword=CJDBC&sbrn=7&nm=Teradata+Tools+and+Utilities+-+Java+Database+Connectivity+(JDBC)";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "terajdbc4.jar", "tdgssjava.jar" };
   }
 
   @Override

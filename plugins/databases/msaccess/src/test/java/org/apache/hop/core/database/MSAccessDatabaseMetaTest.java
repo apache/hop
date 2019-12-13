@@ -62,7 +62,6 @@ public class MSAccessDatabaseMetaTest {
     assertTrue( odbcMeta.supportsAutoInc() );
     assertEquals( 1, odbcMeta.getNotFoundTK( true ) );
     assertEquals( 0, odbcMeta.getNotFoundTK( false ) );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertFalse( odbcMeta.isFetchSizeSupported() );
     assertFalse( odbcMeta.supportsBitmapIndex() );
@@ -106,7 +105,6 @@ public class MSAccessDatabaseMetaTest {
       "VARBINARY", "VARCHAR", "WHERE", "WITH", "WORKSPACE", "XOR", "YEAR", "YES", "YESNO" }, odbcMeta.getReservedWords() );
     assertEquals( "[", odbcMeta.getStartQuote() );
     assertEquals( "]", odbcMeta.getEndQuote() );
-    assertArrayEquals( new String[] {}, odbcMeta.getUsedLibraries() );
 
   }
 

@@ -52,15 +52,12 @@ public class RedshiftDatabaseMetaTest {
   @Test
   public void testGetDefaultDatabasePort() throws Exception {
     assertEquals( 5439, dbMeta.getDefaultDatabasePort() );
-    dbMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_JNDI );
-    assertEquals( -1, dbMeta.getDefaultDatabasePort() );
   }
 
   @Test
   public void testGetDriverClass() throws Exception {
     assertEquals( "com.amazon.redshift.jdbc4.Driver", dbMeta.getDriverClass() );
     dbMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", dbMeta.getDriverClass() );
   }
 
   @Test
@@ -88,11 +85,4 @@ public class RedshiftDatabaseMetaTest {
     assertFalse( dbMeta.supportsSetMaxRows() );
   }
 
-  @Test
-  public void testGetUsedLibraries() throws Exception {
-    String[] libs = dbMeta.getUsedLibraries();
-    assertNotNull( libs );
-    assertEquals( 1, libs.length );
-    assertEquals( "RedshiftJDBC4_1.0.10.1010.jar", libs[0] );
-  }
 }

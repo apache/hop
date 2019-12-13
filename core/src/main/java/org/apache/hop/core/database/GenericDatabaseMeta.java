@@ -24,6 +24,8 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.row.ValueMetaInterface;
 
 import java.sql.SQLException;
@@ -37,10 +39,34 @@ import java.util.Map;
  */
 
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
-  public static final String ATRRIBUTE_CUSTOM_URL = "CUSTOM_URL";
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
   public static final String DATABASE_DIALECT_ID = "DATABASE_DIALECT_ID";
   private DatabaseInterface databaseDialect = null;
+
+  @GuiElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String hostname;
+  @GuiElement( id = "port", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String port;
+  @GuiElement( id = "databaseName", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String databaseName;
+
+  @GuiElement(
+    id = "driverClass",
+    order="10",
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.DriverClass",
+    type = GuiElementType.TEXT,
+    variables = true,
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  protected String driverClass;
+
+  /**
+   * @param driverClass The driverClass to set
+   */
+  public void setDriverClass( String driverClass ) {
+    this.driverClass = driverClass;
+    getAttributes().setProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
+  }
 
   @Override
   public void addAttribute( String attributeId, String value ) {
@@ -53,7 +79,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -69,20 +95,14 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      String driverClass = getAttributes().getProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
-      return driverClass;
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    String driverClass = getAttributes().getProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
+    return driverClass;
   }
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      String url = getAttributes().getProperty( ATRRIBUTE_CUSTOM_URL, "" );
-      return url;
+      return manualUrl;
     } else {
       return "jdbc:odbc:" + databaseName;
     }
@@ -255,11 +275,6 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
     }
 
     return retval;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] {};
   }
 
   /**

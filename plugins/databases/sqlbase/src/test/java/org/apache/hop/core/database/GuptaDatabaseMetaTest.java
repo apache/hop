@@ -50,13 +50,12 @@ public class GuptaDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 2155, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( "jdbc.gupta.sqlbase.SqlbaseDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:sqlbase://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:sqlbase://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Pretty sure this is a bug (colon after foo)
@@ -69,7 +68,6 @@ public class GuptaDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
 
-    assertArrayEquals( new String[] { "SQLBaseJDBC.jar" }, nativeMeta.getUsedLibraries() );
     assertTrue( nativeMeta.isSystemTable( "SYSFOO" ) );
     assertFalse( nativeMeta.isSystemTable( "SySBAR" ) );
     assertFalse( nativeMeta.isSystemTable( "BARSYS" ) );

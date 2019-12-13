@@ -30,27 +30,21 @@ import com.google.common.collect.Sets;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.i18n.BaseMessages;
 @DatabaseMetaPlugin(
         type = "MARIADB",
         typeDescription = "MariaDB"
 )
+@GuiPlugin( id="GUI-MariaDBDatabaseMeta" )
 public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 
   private static final Set<String> SHORT_MESSAGE_EXCEPTIONS = Sets.newHashSet( "org.mariadb.jdbc.internal.stream.MaxAllowedPacketException" );
 
-  @Override public String[] getUsedLibraries() {
-    return new String[] { "mariadb-java-client-1.4.6.jar" };
-  }
-
   @Override public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.mariadb.jdbc.Driver";
-    }
+    return "org.mariadb.jdbc.Driver";
   }
 
   @Override public String getURL( String hostname, String port, String databaseName ) {

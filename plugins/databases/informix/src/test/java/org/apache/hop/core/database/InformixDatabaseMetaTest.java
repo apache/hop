@@ -52,7 +52,7 @@ public class InformixDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 1526, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -61,7 +61,6 @@ public class InformixDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     nativeMeta.setServername( "FOODBNAME" );
     assertEquals( "com.informix.jdbc.IfxDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:informix-sqli://FOO:BAR/WIBBLE:INFORMIXSERVER=FOODBNAME;DELIMIDENT=Y", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:informix-sqli://FOO:/WIBBLE:INFORMIXSERVER=FOODBNAME;DELIMIDENT=Y", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Pretty sure this is a bug (colon after foo)
@@ -70,7 +69,6 @@ public class InformixDatabaseMetaTest {
     assertTrue( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsSynonyms() );
     assertFalse( nativeMeta.needsToLockAllTables() );
-    assertArrayEquals( new String[] { "ifxjdbc.jar" }, nativeMeta.getUsedLibraries() );
   }
 
   @Test

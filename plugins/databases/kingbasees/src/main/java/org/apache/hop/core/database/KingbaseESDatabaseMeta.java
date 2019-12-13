@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,6 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "KINGBASEES",
         typeDescription = "KingbaseES"
 )
+@GuiPlugin( id="GUI-KingbaseDatabaseMeta" )
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   /**
    * @return The extra option separator in database URL for this platform
@@ -68,11 +70,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.kingbase.Driver";
-    }
+    return "com.kingbase.Driver";
   }
 
   @Override
@@ -447,11 +445,6 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   @Override
   public boolean isDefaultingToUppercase() {
     return false;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "kingbasejdbc4.jar" };
   }
 
   /**

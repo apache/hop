@@ -54,17 +54,14 @@ import org.apache.hop.core.variables.Variables;
 
 public class OracleDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  private OracleDatabaseMeta nativeMeta, odbcMeta, ociMeta;
+  private OracleDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupOnce() throws Exception {
     nativeMeta = new OracleDatabaseMeta();
     odbcMeta = new OracleDatabaseMeta();
-    ociMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
-    ociMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_OCI );
-    //nativeMeta.setSupportsTimestampDataType( true );
     HopClientEnvironment.init();
   }
 
@@ -78,7 +75,6 @@ public class OracleDatabaseMetaTest {
     assertFalse( nativeMeta.supportsAutoInc() );
     assertFalse( nativeMeta.needsToLockAllTables() );
     assertEquals( "oracle.jdbc.driver.OracleDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:1024:BAR", nativeMeta.getURL( "FOO", "1024", "BAR" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:11:BAR", nativeMeta.getURL( "FOO", "11", ":BAR" ) );
@@ -88,22 +84,6 @@ public class OracleDatabaseMetaTest {
     assertEquals( "jdbc:oracle:thin:@FOO", nativeMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:1234:BAR", nativeMeta.getURL( "FOO", "1234", "BAR" ) );
     assertEquals( "jdbc:oracle:thin:@", nativeMeta.getURL( "", "", "" ) ); // Pretty sure this is a bug...
-    assertEquals( "jdbc:oracle:oci:@BAR", ociMeta.getURL( null, null, "BAR" ) );
-    assertEquals(
-        "jdbc:oracle:oci:@(description=(address=(host=FOO)(protocol=tcp)(port=9876))(connect_data=(sid=BAR)))", ociMeta
-            .getURL( "FOO", "9876", "BAR" ) );
-    try {
-      ociMeta.getURL( null, null, null );
-      fail( "Expected HopDatabaseException here" );
-    } catch ( HopDatabaseException expected ) {
-      // Keep going ...
-    }
-    try {
-      ociMeta.getURL( "", "", "" );
-      fail( "Expected HopDatabaseException here" );
-    } catch ( HopDatabaseException expected ) {
-      // Keep going ...
-    }
     assertFalse( nativeMeta.supportsOptionsInURL() );
     assertTrue( nativeMeta.supportsSequences() );
     assertTrue( nativeMeta.supportsSequenceNoMaxValueOption() );
@@ -124,7 +104,6 @@ public class OracleDatabaseMetaTest {
     assertArrayEquals( reservedWords, nativeMeta.getReservedWords() );
     assertEquals( "http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/urls.htm#i1006362", nativeMeta
         .getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "ojdbc14.jar", "orai18n.jar" }, nativeMeta.getUsedLibraries() );
     assertTrue( nativeMeta.requiresCreateTablePrimaryKeyAppend() );
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
     String quoteTest1 = "FOO 'BAR' \r TEST \n";

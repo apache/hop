@@ -131,12 +131,6 @@ public class HopEnvironment {
           HopClientEnvironment.init();
         }
 
-        // Configure Simple JNDI when we run in stand-alone mode (spoon, pan, kitchen, carte, ... NOT on the platform
-        //
-        if ( simpleJndi ) {
-          JndiUtil.initJNDI();
-        }
-
         // Register the native types and the plugins for the various plugin types...
         //
         pluginClasses.forEach( PluginRegistry::addPluginType );

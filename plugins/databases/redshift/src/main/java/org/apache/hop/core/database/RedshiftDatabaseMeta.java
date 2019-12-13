@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 /**
@@ -30,6 +31,7 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
   type = "REDSHIFT",
   typeDescription = "Redshift"
 )
+@GuiPlugin( id = "GUI-RedshiftDatabaseMeta" )
 public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
 
   public RedshiftDatabaseMeta() {
@@ -46,11 +48,7 @@ public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.amazon.redshift.jdbc4.Driver";
-    }
+    return "com.amazon.redshift.jdbc4.Driver";
   }
 
   @Override
@@ -89,10 +87,5 @@ public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
   @Override
   public boolean supportsSetMaxRows() {
     return false;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "RedshiftJDBC4_1.0.10.1010.jar" };
   }
 }

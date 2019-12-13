@@ -53,12 +53,11 @@ public class NetezzaDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertEquals( "&", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "?", nativeMeta.getExtraOptionIndicator() );
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 5480, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.netezza.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:netezza://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:netezza://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // I think this is a bug...
@@ -121,7 +120,6 @@ public class NetezzaDatabaseMetaTest {
 
     assertFalse( nativeMeta.isDefaultingToUppercase() );
     assertFalse( nativeMeta.supportsTimeStampToDateConversion() );
-    assertArrayEquals( new String[] { "nzjdbc.jar" }, nativeMeta.getUsedLibraries() ); // this is way wrong
 
   }
 

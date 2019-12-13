@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,6 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "NETEZZA",
         typeDescription = "Netezza"
 )
+@GuiPlugin( id="GUI-NetezzaDatabaseMeta" )
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   public static final int MAX_CHAR_LEN = 32767;
 
@@ -58,7 +60,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -71,11 +73,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.netezza.Driver";
-    }
+    return "org.netezza.Driver";
   }
 
   @Override
@@ -434,11 +432,6 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public boolean supportsTimeStampToDateConversion() {
     return false;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "nzjdbc.jar" };
   }
 
   @Override

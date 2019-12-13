@@ -23,51 +23,17 @@
 
 package org.apache.hop.core.database;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.BatchUpdateException;
-import java.sql.Blob;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.ParameterMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.DBCache;
 import org.apache.hop.core.DBCacheEntry;
 import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DataSourceProviderInterface.DatasourceType;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
-import org.apache.hop.core.database.util.DatabaseUtil;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -104,6 +70,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
@@ -111,6 +78,37 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.repository.ObjectId;
 import org.apache.hop.repository.ObjectRevision;
 import org.apache.hop.repository.RepositoryDirectory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.BatchUpdateException;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Database handles the process of connecting to, reading from, writing to and updating databases. The database specific
@@ -405,8 +403,6 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Open the database connection. The algorithm is:
    * <ol>
-   * <li>If <code>databaseMeta.getAccessType()</code> returns
-   * <code>DatabaseMeta.TYPE_ACCESS_JNDI</code>, then the connection's datasource is looked up in JNDI </li>
    * <li>If <code>databaseMeta.isUsingConnectionPool()</code>, then the connection's datasource is looked up in the
    * pool</li>
    * <li>otherwise, the connection is established via {@linkplain java.sql.DriverManager}</li>
@@ -421,47 +417,13 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
 
     try {
-      DataSourceProviderInterface dsp = DataSourceProviderFactory.getDataSourceProviderInterface();
-      if ( dsp == null ) {
-        // since DataSourceProviderFactory is initialised with new DatabaseUtil(),
-        // this assignment is correct
-        dsp = new DatabaseUtil();
-      }
 
-      if ( databaseMeta.getAccessType() == DatabaseMeta.TYPE_ACCESS_JNDI ) {
-        String jndiName = environmentSubstitute( databaseMeta.getDatabaseName() );
-        try {
-          this.connection = dsp.getNamedDataSource( jndiName, DatasourceType.JNDI ).getConnection();
-        } catch ( DataSourceNamingException e ) {
-          log.logError( "Unable to find datasource by JNDI name: " + jndiName, e );
-          throw e;
-        }
-      } else {
-        if ( databaseMeta.isUsingConnectionPool() ) {
-          String name = databaseMeta.getName();
-          try {
-            try {
-              this.connection = dsp.getNamedDataSource( name, DatasourceType.POOLED ).getConnection();
-            } catch ( UnsupportedOperationException | NullPointerException e ) {
-              // UnsupportedOperationException is happen at DatabaseUtil doesn't support pooled DS, use legacy routine
-              // NullPointerException is happen when we will try to run the transformation on the remote server but
-              // server does not have such databases, so will using legacy routine as well
-              this.connection = ConnectionPoolUtil.getConnection( log, databaseMeta, partitionId );
-            }
-            if ( getConnection().getAutoCommit() != isAutoCommit() ) {
-              setAutoCommit( isAutoCommit() );
-            }
-          } catch ( DataSourceNamingException e ) {
-            log.logError( "Unable to find pooled datasource by its name: " + name, e );
-            throw e;
-          }
-        } else {
-          // using non-jndi and non-pooled connection -- just a simple JDBC
-          connectUsingClass( databaseMeta.getDriverClass(), partitionId );
-        }
-      }
+      // Connect to the database
+      //
+      connectUsingClass( databaseMeta.getDriverClass(), partitionId );
 
-      // See if we need to execute extra SQL statement...
+      // See if we need to execute extra SQL statements...
+      //
       String sql = environmentSubstitute( databaseMeta.getConnectSQL() );
 
       // only execute if the SQL is not empty, null and is not just a bunch of
@@ -523,34 +485,10 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     }
 
     try {
-      String url;
+      String url = environmentSubstitute( databaseMeta.getURL() );
 
-      if ( databaseMeta.isPartitioned() && !Utils.isEmpty( partitionId ) ) {
-        url = environmentSubstitute( databaseMeta.getURL( partitionId ) );
-      } else {
-        url = environmentSubstitute( databaseMeta.getURL() );
-      }
-
-      String clusterUsername = null;
-      String clusterPassword = null;
-      if ( databaseMeta.isPartitioned() && !Utils.isEmpty( partitionId ) ) {
-        // Get the cluster information...
-        PartitionDatabaseMeta partition = databaseMeta.getPartitionMeta( partitionId );
-        if ( partition != null ) {
-          clusterUsername = partition.getUsername();
-          clusterPassword = Encr.decryptPasswordOptionallyEncrypted( partition.getPassword() );
-        }
-      }
-
-      String username;
-      String password;
-      if ( !Utils.isEmpty( clusterUsername ) ) {
-        username = clusterUsername;
-        password = clusterPassword;
-      } else {
-        username = environmentSubstitute( databaseMeta.getUsername() );
-        password = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( databaseMeta.getPassword() ) );
-      }
+      String username = environmentSubstitute( databaseMeta.getUsername() );
+      String password = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( databaseMeta.getPassword() ) );
 
       Properties properties = databaseMeta.getConnectionProperties();
 
@@ -703,9 +641,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     try {
       if ( connection != null ) {
         connection.close();
-        if ( !databaseMeta.isUsingConnectionPool() ) {
-          connection = null;
-        }
+        connection = null;
       }
 
       if ( log.isDetailed() ) {
@@ -908,8 +844,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Prepare inserting values into a table, using the fields & values in a Row
    *
-   * @param rowMeta The row metadata to determine which values need to be inserted
-   * @param tableName   The name of the table in which we want to insert rows
+   * @param rowMeta   The row metadata to determine which values need to be inserted
+   * @param tableName The name of the table in which we want to insert rows
    * @throws HopDatabaseException if something went wrong.
    */
   public void prepareInsert( RowMetaInterface rowMeta, String tableName ) throws HopDatabaseException {
@@ -1380,8 +1316,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Close the prepared statement of the insert statement.
    *
-   * @param ps             The prepared statement to empty and close.
-   * @param batch          true if you are using batch processing
+   * @param ps           The prepared statement to empty and close.
+   * @param batch        true if you are using batch processing
    * @param batchCounter The number of rows on the batch queue
    * @throws HopDatabaseException
    */
@@ -1454,8 +1390,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Close the prepared statement of the insert statement.
    *
-   * @param ps             The prepared statement to empty and close.
-   * @param batch          true if you are using batch processing (typically true for this method)
+   * @param ps    The prepared statement to empty and close.
+   * @param batch true if you are using batch processing (typically true for this method)
    * @throws HopDatabaseException
    * @deprecated use emptyAndCommit() instead (pass in the number of rows left in the batch)
    */
@@ -1950,7 +1886,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * Retrieves the table description matching the schema and table name.
    *
    * @param schema the schema name pattern
-   * @param table the table name pattern
+   * @param table  the table name pattern
    * @return table description row set
    * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
    */
@@ -1974,7 +1910,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * Retrieves the columns metadata matching the schema and table name.
    *
    * @param schema the schema name pattern
-   * @param table the table name pattern
+   * @param table  the table name pattern
    * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
    */
   private ResultSet getColumnsMetaData( String schema, String table ) throws HopDatabaseException {
@@ -2129,7 +2065,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Check if an index on certain fields in a table exists.
    *
-   * @param schemaName  The schema on which the index is checked
+   * @param schemaName The schema on which the index is checked
    * @param tableName  The table on which the index is checked
    * @param idx_fields The fields on which the indexe is checked
    * @return True if the index exists
@@ -4715,8 +4651,8 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Return SQL TRUNCATE statement for a Table
    *
-   * @param schema     The schema
-   * @param tablename  The table to create
+   * @param schema    The schema
+   * @param tablename The table to create
    * @throws HopDatabaseException
    */
   public String getDDLTruncateTable( String schema, String tablename ) throws HopDatabaseException {
@@ -5020,7 +4956,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   /**
    * Execute an SQL statement inside a file on the database connection (has to be open)
    *
-   * @param filename the file containing the SQL to execute
+   * @param filename            the file containing the SQL to execute
    * @param sendSinglestatement set to true if you want to send the whole file as a single statement. If false separate statements will be isolated and executed.
    * @return a Result object indicating the number of lines read, deleted, inserted, updated, ...
    * @throws HopDatabaseException in case anything goes wrong.

@@ -34,16 +34,14 @@ import org.apache.hop.core.HopClientEnvironment;
 
 public class OracleRDBDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  private OracleRDBDatabaseMeta nativeMeta, odbcMeta, jndiMeta;
+  private OracleRDBDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupOnce() throws Exception {
     nativeMeta = new OracleRDBDatabaseMeta();
     odbcMeta = new OracleRDBDatabaseMeta();
-    jndiMeta = new OracleRDBDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
-    jndiMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_JNDI );
     HopClientEnvironment.init();
   }
 
@@ -57,7 +55,6 @@ public class OracleRDBDatabaseMetaTest {
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( "oracle.rdb.jdbc.rdbThin.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:rdbThin://FOO:1024/BAR", nativeMeta.getURL( "FOO", "1024", "BAR" ) );
     assertEquals( "jdbc:rdbThin://FOO:11/:BAR", nativeMeta.getURL( "FOO", "11", ":BAR" ) );
@@ -67,7 +64,6 @@ public class OracleRDBDatabaseMetaTest {
     assertEquals( "jdbc:rdbThin://null:null/FOO", nativeMeta.getURL( null, null, "FOO" ) ); // Pretty sure this is a bug...
     assertEquals( "jdbc:rdbThin://FOO:1234/BAR", nativeMeta.getURL( "FOO", "1234", "BAR" ) );
     assertEquals( "jdbc:rdbThin://:/", nativeMeta.getURL( "", "", "" ) ); // Pretty sure this is a bug...
-    assertEquals( "jdbc:rdbThin://null:null/BAR", jndiMeta.getURL( null, null, "BAR" ) );
     assertFalse( nativeMeta.supportsOptionsInURL() );
     assertTrue( nativeMeta.supportsSequences() );
     assertTrue( nativeMeta.useSchemaNameForTableList() );
@@ -85,7 +81,6 @@ public class OracleRDBDatabaseMetaTest {
           "UID", "UNION", "UNIQUE", "UPDATE", "USER", "VALIDATE", "VALUES", "VARCHAR", "VARCHAR2", "VIEW", "WHENEVER",
           "WHERE", "WITH" };
     assertArrayEquals( reservedWords, nativeMeta.getReservedWords() );
-    assertArrayEquals( new String[] { "rdbthin.jar" }, nativeMeta.getUsedLibraries() );
     assertFalse( nativeMeta.supportsRepository() );
     assertEquals( 9999999, nativeMeta.getMaxVARCHARLength() );
     assertEquals( "SELECT SEQUENCE_NAME FROM USER_SEQUENCES", nativeMeta.getSQLListOfSequences() );

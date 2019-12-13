@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,11 +37,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "INTERBASE",
         typeDescription = "Borland Interbase"
 )
+@GuiPlugin( id="GUI-InterbaseDatabaseMeta" )
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -61,11 +63,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "interbase.interclient.Driver";
-    }
+    return "interbase.interclient.Driver";
   }
 
   @Override
@@ -320,11 +318,6 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   @Override
   public boolean supportsBatchUpdates() {
     return false;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "interclient.jar" };
   }
 
   @Override

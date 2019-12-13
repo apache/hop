@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -37,11 +38,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "SAPDB",
         typeDescription = "MaxDB (SAP DB)"
 )
+@GuiPlugin( id = "GUI-SAPDBDatabaseMeta" )
 public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -60,11 +62,7 @@ public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.sap.dbtech.jdbc.DriverSapDB";
-    }
+    return "com.sap.dbtech.jdbc.DriverSapDB";
   }
 
   @Override
@@ -246,10 +244,4 @@ public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
       "VALUES", "VARCHAR", "VARGRAPHIC", "VARIANCE", "WEEK", "WEEKOFYEAR", "WHEN", "WHERE", "WITH", "YEAR",
       "ZONED" };
   }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "sapdbc.jar" };
-  }
-
 }

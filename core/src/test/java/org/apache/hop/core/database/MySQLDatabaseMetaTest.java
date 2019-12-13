@@ -58,7 +58,7 @@ public class MySQLDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 3306, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -66,7 +66,6 @@ public class MySQLDatabaseMetaTest {
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "org.gjt.mm.mysql.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:mysql://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:mysql://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
@@ -103,7 +102,6 @@ public class MySQLDatabaseMetaTest {
     assertEquals( "`", nativeMeta.getEndQuote() );
     assertTrue( nativeMeta.needsToLockAllTables() );
     assertEquals( "http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html", nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "mysql-connector-java-3.1.14-bin.jar" }, nativeMeta.getUsedLibraries() ); // this is way wrong
     assertTrue( nativeMeta.isSystemTable( "sysTest" ) );
     assertTrue( nativeMeta.isSystemTable( "dtproperties" ) );
     assertFalse( nativeMeta.isSystemTable( "SysTest" ) );

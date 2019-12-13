@@ -22,8 +22,32 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.DBCache;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.SqlScriptStatement;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -44,40 +68,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.DBCache;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.PartitionDatabaseMeta;
-import org.apache.hop.core.database.SqlScriptStatement;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
+
+import java.util.List;
 
 /**
  * Dialog that allows the user to launch SQL statements towards the database.
  *
  * @author Matt
  * @since 13-10-2003
- *
  */
 public class SQLEditor {
   private static Class<?> PKG = SQLEditor.class; // for i18n purposes, needed by Translator2!!
@@ -344,113 +342,101 @@ public class SQLEditor {
 
     Database db = new Database( loggingObject, ci );
     boolean first = true;
-    PartitionDatabaseMeta[] partitioningInformation = ci.getPartitioningInformation();
 
-    for ( int partitionNr = 0; first
-      || ( partitioningInformation != null && partitionNr < partitioningInformation.length ); partitionNr++ ) {
-      first = false;
-      String partitionId = null;
-      if ( partitioningInformation != null && partitioningInformation.length > 0 ) {
-        partitionId = partitioningInformation[partitionNr].getPartitionId();
-      }
-      try {
-        db.connect( partitionId );
-        String sqlScript =
-          Utils.isEmpty( wScript.getSelectionText() ) ? wScript.getText() : wScript.getSelectionText();
+    try {
+      db.connect( null );
+      String sqlScript =
+        Utils.isEmpty( wScript.getSelectionText() ) ? wScript.getText() : wScript.getSelectionText();
 
-        // Multiple statements in the script need to be split into individual
-        // executable statements
-        statements = ci.getDatabaseInterface().getSqlScriptStatements( sqlScript + Const.CR );
+      // Multiple statements in the script need to be split into individual
+      // executable statements
+      statements = ci.getDatabaseInterface().getSqlScriptStatements( sqlScript + Const.CR );
 
-        int nrstats = 0;
-        for ( SqlScriptStatement sql : statements ) {
-          if ( sql.isQuery() ) {
-            // A Query
-            log.logDetailed( "launch SELECT statement: " + Const.CR + sql );
+      int nrstats = 0;
+      for ( SqlScriptStatement sql : statements ) {
+        if ( sql.isQuery() ) {
+          // A Query
+          log.logDetailed( "launch SELECT statement: " + Const.CR + sql );
 
-            nrstats++;
-            try {
-              List<Object[]> rows = db.getRows( sql.getStatement(), 1000 );
-              RowMetaInterface rowMeta = db.getReturnRowMeta();
-              if ( rows.size() > 0 ) {
-                PreviewRowsDialog prd =
-                  new PreviewRowsDialog( shell, ci, SWT.NONE, BaseMessages.getString(
-                    PKG, "SQLEditor.ResultRows.Title", Integer.toString( nrstats ) ), rowMeta, rows );
-                prd.open();
-              } else {
-                MessageBox mb = new MessageBox( shell, SWT.ICON_INFORMATION | SWT.OK );
-                mb.setMessage( BaseMessages.getString( PKG, "SQLEditor.NoRows.Message", sql ) );
-                mb.setText( BaseMessages.getString( PKG, "SQLEditor.NoRows.Title" ) );
-                mb.open();
-              }
-            } catch ( HopDatabaseException dbe ) {
-              new ErrorDialog( shell, BaseMessages.getString( PKG, "SQLEditor.ErrorExecSQL.Title" ), BaseMessages
-                .getString( PKG, "SQLEditor.ErrorExecSQL.Message", sql ), dbe );
+          nrstats++;
+          try {
+            List<Object[]> rows = db.getRows( sql.getStatement(), 1000 );
+            RowMetaInterface rowMeta = db.getReturnRowMeta();
+            if ( rows.size() > 0 ) {
+              PreviewRowsDialog prd =
+                new PreviewRowsDialog( shell, ci, SWT.NONE, BaseMessages.getString(
+                  PKG, "SQLEditor.ResultRows.Title", Integer.toString( nrstats ) ), rowMeta, rows );
+              prd.open();
+            } else {
+              MessageBox mb = new MessageBox( shell, SWT.ICON_INFORMATION | SWT.OK );
+              mb.setMessage( BaseMessages.getString( PKG, "SQLEditor.NoRows.Message", sql ) );
+              mb.setText( BaseMessages.getString( PKG, "SQLEditor.NoRows.Title" ) );
+              mb.open();
             }
-          } else {
-            log.logDetailed( "launch DDL statement: " + Const.CR + sql );
+          } catch ( HopDatabaseException dbe ) {
+            new ErrorDialog( shell, BaseMessages.getString( PKG, "SQLEditor.ErrorExecSQL.Title" ), BaseMessages
+              .getString( PKG, "SQLEditor.ErrorExecSQL.Message", sql ), dbe );
+          }
+        } else {
+          log.logDetailed( "launch DDL statement: " + Const.CR + sql );
 
-            // A DDL statement
-            nrstats++;
-            int startLogLine = HopLogStore.getLastBufferLineNr();
-            try {
+          // A DDL statement
+          nrstats++;
+          int startLogLine = HopLogStore.getLastBufferLineNr();
+          try {
 
-              log.logDetailed( "Executing SQL: " + Const.CR + sql );
-              db.execStatement( sql.getStatement() );
+            log.logDetailed( "Executing SQL: " + Const.CR + sql );
+            db.execStatement( sql.getStatement() );
 
-              message.append( BaseMessages.getString( PKG, "SQLEditor.Log.SQLExecuted", sql ) );
-              message.append( Const.CR );
+            message.append( BaseMessages.getString( PKG, "SQLEditor.Log.SQLExecuted", sql ) );
+            message.append( Const.CR );
 
-              // Clear the database cache, in case we're using one...
-              if ( dbcache != null ) {
-                dbcache.clear( ci.getName() );
-              }
-
-              // mark the statement in green in the dialog...
-              //
-              sql.setOk( true );
-            } catch ( Exception dbe ) {
-              sql.setOk( false );
-              String error = BaseMessages.getString( PKG, "SQLEditor.Log.SQLExecError", sql, dbe.toString() );
-              message.append( error ).append( Const.CR );
-              ErrorDialog dialog =
-                new ErrorDialog(
-                  shell, BaseMessages.getString( PKG, "SQLEditor.ErrorExecSQL.Title" ), error, dbe, true );
-              if ( dialog.isCancelled() ) {
-                break;
-              }
-            } finally {
-              int endLogLine = HopLogStore.getLastBufferLineNr();
-              sql.setLoggingText( HopLogStore.getAppender().getLogBufferFromTo(
-                db.getLogChannelId(), true, startLogLine, endLogLine ).toString() );
-              sql.setComplete( true );
-              refreshExecutionResults();
+            // Clear the database cache, in case we're using one...
+            if ( dbcache != null ) {
+              dbcache.clear( ci.getName() );
             }
+
+            // mark the statement in green in the dialog...
+            //
+            sql.setOk( true );
+          } catch ( Exception dbe ) {
+            sql.setOk( false );
+            String error = BaseMessages.getString( PKG, "SQLEditor.Log.SQLExecError", sql, dbe.toString() );
+            message.append( error ).append( Const.CR );
+            ErrorDialog dialog =
+              new ErrorDialog(
+                shell, BaseMessages.getString( PKG, "SQLEditor.ErrorExecSQL.Title" ), error, dbe, true );
+            if ( dialog.isCancelled() ) {
+              break;
+            }
+          } finally {
+            int endLogLine = HopLogStore.getLastBufferLineNr();
+            sql.setLoggingText( HopLogStore.getAppender().getLogBufferFromTo(
+              db.getLogChannelId(), true, startLogLine, endLogLine ).toString() );
+            sql.setComplete( true );
+            refreshExecutionResults();
           }
         }
-        message.append( BaseMessages.getString( PKG, "SQLEditor.Log.StatsExecuted", Integer.toString( nrstats ) ) );
-        if ( partitionId != null ) {
-          message.append( BaseMessages.getString( PKG, "SQLEditor.Log.OnPartition", partitionId ) );
-        }
-        message.append( Const.CR );
-      } catch ( HopDatabaseException dbe ) {
-        MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-        String error =
-          BaseMessages.getString( PKG, "SQLEditor.Error.CouldNotConnect.Message", ( connection == null
-            ? "" : connection.getName() ), dbe.getMessage() );
-        message.append( error ).append( Const.CR );
-        mb.setMessage( error );
-        mb.setText( BaseMessages.getString( PKG, "SQLEditor.Error.CouldNotConnect.Title" ) );
-        mb.open();
-      } finally {
-        db.disconnect();
-        refreshExecutionResults();
       }
+      message.append( BaseMessages.getString( PKG, "SQLEditor.Log.StatsExecuted", Integer.toString( nrstats ) ) );
+
+      message.append( Const.CR );
+    } catch ( HopDatabaseException dbe ) {
+      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
+      String error =
+        BaseMessages.getString( PKG, "SQLEditor.Error.CouldNotConnect.Message", ( connection == null
+          ? "" : connection.getName() ), dbe.getMessage() );
+      message.append( error ).append( Const.CR );
+      mb.setMessage( error );
+      mb.setText( BaseMessages.getString( PKG, "SQLEditor.Error.CouldNotConnect.Title" ) );
+      mb.open();
+    } finally {
+      db.disconnect();
+      refreshExecutionResults();
     }
 
-    EnterTextDialog dialog =
-      new EnterTextDialog( shell, BaseMessages.getString( PKG, "SQLEditor.Result.Title" ), BaseMessages
-        .getString( PKG, "SQLEditor.Result.Message" ), message.toString(), true );
+    EnterTextDialog dialog = new EnterTextDialog( shell, BaseMessages.getString( PKG, "SQLEditor.Result.Title" ), BaseMessages
+      .getString( PKG, "SQLEditor.Result.Message" ), message.toString(), true );
     dialog.open();
   }
 

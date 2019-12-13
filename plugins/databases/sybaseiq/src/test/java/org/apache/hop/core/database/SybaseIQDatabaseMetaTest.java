@@ -52,13 +52,12 @@ public class SybaseIQDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 2638, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "com.sybase.jdbc3.jdbc.SybDriver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:sybase:Tds:FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
@@ -66,7 +65,6 @@ public class SybaseIQDatabaseMetaTest {
     assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination(  "FOO", "BAR" ) );
 
     assertEquals( "http://jtds.sourceforge.net/faq.html#urlFormat", nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "jtds-1.2.jar" }, nativeMeta.getUsedLibraries() ); // Pretty sure this is wrong (a bug) since the Driver is different.
     assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertTrue( nativeMeta.useSchemaNameForTableList() );
 

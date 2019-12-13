@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,6 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "EXTENDB",
         typeDescription = "ExtenDB"
 )
+@GuiPlugin( id="GUI-ExtenDBDatabaseMeta" )
 public class ExtenDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final String[] RESERVED_WORDS = {
     "AFTER", "BINARY", "BOOLEAN", "DATABASES", "DBA", "ESTIMATE", "MODIFY", "NODE", "NODES", "OWNER", "PARENT",
@@ -48,7 +50,7 @@ public class ExtenDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -64,11 +66,7 @@ public class ExtenDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    */
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.extendb.connect.XDBDriver";
-    }
+    return "com.extendb.connect.XDBDriver";
   }
 
   @Override
@@ -264,10 +262,4 @@ public class ExtenDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
     return retval;
   }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "xdbjdbc.jar" };
-  }
-
 }

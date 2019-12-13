@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
@@ -37,6 +38,7 @@ import org.apache.hop.core.util.Utils;
   type = "VECTORWISE",
   typeDescription = "Ingres VectorWise"
 )
+@GuiPlugin( id = "GUI-VectorWiseDatabaseMeta" )
 public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements DatabaseInterface {
 
   @Override
@@ -189,11 +191,6 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements Databa
   @Override
   public String getTruncateTableStatement( String tableName ) {
     return "CALL VECTORWISE( COMBINE '" + tableName + " - " + tableName + "' )";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "iijdbc.jar" };
   }
 
   @Override

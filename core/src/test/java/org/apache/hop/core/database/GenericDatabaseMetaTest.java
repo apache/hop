@@ -64,22 +64,19 @@ public class GenericDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     Properties attrs = new Properties();
     attrs.put( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS, "foo.bar.wibble" );
-    attrs.put( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_URL, "jdbc:foo:bar://foodb" );
+    nativeMeta.setManualUrl( "jdbc:foo:bar://foodb" );
     nativeMeta.setAttributes( attrs );
     assertEquals( "foo.bar.wibble", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:foo:bar://foodb", nativeMeta.getURL( "NOT", "GOINGTO", "BEUSED" ) );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "NOT", "USED", "FOO" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
-    assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
-    assertArrayEquals( new String[] { }, nativeMeta.getUsedLibraries() );
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
 
   }

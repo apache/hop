@@ -1,11 +1,9 @@
 package org.apache.hop.ui.core.gui;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
@@ -25,16 +23,21 @@ import java.util.Map;
  */
 public class GuiElementWidgets {
 
+  private static final String LABEL_ID_PREFIX = "label-";
+
   private VariableSpace space;
+  private Map<GuiElements, Control> labelsMap;
   private Map<GuiElements, Control> widgetsMap;
 
-  public GuiElementWidgets(VariableSpace space) {
+  public GuiElementWidgets( VariableSpace space ) {
     this.space = space;
+    labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
   }
 
-  public GuiElementWidgets( VariableSpace space, Map<GuiElements, Control> widgetsMap ) {
-    this(space);
+  public GuiElementWidgets( VariableSpace space, Map<GuiElements, Control> labelsMap, Map<GuiElements, Control> widgetsMap ) {
+    this( space );
+    this.labelsMap = labelsMap;
     this.widgetsMap = widgetsMap;
   }
 
@@ -44,7 +47,7 @@ public class GuiElementWidgets {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
     if ( guiElements == null ) {
-      System.out.println( "No GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+      System.out.println( "Create widgets: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
       return;
     }
 
@@ -61,7 +64,7 @@ public class GuiElementWidgets {
 
     System.out.println( "addWidgets START" );
 
-    if (guiElements.isIgnored()) {
+    if ( guiElements.isIgnored() ) {
       return lastControl;
     }
 
@@ -87,6 +90,7 @@ public class GuiElementWidgets {
       }
       fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
       label.setLayoutData( fdLabel );
+      labelsMap.put( guiElements, label );
 
       // Add the GUI element
       //
@@ -96,7 +100,7 @@ public class GuiElementWidgets {
           if ( guiElements.isVariablesEnabled() ) {
             TextVar textVar = new TextVar( space, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
             props.setLook( textVar );
-            if (guiElements.isPassword()) {
+            if ( guiElements.isPassword() ) {
               textVar.setEchoChar( '*' );
             }
             widgetsMap.put( guiElements, textVar );
@@ -104,11 +108,10 @@ public class GuiElementWidgets {
           } else {
             Text text = new Text( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
             props.setLook( text );
-            if (guiElements.isPassword()) {
+            if ( guiElements.isPassword() ) {
               text.setEchoChar( '*' );
             }
             widgetsMap.put( guiElements, text );
-            // TODO: get data from the sourceData using the getter
             control = text;
           }
           break;
@@ -142,28 +145,12 @@ public class GuiElementWidgets {
     }
   }
 
-  /**
-   * Gets widgetsMap
-   *
-   * @return value of widgetsMap
-   */
-  public Map<GuiElements, Control> getWidgetsMap() {
-    return widgetsMap;
-  }
-
-  /**
-   * @param widgetsMap The widgetsMap to set
-   */
-  public void setWidgetsMap( Map<GuiElements, Control> widgetsMap ) {
-    this.widgetsMap = widgetsMap;
-  }
-
   public void setWidgetsContents( Object sourceData, Composite parentComposite, String parentGuiElementId ) {
 
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
     if ( guiElements == null ) {
-      System.out.println( "No GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+      System.out.println( "setWidgetsContents: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
       return;
     }
 
@@ -176,7 +163,7 @@ public class GuiElementWidgets {
 
     System.out.println( "setWidgetsData START" );
 
-    if (guiElements.isIgnored()) {
+    if ( guiElements.isIgnored() ) {
       return;
     }
 
@@ -238,15 +225,15 @@ public class GuiElementWidgets {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
     if ( guiElements == null ) {
-      System.out.println( "No GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+      System.out.println( "getWidgetsContents: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
       return;
     }
 
-    getWidgetsData(sourceData, guiElements);
+    getWidgetsData( sourceData, guiElements );
   }
 
   private void getWidgetsData( Object sourceData, GuiElements guiElements ) {
-    if (guiElements.isIgnored()) {
+    if ( guiElements.isIgnored() ) {
       return;
     }
 
@@ -288,7 +275,7 @@ public class GuiElementWidgets {
             .invoke( sourceData, value )
           ;
         } catch ( Exception e ) {
-          System.out.println( "Unable to set value '"+value+"'on field: '" + guiElements.getFieldName() + "' : " + e.getMessage() );
+          System.out.println( "Unable to set value '" + value + "'on field: '" + guiElements.getFieldName() + "' : " + e.getMessage() );
           e.printStackTrace();
         }
 
@@ -304,5 +291,99 @@ public class GuiElementWidgets {
         getWidgetsData( sourceData, child );
       }
     }
+  }
+
+  public void enableWidgets( Object sourceData, String parentGuiElementId, boolean enabled ) {
+    GuiRegistry registry = GuiRegistry.getInstance();
+    GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
+    if ( guiElements == null ) {
+      System.out.println( "enableWidgets: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+      return;
+    }
+
+    enableWidget( sourceData, guiElements, enabled );
+  }
+
+  private void enableWidget( Object sourceData, GuiElements guiElements, boolean enabled ) {
+    if ( guiElements.isIgnored() ) {
+      return;
+    }
+
+    // Do we add the element or the children?
+    //
+    if ( guiElements.getId() != null ) {
+
+      // TODO: look for flag to have custom enable/disable code
+      //
+
+      Control label = labelsMap.get( guiElements );
+      Control widget = widgetsMap.get( guiElements );
+      if ( label != null ) {
+        label.setEnabled( enabled );
+      } else {
+        System.out.println( "Label not found to enable/disable: " + guiElements );
+      }
+      if ( widget != null ) {
+        widget.setEnabled( enabled );
+      } else {
+        System.out.println( "Widget not found to enable/disable: " + guiElements );
+      }
+    } else {
+    System.out.println( "Enabling " + guiElements.getChildren().size() + " children" );
+    // Add the children
+    //
+    for ( GuiElements child : guiElements.getChildren() ) {
+      enableWidget( sourceData, child, enabled );
+    }
+  }
+
+}
+
+  /**
+   * Gets space
+   *
+   * @return value of space
+   */
+  public VariableSpace getSpace() {
+    return space;
+  }
+
+  /**
+   * @param space The space to set
+   */
+  public void setSpace( VariableSpace space ) {
+    this.space = space;
+  }
+
+  /**
+   * Gets labelsMap
+   *
+   * @return value of labelsMap
+   */
+  public Map<GuiElements, Control> getLabelsMap() {
+    return labelsMap;
+  }
+
+  /**
+   * @param labelsMap The labelsMap to set
+   */
+  public void setLabelsMap( Map<GuiElements, Control> labelsMap ) {
+    this.labelsMap = labelsMap;
+  }
+
+  /**
+   * Gets widgetsMap
+   *
+   * @return value of widgetsMap
+   */
+  public Map<GuiElements, Control> getWidgetsMap() {
+    return widgetsMap;
+  }
+
+  /**
+   * @param widgetsMap The widgetsMap to set
+   */
+  public void setWidgetsMap( Map<GuiElements, Control> widgetsMap ) {
+    this.widgetsMap = widgetsMap;
   }
 }

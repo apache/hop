@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,11 +37,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "FIREBIRD",
         typeDescription = "Firebird SQL"
 )
+@GuiPlugin( id="GUI-FirebirdDatabaseMeta" )
 public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -61,11 +63,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.firebirdsql.jdbc.FBDriver";
-    }
+    return "org.firebirdsql.jdbc.FBDriver";
   }
 
   @Override
@@ -343,10 +341,4 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   public String getExtraOptionIndicator() {
     return "?";
   }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jaybird-full-2.1.0.jar" };
-  }
-
 }

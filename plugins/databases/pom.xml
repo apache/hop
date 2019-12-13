@@ -79,7 +79,6 @@
         <module>msaccess</module>
         <module>mssqlnative</module>
         <module>mssql</module>
-        <module>mondrian</module>
         <module>netezza</module>
         <module>oraclerdb</module>
         <module>remedy-ar-system</module>

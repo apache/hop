@@ -50,11 +50,10 @@ public class DerbyDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
 
     assertEquals( "org.apache.derby.jdbc.EmbeddedDriver", nativeMeta.getDriverClass() );
     nativeMeta.setHostname( "FOOHOST" );
@@ -69,7 +68,6 @@ public class DerbyDatabaseMetaTest {
 
     assertTrue( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
-    assertArrayEquals( new String[] { "derbyclient.jar" }, nativeMeta.getUsedLibraries() );
     assertEquals( 1527, nativeMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsGetBlob() );
     assertEquals( "http://db.apache.org/derby/papers/DerbyClientSpec.html", nativeMeta.getExtraOptionsHelpText() );

@@ -713,96 +713,6 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsSetMaxRows();
 
   /**
-   * @return true if we want to use a database connection pool
-   */
-  public boolean isUsingConnectionPool();
-
-  /**
-   * @param usePool
-   *          true if we want to use a database connection pool
-   */
-  public void setUsingConnectionPool( boolean usePool );
-
-  /**
-   * @return the maximum pool size
-   */
-  public int getMaximumPoolSize();
-
-  /**
-    * @return the maximum pool size variable name
-   */
-  public String getMaximumPoolSizeString();
-
-  /**
-   * @param maximumPoolSize
-   *          the maximum pool size
-   */
-  public void setMaximumPoolSize( int maximumPoolSize );
-
-  /**
-   * @param maximumPoolSize
-   *          the maximum pool size variable name
-   */
-  public void setMaximumPoolSizeString( String maximumPoolSize );
-
-  /**
-   * @return the initial pool size
-   */
-  public int getInitialPoolSize();
-
-  /**
-   * @return the initial pool size variable name
-   */
-  public String getInitialPoolSizeString();
-
-  /**
-   * @param initalPoolSize
-   *          the initial pool size
-   */
-  public void setInitialPoolSize( int initalPoolSize );
-
-  /**
-   * @param initalPoolSize
-   *          the initial pool size variable name
-   */
-  public void setInitialPoolSizeString( String initalPoolSize );
-
-  /**
-   * @return true if the connection contains partitioning information
-   */
-  public boolean isPartitioned();
-
-  /**
-   * @param partitioned
-   *          true if the connection is set to contain partitioning information
-   */
-  public void setPartitioned( boolean partitioned );
-
-  /**
-   * @return the available partition/host/databases/port combinations in the cluster
-   */
-  public PartitionDatabaseMeta[] getPartitioningInformation();
-
-  /**
-   * @param partitionInfo
-   *          the available partition/host/databases/port combinations in the cluster
-   */
-  public void setPartitioningInformation( PartitionDatabaseMeta[] partitionInfo );
-
-  /**
-   * @return the required libraries (in lib) for this database connection.
-   */
-  public String[] getUsedLibraries();
-
-  /**
-   * @return The set of properties that allows you to set the connection pooling parameters
-   */
-  public Properties getConnectionPoolingProperties();
-
-  /** set the connection pooling properties */
-  public void setConnectionPoolingProperties( Properties properties );
-
-  /**
    * @param tablename
    *          The table to verify the existance for
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
@@ -1332,4 +1242,26 @@ public interface DatabaseInterface extends Cloneable {
   String getPort();
 
   void setPort( String port );
+
+  /**
+   * Gets odbcDsn
+   *
+   * @return value of odbcDsn
+   */
+  public String getOdbcDsn();
+
+  /**
+   * @param odbcDsn The odbcDsn to set
+   */
+  public void setOdbcDsn( String odbcDsn );
+
+  /**
+   * @return A manually entered URL which will be used over the internally generated one
+   */
+  public String getManualUrl();
+
+  /**
+   * @param manualUrl A manually entered URL which will be used over the internally generated one
+   */
+  public void setManualUrl(String manualUrl);
 }

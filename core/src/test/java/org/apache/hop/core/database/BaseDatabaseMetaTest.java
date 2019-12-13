@@ -49,7 +49,7 @@ import org.apache.hop.repository.LongObjectId;
 
 public class BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  BaseDatabaseMeta nativeMeta, odbcMeta, jndiMeta;
+  BaseDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupOnce() throws Exception {
@@ -57,15 +57,12 @@ public class BaseDatabaseMetaTest {
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     odbcMeta = new ConcreteBaseDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
-    jndiMeta = new ConcreteBaseDatabaseMeta();
     HopClientEnvironment.init();
   }
 
   @Test
   public void testDefaultSettings() throws Exception {
     // Note - this method should only use native or odbc.
-    // The jndi meta is used for mutations of the meta, and it would
-    // not be threadsafe in a multi-threaded testing environment
     // (each test run in its own thread).
     assertEquals( -1, nativeMeta.getDefaultDatabasePort() );
     assertTrue( nativeMeta.supportsSetCharacterStream() );
@@ -124,13 +121,6 @@ public class BaseDatabaseMetaTest {
     assertTrue( nativeMeta.supportsGetBlob() );
     assertNull( nativeMeta.getConnectSQL() );
     assertTrue( nativeMeta.supportsSetMaxRows() );
-    assertFalse( nativeMeta.isUsingConnectionPool() );
-    assertEquals( ConnectionPoolUtil.defaultMaximumNrOfConnections, nativeMeta.getMaximumPoolSize() );
-    assertEquals( ConnectionPoolUtil.defaultInitialNrOfConnections, nativeMeta.getInitialPoolSize() );
-    assertFalse( nativeMeta.isPartitioned() );
-    assertArrayEquals( new PartitionDatabaseMeta[0], nativeMeta.getPartitioningInformation() );
-    Properties emptyProps = new Properties();
-    assertEquals( emptyProps, nativeMeta.getConnectionPoolingProperties() );
     assertTrue( nativeMeta.needsToLockAllTables() );
     assertTrue( nativeMeta.isStreamingResults() );
     assertFalse( nativeMeta.isQuoteAllFields() );
@@ -201,8 +191,6 @@ public class BaseDatabaseMetaTest {
   @Test
   public void testDefaultSQLStatements() {
     // Note - this method should use only native or odbc metas.
-    // Use of the jndi meta here could create a race condition
-    // when test cases are run by multiple threads
     String lineSep = System.getProperty( "line.separator" );
     String expected = "ALTER TABLE FOO DROP BAR" + lineSep;
     assertEquals( expected, odbcMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", false ) );
@@ -221,108 +209,81 @@ public class BaseDatabaseMetaTest {
 
   @Test
   public void testGettersSetters() {
-    // Note - this method should *ONLY* use the jndi meta and not the odbc or native ones.
-    // This is the only method in this test class that mutates the meta.
-    jndiMeta.setUsername( "FOO" );
-    assertEquals( "FOO", jndiMeta.getUsername() );
-    jndiMeta.setPassword( "BAR" );
-    assertEquals( "BAR", jndiMeta.getPassword() );
-    jndiMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_JNDI );
-    assertEquals( "", jndiMeta.getUsername() );
-    assertEquals( "", jndiMeta.getPassword() );
-    assertFalse( jndiMeta.isChanged() );
-    jndiMeta.setChanged( true );
-    assertTrue( jndiMeta.isChanged() );
-    jndiMeta.setName( "FOO" );
-    assertEquals( "FOO", jndiMeta.getName() );
-    assertEquals( "FOO", jndiMeta.getDisplayName() );
-    jndiMeta.setName( null );
-    assertNull( jndiMeta.getName() );
-    assertEquals( "FOO", jndiMeta.getDisplayName() );
-    jndiMeta.setDisplayName( null );
-    assertNull( jndiMeta.getDisplayName() );
-    jndiMeta.setDatabaseName( "FOO" );
-    assertEquals( "FOO", jndiMeta.getDatabaseName() );
-    jndiMeta.setHostname( "FOO" );
-    assertEquals( "FOO", jndiMeta.getHostname() );
+    nativeMeta.setUsername( "FOO" );
+    assertEquals( "FOO", nativeMeta.getUsername() );
+    nativeMeta.setPassword( "BAR" );
+    assertEquals( "BAR", nativeMeta.getPassword() );
+    nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
+    assertEquals( "FOO", nativeMeta.getUsername() );
+    assertEquals( "BAR", nativeMeta.getPassword() );
+    assertFalse( nativeMeta.isChanged() );
+    nativeMeta.setChanged( true );
+    assertTrue( nativeMeta.isChanged() );
+    nativeMeta.setName( "FOO" );
+    assertEquals( "FOO", nativeMeta.getName() );
+    assertEquals( "FOO", nativeMeta.getDisplayName() );
+    nativeMeta.setName( null );
+    assertNull( nativeMeta.getName() );
+    assertEquals( "FOO", nativeMeta.getDisplayName() );
+    nativeMeta.setDisplayName( null );
+    assertNull( nativeMeta.getDisplayName() );
+    nativeMeta.setDatabaseName( "FOO" );
+    assertEquals( "FOO", nativeMeta.getDatabaseName() );
+    nativeMeta.setHostname( "FOO" );
+    assertEquals( "FOO", nativeMeta.getHostname() );
     LongObjectId id = new LongObjectId( 9876 );
-    jndiMeta.setObjectId( id );
-    assertEquals( id, jndiMeta.getObjectId() );
-    jndiMeta.setServername( "FOO" );
-    assertEquals( "FOO", jndiMeta.getServername() );
-    jndiMeta.setDataTablespace( "FOO" );
-    assertEquals( "FOO", jndiMeta.getDataTablespace() );
-    jndiMeta.setIndexTablespace( "FOO" );
-    assertEquals( "FOO", jndiMeta.getIndexTablespace() );
-    Properties attrs = jndiMeta.getAttributes();
+    nativeMeta.setObjectId( id );
+    assertEquals( id, nativeMeta.getObjectId() );
+    nativeMeta.setServername( "FOO" );
+    assertEquals( "FOO", nativeMeta.getServername() );
+    nativeMeta.setDataTablespace( "FOO" );
+    assertEquals( "FOO", nativeMeta.getDataTablespace() );
+    nativeMeta.setIndexTablespace( "FOO" );
+    assertEquals( "FOO", nativeMeta.getIndexTablespace() );
+    Properties attrs = nativeMeta.getAttributes();
     Properties testAttrs = new Properties();
     testAttrs.setProperty( "FOO", "BAR" );
-    jndiMeta.setAttributes( testAttrs );
-    assertEquals( testAttrs, jndiMeta.getAttributes() );
-    jndiMeta.setAttributes( attrs ); // reset attributes back to what they were...
-    jndiMeta.setSupportsBooleanDataType( true );
-    assertTrue( jndiMeta.supportsBooleanDataType() );
-    jndiMeta.setSupportsTimestampDataType( true );
-    assertTrue( jndiMeta.supportsTimestampDataType() );
-    jndiMeta.setPreserveReservedCase( false );
-    assertFalse( jndiMeta.preserveReservedCase() );
-    jndiMeta.addExtraOption( "JNDI", "FOO", "BAR" );
+    nativeMeta.setAttributes( testAttrs );
+    assertEquals( testAttrs, nativeMeta.getAttributes() );
+    nativeMeta.setAttributes( attrs ); // reset attributes back to what they were...
+    nativeMeta.setSupportsBooleanDataType( true );
+    assertTrue( nativeMeta.supportsBooleanDataType() );
+    nativeMeta.setSupportsTimestampDataType( true );
+    assertTrue( nativeMeta.supportsTimestampDataType() );
+    nativeMeta.setPreserveReservedCase( false );
+    assertFalse( nativeMeta.preserveReservedCase() );
+    nativeMeta.addExtraOption( "JNDI", "FOO", "BAR" );
     Map<String, String> expectedOptionsMap = new HashMap<String, String>();
     expectedOptionsMap.put( "JNDI.FOO", "BAR" );
-    assertEquals( expectedOptionsMap, jndiMeta.getExtraOptions() );
-    jndiMeta.setConnectSQL( "SELECT COUNT(*) FROM FOO" );
-    assertEquals( "SELECT COUNT(*) FROM FOO", jndiMeta.getConnectSQL() );
-    jndiMeta.setUsingConnectionPool( true );
-    assertTrue( jndiMeta.isUsingConnectionPool() );
-    jndiMeta.setMaximumPoolSize( 15 );
-    assertEquals( 15, jndiMeta.getMaximumPoolSize() );
-    jndiMeta.setInitialPoolSize( 5 );
-    assertEquals( 5, jndiMeta.getInitialPoolSize() );
-    jndiMeta.setPartitioned( true );
-    assertTrue( jndiMeta.isPartitioned() );
+    assertEquals( expectedOptionsMap, nativeMeta.getExtraOptions() );
+    nativeMeta.setConnectSQL( "SELECT COUNT(*) FROM FOO" );
+    assertEquals( "SELECT COUNT(*) FROM FOO", nativeMeta.getConnectSQL() );
     PartitionDatabaseMeta[] clusterInfo = new PartitionDatabaseMeta[1];
     PartitionDatabaseMeta aClusterDef = new PartitionDatabaseMeta( "FOO", "BAR", "WIBBLE", "NATTIE" );
     aClusterDef.setUsername( "FOOUSER" );
     aClusterDef.setPassword( "BARPASSWORD" );
     clusterInfo[0] = aClusterDef;
-    jndiMeta.setPartitioningInformation( clusterInfo );
-    PartitionDatabaseMeta[] gotPartitions = jndiMeta.getPartitioningInformation();
     // MB: Can't use arrayEquals because the PartitionDatabaseMeta doesn't have a toString. :(
     // assertArrayEquals( clusterInfo, gotPartitions );
-    assertTrue( gotPartitions != null );
-    if ( gotPartitions != null ) {
-      assertEquals( 1, gotPartitions.length );
-      PartitionDatabaseMeta compareWith = gotPartitions[0];
-      // MB: Can't use x.equals(y) because PartitionDatabaseMeta doesn't override equals... :(
-      assertEquals( aClusterDef.getClass(), compareWith.getClass() );
-      assertEquals( aClusterDef.getDatabaseName(), compareWith.getDatabaseName() );
-      assertEquals( aClusterDef.getHostname(), compareWith.getHostname() );
-      assertEquals( aClusterDef.getPartitionId(), compareWith.getPartitionId() );
-      assertEquals( aClusterDef.getPassword(), compareWith.getPassword() );
-      assertEquals( aClusterDef.getPort(), compareWith.getPort() );
-      assertEquals( aClusterDef.getUsername(), compareWith.getUsername() );
-    }
+
     Properties poolProperties = new Properties();
     poolProperties.put( "FOO", "BAR" );
     poolProperties.put( "BAR", "FOO" );
     poolProperties.put( "ZZZZZZZZZZZZZZ", "Z.Z.Z.Z.Z.Z.Z.Z.a.a.a.a.a.a.a.a.a" );
     poolProperties.put( "TOM", "JANE" );
     poolProperties.put( "AAAAAAAAAAAAA", "BBBBB.BBB.BBBBBBB.BBBBBBBB.BBBBBBBBBBBBBB" );
-    jndiMeta.setConnectionPoolingProperties( poolProperties );
-    Properties compareWithProps = jndiMeta.getConnectionPoolingProperties();
-    assertEquals( poolProperties, compareWithProps );
-    jndiMeta.setStreamingResults( false );
-    assertFalse( jndiMeta.isStreamingResults() );
-    jndiMeta.setQuoteAllFields( true );
-    jndiMeta.setForcingIdentifiersToLowerCase( true );
-    jndiMeta.setForcingIdentifiersToUpperCase( true );
-    assertTrue( jndiMeta.isQuoteAllFields() );
-    assertTrue( jndiMeta.isForcingIdentifiersToLowerCase() );
-    assertTrue( jndiMeta.isForcingIdentifiersToUpperCase() );
-    jndiMeta.setUsingDoubleDecimalAsSchemaTableSeparator( true );
-    assertTrue( jndiMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
-    jndiMeta.setPreferredSchemaName( "FOO" );
-    assertEquals( "FOO", jndiMeta.getPreferredSchemaName() );
+    nativeMeta.setStreamingResults( false );
+    assertFalse( nativeMeta.isStreamingResults() );
+    nativeMeta.setQuoteAllFields( true );
+    nativeMeta.setForcingIdentifiersToLowerCase( true );
+    nativeMeta.setForcingIdentifiersToUpperCase( true );
+    assertTrue( nativeMeta.isQuoteAllFields() );
+    assertTrue( nativeMeta.isForcingIdentifiersToLowerCase() );
+    assertTrue( nativeMeta.isForcingIdentifiersToUpperCase() );
+    nativeMeta.setUsingDoubleDecimalAsSchemaTableSeparator( true );
+    assertTrue( nativeMeta.isUsingDoubleDecimalAsSchemaTableSeparator() );
+    nativeMeta.setPreferredSchemaName( "FOO" );
+    assertEquals( "FOO", nativeMeta.getPreferredSchemaName() );
   }
 
   private int rowCnt = 0;

@@ -155,13 +155,10 @@ public class PartitionSchemaDialog extends Dialog {
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( " &OK " );
 
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "PartitionSchema.ImportPartitions" ) );
-
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( " &Cancel " );
 
-    Button[] buttons = new Button[] { wOK, wGet, wCancel };
+    Button[] buttons = new Button[] { wOK, wCancel };
     BaseStepDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // The rest stays above the buttons, so we added those first...
@@ -255,11 +252,6 @@ public class PartitionSchemaDialog extends Dialog {
     wOK.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
-      }
-    } );
-    wGet.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        importPartitions();
       }
     } );
     wCancel.addListener( SWT.Selection, new Listener() {
@@ -369,42 +361,5 @@ public class PartitionSchemaDialog extends Dialog {
       parts.add( wPartitions.getNonEmpty( i ).getText( 1 ) );
     }
     partitionSchema.setPartitionIDs( parts );
-  }
-
-  protected void importPartitions() {
-    List<String> partitionedDatabaseNames = new ArrayList<String>();
-
-    for ( int i = 0; i < databases.size(); i++ ) {
-      DatabaseMeta databaseMeta = databases.get( i );
-      if ( databaseMeta.isPartitioned() ) {
-        partitionedDatabaseNames.add( databaseMeta.getName() );
-      }
-    }
-    String[] dbNames = partitionedDatabaseNames.toArray( new String[partitionedDatabaseNames.size()] );
-
-    if ( dbNames.length > 0 ) {
-      EnterSelectionDialog dialog =
-        new EnterSelectionDialog(
-          shell, dbNames, BaseMessages.getString( PKG, "PartitionSchema.SelectDatabase" ), BaseMessages
-            .getString( PKG, "PartitionSchema.SelectPartitionnedDatabase" ) );
-      String dbName = dialog.open();
-      if ( dbName != null ) {
-        DatabaseMeta databaseMeta = DatabaseMeta.findDatabase( databases, dbName );
-        PartitionDatabaseMeta[] partitioningInformation = databaseMeta.getPartitioningInformation();
-        if ( partitioningInformation != null ) {
-          // Here we are...
-          wPartitions.clearAll( false );
-
-          for ( int i = 0; i < partitioningInformation.length; i++ ) {
-            PartitionDatabaseMeta meta = partitioningInformation[i];
-            wPartitions.add( new String[] { meta.getPartitionId() } );
-          }
-
-          wPartitions.removeEmptyRows();
-          wPartitions.setRowNums();
-          wPartitions.optWidth( true );
-        }
-      }
-    }
   }
 }

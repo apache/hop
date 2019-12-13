@@ -57,12 +57,11 @@ public class PostgreSQLDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertEquals( "&", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "?", nativeMeta.getExtraOptionIndicator() );
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 5432, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.postgresql.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
 
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
@@ -153,7 +152,6 @@ public class PostgreSQLDatabaseMetaTest {
     assertTrue( nativeMeta.supportsRepository() );
     assertFalse( nativeMeta.isDefaultingToUppercase() );
     assertEquals( "http://jdbc.postgresql.org/documentation/83/connect.html#connection-parameters", nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "postgresql-8.2-506.jdbc3.jar" }, nativeMeta.getUsedLibraries() );
     assertFalse( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertTrue( nativeMeta.requiresCastToVariousForIsNull() );
     assertFalse( nativeMeta.supportsGetBlob() );

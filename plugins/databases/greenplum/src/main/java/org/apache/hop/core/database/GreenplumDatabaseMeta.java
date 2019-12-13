@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 /**
@@ -35,6 +36,7 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
   type = "GREENPLUM",
   typeDescription = "Greenplum"
 )
+@GuiPlugin( id="GUI-GreenplumDatabaseMeta" )
 public class GreenplumDatabaseMeta extends PostgreSQLDatabaseMeta implements DatabaseInterface {
   @Override
   public String[] getReservedWords() {

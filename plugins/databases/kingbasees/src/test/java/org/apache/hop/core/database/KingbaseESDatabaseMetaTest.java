@@ -59,7 +59,6 @@ public class KingbaseESDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "com.kingbase.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:null", odbcMeta.getURL(  "IGNORED", "IGNORED", "IGNORED" ) ); // This is definitely a bug
 
     odbcMeta.setDatabaseName( "FOODBNAME" );
@@ -68,7 +67,6 @@ public class KingbaseESDatabaseMetaTest {
 
     assertEquals( "jdbc:kingbase://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:kingbase://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Pretty sure this is a bug (colon after foo)
-    assertArrayEquals( new String[] { "kingbasejdbc4.jar" }, nativeMeta.getUsedLibraries() );
 
     assertArrayEquals( new String[] {
       // http://www.postgresql.org/docs/8.1/static/sql-keywords-appendix.html

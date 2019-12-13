@@ -51,7 +51,7 @@ public class MonetDBDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 50000, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -59,7 +59,6 @@ public class MonetDBDatabaseMetaTest {
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "nl.cwi.monetdb.jdbc.MonetDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:monetdb://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:monetdb://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
@@ -68,7 +67,6 @@ public class MonetDBDatabaseMetaTest {
     assertFalse( nativeMeta.supportsSynonyms() );
     assertTrue( nativeMeta.supportsBatchUpdates() );
     assertTrue( nativeMeta.supportsSetMaxRows() );
-    assertArrayEquals( new String[] { "monetdb-jdbc-2.8.jar" }, nativeMeta.getUsedLibraries() );
     assertArrayEquals( new String[] {
       "IS", "ISNULL", "NOTNULL", "IN", "BETWEEN", "OVERLAPS", "LIKE", "ILIKE", "NOT", "AND", "OR", "CHAR", "VARCHAR",
       "CLOB", "BLOB", "DECIMAL", "DEC", "NUMERIC", "TINYINT", "SMALLINT", "INT", "BIGINT", "REAL", "DOUBLE", "BOOLEAN",

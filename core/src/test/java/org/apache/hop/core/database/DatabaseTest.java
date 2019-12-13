@@ -48,18 +48,12 @@ import java.sql.*;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactoryBuilder;
-import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.database.DataSourceProviderInterface.DatasourceType;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogLevel;
@@ -68,7 +62,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.VariableSpace;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 @SuppressWarnings( "deprecation" )
 public class DatabaseTest {
@@ -87,7 +80,6 @@ public class DatabaseTest {
   //common fields
   private String sql = "select * from employees";
   private String columnName = "salary";
-  private String fullJndiName = "jdbc/testJNDIName";
   private ResultSet rs = mock( ResultSet.class );
   private DatabaseMeta dbMetaMock = mock( DatabaseMeta.class );
   private DatabaseMetaData dbMetaDataMock = mock( DatabaseMetaData.class );
@@ -110,39 +102,10 @@ public class DatabaseTest {
   public void setUp() throws Exception {
     conn = mockConnection( mock( DatabaseMetaData.class ) );
     when( log.getLogLevel() ).thenReturn( LogLevel.NOTHING );
-    if ( !NamingManager.hasInitialContextFactoryBuilder() ) {
-      // If JNDI is not initialized, use simpleJNDI
-      System.setProperty( Context.INITIAL_CONTEXT_FACTORY,
-        "org.osjava.sj.memory.MemoryContextFactory" ); // pentaho#simple-jndi;1.0.0
-      System.setProperty( "org.osjava.sj.jndi.shared", "true" );
-      InitialContextFactoryBuilder simpleBuilder = new SimpleNamingContextBuilder();
-      NamingManager.setInitialContextFactoryBuilder( simpleBuilder );
-    }
   }
 
   @After
-  public void tearDown() throws NamingException {
-    InitialContext ctx = new InitialContext();
-    ctx.unbind( fullJndiName );
-  }
-
-  @Test
-  public void testConnectJNDI() throws SQLException, NamingException, HopDatabaseException {
-    InitialContext ctx = new InitialContext();
-    String jndiName = "testJNDIName";
-    when( meta.getName() ).thenReturn( "testName" );
-    when( meta.getDatabaseName() ).thenReturn( jndiName );
-    when( meta.getDisplayName() ).thenReturn( "testDisplayName" );
-    when( meta.getAccessType() ).thenReturn( DatabaseMeta.TYPE_ACCESS_JNDI );
-    when( meta.environmentSubstitute( jndiName ) ).thenReturn( jndiName );
-
-    DataSource ds = mock( DataSource.class );
-    when( ds.getConnection() ).thenReturn( conn );
-    ctx.bind( fullJndiName, ds );
-
-    Database db = new Database( log, meta );
-    db.connect();
-    assertEquals( conn, db.getConnection() );
+  public void tearDown() {
   }
 
 
@@ -543,82 +506,6 @@ public class DatabaseTest {
     Connection conn = mock( Connection.class );
     when( conn.getMetaData() ).thenReturn( dbMetaData );
     return conn;
-  }
-
-  @Test
-  public void usesCustomDsProviderIfSet_Pooling() throws Exception {
-    DatabaseMeta meta = new DatabaseMeta();
-    meta.setUsingConnectionPool( true );
-    testUsesCustomDsProviderIfSet( meta );
-  }
-
-  @Test
-  public void usesCustomDsProviderIfSet_Jndi() throws Exception {
-    DatabaseMeta meta = new DatabaseMeta();
-    meta.setAccessType( DatabaseMeta.TYPE_ACCESS_JNDI );
-    testUsesCustomDsProviderIfSet( meta );
-  }
-
-  private DataSourceProviderInterface testUsesCustomDsProviderIfSet( DatabaseMeta meta ) throws Exception {
-    Connection connection = mock( Connection.class );
-    DataSource ds = mock( DataSource.class );
-    when( ds.getConnection() ).thenReturn( connection );
-    when( ds.getConnection( anyString(), anyString() ) ).thenReturn( connection );
-    DataSourceProviderInterface provider = mock( DataSourceProviderInterface.class );
-    when( provider.getNamedDataSource( anyString(), any( DataSourceProviderInterface.DatasourceType.class ) ) )
-      .thenReturn( ds );
-
-    Database db = new Database( log, meta );
-    final DataSourceProviderInterface existing = DataSourceProviderFactory.getDataSourceProviderInterface();
-    try {
-      DataSourceProviderFactory.setDataSourceProviderInterface( provider );
-      db.normalConnect( null );
-    } finally {
-      DataSourceProviderFactory.setDataSourceProviderInterface( existing );
-    }
-    assertEquals( connection, db.getConnection() );
-    return provider;
-  }
-
-  @Test
-  public void jndiAccessTypePrevailsPooled() throws Exception {
-    // this test is a guard of Database.normalConnect() contract:
-    // it firstly tries to use JNDI name
-    DatabaseMeta meta = new DatabaseMeta();
-    meta.setAccessType( DatabaseMeta.TYPE_ACCESS_JNDI );
-    meta.setUsingConnectionPool( true );
-
-    DataSourceProviderInterface provider = testUsesCustomDsProviderIfSet( meta );
-    verify( provider ).getNamedDataSource( anyString(), eq( DatasourceType.JNDI ) );
-    verify( provider, never() ).getNamedDataSource( anyString(), eq( DatasourceType.POOLED ) );
-  }
-
-  @Test
-  public void testNormalConnect_WhenTheProviderDoesNotReturnDataSourceWithPool() throws Exception {
-    Driver driver = mock( Driver.class );
-    when( driver.acceptsURL( anyString() ) ).thenReturn( true );
-    when( driver.connect( anyString(), any( Properties.class ) ) ).thenReturn( conn );
-    DriverManager.registerDriver( driver );
-
-    when( meta.isUsingConnectionPool() ).thenReturn( true );
-    when( meta.getDriverClass() ).thenReturn( driver.getClass().getName() );
-    when( meta.getURL( anyString() ) ).thenReturn( "mockUrl" );
-    when( meta.getInitialPoolSize() ).thenReturn( 1 );
-    when( meta.getMaximumPoolSize() ).thenReturn( 1 );
-
-    DataSourceProviderInterface provider = mock( DataSourceProviderInterface.class );
-    Database db = new Database( log, meta );
-    final DataSourceProviderInterface existing = DataSourceProviderFactory.getDataSourceProviderInterface();
-    try {
-      DataSourceProviderFactory.setDataSourceProviderInterface( provider );
-      db.normalConnect( "ConnectThatDoesNotExistInProvider" );
-    } finally {
-      DataSourceProviderFactory.setDataSourceProviderInterface( existing );
-    }
-    //we will check only it not null since it will be wrapped by pool and its not eqal with conn from driver
-    assertNotNull( db.getConnection() );
-
-    DriverManager.deregisterDriver( driver );
   }
 
   @Test

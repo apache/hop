@@ -51,7 +51,7 @@ public class IngresDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( -1, nativeMeta.getDefaultDatabasePort() ); // pretty sure this is a bug - should be 21064 ( http://community.actian.com/wiki/Ingres_TCP_Ports )
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -59,7 +59,6 @@ public class IngresDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "com.ingres.jdbc.IngresDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:ingres://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:ingres://FOO:II7/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
@@ -68,7 +67,6 @@ public class IngresDatabaseMetaTest {
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsSynonyms() );
     assertFalse( nativeMeta.supportsGetBlob() );
-    assertArrayEquals( new String[] { "iijdbc.jar" }, nativeMeta.getUsedLibraries() );
   }
 
   @Test

@@ -54,7 +54,6 @@ public class DbaseDatabaseMetaTest {
         nativeMeta.getAccessTypeList() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertEquals( "\"BAR\"", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
@@ -63,7 +62,6 @@ public class DbaseDatabaseMetaTest {
     assertFalse( nativeMeta.supportsViews() );
     assertFalse( nativeMeta.supportsSynonyms() );
     assertFalse( nativeMeta.supportsSetMaxRows() );
-    assertEquals( new String[] {}, nativeMeta.getUsedLibraries() );
   }
 
   @Test

@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -37,11 +38,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "DERBY",
         typeDescription = "Apache Derby"
 )
+@GuiPlugin( id="GUI-DerbyDatabaseMeta" )
 public class DerbyDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -57,16 +59,11 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      if ( Utils.isEmpty( getHostname() ) ) {
-        return "org.apache.derby.jdbc.EmbeddedDriver";
-      } else {
-        return "org.apache.derby.jdbc.ClientDriver";
-      }
+    if ( Utils.isEmpty( getHostname() ) ) {
+      return "org.apache.derby.jdbc.EmbeddedDriver";
     } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // ODBC bridge
+      return "org.apache.derby.jdbc.ClientDriver";
     }
-
   }
 
   @Override
@@ -248,11 +245,6 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     }
 
     return retval;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "derbyclient.jar" };
   }
 
   @Override

@@ -66,7 +66,7 @@ public class NeoviewDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 18650, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -74,7 +74,6 @@ public class NeoviewDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "com.hp.t4jdbc.HPT4Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:hpt4jdbc://FOO:BAR/:schema=WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:hpt4jdbc://FOO:BAR/:schema=WIBBLE", nativeMeta.getURL( "FOO", "BAR", "schema=WIBBLE" ) );
@@ -89,7 +88,6 @@ public class NeoviewDatabaseMetaTest {
     assertFalse( nativeMeta.needsToLockAllTables() );
     assertTrue( nativeMeta.supportsGetBlob() );
     assertEquals( "", nativeMeta.getLimitClause( 15 ) );
-    assertArrayEquals( new String[] { "hpt4jdbc.jar" }, nativeMeta.getUsedLibraries() );
     assertArrayEquals( new String[] {
       "ACTION", "FOR", "PROTOTYPE", "ADD", "FOREIGN", "PUBLIC", "ADMIN", "FOUND", "READ", "AFTER", "FRACTION",
       "READS", "AGGREGATE", "FREE", "REAL", "ALIAS", "FROM", "RECURSIVE", "ALL", "FULL", "REF", "ALLOCATE",

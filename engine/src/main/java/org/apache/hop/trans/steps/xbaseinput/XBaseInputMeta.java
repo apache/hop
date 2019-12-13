@@ -511,11 +511,6 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
       space, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
   }
 
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "javadbf.jar", };
-  }
-
   /**
    * @return the charactersetName
    */

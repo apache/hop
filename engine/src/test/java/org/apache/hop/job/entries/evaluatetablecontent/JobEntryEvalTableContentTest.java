@@ -107,12 +107,6 @@ public class JobEntryEvalTableContentTest {
     }
 
     @Override
-    public String[] getUsedLibraries() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
     public int[] getAccessTypeList() {
       // TODO Auto-generated method stub
       return null;

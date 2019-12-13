@@ -22,6 +22,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StringUtil;
@@ -30,18 +31,13 @@ import org.apache.hop.i18n.BaseMessages;
         type = "GOOGLEBIGQUERY",
         typeDescription = "Google BigQuery"
 )
+@GuiPlugin( id="GUI-GoogleBigQueryDatabaseMeta" )
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   private static Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
 
   @Override public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_JNDI };
-  }
-
-  @Override public String[] getUsedLibraries() {
-    return new String[] { "google-api-client-1.30.5.jar", "google-api-services-bigquery-v2-rev20190907-1.30.3.jar",
-      "google-http-client-1.33.0.jar", "google-http-client-jackson2-1.33.0.jar",
-      "google-oauth-client-1.30.4.jar", "GoogleBigQueryJDBC42.jar"};
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override public String getDriverClass() {

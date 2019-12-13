@@ -1576,11 +1576,6 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
     this.acceptingStepName = acceptingStepName;
   }
 
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jxl.jar", };
-  }
-
   /**
    * @return the encoding
    */

@@ -190,13 +190,6 @@ public class Const {
   public static final String USER_HOME_DIRECTORY = NVL( System.getProperty( "HOP_HOME" ), System
     .getProperty( "user.home" ) );
 
-  /**
-   * Path to the simple-jndi directory
-   */
-
-  public static String JNDI_DIRECTORY = NVL( System.getProperty( "HOP_JNDI_ROOT" ), System
-    .getProperty( "org.osjava.sj.root" ) );
-
   /*
    * The images directory
    *

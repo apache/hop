@@ -68,14 +68,12 @@ public class HypersonicDatabaseMetaTest {
     assertEquals( 9001, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.hsqldb.jdbcDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
 
     assertEquals( "jdbc:hsqldb:WIBBLE", nativeMeta.getURL( "", "", "WIBBLE" ) );
     assertEquals( "jdbc:hsqldb:hsql://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertEquals( "http://hsqldb.sourceforge.net/doc/guide/ch04.html#N109DA", nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "hsqldb.jar" }, nativeMeta.getUsedLibraries() );
     assertArrayEquals( new String[] { "ADD", "ALL", "ALLOCATE", "ALTER", "AND", "ANY", "ARE", "ARRAY", "AS", "ASENSITIVE",
       "ASYMMETRIC", "AT", "ATOMIC", "AUTHORIZATION", "BEGIN", "BETWEEN", "BIGINT", "BINARY", "BLOB", "BOOLEAN", "BOTH",
       "BY", "CALL", "CALLED", "CASCADED", "CASE", "CAST", "CHAR", "CHARACTER", "CHECK", "CLOB", "CLOSE", "COLLATE",

@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -39,6 +40,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "MSSQL",
         typeDescription = "MS SQL Server"
 )
+@GuiPlugin( id="GUI-MSSQLServerDatabaseMeta" )
 public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public boolean supportsCatalogs() {
@@ -48,7 +50,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -61,11 +63,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "net.sourceforge.jtds.jdbc.Driver";
-    }
+    return "net.sourceforge.jtds.jdbc.Driver";
   }
 
   @Override
@@ -365,11 +363,6 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
       "UNDER", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UPDATE", "UPDATETEXT", "USAGE", "USE", "USER", "USING",
       "VALUE", "VALUES", "VARCHAR", "VARIABLE", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHENEVER", "WHERE",
       "WHILE", "WITH", "WITHOUT", "WORK", "WRITE", "WRITETEXT", "YEAR", "ZONE" };
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jtds-1.2.5.jar" };
   }
 
   @Override

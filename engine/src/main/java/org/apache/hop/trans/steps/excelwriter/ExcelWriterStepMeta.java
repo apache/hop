@@ -1104,11 +1104,6 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
     return new ExcelWriterStepData();
   }
 
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[0];
-  }
-
   /**
    * @return the streamingData
    */

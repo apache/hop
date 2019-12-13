@@ -34,11 +34,6 @@ public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
   }
 
   @Override
-  public String[] getUsedLibraries() {
-    return null;
-  }
-
-  @Override
   public int[] getAccessTypeList() {
     return null;
   }

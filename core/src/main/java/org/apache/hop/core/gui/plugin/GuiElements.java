@@ -112,7 +112,14 @@ public class GuiElements {
     } );
   }
 
-
+  public GuiElements findChild( String id ) {
+    for (GuiElements child : children) {
+      if (child.getId()!=null && child.getId().equals( id )) {
+        return child;
+      }
+    }
+    return null;
+  }
 
   @Override public boolean equals( Object o ) {
     if ( this == o ) {

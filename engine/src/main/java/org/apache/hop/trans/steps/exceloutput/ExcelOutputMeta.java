@@ -1409,11 +1409,6 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     return new ExcelOutputData();
   }
 
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jxl.jar", };
-  }
-
   public static String getFontNameDesc( int i ) {
     if ( i < 0 || i >= font_name_desc.length ) {
       return font_name_desc[0];

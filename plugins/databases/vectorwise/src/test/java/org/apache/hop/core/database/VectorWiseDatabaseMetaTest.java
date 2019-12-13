@@ -46,7 +46,6 @@ public class VectorWiseDatabaseMetaTest {
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     odbcMeta = new VectorWiseDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:ingres://FOO:VW7/WIBBLE", nativeMeta.getURL( "FOO", "VW7", "WIBBLE" ) );
     assertEquals( "jdbc:ingres://FOO:VW7/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Empty bit
@@ -67,8 +66,6 @@ public class VectorWiseDatabaseMetaTest {
 
     assertEquals( "CALL VECTORWISE( COMBINE 'FOO - FOO' )",
         nativeMeta.getTruncateTableStatement( "FOO" ) );
-
-    assertArrayEquals( new String[] { "iijdbc.jar" }, nativeMeta.getUsedLibraries() );
 
     assertFalse( nativeMeta.supportsGetBlob() );
 

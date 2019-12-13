@@ -54,7 +54,6 @@ public class H2DatabaseMetaTest {
     assertEquals( 8082, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.h2.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
 
     assertEquals( "jdbc:h2:WIBBLE", nativeMeta.getURL( "", "", "WIBBLE" ) );
@@ -66,7 +65,6 @@ public class H2DatabaseMetaTest {
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
 
-    assertArrayEquals( new String[] { "h2.jar" }, nativeMeta.getUsedLibraries() );
     assertArrayEquals( new String[] {
       "CURRENT_TIMESTAMP", "CURRENT_TIME", "CURRENT_DATE", "CROSS", "DISTINCT", "EXCEPT", "EXISTS", "FROM",
       "FOR", "FALSE", "FULL", "GROUP", "HAVING", "INNER", "INTERSECT", "IS", "JOIN", "LIKE", "MINUS", "NATURAL",

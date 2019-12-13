@@ -37,10 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
   type = "POSTGRESQL",
   typeDescription = "PostgreSQL"
 )
-@GuiPlugin(
-  id = "PostgreSQLDatabaseMetaGuiPlugin",
-  description = "Provides GUI element information for PostgreSQL specific options"
-)
+@GuiPlugin( id = "GUI-PostgreSQLDatabaseMeta" )
 public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final int GB_LIMIT = 1_073_741_824;
 
@@ -69,7 +66,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -82,11 +79,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.postgresql.Driver";
-    }
+    return "org.postgresql.Driver";
   }
 
   @Override
@@ -531,11 +524,6 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   @Override
   public String getExtraOptionsHelpText() {
     return "http://jdbc.postgresql.org/documentation/83/connect.html#connection-parameters";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "postgresql-8.2-506.jdbc3.jar" };
   }
 
   /**

@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -42,11 +43,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "NEOVIEW",
         typeDescription = "Neoview"
 )
+@GuiPlugin( id="GUI-NeoviewDatabaseMeta" )
 public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -107,11 +109,7 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.hp.t4jdbc.HPT4Driver";
-    }
+    return "com.hp.t4jdbc.HPT4Driver";
   }
 
   @Override
@@ -382,11 +380,6 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public String getExtraOptionsHelpText() {
     return "http://docs.hp.com/en/busintellsol.html";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "hpt4jdbc.jar" };
   }
 
   @Override

@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,11 +37,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "SQLITE",
         typeDescription = "SQLite"
 )
+@GuiPlugin( id = "GUI-SQLiteDatabaseMeta" )
 public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -56,12 +58,7 @@ public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "org.sqlite.JDBC";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "org.sqlite.JDBC";
   }
 
   @Override
@@ -214,11 +211,6 @@ public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
     }
 
     return retval;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "sqlite-jdbc-3.7.2.jar" };
   }
 
   /**

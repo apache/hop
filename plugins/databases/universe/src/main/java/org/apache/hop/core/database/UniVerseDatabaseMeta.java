@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,13 +37,14 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "UNIVERSE",
         typeDescription = "UniVerse database"
 )
+@GuiPlugin( id = "GUI-UniVerseDatabaseMeta" )
 public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final int MAX_VARCHAR_LENGTH = 65535;
 
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -58,12 +60,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "com.ibm.u2.jdbc.UniJDBCDriver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "com.ibm.u2.jdbc.UniJDBCDriver";
   }
 
   @Override
@@ -252,11 +249,6 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
       "TIME", "TO", "TOTAL", "TRAILING", "TRIM", "TYPE", "UNION", "UNIQUE", "UNNEST", "UNORDERED", "UPDATE",
       "UPPER", "USER", "USING", "VALUES", "VARBIT", "VARCHAR", "VARYING", "VERT", "VERTICALLY", "VIEW", "WHEN",
       "WHERE", "WITH", };
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "unijdbc.jar", "asjava.zip" };
   }
 
   /**

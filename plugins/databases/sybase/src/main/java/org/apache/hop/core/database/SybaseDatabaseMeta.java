@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -37,11 +38,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "SYBASE",
         typeDescription = "Sybase"
 )
+@GuiPlugin( id = "GUI-SybaseDatabaseMeta" )
 public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -65,11 +67,7 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "net.sourceforge.jtds.jdbc.Driver";
-    }
+    return "net.sourceforge.jtds.jdbc.Driver";
   }
 
   @Override
@@ -226,11 +224,6 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   @Override
   public String getExtraOptionsHelpText() {
     return "http://jtds.sourceforge.net/faq.html#urlFormat";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jtds-1.2.jar" };
   }
 
   /**

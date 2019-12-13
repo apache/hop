@@ -59,9 +59,8 @@ public class AS400DatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     int[] aTypes =
-        new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+        new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
     assertArrayEquals( aTypes, nativeMeta.getAccessTypeList() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "com.ibm.as400.access.AS400JDBCDriver", nativeMeta.getDriverClass() );
     assertEquals( 65536, nativeMeta.getMaxTextFieldLength() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
@@ -104,7 +103,6 @@ public class AS400DatabaseMetaTest {
       "WHEN", "WHERE", "WHILE", "WITH", "WITHOUT", "WRITE", "YEAR", "YEARS" };
 
     assertArrayEquals( expectedReservedWords, nativeMeta.getReservedWords() );
-    assertArrayEquals( new String[] { "jt400.jar" }, nativeMeta.getUsedLibraries() );
     assertFalse( nativeMeta.supportsFloatRoundingOnUpdate() );
     assertEquals( 32672, nativeMeta.getMaxVARCHARLength() );
     assertTrue( nativeMeta.supportsSequences() );

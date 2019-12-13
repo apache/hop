@@ -56,7 +56,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     Sets.newHashSet( "com.mysql.jdbc.PacketTooBigException", "com.mysql.jdbc.MysqlDataTruncation" );
 
   @Override public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override public int getDefaultDatabasePort() {
@@ -104,11 +104,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   @Override public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.gjt.mm.mysql.Driver";
-    }
+    return "org.gjt.mm.mysql.Driver";
   }
 
   @Override public String getURL( String hostname, String port, String databaseName ) {
@@ -395,10 +391,6 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    */
   @Override public String getExtraOptionsHelpText() {
     return "http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html";
-  }
-
-  @Override public String[] getUsedLibraries() {
-    return new String[] { "mysql-connector-java-3.1.14-bin.jar" };
   }
 
   /**

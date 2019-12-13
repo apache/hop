@@ -51,7 +51,7 @@ public class CacheDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
 
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         cdm.getAccessTypeList() );
     assertEquals( 1972, cdm.getDefaultDatabasePort() );
     assertEquals( -1, cdmODBC.getDefaultDatabasePort() );
@@ -59,11 +59,9 @@ public class CacheDatabaseMetaTest {
     assertFalse( cdm.isFetchSizeSupported() );
     assertFalse( cdm.supportsAutoInc() );
     assertEquals( "com.intersys.jdbc.CacheDriver", cdm.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", cdmODBC.getDriverClass() );
     assertEquals( "jdbc:Cache://FOO:BAR/WIBBLE", cdm.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
-    assertArrayEquals( new String[] { "CacheDB.jar" }, cdm.getUsedLibraries() );
     assertTrue( cdm.requiresCreateTablePrimaryKeyAppend() );
     assertFalse( cdm.supportsNewLinesInSQL() );
   }

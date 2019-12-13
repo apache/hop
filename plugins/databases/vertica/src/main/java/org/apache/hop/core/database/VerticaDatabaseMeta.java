@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -38,21 +39,17 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "VERTICA",
         typeDescription = "Vertica"
 )
+@GuiPlugin( id = "GUI-VerticaDatabaseMeta" )
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "com.vertica.Driver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "com.vertica.Driver";
   }
 
   @Override
@@ -178,11 +175,6 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
     }
 
     return retval;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "vertica_2.5_jdk_5.jar" };
   }
 
   @Override

@@ -99,7 +99,6 @@ import org.apache.hop.core.AddUndoPositionInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DBCache;
 import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.JndiUtil;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.LastUsedFile;
@@ -189,7 +188,6 @@ import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.pan.CommandLineOption;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pkg.JarfileGenerator;
 import org.apache.hop.repository.HopRepositoryLostException;
 import org.apache.hop.repository.ObjectId;
 import org.apache.hop.repository.Repository;
@@ -781,13 +779,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     display = Display.findDisplay( uiThread );
 
     staticHopUi = this;
-
-    try {
-      JndiUtil.initJNDI();
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, "Unable to init simple JNDI", "Unable to init simple JNDI", e );
-    }
-
   }
 
   /**
@@ -8232,13 +8223,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     transMeta.setChanged();
     refreshTree();
     refreshGraph();
-  }
-
-  public void createHopArchive( TransMeta transMeta ) {
-    if ( transMeta == null ) {
-      return;
-    }
-    JarfileGenerator.generateJarFile( transMeta );
   }
 
   /**

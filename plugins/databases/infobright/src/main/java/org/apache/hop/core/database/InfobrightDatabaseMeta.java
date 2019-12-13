@@ -22,12 +22,14 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 @DatabaseMetaPlugin(
         type = "INFOBRIGHT",
         typeDescription = "Infobright"
 )
+@GuiPlugin( id="GUI-InfobrightDatabaseMeta" )
 public class InfobrightDatabaseMeta extends MySQLDatabaseMeta implements DatabaseInterface {
 
   @Override

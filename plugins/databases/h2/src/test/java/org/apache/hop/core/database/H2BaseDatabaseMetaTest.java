@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 
 public class H2BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  BaseDatabaseMeta nativeMeta, odbcMeta, jndiMeta;
+  BaseDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupOnce() throws Exception {

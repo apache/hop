@@ -52,13 +52,12 @@ public class DB2DatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 50000, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsSetCharacterStream() );
     assertEquals( "com.ibm.db2.jcc.DB2Driver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:db2://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
@@ -119,7 +118,6 @@ public class DB2DatabaseMetaTest {
     assertEquals( 32672, nativeMeta.getMaxVARCHARLength() );
     assertTrue( nativeMeta.supportsBatchUpdates() );
     assertFalse( nativeMeta.supportsGetBlob() );
-    assertArrayEquals( new String[] { "db2jcc.jar", "db2jcc_license_cu.jar" }, nativeMeta.getUsedLibraries() );
     assertTrue( nativeMeta.supportsSequences() );
     assertEquals( ":", nativeMeta.getExtraOptionIndicator() );
     assertFalse( nativeMeta.supportsSequenceNoMaxValueOption() );

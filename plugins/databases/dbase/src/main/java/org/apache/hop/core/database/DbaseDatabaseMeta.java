@@ -23,6 +23,9 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,7 +39,16 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "DBASE",
         typeDescription = "dBase III, IV or 5"
 )
+@GuiPlugin( id="GUI-DbaseDatabaseMeta" )
 public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+
+  @GuiElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String hostname;
+  @GuiElement( id = "port", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String port;
+  @GuiElement( id = "databaseName", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  protected String databaseName;
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_ODBC };
@@ -237,11 +249,6 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     }
 
     return retval;
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] {};
   }
 
   /**

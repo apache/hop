@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -37,11 +38,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "HYPERSONIC",
         typeDescription = "Hypersonic"
 )
-
+@GuiPlugin( id="GUI-HypersonicDatabaseMeta" )
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -54,11 +55,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "org.hsqldb.jdbcDriver";
-    }
+    return "org.hsqldb.jdbcDriver";
   }
 
   @Override
@@ -208,11 +205,6 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements Database
     }
 
     return retval.toString();
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "hsqldb.jar" };
   }
 
   @Override

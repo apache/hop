@@ -49,12 +49,11 @@ public class TeradataDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
         nativeMeta.getAccessTypeList() );
     assertEquals( 1025, nativeMeta.getDefaultDatabasePort() );
     assertEquals( 1025, odbcMeta.getDefaultDatabasePort() ); // Inconsistent behavior - likely a bug (usually returns -1 )
     assertEquals( "com.teradata.jdbc.TeraDriver", nativeMeta.getDriverClass() );
-    assertEquals( "sun.jdbc.odbc.JdbcOdbcDriver", odbcMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:teradata://FOO/DATABASE=WIBBLE", nativeMeta.getURL( "FOO", "IGNOREDHERE", "WIBBLE" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
@@ -65,7 +64,6 @@ public class TeradataDatabaseMetaTest {
     assertEquals( "http://www.info.ncr.com/eTeradata-BrowseBy-Results.cfm?pl=&PID=&title=%25&release="
           + "&kword=CJDBC&sbrn=7&nm=Teradata+Tools+and+Utilities+-+Java+Database+Connectivity+(JDBC)",
         nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "terajdbc4.jar", "tdgssjava.jar" }, nativeMeta.getUsedLibraries() );
     assertArrayEquals( new String[] {
       "ABORT", "ABORTSESSION", "ABS", "ACCESS_LOCK", "ACCOUNT", "ACOS", "ACOSH", "ADD", "ADD_MONTHS", "ADMIN",
       "AFTER", "AGGREGATE", "ALL", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARGLPAREN", "AS", "ASC", "ASIN",

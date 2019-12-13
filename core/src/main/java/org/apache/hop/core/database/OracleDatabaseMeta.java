@@ -44,8 +44,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_OCI,
-      DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
@@ -105,11 +104,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "oracle.jdbc.driver.OracleDriver";
-    }
+    return "oracle.jdbc.driver.OracleDriver";
   }
 
   @Override
@@ -481,11 +476,6 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   @Override
   public String getExtraOptionsHelpText() {
     return "http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/urls.htm#i1006362";
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "ojdbc14.jar", "orai18n.jar" };
   }
 
   /**

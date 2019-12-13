@@ -50,7 +50,7 @@ public class Exasol4DatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_JNDI },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
         nativeMeta.getAccessTypeList() );
     assertEquals( 8563, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
@@ -113,7 +113,6 @@ public class Exasol4DatabaseMetaTest {
       "VARCHAR2", "VARRAY", "VERIFY", "VIEW", "WHEN", "WHENEVER", "WHERE", "WHILE", "WINDOW", "WITH", "WITHIN",
       "WITHOUT", "WORK", "YEAR", "YES", "ZONE" }, nativeMeta.getReservedWords() );
     assertEquals( "http://www.exasol.com/knowledge-center.html", nativeMeta.getExtraOptionsHelpText() );
-    assertArrayEquals( new String[] { "exajdbc.jar" }, nativeMeta.getUsedLibraries() );
     assertTrue( nativeMeta.checkIndexExists( null, "NOT-THERE", "NOT-THERE", null ) ); // Always returns true - this is a bug IMO
     assertFalse( nativeMeta.requiresCreateTablePrimaryKeyAppend() );
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );

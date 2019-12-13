@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -36,20 +37,17 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "AS/400",
         typeDescription = "AS/400"
 )
+@GuiPlugin( id="GUI-AS400DatabaseMeta" )
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "com.ibm.as400.access.AS400JDBCDriver";
-    }
+    return "com.ibm.as400.access.AS400JDBCDriver";
   }
 
   /**
@@ -239,14 +237,6 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
       "TYPE", "UNDO", "UNION", "UNIQUE", "UNTIL", "UPDATE", "USAGE", "USER", "USING", "VALUE", "VALUES",
       "VARIABLE", "VARIANT", "VERSION", "VIEW", "VOLATILE", "WHEN", "WHERE", "WHILE", "WITH", "WITHOUT",
       "WRITE", "YEAR", "YEARS" };
-  }
-
-  /**
-   * @return the required libraries (in lib) for this database connection.
-   */
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "jt400.jar" };
   }
 
   /**

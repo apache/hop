@@ -23,6 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -37,6 +38,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "MONETDB",
         typeDescription = "MonetDB"
 )
+@GuiPlugin( id="GUI-MonetDBDatabaseMeta" )
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<Boolean>();
@@ -50,7 +52,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -78,12 +80,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "nl.cwi.monetdb.jdbc.MonetDriver";
-    } else {
-      return "sun.jdbc.odbc.JdbcOdbcDriver"; // always ODBC!
-    }
-
+    return "nl.cwi.monetdb.jdbc.MonetDriver";
   }
 
   @Override
@@ -304,11 +301,6 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
     }
 
     return retval.toString();
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "monetdb-jdbc-2.8.jar", };
   }
 
   /**

@@ -24,6 +24,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -37,11 +38,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
         type = "ORACLERDB",
         typeDescription = "Oracle RDB"
 )
+@GuiPlugin( id="GUI-OracleDatabaseMeta" )
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC, DatabaseMeta.TYPE_ACCESS_JNDI };
+      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
 
   /**
@@ -88,11 +90,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
   @Override
   public String getDriverClass() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
-      return "oracle.rdb.jdbc.rdbThin.Driver";
-    }
+    return "oracle.rdb.jdbc.rdbThin.Driver";
   }
 
   @Override
@@ -342,11 +340,6 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   @Override
   public String getSQLUnlockTables( String[] tableNames ) {
     return null; // commit handles the unlocking!
-  }
-
-  @Override
-  public String[] getUsedLibraries() {
-    return new String[] { "rdbthin.jar" };
   }
 
 }
