@@ -26,6 +26,8 @@ import java.sql.ResultSet;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -42,6 +44,34 @@ import org.apache.hop.core.row.ValueMetaInterface;
 )
 @GuiPlugin( id="GUI-MSSQLServerDatabaseMeta" )
 public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
+
+  @GuiElement(
+    id="usingDoubleDigit",
+    order = "20",
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.CHECKBOX,
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
+  )
+  private boolean usingDoubleDigit;
+
+  /**
+   * Gets usingDoubleDigit
+   *
+   * @return value of usingDoubleDigit
+   */
+  public boolean isUsingDoubleDigit() {
+    String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
+    return "Y".equalsIgnoreCase(flag);
+  }
+
+  /**
+   * @param usingDoubleDigit The usingDoubleDigit to set
+   */
+  public void setUsingDoubleDigit( boolean usingDoubleDigit ) {
+    getAttributes().setProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR, usingDoubleDigit ? "Y" : "N" );
+  }
+
   @Override
   public boolean supportsCatalogs() {
     return false;
@@ -300,8 +330,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   }
 
   /**
-   * @param the
-   *          schema name to search in or null if you want to search the whole DB
+   * @param schemaName the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
   public String getSQLListOfProcedures( String schemaName ) {
@@ -382,11 +411,11 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idx_fields ) throws HopDatabaseException {
+  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idxFields ) throws HopDatabaseException {
 
     String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
 
-    boolean[] exists = new boolean[idx_fields.length];
+    boolean[] exists = new boolean[idxFields.length];
     for ( int i = 0; i < exists.length; i++ ) {
       exists[i] = false;
     }
@@ -410,7 +439,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
           Object[] row = database.getRow( res );
           while ( row != null ) {
             String column = database.getReturnRowMeta().getString( row, "column_name", "" );
-            int idx = Const.indexOfString( column, idx_fields );
+            int idx = Const.indexOfString( column, idxFields );
             if ( idx >= 0 ) {
               exists[idx] = true;
             }

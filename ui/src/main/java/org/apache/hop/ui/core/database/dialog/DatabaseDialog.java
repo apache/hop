@@ -42,7 +42,7 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
  *
  * Dialog that allows you to edit the settings of a database connection.
  *
- * @see <code>DatabaseInfo</code>
+ * @see <code>DatabaseMeta</code>
  * @author Matt
  * @since 18-05-2003
  *
@@ -51,56 +51,16 @@ public class DatabaseDialog extends DatabaseMetaDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
 
   public DatabaseDialog( Shell parent ) {
-    super( parent, HopUi.getInstance().getMetaStore(), new DatabaseMeta(  ) );
+    super( parent, new DatabaseMeta(  ) );
   }
 
   public DatabaseDialog( Shell parent, DatabaseMeta databaseMeta ) {
-    super( parent, HopUi.getInstance().getMetaStore(), databaseMeta );
+    super( parent, databaseMeta );
   }
 
   public String open() {
     return super.open();
   }
-
-  public static final void checkPasswordVisible( Text wPassword ) {
-    String password = wPassword.getText();
-    java.util.List<String> list = new ArrayList<String>();
-    StringUtil.getUsedVariables( password, list, true );
-    // ONLY show the variable in clear text if there is ONE variable used
-    // Also, it has to be the only string in the field.
-    //
-
-    if ( list.size() != 1 ) {
-      wPassword.setEchoChar( '*' );
-    } else {
-      String variableName = null;
-      if ( ( password.startsWith( StringUtil.UNIX_OPEN ) && password.endsWith( StringUtil.UNIX_CLOSE ) ) ) {
-        // ${VAR}
-        // 012345
-        //
-        variableName =
-          password.substring( StringUtil.UNIX_OPEN.length(), password.length() - StringUtil.UNIX_CLOSE.length() );
-      }
-      if ( ( password.startsWith( StringUtil.WINDOWS_OPEN ) && password.endsWith( StringUtil.WINDOWS_CLOSE ) ) ) {
-        // %VAR%
-        // 01234
-        //
-        variableName =
-          password.substring( StringUtil.WINDOWS_OPEN.length(), password.length()
-            - StringUtil.WINDOWS_CLOSE.length() );
-      }
-
-      // If there is a variable name in there AND if it's defined in the system properties...
-      // Otherwise, we'll leave it alone.
-      //
-      if ( variableName != null && System.getProperty( variableName ) != null ) {
-        wPassword.setEchoChar( '\0' ); // Show it all...
-      } else {
-        wPassword.setEchoChar( '*' );
-      }
-    }
-  }
-
 
   public static void showDatabaseExistsDialog( Shell parent, DatabaseMeta databaseMeta ) {
     String title = BaseMessages.getString( PKG, "DatabaseDialog.DatabaseNameExists.Title" );

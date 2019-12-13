@@ -23,6 +23,8 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
@@ -32,7 +34,62 @@ import org.apache.hop.core.util.Utils;
 )
 @GuiPlugin( id="GUI-MSSQLServerNativeDatabaseMeta" )
 public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
+
   public static final String ATTRIBUTE_USE_INTEGRATED_SECURITY = "MSSQLUseIntegratedSecurity";
+
+  @GuiElement(
+    id="usingIntegratedSecurity",
+    order = "20",
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.CHECKBOX,
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.UseIntegratedSecurity"
+  )
+  private boolean usingIntegratedSecurity;
+
+  @GuiElement(
+    id="usingDoubleDigit",
+    order = "20",
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.CHECKBOX,
+    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
+  )
+  private boolean usingDoubleDigit;
+
+  /**
+   * Gets usingIntegratedSecurity
+   *
+   * @return value of usingIntegratedSecurity
+   */
+  public boolean isUsingIntegratedSecurity() {
+    String flag = getAttributes().getProperty( ATTRIBUTE_USE_INTEGRATED_SECURITY );
+    return "Y".equalsIgnoreCase(flag);
+  }
+
+  /**
+   * @param usingIntegratedSecurity The usingIntegratedSecurity to set
+   */
+  public void setUsingIntegratedSecurity( boolean usingIntegratedSecurity ) {
+    getAttributes().setProperty( ATTRIBUTE_USE_INTEGRATED_SECURITY, usingIntegratedSecurity ? "Y" : "N" );
+  }
+
+  /**
+   * Gets usingDoubleDigit
+   *
+   * @return value of usingDoubleDigit
+   */
+  public boolean isUsingDoubleDigit() {
+    String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
+    return "Y".equalsIgnoreCase(flag);
+  }
+
+  /**
+   * @param usingDoubleDigit The usingDoubleDigit to set
+   */
+  public void setUsingDoubleDigit( boolean usingDoubleDigit ) {
+    getAttributes().setProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR, usingDoubleDigit ? "Y" : "N" );
+  }
 
   @Override
   public String getDriverClass() {

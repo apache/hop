@@ -35,8 +35,6 @@ import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -82,7 +80,6 @@ public class DatabaseMetaDialog extends Dialog {
   private Shell shell;
   private DatabaseMeta databaseMeta;
   private DatabaseMeta workingMeta;
-  private final IMetaStore metaStore;
 
   private CTabFolder wTabFolder;
 
@@ -119,14 +116,6 @@ public class DatabaseMetaDialog extends Dialog {
   private FormData fdOptionsComp;
   private TableView wOptions;
 
-  private CTabItem wPoolingTab;
-  private Composite wPoolingComp;
-  private FormData fdPoolingComp;
-  private Button wEnablePooling;
-  private TextVar wInitialPoolSize;
-  private TextVar wMaximumPoolSize;
-  private TableView wPoolingParameters;
-
   private final PropsUI props;
   private int middle;
   private int margin;
@@ -134,20 +123,16 @@ public class DatabaseMetaDialog extends Dialog {
   private String returnValue;
 
   /**
-   * These are always the 3 parameters provided
-   *
    * @param parent       The parent shell
-   * @param metaStore    The MetaStore to optionally reference external objects with
    * @param databaseMeta The object to edit
    */
-  public DatabaseMetaDialog( Shell parent, IMetaStore metaStore, DatabaseMeta databaseMeta ) {
+  public DatabaseMetaDialog( Shell parent, DatabaseMeta databaseMeta ) {
     super( parent, SWT.NONE );
     this.parent = parent;
-    this.metaStore = metaStore;
     this.databaseMeta = databaseMeta;
-    this.workingMeta = new DatabaseMeta(databaseMeta);
+    this.workingMeta = new DatabaseMeta( databaseMeta );
     props = PropsUI.getInstance();
-    returnValue=null;
+    returnValue = null;
   }
 
   public String open() {
@@ -195,16 +180,16 @@ public class DatabaseMetaDialog extends Dialog {
 
     getData();
 
-    wConnectionType.addModifyListener( e->changeConnectionType() );
+    wConnectionType.addModifyListener( e -> changeConnectionType() );
 
     // Select the general tab
     //
     wTabFolder.setSelection( 0 );
-    FormData fdTabFolder = new FormData(  );
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOK, -margin*3 );
+    fdTabFolder.bottom = new FormAttachment( wOK, -margin * 3 );
     wTabFolder.setLayoutData( fdTabFolder );
 
     BaseStepDialog.setSize( shell );
@@ -222,14 +207,14 @@ public class DatabaseMetaDialog extends Dialog {
   private void addGeneralTab() {
 
     wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
-    wGeneralTab.setText( "   "+ BaseMessages.getString( PKG, "EnterOptionsDialog.General.Label" ) +"   " );
+    wGeneralTab.setText( "   " + BaseMessages.getString( PKG, "EnterOptionsDialog.General.Label" ) + "   " );
 
     wGeneralComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wGeneralComp );
 
     FormLayout genLayout = new FormLayout();
-    genLayout.marginWidth = Const.FORM_MARGIN*2;
-    genLayout.marginHeight = Const.FORM_MARGIN*2;
+    genLayout.marginWidth = Const.FORM_MARGIN * 2;
+    genLayout.marginHeight = Const.FORM_MARGIN * 2;
     wGeneralComp.setLayout( genLayout );
 
     // What's the name
@@ -325,13 +310,15 @@ public class DatabaseMetaDialog extends Dialog {
     fdManualUrl.left = new FormAttachment( middle, margin ); // To the right of the label
     fdManualUrl.right = new FormAttachment( 100, 0 );
     wManualUrl.setLayoutData( fdManualUrl );
-    wManualUrl.addModifyListener( e->{enableFields();} );
+    wManualUrl.addModifyListener( e -> {
+      enableFields();
+    } );
 
     Label wlPassword = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlPassword );
     wlPassword.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Password" ) );
     FormData fdlPassword = new FormData();
-    fdlPassword.bottom = new FormAttachment( wManualUrl, -margin*5 ); // At the bottom of this tab
+    fdlPassword.bottom = new FormAttachment( wManualUrl, -margin * 5 ); // At the bottom of this tab
     fdlPassword.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlPassword.right = new FormAttachment( middle, 0 );
     wlPassword.setLayoutData( fdlPassword );
@@ -360,25 +347,25 @@ public class DatabaseMetaDialog extends Dialog {
     fdUsername.right = new FormAttachment( 100, 0 );
     wUsername.setLayoutData( fdUsername );
 
-    wODBC.addListener( SWT.Selection, event -> enableFields());
-    
+    wODBC.addListener( SWT.Selection, event -> enableFields() );
+
     // Add a composite area
     //
     wDatabaseSpecificComp = new Composite( wGeneralComp, SWT.BACKGROUND );
-    props.setLook(wDatabaseSpecificComp);
+    props.setLook( wDatabaseSpecificComp );
     wDatabaseSpecificComp.setLayout( new FormLayout() );
-    FormData fdDatabaseSpecificComp = new FormData(  );
+    FormData fdDatabaseSpecificComp = new FormData();
     fdDatabaseSpecificComp.left = new FormAttachment( 0, 0 );
     fdDatabaseSpecificComp.right = new FormAttachment( 100, 0 );
-    fdDatabaseSpecificComp.top = new FormAttachment( lastControl, 3*margin );
-    fdDatabaseSpecificComp.bottom = new FormAttachment( wUsername, -margin*3 );
+    fdDatabaseSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
+    fdDatabaseSpecificComp.bottom = new FormAttachment( wUsername, -margin * 3 );
     wDatabaseSpecificComp.setLayoutData( fdDatabaseSpecificComp );
 
     // Now add the database plugin specific widgets
     //
-    guiElementWidgets = new GuiElementWidgets(databaseMeta);
-    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
-    
+    guiElementWidgets = new GuiElementWidgets( databaseMeta );
+    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
@@ -394,46 +381,46 @@ public class DatabaseMetaDialog extends Dialog {
 
   private void changeConnectionType() {
 
-    if ( busyChangingConnectionType.get()) {
+    if ( busyChangingConnectionType.get() ) {
       return;
     }
-    busyChangingConnectionType.set(true);
+    busyChangingConnectionType.set( true );
 
     // Capture any information on the widgets
     //
-    getInfo(workingMeta);
+    getInfo( workingMeta );
 
     // Remove existing children
     //
-    for (Control child : wDatabaseSpecificComp.getChildren()) {
+    for ( Control child : wDatabaseSpecificComp.getChildren() ) {
       child.dispose();
     }
 
     // Re-add the widgets
     //
-    guiElementWidgets = new GuiElementWidgets(databaseMeta);
-    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
+    guiElementWidgets = new GuiElementWidgets( databaseMeta );
+    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     // Put the data back
     //
     getData();
 
-    wGeneralComp.layout(true, true);
+    wGeneralComp.layout( true, true );
 
-    busyChangingConnectionType.set(false);
+    busyChangingConnectionType.set( false );
   }
 
   private void addAdvancedTab() {
 
     wAdvancedTab = new CTabItem( wTabFolder, SWT.NONE );
-    wAdvancedTab.setText( "   "+ BaseMessages.getString( PKG, "DatabaseDialog.AdvancedTab.title" ) +"   " );
+    wAdvancedTab.setText( "   " + BaseMessages.getString( PKG, "DatabaseDialog.AdvancedTab.title" ) + "   " );
 
     wAdvancedComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wAdvancedComp );
 
     FormLayout advancedLayout = new FormLayout();
-    advancedLayout.marginWidth = Const.FORM_MARGIN*2;
-    advancedLayout.marginHeight = Const.FORM_MARGIN*2;
+    advancedLayout.marginWidth = Const.FORM_MARGIN * 2;
+    advancedLayout.marginHeight = Const.FORM_MARGIN * 2;
     wAdvancedComp.setLayout( advancedLayout );
 
     // Supports the Boolean data type?
@@ -461,7 +448,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlSupportsTimestamp );
     wlSupportsTimestamp.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSupportsTimestamp" ) );
     FormData fdlSupportsTimestamp = new FormData();
-    fdlSupportsTimestamp.top = new FormAttachment( lastControl, margin  );
+    fdlSupportsTimestamp.top = new FormAttachment( lastControl, margin );
     fdlSupportsTimestamp.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlSupportsTimestamp.right = new FormAttachment( middle, 0 );
     wlSupportsTimestamp.setLayoutData( fdlSupportsTimestamp );
@@ -480,7 +467,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlQuoteAll );
     wlQuoteAll.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.AdvancedQuoteAllFields" ) );
     FormData fdlQuoteAll = new FormData();
-    fdlQuoteAll.top = new FormAttachment( lastControl, margin  );
+    fdlQuoteAll.top = new FormAttachment( lastControl, margin );
     fdlQuoteAll.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlQuoteAll.right = new FormAttachment( middle, 0 );
     wlQuoteAll.setLayoutData( fdlQuoteAll );
@@ -499,7 +486,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlForceLowercase );
     wlForceLowercase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.AdvancedForceIdentifiersLowerCase" ) );
     FormData fdlForceLowercase = new FormData();
-    fdlForceLowercase.top = new FormAttachment( lastControl, margin  );
+    fdlForceLowercase.top = new FormAttachment( lastControl, margin );
     fdlForceLowercase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlForceLowercase.right = new FormAttachment( middle, 0 );
     wlForceLowercase.setLayoutData( fdlForceLowercase );
@@ -518,7 +505,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlForceUppercase );
     wlForceUppercase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.AdvancedForceIdentifiersUpperCase" ) );
     FormData fdlForceUppercase = new FormData();
-    fdlForceUppercase.top = new FormAttachment( lastControl, margin  );
+    fdlForceUppercase.top = new FormAttachment( lastControl, margin );
     fdlForceUppercase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlForceUppercase.right = new FormAttachment( middle, 0 );
     wlForceUppercase.setLayoutData( fdlForceUppercase );
@@ -537,7 +524,7 @@ public class DatabaseMetaDialog extends Dialog {
     props.setLook( wlPreserveCase );
     wlPreserveCase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionPreserveCase" ) );
     FormData fdlPreserveCase = new FormData();
-    fdlPreserveCase.top = new FormAttachment( lastControl, margin  );
+    fdlPreserveCase.top = new FormAttachment( lastControl, margin );
     fdlPreserveCase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlPreserveCase.right = new FormAttachment( middle, 0 );
     wlPreserveCase.setLayoutData( fdlPreserveCase );
@@ -588,7 +575,7 @@ public class DatabaseMetaDialog extends Dialog {
     fdSQLStatements.right = new FormAttachment( 100, 0 );
     wSQLStatements.setLayoutData( fdSQLStatements );
     // lastControl = wSQLStatements;
-    
+
     fdAdvancedComp = new FormData();
     fdAdvancedComp.left = new FormAttachment( 0, 0 );
     fdAdvancedComp.top = new FormAttachment( 0, 0 );
@@ -603,22 +590,22 @@ public class DatabaseMetaDialog extends Dialog {
   private void addOptionsTab() {
 
     wOptionsTab = new CTabItem( wTabFolder, SWT.NONE );
-    wOptionsTab.setText( "   "+ BaseMessages.getString( PKG, "DatabaseDialog.OptionsTab.title" ) +"   " );
+    wOptionsTab.setText( "   " + BaseMessages.getString( PKG, "DatabaseDialog.OptionsTab.title" ) + "   " );
 
     wOptionsComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wOptionsComp );
 
     FormLayout optionsLayout = new FormLayout();
-    optionsLayout.marginWidth = Const.FORM_MARGIN*2;
-    optionsLayout.marginHeight = Const.FORM_MARGIN*2;
+    optionsLayout.marginWidth = Const.FORM_MARGIN * 2;
+    optionsLayout.marginHeight = Const.FORM_MARGIN * 2;
     wOptionsComp.setLayout( optionsLayout );
 
     ColumnInfo[] optionsColumns = new ColumnInfo[] {
-      new ColumnInfo(BaseMessages.getString(PKG, "DatabaseDialog.column.Parameter"), ColumnInfo.COLUMN_TYPE_TEXT, false),
-      new ColumnInfo(BaseMessages.getString(PKG, "DatabaseDialog.column.Value"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo( BaseMessages.getString( PKG, "DatabaseDialog.column.Parameter" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+      new ColumnInfo( BaseMessages.getString( PKG, "DatabaseDialog.column.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
     };
-    optionsColumns[0].setUsingVariables( true );
-    optionsColumns[1].setUsingVariables( true );
+    optionsColumns[ 0 ].setUsingVariables( true );
+    optionsColumns[ 1 ].setUsingVariables( true );
 
     // Options?
     //
@@ -633,13 +620,12 @@ public class DatabaseMetaDialog extends Dialog {
     wOptions = new TableView( databaseMeta, wOptionsComp, SWT.NONE, optionsColumns, workingMeta.getExtraOptions().size(), null, props );
     props.setLook( wOptions );
     FormData fdOptions = new FormData();
-    fdOptions.top = new FormAttachment( wlOptions, margin*2 );
+    fdOptions.top = new FormAttachment( wlOptions, margin * 2 );
     fdOptions.bottom = new FormAttachment( 100, 0 );
     fdOptions.left = new FormAttachment( 0, 0 ); // To the right of the label
     fdOptions.right = new FormAttachment( 100, 0 );
     wOptions.setLayoutData( fdOptions );
 
-    
     fdOptionsComp = new FormData();
     fdOptionsComp.left = new FormAttachment( 0, 0 );
     fdOptionsComp.top = new FormAttachment( 0, 0 );
@@ -651,186 +637,9 @@ public class DatabaseMetaDialog extends Dialog {
     wOptionsTab.setControl( wOptionsComp );
   }
 
-  private void addPoolingTab() {
-
-    wPoolingTab = new CTabItem( wTabFolder, SWT.NONE );
-    wPoolingTab.setText( "   "+ BaseMessages.getString( PKG, "DatabaseDialog.PoolingTab.title" ) +"   " );
-
-    wPoolingComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wPoolingComp );
-
-    FormLayout poolingLayout = new FormLayout();
-    poolingLayout.marginWidth = Const.FORM_MARGIN*2;
-    poolingLayout.marginHeight = Const.FORM_MARGIN*2;
-    wPoolingComp.setLayout( poolingLayout );
-
-    // Enable connection pooling?
-    //
-    Label wlSupportsBoolean = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlSupportsBoolean );
-    wlSupportsBoolean.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSupportsBoolean" ) );
-    FormData fdlSupportsBoolean = new FormData();
-    fdlSupportsBoolean.top = new FormAttachment( 0, 0 );
-    fdlSupportsBoolean.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlSupportsBoolean.right = new FormAttachment( middle, 0 );
-    wlSupportsBoolean.setLayoutData( fdlSupportsBoolean );
-    wSupportsBoolean = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wSupportsBoolean );
-    FormData fdSupportsBoolean = new FormData();
-    fdSupportsBoolean.top = new FormAttachment( wlSupportsBoolean, 0, SWT.CENTER );
-    fdSupportsBoolean.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdSupportsBoolean.right = new FormAttachment( 100, 0 );
-    wSupportsBoolean.setLayoutData( fdSupportsBoolean );
-    Control lastControl = wSupportsBoolean;
-
-    // Supports the Timestamp data type?
-    //
-    Label wlSupportsTimestamp = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlSupportsTimestamp );
-    wlSupportsTimestamp.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSupportsTimestamp" ) );
-    FormData fdlSupportsTimestamp = new FormData();
-    fdlSupportsTimestamp.top = new FormAttachment( lastControl, margin  );
-    fdlSupportsTimestamp.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlSupportsTimestamp.right = new FormAttachment( middle, 0 );
-    wlSupportsTimestamp.setLayoutData( fdlSupportsTimestamp );
-    wSupportsTimestamp = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wSupportsTimestamp );
-    FormData fdSupportsTimestamp = new FormData();
-    fdSupportsTimestamp.top = new FormAttachment( wlSupportsTimestamp, 0, SWT.CENTER );
-    fdSupportsTimestamp.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdSupportsTimestamp.right = new FormAttachment( 100, 0 );
-    wSupportsTimestamp.setLayoutData( fdSupportsTimestamp );
-    lastControl = wSupportsTimestamp;
-
-    // Quote all in database?
-    //
-    Label wlQuoteAll = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlQuoteAll );
-    wlQuoteAll.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.PoolingQuoteAllFields" ) );
-    FormData fdlQuoteAll = new FormData();
-    fdlQuoteAll.top = new FormAttachment( lastControl, margin  );
-    fdlQuoteAll.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlQuoteAll.right = new FormAttachment( middle, 0 );
-    wlQuoteAll.setLayoutData( fdlQuoteAll );
-    wQuoteAll = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wQuoteAll );
-    FormData fdQuoteAll = new FormData();
-    fdQuoteAll.top = new FormAttachment( wlQuoteAll, 0, SWT.CENTER );
-    fdQuoteAll.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdQuoteAll.right = new FormAttachment( 100, 0 );
-    wQuoteAll.setLayoutData( fdQuoteAll );
-    lastControl = wQuoteAll;
-
-    // Force all identifiers to lowercase?
-    //
-    Label wlForceLowercase = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlForceLowercase );
-    wlForceLowercase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.PoolingForceIdentifiersLowerCase" ) );
-    FormData fdlForceLowercase = new FormData();
-    fdlForceLowercase.top = new FormAttachment( lastControl, margin  );
-    fdlForceLowercase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlForceLowercase.right = new FormAttachment( middle, 0 );
-    wlForceLowercase.setLayoutData( fdlForceLowercase );
-    wForceLowercase = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wForceLowercase );
-    FormData fdForceLowercase = new FormData();
-    fdForceLowercase.top = new FormAttachment( wlForceLowercase, 0, SWT.CENTER );
-    fdForceLowercase.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdForceLowercase.right = new FormAttachment( 100, 0 );
-    wForceLowercase.setLayoutData( fdForceLowercase );
-    lastControl = wForceLowercase;
-
-    // Force all identifiers to uppercase?
-    //
-    Label wlForceUppercase = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlForceUppercase );
-    wlForceUppercase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.PoolingForceIdentifiersUpperCase" ) );
-    FormData fdlForceUppercase = new FormData();
-    fdlForceUppercase.top = new FormAttachment( lastControl, margin  );
-    fdlForceUppercase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlForceUppercase.right = new FormAttachment( middle, 0 );
-    wlForceUppercase.setLayoutData( fdlForceUppercase );
-    wForceUppercase = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wForceUppercase );
-    FormData fdForceUppercase = new FormData();
-    fdForceUppercase.top = new FormAttachment( wlForceUppercase, 0, SWT.CENTER );
-    fdForceUppercase.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdForceUppercase.right = new FormAttachment( 100, 0 );
-    wForceUppercase.setLayoutData( fdForceUppercase );
-    lastControl = wForceUppercase;
-
-    // Preserve case of reserved keywords?
-    //
-    Label wlPreserveCase = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlPreserveCase );
-    wlPreserveCase.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionPreserveCase" ) );
-    FormData fdlPreserveCase = new FormData();
-    fdlPreserveCase.top = new FormAttachment( lastControl, margin  );
-    fdlPreserveCase.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlPreserveCase.right = new FormAttachment( middle, 0 );
-    wlPreserveCase.setLayoutData( fdlPreserveCase );
-    wPreserveCase = new Button( wPoolingComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wPreserveCase );
-    FormData fdPreserveCase = new FormData();
-    fdPreserveCase.top = new FormAttachment( wlPreserveCase, 0, SWT.CENTER );
-    fdPreserveCase.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdPreserveCase.right = new FormAttachment( 100, 0 );
-    wPreserveCase.setLayoutData( fdPreserveCase );
-    lastControl = wPreserveCase;
-
-    // The preferred schema to use
-    //
-    Label wlPreferredSchema = new Label( wPoolingComp, SWT.RIGHT );
-    props.setLook( wlPreferredSchema );
-    wlPreferredSchema.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.PreferredSchemaName" ) );
-    FormData fdlPreferredSchema = new FormData();
-    fdlPreferredSchema.top = new FormAttachment( lastControl, margin );
-    fdlPreferredSchema.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlPreferredSchema.right = new FormAttachment( middle, 0 );
-    wlPreferredSchema.setLayoutData( fdlPreferredSchema );
-    wPreferredSchema = new TextVar( databaseMeta, wPoolingComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wPreferredSchema );
-    FormData fdPreferredSchema = new FormData();
-    fdPreferredSchema.top = new FormAttachment( wlPreferredSchema, 0, SWT.CENTER );
-    fdPreferredSchema.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdPreferredSchema.right = new FormAttachment( 100, 0 );
-    wPreferredSchema.setLayoutData( fdPreferredSchema );
-    lastControl = wPreferredSchema;
-
-    // SQL Statements to run after connecting
-    //
-    Label wlSQLStatements = new Label( wPoolingComp, SWT.LEFT );
-    props.setLook( wlSQLStatements );
-    wlSQLStatements.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSQLStatements" ) );
-    FormData fdlSQLStatements = new FormData();
-    fdlSQLStatements.top = new FormAttachment( lastControl, margin );
-    fdlSQLStatements.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlSQLStatements.right = new FormAttachment( 100, 0 );
-    wlSQLStatements.setLayoutData( fdlSQLStatements );
-    wSQLStatements = new TextVar( databaseMeta, wPoolingComp, SWT.MULTI | SWT.LEFT | SWT.BORDER );
-    props.setLook( wSQLStatements );
-    FormData fdSQLStatements = new FormData();
-    fdSQLStatements.top = new FormAttachment( wlSQLStatements, margin );
-    fdSQLStatements.bottom = new FormAttachment( 100, 0 );
-    fdSQLStatements.left = new FormAttachment( 0, 0 ); // To the right of the label
-    fdSQLStatements.right = new FormAttachment( 100, 0 );
-    wSQLStatements.setLayoutData( fdSQLStatements );
-    // lastControl = wSQLStatements;
-
-    fdPoolingComp = new FormData();
-    fdPoolingComp.left = new FormAttachment( 0, 0 );
-    fdPoolingComp.top = new FormAttachment( 0, 0 );
-    fdPoolingComp.right = new FormAttachment( 100, 0 );
-    fdPoolingComp.bottom = new FormAttachment( 100, 0 );
-    wPoolingComp.setLayoutData( fdPoolingComp );
-
-    wPoolingComp.layout();
-    wPoolingTab.setControl( wPoolingComp );
-  }
-  
   private void enableFields() {
     boolean odbc = wODBC.getSelection();
-    boolean manualUrl = StringUtils.isNotEmpty(wManualUrl.getText()) && StringUtils.isNotBlank( wManualUrl.getText() );
+    boolean manualUrl = StringUtils.isNotEmpty( wManualUrl.getText() ) && StringUtils.isNotBlank( wManualUrl.getText() );
 
     wlOdbcDsn.setEnabled( odbc );
     wOdbcDsn.setEnabled( odbc );
@@ -840,7 +649,7 @@ public class DatabaseMetaDialog extends Dialog {
 
     // Also enable/disable the custom native fields
     //
-    guiElementWidgets.enableWidgets(workingMeta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl);
+    guiElementWidgets.enableWidgets( workingMeta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
   }
 
   private void ok( Event event ) {
@@ -859,7 +668,7 @@ public class DatabaseMetaDialog extends Dialog {
   }
 
   private void test( Event event ) {
-    testConnection( shell, getInfo(new DatabaseMeta()) );
+    testConnection( shell, getInfo( new DatabaseMeta() ) );
   }
 
   /**
@@ -867,15 +676,15 @@ public class DatabaseMetaDialog extends Dialog {
    */
   private void getData() {
 
-    System.out.println("DMD getData()  START");
-    wName.setText( Const.NVL(workingMeta.getName(), "") );
-    wODBC.setSelection( workingMeta.getAccessType()==DatabaseMeta.TYPE_ACCESS_ODBC );
+    System.out.println( "DMD getData()  START" );
+    wName.setText( Const.NVL( workingMeta.getName(), "" ) );
+    wODBC.setSelection( workingMeta.getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC );
     wConnectionType.setText( Const.NVL( workingMeta.getPluginName(), "" ) );
 
-    wUsername.setText(Const.NVL(workingMeta.getUsername(), ""));
-    wPassword.setText(Const.NVL(workingMeta.getPassword(), ""));
+    wUsername.setText( Const.NVL( workingMeta.getUsername(), "" ) );
+    wPassword.setText( Const.NVL( workingMeta.getPassword(), "" ) );
 
-    System.out.println("DMD getData()  getWidgetsContents");
+    System.out.println( "DMD getData()  getWidgetsContents" );
     guiElementWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
@@ -884,18 +693,18 @@ public class DatabaseMetaDialog extends Dialog {
     wForceLowercase.setSelection( workingMeta.isForcingIdentifiersToLowerCase() );
     wForceUppercase.setSelection( workingMeta.isForcingIdentifiersToUpperCase() );
     wPreserveCase.setSelection( workingMeta.preserveReservedCase() );
-    wPreferredSchema.setText( Const.NVL(workingMeta.getPreferredSchemaName(), "") );
-    wSQLStatements.setText( Const.NVL(workingMeta.getConnectSQL(), "") );
+    wPreferredSchema.setText( Const.NVL( workingMeta.getPreferredSchemaName(), "" ) );
+    wSQLStatements.setText( Const.NVL( workingMeta.getConnectSQL(), "" ) );
 
     wOptions.clearAll( false );
-    Map<String,String> optionsMap = workingMeta.getExtraOptionsMap();
-    List<String> options = new ArrayList<>(optionsMap.keySet());
-    Collections.sort(options);
-    for (String option : options) {
+    Map<String, String> optionsMap = workingMeta.getExtraOptionsMap();
+    List<String> options = new ArrayList<>( optionsMap.keySet() );
+    Collections.sort( options );
+    for ( String option : options ) {
       String value = optionsMap.get( option );
       TableItem item = new TableItem( wOptions.table, SWT.NONE );
-      item.setText(1, Const.NVL(option, ""));
-      item.setText(2, Const.NVL(value, ""));
+      item.setText( 1, Const.NVL( option, "" ) );
+      item.setText( 2, Const.NVL( value, "" ) );
     }
     wOptions.removeEmptyRows();
     wOptions.setRowNums();
@@ -903,12 +712,12 @@ public class DatabaseMetaDialog extends Dialog {
 
     enableFields();
 
-    System.out.println("DMD getData()  END");
+    System.out.println( "DMD getData()  END" );
   }
 
   private DatabaseMeta getInfo( DatabaseMeta meta ) {
 
-    meta.setName(wName.getText());
+    meta.setName( wName.getText() );
     meta.setDatabaseType( wConnectionType.getText() );
     meta.setAccessType( wODBC.getSelection() ? DatabaseMeta.TYPE_ACCESS_ODBC : DatabaseMeta.TYPE_ACCESS_NATIVE );
     meta.setOdbcDsn( wOdbcDsn.getText() );
@@ -926,20 +735,19 @@ public class DatabaseMetaDialog extends Dialog {
     meta.setConnectSQL( wSQLStatements.getText() );
 
     meta.getExtraOptions().clear();
-    for (int i=0;i<wOptions.nrNonEmpty();i++) {
+    for ( int i = 0; i < wOptions.nrNonEmpty(); i++ ) {
       TableItem item = wOptions.getNonEmpty( i );
-      String option = item.getText(1);
-      String value = item.getText(2);
+      String option = item.getText( 1 );
+      String value = item.getText( 2 );
       meta.addExtraOption( meta.getPluginId(), option, value );
     }
 
     // Finally, get the database specific information
     //
-    guiElementWidgets.getWidgetsContents(meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    guiElementWidgets.getWidgetsContents( meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     return meta;
   }
-
 
 
   /**
@@ -967,7 +775,7 @@ public class DatabaseMetaDialog extends Dialog {
     } else {
       String message = "";
       for ( int i = 0; i < remarks.length; i++ ) {
-        message += "    * " + remarks[i] + Const.CR;
+        message += "    * " + remarks[ i ] + Const.CR;
       }
 
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
@@ -980,11 +788,11 @@ public class DatabaseMetaDialog extends Dialog {
   private String[] getConnectionTypes() {
     PluginRegistry registry = PluginRegistry.getInstance();
     List<PluginInterface> plugins = registry.getPlugins( DatabasePluginType.class );
-    String[] types = new String[plugins.size()];
-    for (int i=0;i<types.length;i++) {
-      types[i] = plugins.get( i ).getName();
+    String[] types = new String[ plugins.size() ];
+    for ( int i = 0; i < types.length; i++ ) {
+      types[ i ] = plugins.get( i ).getName();
     }
-    Arrays.sort(types);
+    Arrays.sort( types );
     return types;
   }
 
@@ -1004,55 +812,44 @@ public class DatabaseMetaDialog extends Dialog {
     this.databaseMeta = databaseMeta;
   }
 
-  /**
-   * Gets metaStore
-   *
-   * @return value of metaStore
-   */
-  public IMetaStore getMetaStore() {
-    return metaStore;
-  }
-
   public static void main( String[] args ) throws HopException {
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog START");
-    Display display = new Display(  );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog START" );
+    Display display = new Display();
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
     // shell.setSize( 500, 500 );
     // shell.open();
 
-    System.out.println(">>>>>>>>>>>>>>>> Main shell opened");
+    System.out.println( ">>>>>>>>>>>>>>>> Main shell opened" );
 
     HopClientEnvironment.init();
-    System.out.println(">>>>>>>>>>>>>>>> Hop client environment initialized");
+    System.out.println( ">>>>>>>>>>>>>>>> Hop client environment initialized" );
 
     List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    System.out.println(">>>>>>>>>>>>>>>> Nr of database plugins found: "+plugins.size());
+    System.out.println( ">>>>>>>>>>>>>>>> Nr of database plugins found: " + plugins.size() );
 
     PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
-    System.out.println(">>>>>>>>>>>>>>>> PropsUI initialized");
+    System.out.println( ">>>>>>>>>>>>>>>> PropsUI initialized" );
 
     HopEnvironment.init();
-    System.out.println(">>>>>>>>>>>>>>>> Hop Environment initialized");
+    System.out.println( ">>>>>>>>>>>>>>>> Hop Environment initialized" );
 
-    IMetaStore metaStore = new MemoryMetaStore();
-    DatabaseMeta databaseMeta = new DatabaseMeta("Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password");
+    DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );
 
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
-    DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, metaStore, databaseMeta );
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog created");
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog created" );
+    DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, databaseMeta );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog created" );
     String name = dialog.open();
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog opened, name="+name);
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog opened, name=" + name );
 
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog hostname = "+databaseMeta.getHostname());
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog port     = "+databaseMeta.getPort());
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog db name  = "+databaseMeta.getDatabaseName());
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog username = "+databaseMeta.getUsername());
-    System.out.println(">>>>>>>>>>>>>>>> DatabaseMetaDialog password = "+databaseMeta.getPassword());
-
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog hostname = " + databaseMeta.getHostname() );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog port     = " + databaseMeta.getPort() );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog db name  = " + databaseMeta.getDatabaseName() );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog username = " + databaseMeta.getUsername() );
+    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog password = " + databaseMeta.getPassword() );
 
     // Re-open with a new dialog...
     //
-    DatabaseMetaDialog newDialog = new DatabaseMetaDialog( shell, metaStore, databaseMeta );
+    DatabaseMetaDialog newDialog = new DatabaseMetaDialog( shell, databaseMeta );
     newDialog.open();
 
     // while ( shell != null && !shell.isDisposed() ) {
