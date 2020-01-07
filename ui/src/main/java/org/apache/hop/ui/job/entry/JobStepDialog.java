@@ -44,7 +44,6 @@ import org.apache.hop.i18n.PackageMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.WidgetUtils;
@@ -94,9 +93,9 @@ public abstract class JobStepDialog<T extends JobEntryInterface> extends JobEntr
   }
 
   @SuppressWarnings( "unchecked" )
-  public JobStepDialog( final Shell parent, final JobEntryInterface jobEntryInt, final Repository rep,
+  public JobStepDialog( final Shell parent, final JobEntryInterface jobEntryInt,
       final JobMeta jobMeta, boolean bigIcon ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+    super( parent, jobEntryInt, jobMeta );
     entry = (T) jobEntryInt;
     this.bigIcon = bigIcon;
     initMessages();

@@ -38,8 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -106,7 +105,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -217,7 +216,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( info != null && info.length == 1 && info[0] != null ) {
       for ( int i = 0; i < getValueName().length; i++ ) {
         ValueMetaInterface v = info[0].searchValueMeta( getValue()[i] );
@@ -278,77 +277,9 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      String lookupFromStepname = rep.getStepAttributeString( id_step, "lookup_from_step" );
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      infoStream.setSubject( lookupFromStepname );
-
-      setInputSorted( rep.getStepAttributeBoolean( id_step, "input_sorted" ) );
-      setMemoryPreservationActive( rep.getStepAttributeBoolean( id_step, "preserve_memory" ) );
-      setUsingSortedList( rep.getStepAttributeBoolean( id_step, "sorted_list" ) );
-      setUsingIntegerPair( rep.getStepAttributeBoolean( id_step, "integer_pair" ) );
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "lookup_key_name" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "return_value_name" );
-
-      allocate( nrkeys, nrvalues );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        // CHECKSTYLE:Indentation:OFF
-        getKeystream()[i] = rep.getStepAttributeString( id_step, i, "lookup_key_name" );
-        getKeylookup()[i] = rep.getStepAttributeString( id_step, i, "lookup_key_field" );
-        // CHECKSTYLE:Indentation:ON
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        // CHECKSTYLE:Indentation:OFF
-        getValue()[i] = rep.getStepAttributeString( id_step, i, "return_value_name" );
-        getValueName()[i] = rep.getStepAttributeString( id_step, i, "return_value_rename" );
-        getValueDefault()[i] = rep.getStepAttributeString( id_step, i, "return_value_default" );
-        getValueDefaultType()[i] =
-          ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "return_value_type" ) );
-        // CHECKSTYLE:Indentation:ON
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "StreamLookupMeta.Exception.UnexpecteErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup_from_step", infoStream.getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "input_sorted", isInputSorted() );
-      rep.saveStepAttribute( id_transformation, id_step, "preserve_memory", isMemoryPreservationActive() );
-      rep.saveStepAttribute( id_transformation, id_step, "sorted_list", isUsingSortedList() );
-      rep.saveStepAttribute( id_transformation, id_step, "integer_pair", isUsingIntegerPair() );
-
-      for ( int i = 0; i < getKeystream().length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_name", getKeystream()[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_field", getKeylookup()[i] );
-      }
-
-      for ( int i = 0; i < getValue().length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_name", getValue()[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_rename", getValueName()[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_default", getValueDefault()[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_type",
-          ValueMetaFactory.getValueMetaName( getValueDefaultType()[i] ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "StreamLookupMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

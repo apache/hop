@@ -42,10 +42,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -100,45 +97,16 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       logmessage = XMLHandler.getTagValue( entrynode, "logmessage" );
       entryLogLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
       logsubject = XMLHandler.getTagValue( entrynode, "logsubject" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToLoadFromXML.Label" ), e );
 
-    }
-  }
-
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      logmessage = rep.getJobEntryAttributeString( id_jobentry, "logmessage" );
-      entryLogLevel = LogLevel.getLogLevelForCode( rep.getJobEntryAttributeString( id_jobentry, "loglevel" ) );
-      logsubject = rep.getJobEntryAttributeString( id_jobentry, "logsubject" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToLoadFromRepository.Label" )
-        + id_jobentry, dbe );
-
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logmessage", logmessage );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "loglevel", ( entryLogLevel != null ? entryLogLevel
-        .getCode() : "" ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logsubject", logsubject );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToSaveToRepository.Label" )
-        + id_job, dbe );
     }
   }
 
@@ -175,18 +143,8 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
     }
 
     @Override
-    public ObjectId getObjectId() {
-      return null;
-    }
-
-    @Override
     public String getObjectName() {
       return subject;
-    }
-
-    @Override
-    public ObjectRevision getObjectRevision() {
-      return null;
     }
 
     @Override
@@ -197,11 +155,6 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
     @Override
     public LoggingObjectInterface getParent() {
       return parent;
-    }
-
-    @Override
-    public RepositoryDirectory getRepositoryDirectory() {
-      return null;
     }
 
     public LogChannelInterface getLogChannel() {

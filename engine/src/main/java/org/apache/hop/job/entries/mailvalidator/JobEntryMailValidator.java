@@ -42,8 +42,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.steps.mailvalidator.MailValidation;
 import org.apache.hop.trans.steps.mailvalidator.MailValidationResult;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -156,10 +155,10 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       smtpCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "smtpCheck" ) );
       timeout = XMLHandler.getTagValue( entrynode, "timeout" );
       defaultSMTP = XMLHandler.getTagValue( entrynode, "defaultSMTP" );
@@ -169,35 +168,6 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
     } catch ( Exception e ) {
       throw new HopXMLException(
         BaseMessages.getString( PKG, "JobEntryMailValidator.Meta.UnableToLoadFromXML" ), e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      smtpCheck = rep.getJobEntryAttributeBoolean( id_jobentry, "smtpCheck" );
-      timeout = rep.getJobEntryAttributeString( id_jobentry, "timeout" );
-      defaultSMTP = rep.getJobEntryAttributeString( id_jobentry, "defaultSMTP" );
-      emailSender = rep.getJobEntryAttributeString( id_jobentry, "emailSender" );
-      emailAddress = rep.getJobEntryAttributeString( id_jobentry, "emailAddress" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryMailValidator.Meta.UnableToLoadFromRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "smtpCheck", smtpCheck );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "defaultSMTP", defaultSMTP );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "emailSender", emailSender );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "emailAddress", emailAddress );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryMailValidator.Meta.UnableToSaveToRep" )
-        + id_job, dbe );
     }
   }
 
@@ -280,7 +250,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     JobEntryValidatorUtils.andValidator().validate( this, "emailAddress", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

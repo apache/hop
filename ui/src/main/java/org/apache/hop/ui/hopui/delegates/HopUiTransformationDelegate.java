@@ -202,11 +202,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         tabItem.setControl( transGraph );
         TransLogTable logTable = transMeta.getTransLogTable();
 
-        String versionLabel = transMeta.getObjectRevision() == null ? null : transMeta.getObjectRevision().getName();
-
         tabEntry =
-            new TabMapEntry( tabItem, transMeta.getFilename(), transMeta.getName(), transMeta.getRepositoryDirectory(),
-                versionLabel, transGraph, ObjectType.TRANSFORMATION_GRAPH );
+            new TabMapEntry( tabItem, transMeta.getFilename(), transMeta.getName(), transGraph, ObjectType.TRANSFORMATION_GRAPH );
         tabEntry.setShowingLocation( showLocation );
 
         hopUi.delegates.tabs.addTab( tabEntry );
@@ -354,17 +351,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      // We created a new connection : undo this...
-      case TransAction.TYPE_ACTION_NEW_CONNECTION:
-        // Delete the connection at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.removeDatabase( idx );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
       // We created a new note : undo this...
       case TransAction.TYPE_ACTION_NEW_NOTE:
         // Delete the note at correct location:
@@ -425,18 +411,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      // We deleted a connection : undo this...
-      case TransAction.TYPE_ACTION_DELETE_CONNECTION:
-        // re-insert the connection at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          DatabaseMeta ci = (DatabaseMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.addDatabase( idx, ci );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
       // We delete new note : undo this...
       case TransAction.TYPE_ACTION_DELETE_NOTE:
         // re-insert the note at correct location:
@@ -477,19 +451,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
           int idx = transAction.getCurrentIndex()[i];
 
           transMeta.getStep( idx ).replaceMeta( prev );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
-      // We changed a connection : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_CONNECTION:
-        // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          DatabaseMeta prev = (DatabaseMeta) transAction.getPrevious()[i];
-          int idx = transAction.getCurrentIndex()[i];
-
-          transMeta.getDatabase( idx ).replaceMeta( (DatabaseMeta) prev.clone() );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -572,17 +533,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         }
         break;
 
-      case TransAction.TYPE_ACTION_NEW_CONNECTION:
-        // re-insert the connection at correct location:
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          DatabaseMeta ci = (DatabaseMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.addDatabase( idx, ci );
-          hopUi.refreshTree();
-          hopUi.refreshGraph();
-        }
-        break;
-
       case TransAction.TYPE_ACTION_NEW_NOTE:
         // re-insert the note at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
@@ -618,16 +568,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_DELETE_CONNECTION:
-        // re-remove the connection at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.removeDatabase( idx );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
       case TransAction.TYPE_ACTION_DELETE_NOTE:
         // re-remove the note at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
@@ -658,19 +598,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           StepMeta stepMeta = (StepMeta) ( (StepMeta) transAction.getCurrent()[i] ).clone();
           transMeta.getStep( transAction.getCurrentIndex()[i] ).replaceMeta( stepMeta );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
-      // We changed a connection : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_CONNECTION:
-        // Delete & re-insert
-        for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          DatabaseMeta databaseMeta = (DatabaseMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
-
-          transMeta.getDatabase( idx ).replaceMeta( (DatabaseMeta) databaseMeta.clone() );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -763,10 +690,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     executionConfiguration.setExecutingClustered( false );
 
     // Set repository and safe mode information in both the exec config and the metadata
-    transMeta.setRepository( hopUi.rep );
     transMeta.setMetaStore( hopUi.metaStore );
-
-    executionConfiguration.setRepository( hopUi.rep );
 
     executionConfiguration.setSafeModeEnabled( safe );
 
@@ -821,7 +745,6 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     int debugAnswer = TransDebugDialog.DEBUG_CONFIG;
 
     if ( debug || preview ) {
-      transDebugMeta.getTransMeta().setRepository( hopUi.rep ); // pass repository for mappings
       TransDebugDialog transDebugDialog = new TransDebugDialog( hopUi.getShell(), transDebugMeta );
       debugAnswer = transDebugDialog.open();
       if ( debugAnswer != TransDebugDialog.DEBUG_CANCEL ) {
@@ -889,9 +812,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
           executionConfiguration );
 
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
-          executionConfiguration, transMeta, transMeta, hopUi.getRepository()
-        } );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] { executionConfiguration, transMeta, transMeta } );
       } catch ( HopException e ) {
         log.logError( e.getMessage(), transMeta.getFilename() );
         return;
@@ -934,7 +855,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
           showSaveTransformationBeforeRunningDialog( hopUi.getShell() );
         } else if ( executionConfiguration.getRemoteServer() != null ) {
           String carteObjectId =
-              Trans.sendToSlaveServer( transMeta, executionConfiguration, hopUi.rep, hopUi.metaStore );
+              Trans.sendToSlaveServer( transMeta, executionConfiguration, hopUi.metaStore );
           monitorRemoteTrans( transMeta, carteObjectId, executionConfiguration.getRemoteServer() );
           hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
 

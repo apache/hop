@@ -22,14 +22,10 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
+
+import java.util.Date;
 
 public class LoggingObject implements LoggingObjectInterface {
 
@@ -37,10 +33,7 @@ public class LoggingObject implements LoggingObjectInterface {
   private LoggingObjectType objectType;
   private String objectName;
   private String objectCopy;
-  private RepositoryDirectoryInterface repositoryDirectory;
   private String filename;
-  private ObjectId objectId;
-  private ObjectRevision objectRevision;
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
   private String containerObjectId;
@@ -77,24 +70,18 @@ public class LoggingObject implements LoggingObjectInterface {
       boolean sameCarteFamily =
         ( getContainerObjectId() == null && loggingObject.getContainerObjectId() == null )
           || ( getContainerObjectId() != null && loggingObject.getContainerObjectId() != null && getContainerObjectId()
-            .equals( loggingObject.getContainerObjectId() ) );
+          .equals( loggingObject.getContainerObjectId() ) );
 
-      // See if we recognize the repository ID, this is an absolute match
-      //
-      if ( sameCarteFamily
-        && loggingObject.getObjectId() != null && loggingObject.getObjectId().equals( getObjectId() ) ) {
-        return true;
-      }
 
       // Check if objects have the same parent
       boolean sameParents =
-          loggingObject.getParent() == null && this.getParent() == null || loggingObject.getParent() != null
-              && this.getParent() != null && loggingObject.getParent().equals( this.getParent() );
+        loggingObject.getParent() == null && this.getParent() == null || loggingObject.getParent() != null
+          && this.getParent() != null && loggingObject.getParent().equals( this.getParent() );
 
       // If the filename is the same and parent is the same, it's the same object...
       if ( sameCarteFamily && !Utils.isEmpty( loggingObject.getFilename() )
-          && loggingObject.getFilename().equals( getFilename() ) && sameParents
-              && StringUtils.equals( loggingObject.getObjectName(), getObjectName() ) ) {
+        && loggingObject.getFilename().equals( getFilename() ) && sameParents
+        && StringUtils.equals( loggingObject.getObjectName(), getObjectName() ) ) {
         return true;
       }
 
@@ -109,7 +96,7 @@ public class LoggingObject implements LoggingObjectInterface {
 
       if ( sameCarteFamily
         && ( ( loggingObject.getObjectName() == null && getObjectName() == null ) || ( loggingObject
-          .getObjectName().equals( getObjectName() ) ) )
+        .getObjectName().equals( getObjectName() ) ) )
         && loggingObject.getObjectType().equals( getObjectType() ) ) {
 
         // If there are multiple copies of this object, they both need their own channel
@@ -144,10 +131,7 @@ public class LoggingObject implements LoggingObjectInterface {
   private void grabLoggingObjectInformation( LoggingObjectInterface loggingObject ) {
     objectType = loggingObject.getObjectType();
     objectName = loggingObject.getObjectName();
-    repositoryDirectory = loggingObject.getRepositoryDirectory();
     filename = loggingObject.getFilename();
-    objectId = loggingObject.getObjectId();
-    objectRevision = loggingObject.getObjectRevision();
     objectCopy = loggingObject.getObjectCopy();
     logLevel = loggingObject.getLogLevel();
     containerObjectId = loggingObject.getContainerObjectId();
@@ -216,27 +200,10 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setObjectName( String name ) {
     this.objectName = name;
-  }
-
-  /**
-   * @return the repositoryDirectory
-   */
-  @Override
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return repositoryDirectory;
-  }
-
-  /**
-   * @param repositoryDirectory
-   *          the repositoryDirectory to set
-   */
-  public void setRepositoryDirectory( RepositoryDirectory repositoryDirectory ) {
-    this.repositoryDirectory = repositoryDirectory;
   }
 
   /**
@@ -248,44 +215,12 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
   }
 
-  /**
-   * @return the objectId
-   */
-  @Override
-  public ObjectId getObjectId() {
-    return objectId;
-  }
-
-  /**
-   * @param objectId
-   *          the objectId to set
-   */
-  public void setObjectId( ObjectId objectId ) {
-    this.objectId = objectId;
-  }
-
-  /**
-   * @return the objectRevision
-   */
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return objectRevision;
-  }
-
-  /**
-   * @param objectRevision
-   *          the objectRevision to set
-   */
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    this.objectRevision = objectRevision;
-  }
 
   /**
    * @return the id
@@ -296,8 +231,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param logChannelId the id to set
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
@@ -312,8 +246,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param parent
-   *          the parent to set
+   * @param parent the parent to set
    */
   public void setParent( LoggingObjectInterface parent ) {
     this.parent = parent;
@@ -328,8 +261,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param objectType
-   *          the objectType to set
+   * @param objectType the objectType to set
    */
   public void setObjectType( LoggingObjectType objectType ) {
     this.objectType = objectType;
@@ -344,8 +276,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param copy
-   *          the copy to set
+   * @param objectCopy the copy to set
    */
   public void setObjectCopy( String objectCopy ) {
     this.objectCopy = objectCopy;
@@ -369,8 +300,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param carteObjectId
-   *          the carteObjectId to set
+   * @param carteObjectId the carteObjectId to set
    */
   public void setCarteObjectId( String carteObjectId ) {
     this.containerObjectId = carteObjectId;
@@ -385,8 +315,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param registrationDate
-   *          the registrationDate to set
+   * @param registrationDate the registrationDate to set
    */
   public void setRegistrationDate( Date registrationDate ) {
     this.registrationDate = registrationDate;
@@ -401,8 +330,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param gatheringMetrics
-   *          the gatheringMetrics to set
+   * @param gatheringMetrics the gatheringMetrics to set
    */
   @Override
   public void setGatheringMetrics( boolean gatheringMetrics ) {
@@ -418,8 +346,7 @@ public class LoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param forcingSeparateLogging
-   *          the forcingSeparateLogging to set
+   * @param forcingSeparateLogging the forcingSeparateLogging to set
    */
   @Override
   public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {

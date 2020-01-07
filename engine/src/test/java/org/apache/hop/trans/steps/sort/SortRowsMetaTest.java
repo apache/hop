@@ -98,7 +98,6 @@ public class SortRowsMetaTest {
   public void testPDI16559() throws Exception {
     SortRowsMeta sortRowsReal = new SortRowsMeta();
     SortRowsMeta sortRows = Mockito.spy( sortRowsReal );
-    Mockito.doNothing().when( sortRows ).registerUrlWithDirectory();
     sortRows.setDirectory( "/tmp" );
     sortRows.setFieldName( new String[] { "field1", "field2", "field3", "field4", "field5" } );
     sortRows.setAscending( new boolean[] { false, true, false } );

@@ -109,7 +109,7 @@ public class UnivariateStatsMetaTest {
             "org/apache/hop/trans/steps/univariatestats/legacyUnivariateStatsMetaTest.xml" ) );
     IMetaStore mockMetaStore = mock( IMetaStore.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    meta.loadXML( XMLHandler.loadXMLString( legacyXml ).getFirstChild(), new ArrayList<DatabaseMeta>(), mockMetaStore );
+    meta.loadXML( XMLHandler.loadXMLString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );
     UnivariateStatsMetaFunction first = meta.getInputFieldMetaFunctions()[0];
     assertEquals( "a", first.getSourceFieldName() );
@@ -184,7 +184,7 @@ public class UnivariateStatsMetaTest {
         return null;
       }
     } ).when( mockRowMetaInterface ).addValueMeta( any( ValueMetaInterface.class ) );
-    meta.getFields( mockRowMetaInterface, null, null, null, null, null, null );
+    meta.getFields( mockRowMetaInterface, null, null, null, null, null );
     Map<String, Integer> valueMetas = new HashMap<String, Integer>();
     for ( ValueMetaInterface vmi : valueMetaInterfaces ) {
       valueMetas.put( vmi.getName(), vmi.getType() );
@@ -222,7 +222,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckNullPrev() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[0], null, null, null, null, null );
+    meta.check( remarks, null, null, null, new String[0], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous steps!", remarks.get( 0 ).getText() );
   }
@@ -233,7 +233,7 @@ public class UnivariateStatsMetaTest {
     RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
     when( mockRowMetaInterface.size() ).thenReturn( 0 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null, null );
+    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous steps!", remarks.get( 0 ).getText() );
   }
@@ -244,7 +244,7 @@ public class UnivariateStatsMetaTest {
     RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
     when( mockRowMetaInterface.size() ).thenReturn( 500 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null, null );
+    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is connected to previous one, receiving " + 500 + " fields", remarks.get( 0 ).getText() );
   }
@@ -253,7 +253,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckWithInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[1], null, null, null, null, null );
+    meta.check( remarks, null, null, null, new String[1], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is receiving info from other steps.", remarks.get( 1 ).getText() );
   }
@@ -262,7 +262,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckWithoutInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[0], null, null, null, null, null );
+    meta.check( remarks, null, null, null, new String[0], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "No input received from other steps!", remarks.get( 1 ).getText() );
   }

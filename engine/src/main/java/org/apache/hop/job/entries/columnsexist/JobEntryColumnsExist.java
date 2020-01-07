@@ -43,8 +43,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -114,15 +113,14 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
 
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
 
@@ -138,48 +136,6 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
 
     } catch ( HopException e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryColumnsExist.Meta.UnableLoadXml" ), e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      tablename = rep.getJobEntryAttributeString( id_jobentry, "tablename" );
-      schemaname = rep.getJobEntryAttributeString( id_jobentry, "schemaname" );
-
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "name" );
-      arguments = new String[argnr];
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[a] = rep.getJobEntryAttributeString( id_jobentry, a, "name" );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryColumnsExist.Meta.UnableLoadRep", ""
-        + id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablename", tablename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schemaname", schemaname );
-
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-
-      // save the arguments...
-      if ( arguments != null ) {
-        for ( int i = 0; i < arguments.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "name", arguments[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryColumnsExist.Meta.UnableSaveRep", ""
-        + id_job ), dbe );
     }
   }
 
@@ -316,7 +272,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "columnname", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

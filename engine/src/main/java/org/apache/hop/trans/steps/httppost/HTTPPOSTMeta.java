@@ -40,8 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -182,7 +181,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param connectionTimeout
+   * @param closeIdleConnectionsTime
    *          The connectionTimeout to set.
    */
   public void setCloseIdleConnectionsTime( String closeIdleConnectionsTime ) {
@@ -317,8 +316,8 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
     this.fieldName = resultName;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrargs ) {
@@ -382,7 +381,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !Utils.isEmpty( fieldName ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
       inputRowMeta.addValueMeta( v );
@@ -453,7 +452,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       postafile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "postafile" ) );
       encoding = XMLHandler.getTagValue( stepnode, "encoding" );
@@ -501,91 +500,9 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      postafile = rep.getStepAttributeBoolean( id_step, "postafile" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      url = rep.getStepAttributeString( id_step, "url" );
-      urlInField = rep.getStepAttributeBoolean( id_step, "urlInField" );
-      urlField = rep.getStepAttributeString( id_step, "urlField" );
-      requestEntity = rep.getStepAttributeString( id_step, "requestEntity" );
-      httpLogin = rep.getStepAttributeString( id_step, "httpLogin" );
-      httpPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "httpPassword" ) );
-      proxyHost = rep.getStepAttributeString( id_step, "proxyHost" );
-      proxyPort = rep.getStepAttributeString( id_step, "proxyPort" );
-      socketTimeout = rep.getStepAttributeString( id_step, "socketTimeout" );
-      connectionTimeout = rep.getStepAttributeString( id_step, "connectionTimeout" );
-      closeIdleConnectionsTime = rep.getStepAttributeString( id_step, "closeIdleConnectionsTime" );
-
-      int nrargs = rep.countNrStepAttributes( id_step, "arg_name" );
-      allocate( nrargs );
-
-      for ( int i = 0; i < nrargs; i++ ) {
-        argumentField[i] = rep.getStepAttributeString( id_step, i, "arg_name" );
-        argumentParameter[i] = rep.getStepAttributeString( id_step, i, "arg_parameter" );
-        argumentHeader[i] = rep.getStepAttributeBoolean( id_step, i, "arg_header" );
-      }
-
-      int nrquery = rep.countNrStepAttributes( id_step, "query_name" );
-      allocateQuery( nrquery );
-
-      for ( int i = 0; i < nrquery; i++ ) {
-        queryField[i] = rep.getStepAttributeString( id_step, i, "query_name" );
-        queryParameter[i] = rep.getStepAttributeString( id_step, i, "query_parameter" );
-      }
-
-      fieldName = rep.getStepAttributeString( id_step, "result_name" );
-      resultCodeFieldName = rep.getStepAttributeString( id_step, "result_code" );
-      responseTimeFieldName = rep.getStepAttributeString( id_step, "response_time" );
-      responseHeaderFieldName = rep.getStepAttributeString( id_step, "response_header" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "HTTPPOSTMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "postafile", postafile );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "url", url );
-      rep.saveStepAttribute( id_transformation, id_step, "urlInField", urlInField );
-      rep.saveStepAttribute( id_transformation, id_step, "urlField", urlField );
-      rep.saveStepAttribute( id_transformation, id_step, "requestEntity", requestEntity );
-      rep.saveStepAttribute( id_transformation, id_step, "httpLogin", httpLogin );
-      rep.saveStepAttribute( id_transformation, id_step, "httpPassword", Encr
-        .encryptPasswordIfNotUsingVariables( httpPassword ) );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyHost", proxyHost );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPort", proxyPort );
-
-      rep.saveStepAttribute( id_transformation, id_step, "socketTimeout", socketTimeout );
-      rep.saveStepAttribute( id_transformation, id_step, "connectionTimeout", connectionTimeout );
-      rep.saveStepAttribute( id_transformation, id_step, "closeIdleConnectionsTime", closeIdleConnectionsTime );
-
-      for ( int i = 0; i < argumentField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_name", argumentField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_parameter", argumentParameter[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_header", argumentHeader[i] );
-      }
-      for ( int i = 0; i < queryField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "query_name", queryField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "query_parameter", queryParameter[i] );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "result_name", fieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "result_code", resultCodeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "response_time", responseTimeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "response_header", responseHeaderFieldName );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "HTTPPOSTMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!

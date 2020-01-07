@@ -47,7 +47,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.ifnull.IfNullMeta.Fields;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
@@ -95,7 +94,7 @@ public class IfNullTest {
     doReturn( createFields( "null-field", "empty-field", "space-field" ) ).when( processRowMeta ).getFields();
     doReturn( "replace-value" ).when( processRowMeta ).getReplaceAllByValue();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(), any(
-        RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ), any(
+        RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any(
             IMetaStore.class ) );
     return processRowMeta;
   }

@@ -51,7 +51,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.deletefiles.JobEntryDeleteFiles;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -115,8 +114,8 @@ public class JobEntryDeleteFilesDialog extends JobEntryDialog implements JobEntr
   private Button wbaFilename; // Add or change
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
-  public JobEntryDeleteFilesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryDeleteFilesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryDeleteFiles) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

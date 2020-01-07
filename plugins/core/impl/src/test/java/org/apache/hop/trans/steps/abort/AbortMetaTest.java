@@ -82,7 +82,7 @@ public class AbortMetaTest {
       + "    <abort_with_error>Y</abort_with_error>\n"
       + "  </step>";
     Node node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, Collections.emptyList(), metaStore );
+    meta.loadXML( node, metaStore );
     assertTrue( meta.isAbortWithError() );
 
     // Don't abort with error
@@ -92,7 +92,7 @@ public class AbortMetaTest {
       + "    <abort_with_error>N</abort_with_error>\n"
       + "  </step>";
     node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, Collections.emptyList(), metaStore );
+    meta.loadXML( node, metaStore );
     assertTrue( meta.isAbort() );
 
     // Don't abort with error
@@ -101,7 +101,7 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "  </step>";
     node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, Collections.emptyList(), metaStore );
+    meta.loadXML( node, metaStore );
     assertTrue( meta.isAbortWithError() );
   }
 }

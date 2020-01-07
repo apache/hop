@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -58,10 +57,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
@@ -75,8 +71,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogHelper;
-import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -131,9 +125,6 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
   private TableItem tiExecutionExitStatusField;
   private TableItem tiExecutionLogTextField;
   private TableItem tiExecutionLogChannelIdField;
-
-  private ObjectId referenceObjectId;
-  private ObjectLocationSpecificationMethod specificationMethod;
 
   private ColumnInfo[] parameterColumns;
 
@@ -245,11 +236,7 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        if ( repository != null ) {
-          selectRepositoryJob();
-        } else {
-          selectFileJob();
-        }
+      selectFileJob();
       }
     } );
 
@@ -353,34 +340,6 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
         ConstUI.LARGE_ICON_SIZE );
   }
 
-  private void selectRepositoryJob() {
-    RepositoryObject repositoryObject = DialogHelper.selectRepositoryObject( "*.kjb", log );
-
-    try {
-      if ( repositoryObject != null ) {
-        loadRepositoryJob( repositoryObject.getName(), repositoryObject.getRepositoryDirectory() );
-        String path = DialogUtils
-          .getPath( transMeta.getRepositoryDirectory().getPath(), executorJobMeta.getRepositoryDirectory().getPath() );
-        String fullPath = ( path.equals( "/" ) ? "/" : path + "/" ) + executorJobMeta.getName();
-        wPath.setText( fullPath );
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-    } catch ( HopException ke ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "SingleThreaderDialog.ErrorSelectingObject.DialogTitle" ),
-        BaseMessages.getString( PKG, "SingleThreaderDialog.ErrorSelectingObject.DialogMessage" ), ke );
-    }
-  }
-
-  private void loadRepositoryJob( String transName, RepositoryDirectoryInterface repdir ) throws HopException {
-    // Read the transformation...
-    //
-    executorJobMeta = repository.loadJob( transMeta.environmentSubstitute( transName ), repdir, null, null ); // reads
-    // last
-    // version
-    executorJobMeta.clearChanged();
-  }
-
   private void selectFileJob() {
     String curFile = transMeta.environmentSubstitute( wPath.getText() );
 
@@ -412,7 +371,6 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
           fileName = fileName.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
         }
         wPath.setText( fileName );
-        specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
       }
     } catch ( IOException | HopException e ) {
       new ErrorDialog( shell,
@@ -422,55 +380,20 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
   }
 
   private void loadFileJob( String fname ) throws HopException {
-    executorJobMeta = new JobMeta( transMeta.environmentSubstitute( fname ), repository );
+    executorJobMeta = new JobMeta( transMeta.environmentSubstitute( fname ) );
     executorJobMeta.clearChanged();
   }
 
   private void loadJob() throws HopException {
     String filename = wPath.getText();
-    if ( repository != null ) {
-      specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-    } else {
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
+    if ( Utils.isEmpty( filename ) ) {
+      return;
     }
-    switch ( specificationMethod ) {
-      case FILENAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        if ( !filename.endsWith( ".kjb" ) ) {
-          filename = filename + ".kjb";
-          wPath.setText( filename );
-        }
-        loadFileJob( filename );
-        break;
-      case REPOSITORY_BY_NAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        String transPath = transMeta.environmentSubstitute( filename );
-        String realJobname = transPath;
-        String realDirectory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          realJobname = transPath.substring( index + 1 );
-          realDirectory = transPath.substring( 0, index );
-        }
-
-        if ( Utils.isEmpty( realDirectory ) || Utils.isEmpty( realJobname ) ) {
-          throw new HopException(
-            BaseMessages.getString( PKG, "JobExecutorDialog.Exception.NoValidMappingDetailsFound" ) );
-        }
-        RepositoryDirectoryInterface repdir = repository.findDirectory( realDirectory );
-        if ( repdir == null ) {
-          throw new HopException( BaseMessages.getString(
-            PKG, "JobExecutorDialog.Exception.UnableToFindRepositoryDirectory" ) );
-        }
-        loadRepositoryJob( realJobname, repdir );
-        break;
-      default:
-        break;
+    if ( !filename.endsWith( ".kjb" ) ) {
+      filename = filename + ".kjb";
+      wPath.setText( filename );
     }
+    loadFileJob( filename );
   }
 
 
@@ -478,23 +401,7 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    specificationMethod = jobExecutorMeta.getSpecificationMethod();
-    switch ( specificationMethod ) {
-      case FILENAME:
-        wPath.setText( Const.NVL( jobExecutorMeta.getFileName(), "" ) );
-        break;
-      case REPOSITORY_BY_NAME:
-        String fullPath = Const.NVL( jobExecutorMeta.getDirectoryPath(), "" ) + "/" + Const
-          .NVL( jobExecutorMeta.getJobName(), "" );
-        wPath.setText( fullPath );
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        referenceObjectId = jobExecutorMeta.getJobObjectId();
-        getByReferenceData( referenceObjectId );
-        break;
-      default:
-        break;
-    }
+    wPath.setText( Const.NVL( jobExecutorMeta.getFileName(), "" ) );
 
     // TODO: throw in a separate thread.
     //
@@ -575,21 +482,6 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
 
     wStepname.selectAll();
     wStepname.setFocus();
-  }
-
-  private void getByReferenceData( ObjectId jobObjectId ) {
-    try {
-      RepositoryObject jobInf = repository.getObjectInformation( jobObjectId, RepositoryObjectType.JOB );
-      String path =
-        DialogUtils.getPath( transMeta.getRepositoryDirectory().getPath(), jobInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( jobInf.getName(), "" );
-      wPath.setText( fullPath );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "JobEntryJobDialog.Exception.UnableToReferenceObjectId.Title" ),
-        BaseMessages.getString( PKG, "JobEntryJobDialog.Exception.UnableToReferenceObjectId.Message" ), e );
-    }
   }
 
   private void addParametersTab() {
@@ -1089,31 +981,7 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
         .getString( PKG, "JobExecutorDialog.ErrorLoadingSpecifiedJob.Message" ), e );
     }
 
-    jobExecutorMeta.setSpecificationMethod( specificationMethod );
-    switch ( specificationMethod ) {
-      case FILENAME:
-        jobExecutorMeta.setFileName( wPath.getText() );
-        jobExecutorMeta.setDirectoryPath( null );
-        jobExecutorMeta.setJobName( null );
-        jobExecutorMeta.setJobObjectId( null );
-        break;
-      case REPOSITORY_BY_NAME:
-        String transPath = wPath.getText();
-        String transName = transPath;
-        String directory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          transName = transPath.substring( index + 1 );
-          directory = transPath.substring( 0, index );
-        }
-        jobExecutorMeta.setDirectoryPath( directory );
-        jobExecutorMeta.setJobName( transName );
-        jobExecutorMeta.setFileName( null );
-        jobExecutorMeta.setJobObjectId( null );
-        break;
-      default:
-        break;
-    }
+    jobExecutorMeta.setFileName( wPath.getText() );
 
     // Load the information on the tabs, optionally do some
     // verifications...

@@ -22,28 +22,17 @@
 
 package org.apache.hop.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.xml.XMLHandler;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLParserFactoryProducer;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 @Deprecated
 /**
@@ -58,10 +47,8 @@ public class SerializationHelper {
    * stepnode). We handle all primitive types, complex user types, arrays, lists and any number of nested object levels,
    * via recursion of this method.
    *
-   * @param object
-   *          The object to be persisted
-   * @param node
-   *          The node to 'attach' our XML to
+   * @param object The object to be persisted
+   * @param node   The node to 'attach' our XML to
    */
   public static void read( Object object, Node node ) {
     // get this classes fields, public, private, protected, package, everything
@@ -397,89 +384,6 @@ public class SerializationHelper {
       }
     }
 
-  }
-
-  /**
-   * Handle saving of the input (object) to the kettle repository using the most simple method available, by calling
-   * write and then saving the job-xml as a job attribute.
-   *
-   * @param object
-   * @param rep
-   * @param id_transformation
-   * @param id_step
-   * @throws HopException
-   */
-  public static void saveJobRep( Object object, Repository rep, ObjectId id_job, ObjectId id_job_entry ) throws HopException {
-    StringBuilder sb = new StringBuilder( 1024 );
-    write( object, 0, sb );
-    rep.saveJobEntryAttribute( id_job, id_job_entry, "job-xml", sb.toString() );
-  }
-
-  /**
-   * Handle reading of the input (object) from the kettle repository by getting the job-xml from the repository step
-   * attribute string and then re-hydrate the job entry (object) with our already existing read method.
-   *
-   * @param object
-   * @param rep
-   * @param id_step
-   * @param databases
-   * @throws HopException
-   */
-  public static void readJobRep( Object object, Repository rep, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      String jobXML = rep.getJobEntryAttributeString( id_step, "job-xml" );
-      ByteArrayInputStream bais = new ByteArrayInputStream( jobXML.getBytes() );
-      Document doc = XMLParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder().parse( bais );
-      read( object, doc.getDocumentElement() );
-    } catch ( ParserConfigurationException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    } catch ( SAXException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    } catch ( IOException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    }
-  }
-
-  /**
-   * Handle saving of the input (object) to the kettle repository using the most simple method available, by calling
-   * write and then saving the step-xml as a step attribute.
-   *
-   * @param object
-   * @param rep
-   * @param id_transformation
-   * @param id_step
-   * @throws HopException
-   */
-  public static void saveStepRep( Object object, Repository rep, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    StringBuilder sb = new StringBuilder( 1024 );
-    write( object, 0, sb );
-    rep.saveStepAttribute( id_transformation, id_step, "step-xml", sb.toString() );
-  }
-
-  /**
-   * Handle reading of the input (object) from the kettle repository by getting the step-xml from the repository step
-   * attribute string and then re-hydrate the step (object) with our already existing read method.
-   *
-   * @param object
-   * @param rep
-   * @param id_step
-   * @param databases
-   * @param counters
-   * @throws HopException
-   */
-  public static void readStepRep( Object object, Repository rep, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      String stepXML = rep.getStepAttributeString( id_step, "step-xml" );
-      ByteArrayInputStream bais = new ByteArrayInputStream( stepXML.getBytes() );
-      Document doc = XMLParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder().parse( bais );
-      read( object, doc.getDocumentElement() );
-    } catch ( ParserConfigurationException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    } catch ( SAXException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    } catch ( IOException ex ) {
-      throw new HopException( ex.getMessage(), ex );
-    }
   }
 
   private static void indent( StringBuilder sb, int indentLevel ) {

@@ -24,7 +24,6 @@ package org.apache.hop.trans;
 
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 
@@ -35,7 +34,6 @@ public class CheckStepsExtension {
   private final VariableSpace variableSpace;
   private final TransMeta transMeta;
   private final StepMeta[] stepMetas;
-  private final Repository repository;
   private final IMetaStore metaStore;
 
   public CheckStepsExtension(
@@ -43,13 +41,11 @@ public class CheckStepsExtension {
     VariableSpace space,
     TransMeta transMeta,
     StepMeta[] stepMetas,
-    Repository repository,
     IMetaStore metaStore ) {
     this.remarks = remarks;
     this.variableSpace = space;
     this.transMeta = transMeta;
     this.stepMetas = stepMetas;
-    this.repository = repository;
     this.metaStore = metaStore;
   }
 
@@ -67,10 +63,6 @@ public class CheckStepsExtension {
 
   public StepMeta[] getStepMetas() {
     return stepMetas;
-  }
-
-  public Repository getRepository() {
-    return repository;
   }
 
   public IMetaStore getMetaStore() {

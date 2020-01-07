@@ -28,7 +28,7 @@ import org.apache.hop.metastore.api.security.MetaStoreOwnerPermissions;
  * @author matt
  * 
  */
-public interface IMetaStoreElement extends IMetaStoreAttribute {
+public interface IMetaStoreElement extends IMetaStoreAttribute, IHasName {
 
   /**
    * Gets the name of this element.

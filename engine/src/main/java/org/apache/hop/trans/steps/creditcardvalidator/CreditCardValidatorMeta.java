@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -142,7 +141,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
     return notvalidmsg;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -160,7 +159,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     String realresultfieldname = space.environmentSubstitute( resultfieldname );
     if ( !Utils.isEmpty( realresultfieldname ) ) {
       ValueMetaInterface v = new ValueMetaBoolean( realresultfieldname );
@@ -207,38 +206,9 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      fieldname = rep.getStepAttributeString( id_step, "fieldname" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      cardtype = rep.getStepAttributeString( id_step, "cardtype" );
-      notvalidmsg = rep.getStepAttributeString( id_step, "notvalidmsg" );
-      onlydigits = rep.getStepAttributeBoolean( id_step, "onlydigits" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "CreditCardValidatorMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "fieldname", fieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "cardtype", cardtype );
-      rep.saveStepAttribute( id_transformation, id_step, "notvalidmsg", notvalidmsg );
-      rep.saveStepAttribute( id_transformation, id_step, "onlydigits", onlydigits );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "CreditCardValidatorMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

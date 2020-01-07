@@ -45,8 +45,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -287,7 +286,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
     changed = true;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -474,7 +473,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public void getFields( RowMetaInterface row, String originStepname, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !checkClassCookings( getLog() ) ) {
       if ( cookErrors.size() > 0 ) {
         throw new HopStepException( "Error initializing UserDefinedJavaClass to get fields: ", cookErrors
@@ -566,136 +565,9 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrScripts = rep.countNrStepAttributes( id_step, ElementNames.class_name.name() );
-      for ( int i = 0; i < nrScripts; i++ ) {
-        definitions.add( new UserDefinedJavaClassDef(
-          UserDefinedJavaClassDef.ClassType.valueOf(
-            rep.getStepAttributeString( id_step, i, ElementNames.class_type.name() ) ),
-          rep.getStepAttributeString( id_step, i, ElementNames.class_name.name() ),
-          rep.getStepAttributeString( id_step, i, ElementNames.class_source.name() ) ) );
-
-      }
-
-      definitions = orderDefinitions( definitions );
-
-      int nrfields = rep.countNrStepAttributes( id_step, ElementNames.field_name.name() );
-      for ( int i = 0; i < nrfields; i++ ) {
-        fields.add( new FieldInfo(
-          rep.getStepAttributeString( id_step, i, ElementNames.field_name.name() ),
-          ValueMetaFactory.getIdForValueMeta(
-            rep.getStepAttributeString( id_step, i, ElementNames.field_type.name() ) ),
-          (int) rep.getStepAttributeInteger( id_step, i, ElementNames.field_length.name() ),
-          (int) rep.getStepAttributeInteger( id_step, i, ElementNames.field_precision.name() ) ) );
-      }
-
-      clearingResultFields = rep.getStepAttributeBoolean( id_step, ElementNames.clear_result_fields.name() );
-
-      int nrInfos = rep.countNrStepAttributes( id_step, ElementNames.info_.name() + ElementNames.step_name.name() );
-      for ( int i = 0; i < nrInfos; i++ ) {
-        InfoStepDefinition stepDefinition = new InfoStepDefinition();
-        stepDefinition.tag =
-          rep.getStepAttributeString( id_step, i, ElementNames.info_.name() + ElementNames.step_tag.name() );
-        stepDefinition.stepName =
-          rep.getStepAttributeString( id_step, i, ElementNames.info_.name() + ElementNames.step_name.name() );
-        stepDefinition.description =
-          rep.getStepAttributeString( id_step, i, ElementNames.info_.name()
-            + ElementNames.step_description.name() );
-        infoStepDefinitions.add( stepDefinition );
-      }
-      int nrTargets =
-        rep.countNrStepAttributes( id_step, ElementNames.target_.name() + ElementNames.step_name.name() );
-      for ( int i = 0; i < nrTargets; i++ ) {
-        TargetStepDefinition stepDefinition = new TargetStepDefinition();
-        stepDefinition.tag =
-          rep.getStepAttributeString( id_step, i, ElementNames.target_.name() + ElementNames.step_tag.name() );
-        stepDefinition.stepName =
-          rep.getStepAttributeString( id_step, i, ElementNames.target_.name() + ElementNames.step_name.name() );
-        stepDefinition.description =
-          rep.getStepAttributeString( id_step, i, ElementNames.target_.name()
-            + ElementNames.step_description.name() );
-        targetStepDefinitions.add( stepDefinition );
-      }
-
-      int nrParameters = rep.countNrStepAttributes( id_step, ElementNames.parameter_tag.name() );
-      for ( int i = 0; i < nrParameters; i++ ) {
-        UsageParameter usageParameter = new UsageParameter();
-        usageParameter.tag = rep.getStepAttributeString( id_step, i, ElementNames.parameter_tag.name() );
-        usageParameter.value = rep.getStepAttributeString( id_step, i, ElementNames.parameter_value.name() );
-        usageParameter.description =
-          rep.getStepAttributeString( id_step, i, ElementNames.parameter_description.name() );
-        usageParameters.add( usageParameter );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UserDefinedJavaClassMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      for ( int i = 0; i < definitions.size(); i++ ) {
-        UserDefinedJavaClassDef def = definitions.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.class_name.name(), def.getClassName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.class_source.name(), def.getSource() );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.class_type.name(), def
-          .getClassType().name() );
-      }
-
-      for ( int i = 0; i < fields.size(); i++ ) {
-        FieldInfo fi = fields.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.field_name.name(), fi.name );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.field_type.name(),
-          ValueMetaFactory.getValueMetaName( fi.type ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.field_length.name(), fi.length );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.field_precision.name(), fi.precision );
-      }
-
-      rep.saveStepAttribute(
-        id_transformation, id_step, ElementNames.clear_result_fields.name(), clearingResultFields );
-
-      for ( int i = 0; i < infoStepDefinitions.size(); i++ ) {
-        InfoStepDefinition stepDefinition = infoStepDefinitions.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.info_.name()
-          + ElementNames.step_tag.name(), stepDefinition.tag );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.info_.name()
-          + ElementNames.step_name.name(), stepDefinition.stepMeta != null
-          ? stepDefinition.stepMeta.getName() : null );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.info_.name()
-          + ElementNames.step_description.name(), stepDefinition.description );
-      }
-      for ( int i = 0; i < targetStepDefinitions.size(); i++ ) {
-        TargetStepDefinition stepDefinition = targetStepDefinitions.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.target_.name()
-          + ElementNames.step_tag.name(), stepDefinition.tag );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.target_.name()
-          + ElementNames.step_name.name(), stepDefinition.stepMeta != null
-          ? stepDefinition.stepMeta.getName() : null );
-        rep.saveStepAttribute( id_transformation, id_step, i, ElementNames.target_.name()
-          + ElementNames.step_description.name(), stepDefinition.description );
-      }
-
-      for ( int i = 0; i < usageParameters.size(); i++ ) {
-        UsageParameter usageParameter = usageParameters.get( i );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, ElementNames.parameter_tag.name(), usageParameter.tag );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, ElementNames.parameter_value.name(), usageParameter.value );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, ElementNames.parameter_description.name(), usageParameter.description );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UserDefinedJavaClassMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!

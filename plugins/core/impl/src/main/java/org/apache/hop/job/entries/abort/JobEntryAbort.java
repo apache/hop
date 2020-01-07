@@ -40,8 +40,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -84,35 +83,12 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       messageAbort = XMLHandler.getTagValue( entrynode, "message" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryAbort.UnableToLoadFromXml.Label" ), e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      messageAbort = rep.getJobEntryAttributeString( id_jobentry, "message" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryAbort.UnableToLoadFromRepo.Label", String
-        .valueOf( id_jobentry ) ), dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "message", messageAbort );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryAbort.UnableToSaveToRepo.Label", String
-        .valueOf( id_job ) ), dbe );
     }
   }
 
@@ -177,7 +153,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "messageabort", remarks );
   }
 }

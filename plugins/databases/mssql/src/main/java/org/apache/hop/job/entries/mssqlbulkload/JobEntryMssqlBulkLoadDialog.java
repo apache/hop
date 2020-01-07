@@ -22,6 +22,9 @@
 
 package org.apache.hop.job.entries.mssqlbulkload;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -56,11 +59,8 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.mssqlbulkload.JobEntryMssqlBulkLoad;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -87,7 +87,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
   private Text wName;
   private FormData fdlName, fdName;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   // Schema name
   private Label wlSchemaname;
@@ -235,8 +235,8 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
   private FormData fdGeneralComp, fdAdvancedComp;
   private FormData fdTabFolder;
 
-  public JobEntryMssqlBulkLoadDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryMssqlBulkLoadDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMssqlBulkLoad) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Name.Default" ) );
@@ -317,11 +317,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
     wConnectionGroup.setLayout( ConnectionGroupLayout );
 
     // Connection line
-    wConnection = addConnectionLine( wConnectionGroup, wName, middle, margin );
-    if ( jobEntry.getDatabase() == null && jobMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( wConnectionGroup, wName, jobEntry.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( wConnectionGroup, SWT.RIGHT );
@@ -1296,12 +1292,13 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
   }
 
   private void getTableName() {
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      DatabaseMeta inf = jobMeta.getDatabase( connr );
-
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, jobMeta.getDatabases() );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
+    }
+    DatabaseMeta databaseMeta = jobMeta.findDatabase( connectionName );
+    if (databaseMeta!=null) {
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, jobMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
       if ( std.open() ) {
         wTablename.setText( Const.NVL( std.getTableName(), "" ) );

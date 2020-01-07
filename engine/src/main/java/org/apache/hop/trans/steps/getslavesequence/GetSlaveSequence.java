@@ -97,7 +97,7 @@ public class GetSlaveSequence extends BaseStep implements StepInterface {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.startValue = data.slaveServer.getNextSlaveSequenceValue( data.sequenceName, data.increment );
       data.value = data.startValue;

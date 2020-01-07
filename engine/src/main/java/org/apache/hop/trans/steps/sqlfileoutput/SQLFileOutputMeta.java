@@ -44,8 +44,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.shared.SharedObjectInterface;
@@ -115,8 +114,8 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
 
   private boolean DoNotOpenNewFileInit;
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -447,11 +446,11 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
 
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       tablename = XMLHandler.getTagValue( stepnode, "table" );
       truncateTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "truncate" ) );
@@ -520,70 +519,9 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tablename = rep.getStepAttributeString( id_step, "table" );
-      truncateTable = rep.getStepAttributeBoolean( id_step, "truncate" );
-      createTable = rep.getStepAttributeBoolean( id_step, "create" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      dateformat = rep.getStepAttributeString( id_step, "dateformat" );
-      AddToResult = rep.getStepAttributeBoolean( id_step, "addtoresult" );
-      StartNewLine = rep.getStepAttributeBoolean( id_step, "startnewline" );
-
-      fileName = rep.getStepAttributeString( id_step, "file_name" );
-      extension = rep.getStepAttributeString( id_step, "file_extention" );
-      fileAppended = rep.getStepAttributeBoolean( id_step, "file_append" );
-      splitEvery = (int) rep.getStepAttributeInteger( id_step, "file_split" );
-      stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
-      partNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_partnr" );
-      dateInFilename = rep.getStepAttributeBoolean( id_step, "file_add_date" );
-      timeInFilename = rep.getStepAttributeBoolean( id_step, "file_add_time" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "create_parent_folder" );
-      DoNotOpenNewFileInit = rep.getStepAttributeBoolean( id_step, "DoNotOpenNewFileInit" );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tablename );
-      rep.saveStepAttribute( id_transformation, id_step, "truncate", truncateTable );
-      rep.saveStepAttribute( id_transformation, id_step, "create", createTable );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "dateformat", dateformat );
-      rep.saveStepAttribute( id_transformation, id_step, "addtoresult", AddToResult );
-      rep.saveStepAttribute( id_transformation, id_step, "startnewline", StartNewLine );
-
-      rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
-      rep.saveStepAttribute( id_transformation, id_step, "file_extention", extension );
-      rep.saveStepAttribute( id_transformation, id_step, "file_append", fileAppended );
-      rep.saveStepAttribute( id_transformation, id_step, "file_split", splitEvery );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_stepnr", stepNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_partnr", partNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_date", dateInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_time", timeInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "create_parent_folder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "DoNotOpenNewFileInit", DoNotOpenNewFileInit );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -732,7 +670,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
@@ -757,7 +695,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -863,15 +801,13 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

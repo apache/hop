@@ -439,10 +439,6 @@ public class Const {
   /** The job name */
   public static final String INTERNAL_VARIABLE_JOB_NAME = INTERNAL_VARIABLE_PREFIX + ".Job.Name";
 
-  /** The job directory */
-  public static final String INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Job.Repository.Directory";
-
   /** The job run ID */
   public static final String INTERNAL_VARIABLE_JOB_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Job.Run.ID";
 
@@ -466,7 +462,6 @@ public class Const {
     Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
     Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY,
     Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME,
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY,
   };
 
   /**
@@ -475,7 +470,7 @@ public class Const {
   public static final String[] INTERNAL_JOB_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
     Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME,
-    Const.INTERNAL_VARIABLE_JOB_NAME, Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY,
+    Const.INTERNAL_VARIABLE_JOB_NAME,
     Const.INTERNAL_VARIABLE_JOB_RUN_ID, Const.INTERNAL_VARIABLE_JOB_RUN_ATTEMPTNR, };
 
   /*
@@ -486,7 +481,6 @@ public class Const {
   public static final String[] DEPRECATED_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY,
     Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME,
-    Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY
   };
 
   /** The transformation filename directory */
@@ -500,10 +494,6 @@ public class Const {
   /** The transformation name */
   public static final String INTERNAL_VARIABLE_TRANSFORMATION_NAME = INTERNAL_VARIABLE_PREFIX
     + ".Transformation.Name";
-
-  /** The transformation directory */
-  public static final String INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Transformation.Repository.Directory";
 
   /** The step partition ID */
   public static final String INTERNAL_VARIABLE_STEP_PARTITION_ID = INTERNAL_VARIABLE_PREFIX + ".Step.Partition.ID";
@@ -1141,13 +1131,13 @@ public class Const {
    * The system environment variable indicating where the alternative location for the Pentaho metastore folder is
    * located.
    */
-  public static final String PENTAHO_METASTORE_FOLDER = "PENTAHO_METASTORE_FOLDER";
+  public static final String HOP_METASTORE_FOLDER = "HOP_METASTORE_FOLDER";
 
   /**
    * The name of the local client MetaStore
    *
    */
-  public static final String PENTAHO_METASTORE_NAME = "Pentaho Local Client Metastore";
+  public static final String HOP_METASTORE_NAME = "Hop Local Client Metastore";
 
   /**
    * A variable to configure turning on/off detailed subjects in log.

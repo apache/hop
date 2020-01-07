@@ -63,7 +63,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
@@ -152,12 +151,6 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
     loadSaveTester.testSerialization();
   }
 
-  public static final String databaseXML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      + "<connection>" + "<name>lookup</name>" + "<server>127.0.0.1</server>" + "<type>H2</type>"
-      + "<access>Native</access>" + "<database>mem:db</database>" + "<port></port>" + "<username>sa</username>"
-      + "<password></password>" + "</connection>";
-
 
   @Before
   public void setUp() throws Exception {
@@ -187,53 +180,11 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
 
     RowMeta row = new RowMeta();
     try {
-      meta.getFields( row, "DimensionLookupMetaTest", new RowMeta[] { row }, null, null, null, null );
+      meta.getFields( row, "DimensionLookupMetaTest", new RowMeta[] { row }, null, null, null );
     } catch ( Throwable e ) {
       Assert.assertTrue( e.getMessage().contains(
           BaseMessages.getString( DimensionLookupMeta.class, "DimensionLookupMeta.Error.NoTechnicalKeySpecified" ) ) );
     }
-  }
-
-  @Test
-  public void testUseDefaultSchemaName() throws Exception {
-    String schemaName = "";
-    String tableName = "tableName";
-    String schemaTable = "default.tableName";
-    String keyField = "keyField";
-
-    DatabaseMeta databaseMeta = spy( new DatabaseMeta( databaseXML ) {
-      @Override
-      public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc ) {
-        return "someValue";
-      }
-    } );
-    when( databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName ) ).thenReturn( schemaTable );
-
-    DimensionLookupMeta dlm = new DimensionLookupMeta();
-    dlm.setUpdate( true );
-    dlm.setDatabaseMeta( databaseMeta );
-    dlm.setTableName( tableName );
-    dlm.setSchemaName( schemaName );
-    dlm.setKeyLookup( new String[] { "keyLookup1", "keyLookup2" } );
-    dlm.setKeyStream( new String[] { "keyStream1", "keyStream2" } );
-    dlm.setFieldLookup( new String[] { "fieldLookup1", "fieldLookup2" } );
-    dlm.setFieldStream( new String[] { "FieldStream1", "FieldStream2" } );
-    dlm.setFieldUpdate( new int[] { 1, 2 } );
-    dlm.setKeyField( keyField );
-
-    StepMeta stepMeta = mock( StepMeta.class );
-
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
-    when( rowMetaInterface.size() ).thenReturn( 1 );
-
-    Repository repository = mock( Repository.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
-
-    SQLStatement sqlStatement =
-        dlm.getSQLStatements( new TransMeta(), stepMeta, rowMetaInterface, repository, metaStore );
-
-    String sql = sqlStatement.getSQL();
-    assertEquals( 3, StringUtils.countMatches( sql, schemaTable ) );
   }
 
   @Test

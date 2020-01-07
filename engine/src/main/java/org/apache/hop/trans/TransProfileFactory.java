@@ -52,12 +52,9 @@ public class TransProfileFactory {
 
   /**
    *
-   * @param parent
    * @param databaseMeta
    * @param schemaTable
    *          the properly quoted schema-table combination
-   * @param degreeParallelism
-   *          The degree of parallelism or the number of copies that the calculation module is running with.
    */
   public TransProfileFactory( DatabaseMeta databaseMeta, String schemaTable ) {
     this.databaseMeta = databaseMeta;
@@ -74,7 +71,6 @@ public class TransProfileFactory {
     // Now start building the transformation...
     //
     TransMeta transMeta = new TransMeta( databaseMeta );
-    transMeta.addDatabase( databaseMeta );
 
     // Create a step to read the content of the table
     // Read the data from the database table...

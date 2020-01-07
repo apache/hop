@@ -35,7 +35,6 @@ import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -431,17 +430,6 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * @return The metastore that the step uses to load external elements from.
    */
   public IMetaStore getMetaStore();
-
-  /**
-   * @param repository
-   *          The repository used by the step to load and reference Hop objects with at runtime
-   */
-  public void setRepository( Repository repository );
-
-  /**
-   * @return The repository used by the step to load and reference Hop objects with at runtime
-   */
-  public Repository getRepository();
 
   /**
    * @return the index of the active (current) output row set

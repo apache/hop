@@ -37,8 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -132,7 +131,7 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -220,30 +219,6 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( 0, 0 );
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrKeys1 = rep.countNrStepAttributes( id_step, "keys_1" );
-      int nrKeys2 = rep.countNrStepAttributes( id_step, "keys_2" );
-
-      allocate( nrKeys1, nrKeys2 );
-
-      for ( int i = 0; i < nrKeys1; i++ ) {
-        keyFields1[i] = rep.getStepAttributeString( id_step, i, "keys_1" );
-      }
-      for ( int i = 0; i < nrKeys2; i++ ) {
-        keyFields2[i] = rep.getStepAttributeString( id_step, i, "keys_2" );
-      }
-
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      infoStreams.get( 0 ).setSubject( rep.getStepAttributeString( id_step, "step1" ) );
-      infoStreams.get( 1 ).setSubject( rep.getStepAttributeString( id_step, "step2" ) );
-      joinType = rep.getStepAttributeString( id_step, "join_type" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MergeJoinMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
@@ -252,30 +227,9 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < keyFields1.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "keys_1", keyFields1[i] );
-      }
-
-      for ( int i = 0; i < keyFields2.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "keys_2", keyFields2[i] );
-      }
-
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-
-      rep.saveStepAttribute( id_transformation, id_step, "step1", infoStreams.get( 0 ).getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "step2", infoStreams.get( 1 ).getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "join_type", getJoinType() );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MergeJoinMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     /*
      * @todo Need to check for the following: 1) Join type must be one of INNER / LEFT OUTER / RIGHT OUTER / FULL OUTER
      * 2) Number of input streams must be two (for now at least) 3) The field names of input streams must be unique
@@ -287,7 +241,7 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //

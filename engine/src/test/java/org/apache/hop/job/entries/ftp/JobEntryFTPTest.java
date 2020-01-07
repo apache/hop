@@ -64,7 +64,7 @@ public class JobEntryFTPTest {
 
   @Before
   public void setUp() throws Exception {
-    job = new Job( null, new JobMeta() );
+    job = new Job( new JobMeta() );
     entry = new MockedJobEntryFTP();
 
     job.getJobMeta().addJobEntry( new JobEntryCopy( entry ) );

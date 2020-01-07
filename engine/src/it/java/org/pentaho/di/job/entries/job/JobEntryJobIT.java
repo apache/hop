@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -35,8 +34,6 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.www.SlaveServerJobStatus;
 
 import java.nio.file.Files;

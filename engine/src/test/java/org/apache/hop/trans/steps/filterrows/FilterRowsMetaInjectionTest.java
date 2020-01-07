@@ -33,7 +33,7 @@ public class FilterRowsMetaInjectionTest extends BaseMetadataInjectionTest<Filte
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new FilterRowsMeta() );
   }
 

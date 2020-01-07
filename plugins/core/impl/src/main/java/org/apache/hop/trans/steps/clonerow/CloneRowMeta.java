@@ -39,8 +39,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -104,7 +103,7 @@ public class CloneRowMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -195,44 +194,8 @@ public class CloneRowMeta extends BaseStepMeta implements StepMetaInterface {
     clonenumfield = null;
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      nrclones = rep.getStepAttributeString( id_step, "nrclones" );
-      addcloneflag = rep.getStepAttributeBoolean( id_step, "addcloneflag" );
-      cloneflagfield = rep.getStepAttributeString( id_step, "cloneflagfield" );
-      nrcloneinfield = rep.getStepAttributeBoolean( id_step, "nrcloneinfield" );
-      nrclonefield = rep.getStepAttributeString( id_step, "nrclonefield" );
-      addclonenum = rep.getStepAttributeBoolean( id_step, "addclonenum" );
-
-      clonenumfield = rep.getStepAttributeString( id_step, "clonenumfield" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "CloneRowMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "nrclones", nrclones );
-      rep.saveStepAttribute( id_transformation, id_step, "addcloneflag", addcloneflag );
-      rep.saveStepAttribute( id_transformation, id_step, "cloneflagfield", cloneflagfield );
-      rep.saveStepAttribute( id_transformation, id_step, "nrcloneinfield", nrcloneinfield );
-      rep.saveStepAttribute( id_transformation, id_step, "nrclonefield", nrclonefield );
-      rep.saveStepAttribute( id_transformation, id_step, "addclonenum", addclonenum );
-
-      rep.saveStepAttribute( id_transformation, id_step, "clonenumfield", clonenumfield );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "CloneRowMeta.Exception.UnexpectedErrorSavingStepInfo" ), e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output field (boolean) ?
     if ( addcloneflag ) {
       String realfieldValue = space.environmentSubstitute( cloneflagfield );
@@ -255,7 +218,7 @@ public class CloneRowMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

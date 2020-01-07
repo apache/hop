@@ -22,37 +22,25 @@
 
 package org.apache.hop.job;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.exception.IdNotFoundException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.exception.LookupReferencesException;
-import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
 import org.apache.hop.job.entries.empty.JobEntryEmpty;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -73,23 +61,15 @@ public class JobMetaTest {
   private static final String JOB_META_NAME = "jobName";
 
   private JobMeta jobMeta;
-  private RepositoryDirectoryInterface directoryJob;
   private ContentChangedListener listener;
-  private ObjectRevision objectRevision;
 
   @Before
   public void setUp() {
     jobMeta = new JobMeta();
     // prepare
-    directoryJob = mock( RepositoryDirectoryInterface.class );
-    when( directoryJob.getPath() ).thenReturn( "directoryPath" );
     listener = mock( ContentChangedListener.class );
-    objectRevision = mock( ObjectRevision.class );
-    when( objectRevision.getName() ).thenReturn( "revisionName" );
     jobMeta.addContentChangedListener( listener );
-    jobMeta.setRepositoryDirectory( directoryJob );
     jobMeta.setName( JOB_META_NAME );
-    jobMeta.setObjectRevision( objectRevision );
   }
 
   @Test
@@ -159,8 +139,6 @@ public class JobMetaTest {
 
     JobEntryTrans brokenJobEntryMock = mock( JobEntryTrans.class );
     when( brokenJobEntryMock.hasRepositoryReferences() ).thenReturn( true );
-    doThrow( mock( IdNotFoundException.class ) ).when( brokenJobEntryMock ).lookupRepositoryReferences( any(
-        Repository.class ) );
 
     JobEntryCopy jobEntryCopy1 = mock( JobEntryCopy.class );
     when( jobEntryCopy1.getEntry() ).thenReturn( jobEntryMock );
@@ -174,36 +152,6 @@ public class JobMetaTest {
     when( jobEntryCopy3.getEntry() ).thenReturn( jobEntryMock );
     jobMeta.addJobEntry( 2, jobEntryCopy3 );
 
-    try {
-      jobMeta.lookupRepositoryReferences( mock( Repository.class ) );
-      fail( "no exception for broken entry" );
-    } catch ( LookupReferencesException e ) {
-      // ok
-    }
-    verify( jobEntryMock, times( 2 ) ).lookupRepositoryReferences( any( Repository.class ) );
-  }
-
-  /**
-   * Given job meta object. <br/>
-   * When the job is called to export resources, then the existing current directory should be used as a context to
-   * locate resources.
-   */
-  @Test
-  public void shouldUseExistingRepositoryDirectoryWhenExporting() throws HopException {
-    final JobMeta jobMetaSpy = spy( jobMeta );
-    JobMeta jobMeta = new JobMeta() {
-      @Override
-      public Object realClone( boolean doClear ) {
-        return jobMetaSpy;
-      }
-    };
-    jobMeta.setRepositoryDirectory( directoryJob );
-    jobMeta.setName( JOB_META_NAME );
-    jobMeta.exportResources( null, new HashMap<String, ResourceDefinition>( 4 ), mock( ResourceNamingInterface.class ),
-        null, null );
-
-    // assert
-    verify( jobMetaSpy ).setRepositoryDirectory( directoryJob );
   }
 
   @Test
@@ -235,77 +183,45 @@ public class JobMetaTest {
 
   @Test
   public void testEquals_oneNameNull() {
-    assertFalse( testEquals( null, null, null, null ) );
+    assertFalse( testEquals( null, null ) );
   }
 
   @Test
   public void testEquals_secondNameNull() {
     jobMeta.setName( null );
-    assertFalse( testEquals( JOB_META_NAME, null, null, null ) );
-  }
-
-  @Test
-  public void testEquals_sameNameOtherDir() {
-    RepositoryDirectoryInterface otherDirectory = mock( RepositoryDirectoryInterface.class );
-    when( otherDirectory.getPath() ).thenReturn( "otherDirectoryPath" );
-    assertFalse( testEquals( JOB_META_NAME, otherDirectory, null, null ) );
-  }
-
-  @Test
-  public void testEquals_sameNameSameDirNullRev() {
-    assertFalse( testEquals( JOB_META_NAME, directoryJob, null, null ) );
-  }
-
-  @Test
-  public void testEquals_sameNameSameDirDiffRev() {
-    ObjectRevision otherRevision = mock( ObjectRevision.class );
-    when( otherRevision.getName() ).thenReturn( "otherRevision" );
-    assertFalse( testEquals( JOB_META_NAME, directoryJob, otherRevision, null ) );
-  }
-
-  @Test
-  public void testEquals_sameNameSameDirSameRev() {
-    assertTrue( testEquals( JOB_META_NAME, directoryJob, objectRevision, null ) );
-  }
-
-  @Test
-  public void testEquals_sameNameSameDirSameRevFilename() {
-    assertFalse( testEquals( JOB_META_NAME, directoryJob, objectRevision, "Filename" ) );
+    assertFalse( testEquals( JOB_META_NAME, null ) );
   }
 
   @Test
   public void testEquals_sameFilename() {
     String newFilename = "Filename";
     jobMeta.setFilename( newFilename );
-    assertFalse( testEquals( null, null, null, newFilename ) );
+    assertFalse( testEquals( null, newFilename ) );
   }
 
   @Test
   public void testEquals_difFilenameSameName() {
     jobMeta.setFilename( "Filename" );
-    assertFalse( testEquals( JOB_META_NAME, null, null, "OtherFileName" ) );
+    assertFalse( testEquals( JOB_META_NAME, "OtherFileName" ) );
   }
 
   @Test
   public void testEquals_sameFilenameSameName() {
     String newFilename = "Filename";
     jobMeta.setFilename( newFilename );
-    assertTrue( testEquals( JOB_META_NAME, null, null, newFilename ) );
+    assertTrue( testEquals( JOB_META_NAME, newFilename ) );
   }
 
   @Test
   public void testEquals_sameFilenameDifName() {
     String newFilename = "Filename";
     jobMeta.setFilename( newFilename );
-    assertFalse( testEquals( "OtherName", null, null, newFilename ) );
+    assertFalse( testEquals( "OtherName", newFilename ) );
   }
 
-  private boolean testEquals( String name, RepositoryDirectoryInterface repDirectory, ObjectRevision revision,
-      String filename ) {
+  private boolean testEquals( String name, String filename ) {
     JobMeta jobMeta2 = new JobMeta();
     jobMeta2.setName( name );
-    jobMeta2.setRepositoryDirectory( repDirectory );
-    jobMeta2.setObjectRevision( revision );
     jobMeta2.setFilename( filename );
     return jobMeta.equals( jobMeta2 );
   }
@@ -335,18 +251,11 @@ public class JobMetaTest {
 
     Mockito.when( jobNode.getChildNodes() ).thenReturn( nodeList );
 
-    Repository rep = Mockito.mock( Repository.class );
-    RepositoryDirectory repDirectory =
-      new RepositoryDirectory( new RepositoryDirectory( new RepositoryDirectory(), "home" ), "admin" );
-    Mockito.when( rep.findDirectory( Mockito.eq( directory ) ) ).thenReturn( repDirectory );
     JobMeta meta = new JobMeta();
 
-    meta.loadXML( jobNode, null, rep, Mockito.mock( IMetaStore.class ), false,
-      Mockito.mock( OverwritePrompter.class ) );
-    Job job = new Job( rep, meta );
+    meta.loadXML( jobNode, null, Mockito.mock( IMetaStore.class ), false);
+    Job job = new Job( meta );
     job.setInternalHopVariables( null );
-
-    Assert.assertEquals( repDirectory.getPath(), job.getVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY ) );
   }
 
   @Test
@@ -356,24 +265,6 @@ public class JobMetaTest {
     jobMeta.removeJobEntry( 0 );
     verify( jobEntryCopy, times( 1 ) ).setParentJobMeta( jobMeta );
     verify( jobEntryCopy, times( 1 ) ).setParentJobMeta( null );
-  }
-
-  @Test
-  public void testFireCurrentDirChanged() throws Exception {
-    String pathBefore = "/path/before", pathAfter = "path/after";
-    RepositoryDirectoryInterface repoDirOrig = mock( RepositoryDirectoryInterface.class );
-    when( repoDirOrig.getPath() ).thenReturn( pathBefore );
-    RepositoryDirectoryInterface repoDir = mock( RepositoryDirectoryInterface.class );
-    when( repoDir.getPath() ).thenReturn( pathAfter );
-
-    jobMeta.setRepository( mock( Repository.class ) );
-    jobMeta.setRepositoryDirectory( repoDirOrig );
-
-    CurrentDirectoryChangedListener listener = mock( CurrentDirectoryChangedListener.class );
-    jobMeta.addCurrentDirectoryChangedListener( listener );
-    jobMeta.setRepositoryDirectory( repoDir );
-
-    verify( listener, times( 1 ) ).directoryChanged( jobMeta, pathBefore, pathAfter );
   }
 
   @Test
@@ -426,7 +317,6 @@ public class JobMetaTest {
     jobMetaTest.setFilename( "hasFilename" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
     jobMetaTest.setInternalEntryCurrentDirectory();
 
     assertEquals( "file:///C:/SomeFilenameDirectory", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
@@ -434,27 +324,10 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithRepository( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
-    RepositoryDirectoryInterface path = mock( RepositoryDirectoryInterface.class );
-
-    when( path.getPath() ).thenReturn( "aPath" );
-    jobMetaTest.setRepository( mock( Repository.class ) );
-    jobMetaTest.setRepositoryDirectory( path );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    jobMetaTest.setInternalEntryCurrentDirectory();
-
-    assertEquals( "/SomeRepDirectory", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-  }
-
-  @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository( ) {
     JobMeta jobMetaTest = new JobMeta(  );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
     jobMetaTest.setInternalEntryCurrentDirectory();
 
     assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
@@ -466,7 +339,6 @@ public class JobMetaTest {
     jobMetaTest.setFilename( "hasFilename" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
     jobMetaTest.updateCurrentDir();
 
     assertEquals( "file:///C:/SomeFilenameDirectory", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
@@ -474,27 +346,10 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testUpdateCurrentDirWithRepository( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
-    RepositoryDirectoryInterface path = mock( RepositoryDirectoryInterface.class );
-
-    when( path.getPath() ).thenReturn( "aPath" );
-    jobMetaTest.setRepository( mock( Repository.class ) );
-    jobMetaTest.setRepositoryDirectory( path );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    jobMetaTest.updateCurrentDir();
-
-    assertEquals( "/SomeRepDirectory", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-  }
-
-  @Test
   public void testUpdateCurrentDirWithoutFilenameOrRepository( ) {
     JobMeta jobMetaTest = new JobMeta(  );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
     jobMetaTest.updateCurrentDir();
 
     assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );

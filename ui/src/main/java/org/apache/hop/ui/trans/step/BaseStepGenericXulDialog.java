@@ -38,7 +38,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
@@ -83,8 +82,6 @@ public abstract class BaseStepGenericXulDialog extends AbstractXulEventHandler i
   protected Object parent;
 
   protected BaseStepMeta baseStepMeta;
-
-  protected Repository repository;
 
   protected IMetaStore metaStore;
 
@@ -251,35 +248,6 @@ public abstract class BaseStepGenericXulDialog extends AbstractXulEventHandler i
   public abstract void dispose();
 
   public abstract boolean validate();
-
-  public void addDatabases( XulMenuList<?> wConnection ) {
-    addDatabases( wConnection, null );
-  }
-
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
-  public void addDatabases( XulMenuList wConnection, Class<? extends DatabaseInterface> databaseType ) {
-    List<String> databases = new ArrayList<String>();
-    for ( int i = 0; i < transMeta.nrDatabases(); i++ ) {
-      DatabaseMeta ci = transMeta.getDatabase( i );
-      if ( databaseType == null || ci.getDatabaseInterface().getClass().equals( databaseType ) ) {
-        databases.add( ci.getName() );
-      }
-    }
-    wConnection.setElements( databases );
-  }
-
-  @SuppressWarnings( { "unchecked", "rawtypes" } )
-  public void selectDatabase( XulMenuList wConnection, String name ) {
-    wConnection.setSelectedItem( wConnection );
-  }
-
-  public Repository getRepository() {
-    return repository;
-  }
-
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
-  }
 
   public boolean isBasic() {
     return log.isBasic();

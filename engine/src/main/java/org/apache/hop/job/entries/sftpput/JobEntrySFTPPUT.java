@@ -54,8 +54,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -178,9 +177,6 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
       .append( "      " ).append( XMLHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
 
     retval.append( "      " ).append( XMLHandler.addTagValue( "successWhenNoFile", successWhenNoFile ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( localDirectory );
-    }
 
     return retval.toString();
   }
@@ -192,10 +188,10 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
     return afterFTPSCode[i];
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -268,90 +264,6 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
 
     // If this fails, try to match using the code.
     return getAfterSFTPPutByCode( tt );
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      serverPort = rep.getJobEntryAttributeString( id_jobentry, "serverport" );
-
-      userName = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-      sftpDirectory = rep.getJobEntryAttributeString( id_jobentry, "sftpdirectory" );
-      localDirectory = rep.getJobEntryAttributeString( id_jobentry, "localdirectory" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      copyprevious = rep.getJobEntryAttributeBoolean( id_jobentry, "copyprevious" );
-      copypreviousfiles = rep.getJobEntryAttributeBoolean( id_jobentry, "copypreviousfiles" );
-      addFilenameResut = rep.getJobEntryAttributeBoolean( id_jobentry, "addFilenameResut" );
-
-      usekeyfilename = rep.getJobEntryAttributeBoolean( id_jobentry, "usekeyfilename" );
-      keyfilename = rep.getJobEntryAttributeString( id_jobentry, "keyfilename" );
-      keyfilepass =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "keyfilepass" ) );
-      compression = rep.getJobEntryAttributeString( id_jobentry, "compression" );
-      proxyType = rep.getJobEntryAttributeString( id_jobentry, "proxyType" );
-      proxyHost = rep.getJobEntryAttributeString( id_jobentry, "proxyHost" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxyPort" );
-      proxyUsername = rep.getJobEntryAttributeString( id_jobentry, "proxyUsername" );
-      proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "proxyPassword" ) );
-
-      createRemoteFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createRemoteFolder" );
-
-      boolean remove = rep.getJobEntryAttributeBoolean( id_jobentry, "remove" );
-      setAfterFTPS( getAfterSFTPPutByCode( Const.NVL(
-        rep.getJobEntryAttributeString( id_jobentry, "aftersftpput" ), "" ) ) );
-      if ( remove && getAfterFTPS() == AFTER_FTPSPUT_NOTHING ) {
-        setAfterFTPS( AFTER_FTPSPUT_DELETE );
-      }
-      destinationfolder = rep.getJobEntryAttributeString( id_jobentry, "destinationfolder" );
-      createDestinationFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createdestinationfolder" );
-      successWhenNoFile = rep.getJobEntryAttributeBoolean( id_jobentry, "successWhenNoFile" );
-
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'SFTPPUT' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "serverport", serverPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", userName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sftpdirectory", sftpDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "localdirectory", localDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "copyprevious", copyprevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "copypreviousfiles", copypreviousfiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addFilenameResut", addFilenameResut );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "usekeyfilename", usekeyfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilename", keyfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilepass", Encr
-        .encryptPasswordIfNotUsingVariables( keyfilepass ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compression", compression );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyType", proxyType );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyHost", proxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyPort", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyUsername", proxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyPassword", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "aftersftpput", getAfterSFTPPutCode( getAfterFTPS() ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createRemoteFolder", createRemoteFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destinationfolder", destinationfolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createdestinationfolder", createDestinationFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "successWhenNoFile", successWhenNoFile );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'SFTPPUT' to the repository for id_job="
-        + id_job, dbe );
-    }
   }
 
   /**
@@ -620,12 +532,6 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
     result.setResult( false );
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "JobSFTPPUT.Log.StartJobEntry" ) );
@@ -982,7 +888,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(

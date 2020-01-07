@@ -46,7 +46,7 @@ public class ExecSQLMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLM
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new ExecSQLMeta() );
   }
 
@@ -74,7 +74,7 @@ public class ExecSQLMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLM
     db2.setName( "my connection 2" );
     final DatabaseMeta db3 = new DatabaseMeta();
     db3.setName( "my connection 3" );
-    final List<SharedObjectInterface> mockDbs = Arrays.asList( new SharedObjectInterface[] { db1, db2, db3 } );
+    final List<DatabaseMeta> mockDbs = Arrays.asList( new DatabaseMeta[] { db1, db2, db3 } );
 
     final StepMeta parentStepMeta = Mockito.mock( StepMeta.class );
     final TransMeta parentTransMeta = Mockito.mock( TransMeta.class );

@@ -96,7 +96,7 @@ public class SasInput extends BaseStep implements StepInterface {
       // Determine the output row layout
       //
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
     }
 
     String rawFilename = getInputRowMeta().getString( fileRowData, meta.getAcceptingField(), null );

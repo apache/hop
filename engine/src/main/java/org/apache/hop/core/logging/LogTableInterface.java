@@ -38,13 +38,11 @@ public interface LogTableInterface extends LogTableCoreInterface {
   /**
    * Load the information for this logging table from the job XML node
    *
-   * @param jobnode
+   * @param jobNode
    *          the node to load from
-   * @param databases
-   *          the list of database to reference.
    * @param steps
    *          the steps to reference (or null)
    */
-  public void loadXML( Node jobnode, List<DatabaseMeta> databases, List<StepMeta> steps );
+  public void loadXML( Node jobNode, List<StepMeta> steps );
 
 }

@@ -50,7 +50,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -104,8 +103,8 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
 
   private FormData fdlName, fdName;
 
-  public JobEntrySpecialDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySpecialDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySpecial) jobEntryInt;
   }
 

@@ -28,9 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -68,7 +70,6 @@ import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mysqlbulkloader.MySQLBulkLoaderMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -85,7 +86,7 @@ import org.apache.hop.ui.trans.step.TableItemInsertListener;
 public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -211,11 +212,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
 
     // Schema line...
     wlSchema = new Label( shell, SWT.RIGHT );
@@ -781,10 +778,6 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
 
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else {
-      if ( transMeta.nrDatabases() == 1 ) {
-        wConnection.setText( transMeta.getDatabase( 0 ).getName() );
-      }
     }
     if ( input.getSchemaName() != null ) {
       wSchema.setText( input.getSchemaName() );
@@ -878,19 +871,17 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
   }
 
   private void getTableName() {
-    DatabaseMeta inf = null;
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      inf = transMeta.getDatabase( connr );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
     }
-
-    if ( inf != null ) {
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if ( databaseMeta != null ) {
       if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.Log.LookingAtConnection" ) + inf.toString() );
+        logDebug( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -941,7 +932,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
         new StepMeta( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.StepMeta.Title" ), name, info );
       RowMetaInterface prev = transMeta.getPrevStepFields( stepname );
 
-      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, repository, metaStore );
+      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

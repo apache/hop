@@ -39,12 +39,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.www.SlaveServerDetection;
 import org.w3c.dom.Node;
@@ -58,12 +53,10 @@ import org.w3c.dom.Node;
  * @since 17-nov-2006
  */
 public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjectInterface, VariableSpace,
-  RepositoryElementInterface, XMLInterface {
+  XMLInterface {
   private static Class<?> PKG = ClusterSchema.class; // for i18n purposes, needed by Translator2!!
 
   public static final String XML_TAG = "clusterschema";
-
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.CLUSTER_SCHEMA;
 
   /** the name of the cluster schema */
   private String name;
@@ -93,14 +86,9 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
 
   private VariableSpace variables = new Variables();
 
-  private ObjectId id;
-
-  private ObjectRevision objectRevision;
-
   private Date changedDate;
 
   public ClusterSchema() {
-    id = null;
     slaveServers = new ArrayList<SlaveServer>();
     socketsBufferSize = "2000";
     socketsFlushInterval = "5000";
@@ -138,7 +126,6 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
     this.slaveServers.addAll( clusterSchema.slaveServers ); // no clone() of the slave server please!
 
     this.shared = clusterSchema.shared;
-    this.id = clusterSchema.id;
     this.setChanged( true );
   }
 
@@ -354,14 +341,6 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
     return null;
   }
 
-  public ObjectId getObjectId() {
-    return id;
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
-  }
-
   public void copyVariablesFrom( VariableSpace space ) {
     variables.copyVariablesFrom( space );
   }
@@ -480,28 +459,6 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
       return slaveServers;
     }
 
-  }
-
-  /**
-   * Not supported for Partition schema, return the root.
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return new RepositoryDirectory();
-  }
-
-  public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
-  }
-
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
-  }
-
-  public ObjectRevision getObjectRevision() {
-    return objectRevision;
-  }
-
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    this.objectRevision = objectRevision;
   }
 
   public String getDescription() {

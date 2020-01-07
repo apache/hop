@@ -417,7 +417,7 @@ public class SortRows extends BaseStep implements StepInterface {
 
       // Metadata
       data.outputRowMeta = inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       data.comparator = new RowTemapFileComparator( data.outputRowMeta, data.fieldnrs );
 
       for ( int i = 0; i < fieldNames.length; i++ ) {
@@ -550,12 +550,6 @@ public class SortRows extends BaseStep implements StepInterface {
 
     if ( !super.init( smi, sdi ) ) {
       return false;
-    }
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-      getTransMeta().getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( getTransMeta(), getTransMeta().getEmbeddedMetastoreProviderKey() );
     }
 
     data.sortSize = Const.toInt( environmentSubstitute( meta.getSortSize() ), -1 );

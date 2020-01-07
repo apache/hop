@@ -65,7 +65,7 @@ public class BasePropertyParsingTest extends BaseParsingTest<PropertyInputMeta, 
    */
   protected void setFields( PropertyInputField... fields ) throws Exception {
     meta.setInputFields( fields );
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null, null );
+    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
     data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
   }
 

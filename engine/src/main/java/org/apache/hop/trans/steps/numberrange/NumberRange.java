@@ -64,7 +64,7 @@ public class NumberRange extends BaseStep implements StepInterface {
       numberRange = new NumberRangeSet( meta.getRules(), meta.getFallBackValue() );
       data.outputRowMeta = getInputRowMeta().clone();
       // Prepare output fields
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Find column numbers
       data.inputColumnNr = data.outputRowMeta.indexOfValue( meta.getInputField() );

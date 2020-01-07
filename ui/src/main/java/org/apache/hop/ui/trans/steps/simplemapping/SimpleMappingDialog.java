@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
@@ -54,10 +53,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
@@ -75,8 +71,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogHelper;
-import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -111,9 +105,6 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
   private MappingIODefinition inputMapping;
 
   private MappingIODefinition outputMapping;
-
-  private ObjectId referenceObjectId;
-  private ObjectLocationSpecificationMethod specificationMethod;
 
   private interface ApplyChanges {
     public void applyChanges();
@@ -274,11 +265,7 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        if ( repository != null ) {
-          selectRepositoryTrans();
-        } else {
-          selectFileTrans();
-        }
+        selectFileTrans();
       }
     } );
     //
@@ -371,33 +358,6 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
         ConstUI.ICON_SIZE );
   }
 
-  private void selectRepositoryTrans() {
-    RepositoryObject repositoryObject = DialogHelper.selectRepositoryObject( "*.ktr", log );
-
-    try {
-      if ( repositoryObject != null ) {
-        loadRepositoryTrans( repositoryObject.getName(), repositoryObject.getRepositoryDirectory() );
-        String path = DialogUtils
-          .getPath( transMeta.getRepositoryDirectory().getPath(), mappingTransMeta.getRepositoryDirectory().getPath() );
-        String fullPath = ( path.equals( "/" ) ? "/" : path + "/" ) + mappingTransMeta.getName();
-        wPath.setText( fullPath );
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-    } catch ( HopException ke ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "SimpleMappingDialog.ErrorSelectingObject.DialogTitle" ),
-        BaseMessages.getString( PKG, "SimpleMappingDialog.ErrorSelectingObject.DialogMessage" ), ke );
-    }
-  }
-
-  private void loadRepositoryTrans( String transName, RepositoryDirectoryInterface repdir ) throws HopException {
-    // Read the transformation...
-    //
-    mappingTransMeta =
-      repository.loadTransformation( transMeta.environmentSubstitute( transName ), repdir, null, true, null );
-    mappingTransMeta.clearChanged();
-  }
-
   private void selectFileTrans() {
     String curFile = transMeta.environmentSubstitute( wPath.getText() );
 
@@ -429,7 +389,6 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
           fileName = fileName.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
         }
         wPath.setText( fileName );
-        specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
       }
     } catch ( IOException | HopException e ) {
       new ErrorDialog( shell,
@@ -445,95 +404,21 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
 
   void loadTransformation() throws HopException {
     String filename = wPath.getText();
-    if ( repository != null ) {
-      specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-    } else {
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
+    if ( Utils.isEmpty( filename ) ) {
+      return;
     }
-    switch ( getSpecificationMethod() ) {
-      case FILENAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        if ( !filename.endsWith( ".ktr" ) ) {
-          filename = filename + ".ktr";
-          wPath.setText( filename );
-        }
-        loadFileTrans( filename );
-        break;
-      case REPOSITORY_BY_NAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        if ( filename.endsWith( ".ktr" ) ) {
-          filename = filename.replace( ".ktr", "" );
-          wPath.setText( filename );
-        }
-        String transPath = transMeta.environmentSubstitute( filename );
-        String realTransname = transPath;
-        String realDirectory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          realTransname = transPath.substring( index + 1 );
-          realDirectory = transPath.substring( 0, index );
-        }
-
-        if ( Utils.isEmpty( realDirectory ) || Utils.isEmpty( realTransname ) ) {
-          throw new HopException(
-            BaseMessages.getString( PKG, "SimpleMappingDialog.Exception.NoValidMappingDetailsFound" ) );
-        }
-        RepositoryDirectoryInterface repdir = repository.findDirectory( realDirectory );
-        if ( repdir == null ) {
-          throw new HopException( BaseMessages.getString(
-            PKG, "SimpleMappingDialog.Exception.UnableToFindRepositoryDirectory" ) );
-        }
-        loadRepositoryTrans( realTransname, repdir );
-        break;
-      default:
-        break;
+    if ( !filename.endsWith( ".ktr" ) ) {
+      filename = filename + ".ktr";
+      wPath.setText( filename );
     }
-  }
-
-  private void getByReferenceData( ObjectId transObjectId ) {
-    try {
-      if ( repository == null ) {
-        throw new HopException( BaseMessages.getString(
-          PKG, "SimpleMappingDialog.Exception.NotConnectedToRepository.Message" ) );
-      }
-      RepositoryObject transInf = repository.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-      String path = DialogUtils
-        .getPath( transMeta.getRepositoryDirectory().getPath(), transInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( transInf.getName(), "" );
-      wPath.setText( fullPath );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell, BaseMessages.getString(
-        PKG, "SimpleMappingDialog.Exception.UnableToReferenceObjectId.Title" ), BaseMessages.getString(
-        PKG, "SimpleMappingDialog.Exception.UnableToReferenceObjectId.Message" ), e );
-    }
+    loadFileTrans( filename );
   }
 
   /**
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    setSpecificationMethod( mappingMeta.getSpecificationMethod() );
-    switch ( getSpecificationMethod() ) {
-      case FILENAME:
-        wPath.setText( Const.NVL( mappingMeta.getFileName(), "" ) );
-        break;
-      case REPOSITORY_BY_NAME:
-        String fullPath = Const.NVL( mappingMeta.getDirectoryPath(), "" ) + "/" + Const
-          .NVL( mappingMeta.getTransName(), "" );
-        wPath.setText( fullPath );
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        referenceObjectId = mappingMeta.getTransObjectId();
-        getByReferenceData( referenceObjectId );
-        break;
-      default:
-        break;
-    }
+    wPath.setText( Const.NVL( mappingMeta.getFileName(), "" ) );
 
     addParametersTab( mappingParameters );
     wTabFolder.setSelection( 0 );
@@ -881,30 +766,7 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
       return;
     }
 
-    mappingMeta.setSpecificationMethod( getSpecificationMethod() );
-    switch ( getSpecificationMethod() ) {
-      case FILENAME:
-        mappingMeta.setFileName( wPath.getText() );
-        mappingMeta.setDirectoryPath( null );
-        mappingMeta.setTransName( null );
-        mappingMeta.setTransObjectId( null );
-        break;
-      case REPOSITORY_BY_NAME:
-        String transPath = wPath.getText();
-        String transName = transPath;
-        String directory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          transName = transPath.substring( index + 1 );
-          directory = transPath.substring( 0, index );
-        }
-        mappingMeta.setDirectoryPath( directory );
-        mappingMeta.setTransName( transName );
-        mappingMeta.setFileName( null );
-        mappingMeta.setTransObjectId( null );
-      default:
-        break;
-    }
+    mappingMeta.setFileName( wPath.getText() );
 
     // Load the information on the tabs, optionally do some
     // verifications...
@@ -925,23 +787,4 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
       // tabs...
     }
   }
-
-  // Method is defined as package-protected in order to be accessible by unit tests
-  ObjectId getReferenceObjectId() {
-    return referenceObjectId;
-  }
-
-  private void setReferenceObjectId( ObjectId referenceObjectId ) {
-    this.referenceObjectId = referenceObjectId;
-  }
-
-  // Method is defined as package-protected in order to be accessible by unit tests
-  ObjectLocationSpecificationMethod getSpecificationMethod() {
-    return specificationMethod;
-  }
-
-  private void setSpecificationMethod( ObjectLocationSpecificationMethod specificationMethod ) {
-    this.specificationMethod = specificationMethod;
-  }
-
 }

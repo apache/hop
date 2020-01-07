@@ -45,8 +45,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -76,7 +75,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
 
   /** database connection */
   private DatabaseMeta databaseMeta;
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   /** what's the schema for the target? */
   @Injection( name = "SCHEMA_NAME", group = "FIELDS" )
@@ -184,7 +183,11 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
 
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( databases, connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch ( HopXMLException e ) {
+      throw new RuntimeException( "Unable to load connection '"+connectionName+"'", e);
+    }
   }
 
   /*
@@ -284,8 +287,8 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
    * @param fieldTable
    *          The fieldTable to set.
    */
-  public void setFieldTable( String[] updateLookup ) {
-    this.fieldTable = updateLookup;
+  public void setFieldTable( String[] fieldTable ) {
+    this.fieldTable = fieldTable;
   }
 
   /**
@@ -299,8 +302,8 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
    * @param fieldStream
    *          The fieldStream to set.
    */
-  public void setFieldStream( String[] updateStream ) {
-    this.fieldStream = updateStream;
+  public void setFieldStream( String[] fieldStream ) {
+    this.fieldStream = fieldStream;
   }
 
   public String[] getDateMask() {
@@ -343,8 +346,8 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
     this.altRecordTerm = altRecordTerm;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrvalues ) {
@@ -364,13 +367,13 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       // String csize, bsize, rsize, serror;
       // int nrvalues;
       this.databases = databases;
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
       commitSize = XMLHandler.getTagValue( stepnode, "commit" );
       if ( Utils.isEmpty( commitSize ) ) {
@@ -519,106 +522,14 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      this.databases = databases;
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      commitSize = rep.getStepAttributeString( id_step, "commit" );
-      bindSize = rep.getStepAttributeString( id_step, "bind_size" );
-      readSize = rep.getStepAttributeString( id_step, "read_size" );
-      maxErrors = rep.getStepAttributeString( id_step, "errors" );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-      loadMethod = rep.getStepAttributeString( id_step, "load_method" );
-      loadAction = rep.getStepAttributeString( id_step, "load_action" );
-      sqlldr = rep.getStepAttributeString( id_step, "sqlldr" );
-      controlFile = rep.getStepAttributeString( id_step, "control_file" );
-      dataFile = rep.getStepAttributeString( id_step, "data_file" );
-      logFile = rep.getStepAttributeString( id_step, "log_file" );
-      badFile = rep.getStepAttributeString( id_step, "bad_file" );
-      discardFile = rep.getStepAttributeString( id_step, "discard_file" );
-
-      directPath = rep.getStepAttributeBoolean( id_step, "direct_path" );
-      eraseFiles = rep.getStepAttributeBoolean( id_step, "erase_files" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      dbNameOverride = rep.getStepAttributeString( id_step, "dbname_override" );
-
-      characterSetName = rep.getStepAttributeString( id_step, "character_set" );
-      failOnWarning = rep.getStepAttributeBoolean( id_step, "fail_on_warning" );
-      failOnError = rep.getStepAttributeBoolean( id_step, "fail_on_error" );
-      parallel = rep.getStepAttributeBoolean( id_step, "parallel" );
-      altRecordTerm = rep.getStepAttributeString( id_step, "alt_rec_term" );
-
-      int nrvalues = rep.countNrStepAttributes( id_step, "stream_name" );
-
-      allocate( nrvalues );
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        fieldTable[i] = rep.getStepAttributeString( id_step, i, "stream_name" );
-        fieldStream[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        dateMask[i] = rep.getStepAttributeString( id_step, i, "date_mask" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "OraBulkLoaderMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "bind_size", bindSize );
-      rep.saveStepAttribute( id_transformation, id_step, "read_size", readSize );
-      rep.saveStepAttribute( id_transformation, id_step, "errors", maxErrors );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "load_method", loadMethod );
-      rep.saveStepAttribute( id_transformation, id_step, "load_action", loadAction );
-      rep.saveStepAttribute( id_transformation, id_step, "sqlldr", sqlldr );
-      rep.saveStepAttribute( id_transformation, id_step, "control_file", controlFile );
-      rep.saveStepAttribute( id_transformation, id_step, "data_file", dataFile );
-      rep.saveStepAttribute( id_transformation, id_step, "log_file", logFile );
-      rep.saveStepAttribute( id_transformation, id_step, "bad_file", badFile );
-      rep.saveStepAttribute( id_transformation, id_step, "discard_file", discardFile );
-
-      rep.saveStepAttribute( id_transformation, id_step, "direct_path", directPath );
-      rep.saveStepAttribute( id_transformation, id_step, "erase_files", eraseFiles );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "dbname_override", dbNameOverride );
-
-      rep.saveStepAttribute( id_transformation, id_step, "character_set", characterSetName );
-      rep.saveStepAttribute( id_transformation, id_step, "fail_on_warning", failOnWarning );
-      rep.saveStepAttribute( id_transformation, id_step, "fail_on_error", failOnError );
-      rep.saveStepAttribute( id_transformation, id_step, "parallel", parallel );
-      rep.saveStepAttribute( id_transformation, id_step, "alt_rec_term", altRecordTerm );
-
-      for ( int i = 0; i < fieldTable.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "stream_name", fieldTable[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "date_mask", dateMask[i] );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "OraBulkLoaderMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -751,7 +662,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) throws HopStepException {
+    IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -805,7 +716,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */

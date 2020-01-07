@@ -95,13 +95,6 @@ public class JobEntryCopyTest {
   }
 
   @Test
-  public void testCloneClearsObjectId() throws Exception {
-
-    JobEntryCopy clonedJobEntry = (JobEntryCopy) originJobEntry.clone();
-    assertNull( clonedJobEntry.getObjectId() );
-  }
-
-  @Test
   public void testDeepCloneClonesAttributesMap() throws Exception {
 
     JobEntryCopy deepClonedJobEntry = (JobEntryCopy) originJobEntry.clone_deep();
@@ -110,10 +103,4 @@ public class JobEntryCopyTest {
       deepClonedJobEntry.getAttribute( ATTRIBUTE_GROUP, ATTRIBUTE_KEY ) );
   }
 
-  @Test
-  public void testDeepCloneClearsObjectId() throws Exception {
-
-    JobEntryCopy deepClonedJobEntry = (JobEntryCopy) originJobEntry.clone_deep();
-    assertNull( deepClonedJobEntry.getObjectId() );
-  }
 }

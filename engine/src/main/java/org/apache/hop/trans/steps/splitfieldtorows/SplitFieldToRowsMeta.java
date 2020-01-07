@@ -39,8 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -117,7 +116,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
     this.splitField = splitField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -147,7 +146,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     ValueMetaInterface v = new ValueMetaString( newFieldname );
     v.setOrigin( name );
@@ -176,40 +175,9 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      splitField = rep.getStepAttributeString( id_step, "splitfield" );
-      delimiter = rep.getStepAttributeString( id_step, "delimiter" );
-      newFieldname = rep.getStepAttributeString( id_step, "newfield" );
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-      resetRowNumber = rep.getStepAttributeBoolean( id_step, "reset_rownumber" );
-      isDelimiterRegex = rep.getStepAttributeBoolean( id_step, 0, "delimiter_is_regex", false );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SplitFieldToRowsMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "splitfield", splitField );
-      rep.saveStepAttribute( id_transformation, id_step, "delimiter", delimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "newfield", newFieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "reset_rownumber", resetRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "delimiter_is_regex", isDelimiterRegex );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SplitFieldToRowsMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
 

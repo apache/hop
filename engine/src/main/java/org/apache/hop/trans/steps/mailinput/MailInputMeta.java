@@ -44,8 +44,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -110,7 +109,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -236,134 +235,6 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      servername = rep.getStepAttributeString( id_step, "servername" );
-      username = rep.getStepAttributeString( id_step, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-      usessl = rep.getStepAttributeBoolean( id_step, "usessl" );
-      int intSSLPort = (int) rep.getStepAttributeInteger( id_step, "sslport" );
-      sslport = rep.getStepAttributeString( id_step, "sslport" ); // backward compatible.
-      if ( intSSLPort > 0 && Utils.isEmpty( sslport ) ) {
-        sslport = Integer.toString( intSSLPort );
-      }
-
-      retrievemails = (int) rep.getStepAttributeInteger( id_step, "retrievemails" );
-      firstmails = rep.getStepAttributeString( id_step, "firstmails" );
-      delete = rep.getStepAttributeBoolean( id_step, "delete" );
-
-      protocol =
-        Const.NVL( rep.getStepAttributeString( id_step, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
-
-      valueimaplist =
-        MailConnectionMeta.getValueListImapListByCode( Const.NVL( rep.getStepAttributeString(
-          id_step, "valueimaplist" ), "" ) );
-      imapfirstmails = rep.getStepAttributeString( id_step, "imapfirstmails" );
-      imapfolder = rep.getStepAttributeString( id_step, "imapfolder" );
-      // search term
-      senderSearch = rep.getStepAttributeString( id_step, "sendersearch" );
-      notTermSenderSearch = rep.getStepAttributeBoolean( id_step, "nottermsendersearch" );
-      recipientSearch = rep.getStepAttributeString( id_step, "recipientsearch" );
-      notTermRecipientSearch = rep.getStepAttributeBoolean( id_step, "notTermRecipientSearch" );
-      subjectSearch = rep.getStepAttributeString( id_step, "subjectsearch" );
-      notTermSubjectSearch = rep.getStepAttributeBoolean( id_step, "nottermsubjectsearch" );
-      conditionReceivedDate =
-        MailConnectionMeta.getConditionByCode( Const.NVL( rep.getStepAttributeString(
-          id_step, "conditionreceiveddate" ), "" ) );
-      notTermReceivedDateSearch = rep.getStepAttributeBoolean( id_step, "nottermreceiveddatesearch" );
-      receivedDate1 = rep.getStepAttributeString( id_step, "receiveddate1" );
-      receivedDate2 = rep.getStepAttributeString( id_step, "receiveddate2" );
-      includesubfolders = rep.getStepAttributeBoolean( id_step, "includesubfolders" );
-      useproxy = rep.getStepAttributeBoolean( id_step, "useproxy" );
-      proxyusername = rep.getStepAttributeString( id_step, "proxyusername" );
-      usedynamicfolder = rep.getStepAttributeBoolean( id_step, "usedynamicfolder" );
-      folderfield = rep.getStepAttributeString( id_step, "folderfield" );
-      rowlimit = rep.getStepAttributeString( id_step, "rowlimit" );
-      int nrFields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      useBatch = rep.getStepAttributeBoolean( id_step, Tags.USE_BATCH );
-      try {
-        batchSize = (int) rep.getStepAttributeInteger( id_step, Tags.BATCH_SIZE );
-      } catch ( Exception e ) {
-        batchSize = DEFAULT_BATCH_SIZE;
-      }
-      start = rep.getStepAttributeString( id_step, Tags.START_MSG );
-      end = rep.getStepAttributeString( id_step, Tags.END_MSG );
-      stopOnError = rep.getStepAttributeBoolean( id_step, Tags.STOP_ON_ERROR );
-
-      allocate( nrFields );
-      for ( int i = 0; i < nrFields; i++ ) {
-        MailInputField field = new MailInputField();
-
-        field.setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field
-          .setColumn( MailInputField.getColumnByCode( rep.getStepAttributeString( id_step, i, "field_column" ) ) );
-
-        inputFields[i] = field;
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Erreur inattendue", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      rep.saveStepAttribute( id_transformation, id_step, "servername", servername );
-      rep.saveStepAttribute( id_transformation, id_step, "username", username );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveStepAttribute( id_transformation, id_step, "usessl", usessl );
-      rep.saveStepAttribute( id_transformation, id_step, "sslport", sslport );
-      rep.saveStepAttribute( id_transformation, id_step, "retrievemails", retrievemails );
-      rep.saveStepAttribute( id_transformation, id_step, "firstmails", firstmails );
-      rep.saveStepAttribute( id_transformation, id_step, "delete", delete );
-
-      rep.saveStepAttribute( id_transformation, id_step, "protocol", protocol );
-
-      rep.saveStepAttribute( id_transformation, id_step, "valueimaplist", MailConnectionMeta
-        .getValueImapListCode( valueimaplist ) );
-      rep.saveStepAttribute( id_transformation, id_step, "imapfirstmails", imapfirstmails );
-      rep.saveStepAttribute( id_transformation, id_step, "imapfolder", imapfolder );
-      // search term
-      rep.saveStepAttribute( id_transformation, id_step, "sendersearch", senderSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "nottermsendersearch", notTermSenderSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "recipientsearch", recipientSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "notTermRecipientSearch", notTermRecipientSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "subjectsearch", subjectSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "nottermsubjectsearch", notTermSubjectSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "conditionreceiveddate", MailConnectionMeta
-        .getConditionDateCode( conditionReceivedDate ) );
-      rep.saveStepAttribute( id_transformation, id_step, "nottermreceiveddatesearch", notTermReceivedDateSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "receiveddate1", receivedDate1 );
-      rep.saveStepAttribute( id_transformation, id_step, "receiveddate2", receivedDate2 );
-      rep.saveStepAttribute( id_transformation, id_step, "includesubfolders", includesubfolders );
-      rep.saveStepAttribute( id_transformation, id_step, "useproxy", useproxy );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyusername", proxyusername );
-      rep.saveStepAttribute( id_transformation, id_step, "usedynamicfolder", usedynamicfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "folderfield", folderfield );
-      rep.saveStepAttribute( id_transformation, id_step, "rowlimit", rowlimit );
-
-      rep.saveStepAttribute( id_transformation, id_step, Tags.USE_BATCH, useBatch );
-      rep.saveStepAttribute( id_transformation, id_step, Tags.BATCH_SIZE, batchSize );
-      rep.saveStepAttribute( id_transformation, id_step, Tags.START_MSG, start );
-      rep.saveStepAttribute( id_transformation, id_step, Tags.END_MSG, end );
-      rep.saveStepAttribute( id_transformation, id_step, Tags.STOP_ON_ERROR, stopOnError );
-
-      for ( int i = 0; i < inputFields.length; i++ ) {
-        MailInputField field = inputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_column", field.getColumnCode() );
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save step of type 'get pop' to the repository for id_step=" + id_step, dbe );
-    }
-  }
-
   private static final class Tags {
     static final String USE_BATCH = "useBatch";
     static final String BATCH_SIZE = "batchSize";
@@ -434,7 +305,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     // See if we get input...
     if ( input.length > 0 ) {
@@ -735,7 +606,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       MailInputField field = inputFields[i];

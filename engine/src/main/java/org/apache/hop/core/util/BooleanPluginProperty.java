@@ -26,8 +26,7 @@ import java.util.prefs.Preferences;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -57,25 +56,20 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginPr
   /**
    * {@inheritDoc}
    *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#evaluate()
    */
   public boolean evaluate() {
     return Boolean.TRUE.equals( this.getValue() );
   }
 
   /**
-   * {@inheritDoc}
    *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#appendXml(java.lang.StringBuilder)
    */
   public void appendXml( final StringBuilder builder ) {
     builder.append( XMLHandler.addTagValue( this.getKey(), this.getValue() ) );
   }
 
   /**
-   * {@inheritDoc}
    *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#loadXml(org.w3c.dom.Node)
    */
   public void loadXml( final Node node ) {
     final String stringValue = XMLHandler.getTagValue( node, this.getKey() );
@@ -83,43 +77,15 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginPr
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#readFromRepositoryStep(org.apache.hop.repository.Repository,
-   *      long)
-   */
-  public void readFromRepositoryStep( final Repository repository, final IMetaStore metaStore,
-    final ObjectId stepId ) throws HopException {
-    final boolean value = repository.getStepAttributeBoolean( stepId, this.getKey() );
-    this.setValue( value );
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#saveToPreferences(java.util.prefs.Preferences)
    */
   public void saveToPreferences( final Preferences node ) {
     node.putBoolean( this.getKey(), this.getValue() );
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#readFromPreferences(java.util.prefs.Preferences)
    */
   public void readFromPreferences( final Preferences node ) {
     this.setValue( node.getBoolean( this.getKey(), this.getValue() ) );
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#saveToRepositoryStep()
-   */
-  public void saveToRepositoryStep( final Repository repository, final IMetaStore metaStore,
-    final ObjectId transformationId, final ObjectId stepId ) throws HopException {
-    repository.saveStepAttribute( transformationId, stepId, this.getKey(), this.getValue() );
   }
 
 }

@@ -231,7 +231,8 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
           //
           HopVFS.getFileObject( fileUrl );
 
-          JobMeta jobMeta = new JobMeta( fileUrl, null ); // never with a repository
+          JobMeta jobMeta = new JobMeta( fileUrl );
+
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Job.CONFIGURATION_IN_EXPORT_FILENAME;
@@ -243,7 +244,7 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
           servletLoggingObject.setContainerObjectId( carteObjectId );
           servletLoggingObject.setLogLevel( jobExecutionConfiguration.getLogLevel() );
 
-          Job job = new Job( null, jobMeta, servletLoggingObject );
+          Job job = new Job( jobMeta, servletLoggingObject );
 
           // Do we need to expand the job when it's running?
           // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.

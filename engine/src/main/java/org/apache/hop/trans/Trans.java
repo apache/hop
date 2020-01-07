@@ -118,10 +118,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
+
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.cluster.TransSplitter;
@@ -203,11 +200,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * The transformation metadata to execute.
    */
   protected TransMeta transMeta;
-
-  /**
-   * The repository we are referencing.
-   */
-  protected Repository repository;
 
   /**
    * The MetaStore to use
@@ -691,27 +683,17 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * (if the repository object, repository directory name, and transformation name are specified).
    *
    * @param parent   the parent variable space and named params
-   * @param rep      the repository
    * @param name     the name of the transformation
    * @param dirname  the dirname the repository directory name
    * @param filename the filename containing the transformation definition
    * @throws HopException if any error occurs during loading, parsing, or creation of the transformation
    */
-  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, Repository rep, String name, String dirname,
+  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, String name, String dirname,
                                                              String filename ) throws HopException {
     this();
     try {
-      if ( rep != null ) {
-        RepositoryDirectoryInterface repdir = rep.findDirectory( dirname );
-        if ( repdir != null ) {
-          this.transMeta = rep.loadTransformation( name, repdir, null, false, null ); // reads last version
-        } else {
-          throw new HopException( BaseMessages.getString( PKG, "Trans.Exception.UnableToLoadTransformation", name,
-            dirname ) );
-        }
-      } else {
-        transMeta = new TransMeta( filename, false );
-      }
+
+      transMeta = new TransMeta( filename, false, this );
 
       this.log = LogChannel.GENERAL;
 
@@ -760,12 +742,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     log.snap( Metrics.METRIC_TRANSFORMATION_INIT_START );
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationPrepareExecution.id, this );
-
-    transMeta.disposeEmbeddedMetastoreProvider();
-    if ( transMeta.getMetastoreLocatorOsgi() != null ) {
-      transMeta.setEmbeddedMetastoreProviderKey(
-        transMeta.getMetastoreLocatorOsgi().setEmbeddedMetastore( transMeta.getEmbeddedMetaStore() ) );
-    }
 
     checkCompatibility();
 
@@ -1039,7 +1015,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
           // Pass the connected repository & metaStore to the steps runtime
           //
-          step.setRepository( repository );
           step.setMetaStore( metaStore );
 
           // If the step is partitioned, set the partitioning ID and some other
@@ -1281,8 +1256,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     log.snap( Metrics.METRIC_TRANSFORMATION_INIT_STOP );
 
-    HopEnvironment.setExecutionInformation( this, repository );
-
     setReadyToStart( true );
   }
 
@@ -1435,8 +1408,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         if ( transMeta.isCapturingStepPerformanceSnapShots() && stepPerformanceSnapShotTimer != null ) {
           stepPerformanceSnapShotTimer.cancel();
         }
-
-        transMeta.disposeEmbeddedMetastoreProvider();
 
         setFinished( true );
         setRunning( false ); // no longer running
@@ -3055,7 +3026,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Find the executing step copy for the step with the specified name and copy number
    *
    * @param stepname the step name
-   * @param copynr
+   * @param copyNr
    * @return the executing step found or null if no copy could be found.
    */
   public StepInterface findStepInterface( String stepname, int copyNr ) {
@@ -3077,7 +3048,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Find the available executing step copies for the step with the specified name
    *
    * @param stepname the step name
-   * @param copynr
    * @return the list of executing step copies found or null if no steps are available yet (incorrect usage)
    */
   public List<StepInterface> findStepInterfaces( String stepname ) {
@@ -3693,7 +3663,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * @param transSplitter          the trans splitter
    * @param executionConfiguration the execution configuration
    * @throws HopException the kettle exception
-   * @see org.apache.hop.ui.hopui.delegates.SpoonTransformationDelegate
    */
   public static void executeClustered( final TransSplitter transSplitter,
                                        final TransExecutionConfiguration executionConfiguration )
@@ -4248,12 +4217,11 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    *
    * @param transMeta              the transformation meta-data
    * @param executionConfiguration the transformation execution configuration
-   * @param repository             the repository
    * @return The HopServer object ID on the server.
    * @throws HopException if any errors occur during the dispatch to the slave server
    */
   public static String sendToSlaveServer( TransMeta transMeta, TransExecutionConfiguration executionConfiguration,
-                                          Repository repository, IMetaStore metaStore ) throws HopException {
+                                          IMetaStore metaStore ) throws HopException {
     String carteObjectId;
     SlaveServer slaveServer = executionConfiguration.getRemoteServer();
 
@@ -4290,10 +4258,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         //the executionConfiguration should not include a repository here because all the resources should be
         //retrieved from the exported zip file
         TransExecutionConfiguration clonedConfiguration = (TransExecutionConfiguration) executionConfiguration.clone();
-        clonedConfiguration.setRepository( null );
         TopLevelResource topLevelResource =
           ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), transMeta, transMeta,
-            repository, metaStore, clonedConfiguration.getXML(), CONFIGURATION_IN_EXPORT_FILENAME );
+            metaStore, clonedConfiguration.getXML(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
         //
@@ -4394,46 +4361,22 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
       variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, "" );
     }
 
-    boolean hasRepoDir = transMeta.getRepositoryDirectory() != null && transMeta.getRepository() != null;
-
     // The name of the transformation
     variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME, Const.NVL( transMeta.getName(), "" ) );
-
-    // setup fallbacks
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, variables.getVariable(
-        Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY ) );
-    } else {
-      variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY, variables.getVariable(
-        Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY ) );
-    }
-
-    // TODO PUT THIS INSIDE OF THE "IF"
-    // The name of the directory in the repository
-    variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY, transMeta
-      .getRepositoryDirectory() != null ? transMeta.getRepositoryDirectory().getPath() : "" );
 
     // Here we don't clear the definition of the job specific parameters, as they may come in handy.
     // A transformation can be called from a job and may inherit the job internal variables
     // but the other around is not possible.
 
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-        Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY ) );
-      if ( "/".equals( variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) ) ) {
-        variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "" );
-      }
-    }
-
-    setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
+    setInternalEntryCurrentDirectory( hasFilename );
 
   }
 
-  protected void setInternalEntryCurrentDirectory( boolean hasFilename, boolean hasRepoDir  ) {
+  protected void setInternalEntryCurrentDirectory( boolean hasFilename ) {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-      hasRepoDir ? Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY
-        : hasFilename ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
-        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+        hasFilename
+          ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
+          : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
 
@@ -4643,36 +4586,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    */
   public void setPreview( boolean preview ) {
     this.preview = preview;
-  }
-
-  /**
-   * Gets the repository object for the transformation.
-   *
-   * @return the repository
-   */
-  public Repository getRepository() {
-
-    if ( repository == null ) {
-      // Does the transmeta have a repo?
-      // This is a valid case, when a non-repo trans is attempting to retrieve
-      // a transformation in the repository.
-      if ( transMeta != null ) {
-        return transMeta.getRepository();
-      }
-    }
-    return repository;
-  }
-
-  /**
-   * Sets the repository object for the transformation.
-   *
-   * @param repository the repository object to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
-    if ( transMeta != null ) {
-      transMeta.setRepository( repository );
-    }
   }
 
   /**
@@ -5127,33 +5040,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     return log.getLogChannelId();
   }
 
-  /**
-   * Gets the object ID.
-   *
-   * @return the object ID
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectId()
-   */
-  @Override
-  public ObjectId getObjectId() {
-    if ( transMeta == null ) {
-      return null;
-    }
-    return transMeta.getObjectId();
-  }
-
-  /**
-   * Gets the object revision.
-   *
-   * @return the object revision
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectRevision()
-   */
-  @Override
-  public ObjectRevision getObjectRevision() {
-    if ( transMeta == null ) {
-      return null;
-    }
-    return transMeta.getObjectRevision();
-  }
 
   /**
    * Gets the object type. For Trans, this always returns LoggingObjectType.TRANS
@@ -5175,20 +5061,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   @Override
   public LoggingObjectInterface getParent() {
     return parent;
-  }
-
-  /**
-   * Gets the repository directory.
-   *
-   * @return the repository directory
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getRepositoryDirectory()
-   */
-  @Override
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    if ( transMeta == null ) {
-      return null;
-    }
-    return transMeta.getRepositoryDirectory();
   }
 
   /**

@@ -27,8 +27,7 @@ import java.util.Objects;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -143,35 +142,6 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   }
 
   /**
-   * Construct using data stored in repository
-   *
-   * @param rep
-   *          the repository
-   * @param id_step
-   *          the id of the step
-   * @param nr
-   *          the step number
-   * @exception HopException
-   *              if an error occurs
-   */
-  public UnivariateStatsMetaFunction( Repository rep, ObjectId id_step, int nr ) throws HopException {
-    m_sourceFieldName = rep.getStepAttributeString( id_step, nr, "source_field_name" );
-    m_n = rep.getStepAttributeBoolean( id_step, nr, "N" );
-    m_mean = rep.getStepAttributeBoolean( id_step, nr, "mean" );
-    m_stdDev = rep.getStepAttributeBoolean( id_step, nr, "stdDev" );
-    m_min = rep.getStepAttributeBoolean( id_step, nr, "min" );
-    m_max = rep.getStepAttributeBoolean( id_step, nr, "max" );
-    m_median = rep.getStepAttributeBoolean( id_step, nr, "median" );
-    String temp = rep.getStepAttributeString( id_step, nr, "percentile" );
-    try {
-      m_arbitraryPercentile = Double.parseDouble( temp );
-    } catch ( Exception ex ) {
-      m_arbitraryPercentile = -1;
-    }
-    m_interpolatePercentile = rep.getStepAttributeBoolean( id_step, nr, "interpolate" );
-  }
-
-  /**
    * Check for equality
    *
    * @param obj
@@ -215,33 +185,6 @@ public class UnivariateStatsMetaFunction implements Cloneable {
     xml += ( "</" + XML_TAG + ">" );
 
     return xml;
-  }
-
-  /**
-   * Save this UnivariateStatsMetaFunction to a repository
-   *
-   * @param rep
-   *          the repository to save to
-   * @param id_transformation
-   *          the transformation id
-   * @param id_step
-   *          the step id
-   * @param nr
-   *          the step number
-   * @exception HopException
-   *              if an error occurs
-   */
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step, int nr ) throws HopException {
-
-    rep.saveStepAttribute( id_transformation, id_step, nr, "source_field_name", m_sourceFieldName );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "N", m_n );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "mean", m_mean );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "stdDev", m_stdDev );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "min", m_min );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "max", m_max );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "median", m_median );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "percentile", " " + m_arbitraryPercentile );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "interpolate", m_interpolatePercentile );
   }
 
   /**

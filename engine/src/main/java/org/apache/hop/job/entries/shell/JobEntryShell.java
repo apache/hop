@@ -60,8 +60,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -158,10 +157,10 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       setFileName( XMLHandler.getTagValue( entrynode, "filename" ) );
       setWorkDirectory( XMLHandler.getTagValue( entrynode, "work_directory" ) );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
@@ -192,69 +191,6 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       }
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'shell' from XML node", e );
-    }
-  }
-
-  // Load the jobentry from repository
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      setFileName( rep.getJobEntryAttributeString( id_jobentry, "file_name" ) );
-      setWorkDirectory( rep.getJobEntryAttributeString( id_jobentry, "work_directory" ) );
-      argFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      execPerRow = rep.getJobEntryAttributeBoolean( id_jobentry, "exec_per_row" );
-
-      setLogfile = rep.getJobEntryAttributeBoolean( id_jobentry, "set_logfile" );
-      setAppendLogfile = rep.getJobEntryAttributeBoolean( id_jobentry, "set_append_logfile" );
-      addDate = rep.getJobEntryAttributeBoolean( id_jobentry, "add_date" );
-      addTime = rep.getJobEntryAttributeBoolean( id_jobentry, "add_time" );
-      logfile = rep.getJobEntryAttributeString( id_jobentry, "logfile" );
-      logext = rep.getJobEntryAttributeString( id_jobentry, "logext" );
-      logFileLevel = LogLevel.getLogLevelForCode( rep.getJobEntryAttributeString( id_jobentry, "loglevel" ) );
-      insertScript = rep.getJobEntryAttributeBoolean( id_jobentry, "insertScript" );
-
-      script = rep.getJobEntryAttributeString( id_jobentry, "script" );
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "argument" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[a] = rep.getJobEntryAttributeString( id_jobentry, a, "argument" );
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'shell' from the repository with id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "file_name", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "work_directory", workDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", argFromPrevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "exec_per_row", execPerRow );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "set_logfile", setLogfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "set_append_logfile", setAppendLogfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_date", addDate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_time", addTime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logfile", logfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logext", logext );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "loglevel", logFileLevel == null ? LogLevel.NOTHING
-        .getCode() : logFileLevel.getCode() );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "insertScript", insertScript );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "script", script );
-
-      // save the arguments...
-      if ( arguments != null ) {
-        for ( int i = 0; i < arguments.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "argument", arguments[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'shell' to the repository", dbe );
     }
   }
 
@@ -729,7 +665,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notBlankValidator(),

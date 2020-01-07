@@ -95,12 +95,6 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
       return false;
     }
 
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-      getTransMeta().getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, getTransMeta().getEmbeddedMetastoreProviderKey() );
-    }
-
     initErrorHandling();
 
     meta.additionalOutputFields.normalize();
@@ -247,7 +241,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
     }
 
     // get the metadata populated. Simple and easy.
-    meta.getFields( data.outputRowMeta, getStepname(), infoStep, null, this, repository, metaStore );
+    meta.getFields( data.outputRowMeta, getStepname(), infoStep, null, this, metaStore );
     // Create convert meta-data objects that will contain Date & Number formatters
     //
     data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );

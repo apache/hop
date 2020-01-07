@@ -5,11 +5,6 @@
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
   </gui-plugin>
 
-  <gui-plugin id="H2-GUI">
-    <description>H2 GUI Plugin</description>
-    <classname>org.apache.hop.core.database.H2DatabaseMeta</classname>
-  </gui-plugin>
-
   <gui-plugin id="MySQL-Gui">
     <description>MySQL GUI Plugin</description>
     <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>

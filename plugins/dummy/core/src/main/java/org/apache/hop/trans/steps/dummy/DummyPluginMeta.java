@@ -32,7 +32,6 @@ import org.apache.hop.core.row.*;
 import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.variables.*;
 import org.apache.hop.core.xml.*;
-import org.apache.hop.repository.*;
 import org.apache.hop.trans.*;
 import org.apache.hop.trans.step.*;
 import org.w3c.dom.*;
@@ -86,13 +85,13 @@ public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  @Override
-  public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep, VariableSpace space ) {
+  @Override public void getFields( RowMetaInterface inputRowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep, VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+
     if ( value != null ) {
       ValueMetaInterface v = value.getValueMeta();
       v.setOrigin( origin );
 
-      r.addValueMeta( v );
+      inputRowMeta.addValueMeta( v );
     }
   }
 
@@ -102,7 +101,7 @@ public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  @Override public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  @Override public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
       try {
       value = new ValueMetaAndData();
 
@@ -124,52 +123,9 @@ public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, ObjectId id_step, List<DatabaseMeta> databases, Map<String, Counter> counters ) throws HopException {
-    try {
-      String name = rep.getStepAttributeString( id_step, 0, "value_name" );
-      String typedesc = rep.getStepAttributeString( id_step, 0, "value_type" );
-      String text = rep.getStepAttributeString( id_step, 0, "value_text" );
-      boolean isnull = rep.getStepAttributeBoolean( id_step, 0, "value_null" );
-      int length = (int) rep.getStepAttributeInteger( id_step, 0, "value_length" );
-      int precision = (int) rep.getStepAttributeInteger( id_step, 0, "value_precision" );
-
-      int type = ValueMetaFactory.getIdForValueMeta( typedesc );
-      value = new ValueMetaAndData( new ValueMeta( name, type ), null );
-      value.getValueMeta().setLength( length );
-      value.getValueMeta().setPrecision( precision );
-
-      if ( isnull ) {
-        value.setValueData( null );
-      } else {
-        ValueMetaInterface stringMeta = new ValueMetaString( name );
-        if ( type != ValueMetaInterface.TYPE_STRING ) {
-          text = Const.trim( text );
-        }
-        value.setValueData( value.getValueMeta().convertData( stringMeta, text ) );
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "error reading step with id_step=" + id_step + " from the repository", dbe );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step with id_step=" + id_step + " from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "value_name", value.getValueMeta().getName() );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "value_type", value.getValueMeta().getTypeDesc() );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "value_text", value.getValueMeta().getString( value.getValueData() ) );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "value_null", value.getValueMeta().isNull( value.getValueData() ) );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "value_length", value.getValueMeta().getLength() );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "value_precision", value.getValueMeta().getPrecision() );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save step information to the repository, id_step=" + id_step, dbe );
-    }
-  }
-
-  @Override
-  public void check( List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta, RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info ) {
+  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
+    super.check( remarks, transMeta, stepMeta, prev, input, output, info, space, metaStore );
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr = new CheckResult( CheckResult.TYPE_RESULT_WARNING, "Not receiving any fields from previous steps!", stepMeta );

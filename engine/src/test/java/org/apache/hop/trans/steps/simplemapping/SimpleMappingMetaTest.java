@@ -37,8 +37,6 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.MappingIODefinitionLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.MappingParametersLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.ObjectIdLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.ObjectLocationSpecificationMethodLoadSaveValidator;
 
 public class SimpleMappingMetaTest {
   LoadSaveTester loadSaveTester;
@@ -50,14 +48,12 @@ public class SimpleMappingMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "transName", "fileName", "directoryPath", "transObjectId", "specificationMethod", "inputMapping", "outputMapping", "mappingParameters" );
+        Arrays.asList( "fileName", "inputMapping", "outputMapping", "mappingParameters" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
-    attrValidatorMap.put( "transObjectId", new ObjectIdLoadSaveValidator() );
-    attrValidatorMap.put( "specificationMethod", new ObjectLocationSpecificationMethodLoadSaveValidator() );
     attrValidatorMap.put( "inputMapping", new MappingIODefinitionLoadSaveValidator() );
     attrValidatorMap.put( "outputMapping", new MappingIODefinitionLoadSaveValidator() );
     attrValidatorMap.put( "mappingParameters", new MappingParametersLoadSaveValidator() );

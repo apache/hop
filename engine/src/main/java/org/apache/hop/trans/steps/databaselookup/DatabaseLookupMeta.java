@@ -43,8 +43,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -346,11 +345,11 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     streamKeyField1 = null;
     returnValueField = null;
 
-    readData( stepnode, databases );
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -386,13 +385,13 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String dtype;
       String csize;
 
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       cached = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "cache" ) );
       loadingAllDataInCache = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "cache_load_all" ) );
       csize = XMLHandler.getTagValue( stepnode, "cache_size" );
@@ -481,7 +480,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( Utils.isEmpty( info ) || info[0] == null ) { // null or length 0 : no info from database
       for ( int i = 0; i < getReturnValueNewName().length; i++ ) {
         try {
@@ -548,88 +547,9 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      cached = rep.getStepAttributeBoolean( id_step, "cache" );
-      loadingAllDataInCache = rep.getStepAttributeBoolean( id_step, "cache_load_all" );
-      cacheSize = (int) rep.getStepAttributeInteger( id_step, "cache_size" );
-      schemaName = rep.getStepAttributeString( id_step, "lookup_schema" );
-      tablename = rep.getStepAttributeString( id_step, "lookup_table" );
-      orderByClause = rep.getStepAttributeString( id_step, "lookup_orderby" );
-      failingOnMultipleResults = rep.getStepAttributeBoolean( id_step, "fail_on_multiple" );
-      eatingRowOnLookupFailure = rep.getStepAttributeBoolean( id_step, "eat_row_on_failure" );
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "lookup_key_field" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "return_value_name" );
-
-      allocate( nrkeys, nrvalues );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        streamKeyField1[i] = rep.getStepAttributeString( id_step, i, "lookup_key_name" );
-        tableKeyField[i] = rep.getStepAttributeString( id_step, i, "lookup_key_field" );
-        keyCondition[i] = rep.getStepAttributeString( id_step, i, "lookup_key_condition" );
-        streamKeyField2[i] = rep.getStepAttributeString( id_step, i, "lookup_key_name2" );
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        returnValueField[i] = rep.getStepAttributeString( id_step, i, "return_value_name" );
-        returnValueNewName[i] = rep.getStepAttributeString( id_step, i, "return_value_rename" );
-        returnValueDefault[i] = rep.getStepAttributeString( id_step, i, "return_value_default" );
-        returnValueDefaultType[i] =
-          ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "return_value_type" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DatabaseLookupMeta.ERROR0002.UnexpectedErrorReadingFromTheRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "cache", cached );
-      rep.saveStepAttribute( id_transformation, id_step, "cache_load_all", loadingAllDataInCache );
-      rep.saveStepAttribute( id_transformation, id_step, "cache_size", cacheSize );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup_schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup_table", tablename );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup_orderby", orderByClause );
-      rep.saveStepAttribute( id_transformation, id_step, "fail_on_multiple", failingOnMultipleResults );
-      rep.saveStepAttribute( id_transformation, id_step, "eat_row_on_failure", eatingRowOnLookupFailure );
-
-      for ( int i = 0; i < streamKeyField1.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_name", streamKeyField1[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_field", tableKeyField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_condition", keyCondition[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_name2", streamKeyField2[i] );
-      }
-
-      for ( int i = 0; i < returnValueField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_name", returnValueField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_rename", returnValueNewName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_default", returnValueDefault[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_type", ValueMetaFactory
-            .getValueMetaName( returnValueDefaultType[i] ) );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DatabaseLookupMeta.ERROR0003.UnableToSaveStepToRepository" )
-        + id_step, e );
-    }
-
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
       RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      Repository repository, IMetaStore metaStore ) {
+      IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -809,7 +729,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepinfo,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
       IMetaStore metaStore ) {
     // The keys are read-only...
     for ( int i = 0; i < streamKeyField1.length; i++ ) {

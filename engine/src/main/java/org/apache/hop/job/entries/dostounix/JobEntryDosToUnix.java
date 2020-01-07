@@ -55,8 +55,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -219,10 +218,10 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -250,59 +249,6 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
 
       throw new HopXMLException(
         BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.UnableLoadXML" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      arg_from_previous = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      include_subfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-
-      nr_errors_less_than = rep.getJobEntryAttributeString( id_jobentry, "nr_errors_less_than" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      resultfilenames = rep.getJobEntryAttributeString( id_jobentry, "resultfilenames" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "source_filefolder" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        source_filefolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "source_filefolder" );
-        wildcard[a] = rep.getJobEntryAttributeString( id_jobentry, a, "wildcard" );
-        conversionTypes[a] =
-          getConversionTypeByCode( Const.NVL(
-            rep.getJobEntryAttributeString( id_jobentry, "ConversionType" ), "" ) );
-      }
-    } catch ( HopException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", arg_from_previous );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", include_subfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_errors_less_than", nr_errors_less_than );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "resultfilenames", resultfilenames );
-
-      // save the arguments...
-      if ( source_filefolder != null ) {
-        for ( int i = 0; i < source_filefolder.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "source_filefolder", source_filefolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "wildcard", wildcard[i] );
-          rep.saveJobEntryAttribute(
-            id_job, getObjectId(), "ConversionType", getConversionTypeCode( conversionTypes[i] ) );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
     }
   }
 

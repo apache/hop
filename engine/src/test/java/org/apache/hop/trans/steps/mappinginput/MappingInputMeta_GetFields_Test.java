@@ -149,7 +149,7 @@ public class MappingInputMeta_GetFields_Test {
     meta.setSelectingAndSortingUnspecifiedFields( sortUnspecified );
 
     RowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "origin", new RowMetaInterface[ 0 ], null, null, null, null );
+    meta.getFields( rowMeta, "origin", new RowMetaInterface[ 0 ], null, null, null );
 
     assertEquals( Arrays.toString( expectedOutputFields ), expectedOutputFields.length, rowMeta.size() );
     for ( int i = 0; i < rowMeta.size(); i++ ) {

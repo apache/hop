@@ -32,7 +32,8 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.ObjectId;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -131,63 +132,73 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
 
   private static final String FIELDNAME_PROTECTOR = "_";
 
-  private String name;
-  private String displayName;
-  private int accessType; // Database.TYPE_ODBC / NATIVE / OCI
+  @MetaStoreAttribute
+  protected int accessType; // Database.TYPE_ODBC / NATIVE / OCI
 
+  @MetaStoreAttribute
   @GuiElement(
     id = "hostname",
     order = "01",
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.ServerHostname",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String hostname;
 
+  @MetaStoreAttribute
   @GuiElement(
     id = "port",
     order = "02",
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.PortNumber",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String port;
 
+  @MetaStoreAttribute
   @GuiElement(
     id = "databaseName",
     order = "03",
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.DatabaseName",
     type = GuiElementType.TEXT,
     variables = true,
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String databaseName;
 
+  @MetaStoreAttribute
   protected String username;
 
+  @MetaStoreAttribute
   protected String password;
 
   /**
    * Available for ALL database types
    */
+  @MetaStoreAttribute
   protected String manualUrl;
 
+  @MetaStoreAttribute
   protected String odbcDsn;
 
+  @MetaStoreAttribute
   protected String servername; // Informix only!
 
+  @MetaStoreAttribute
   protected String dataTablespace; // data storage location, For Oracle & perhaps others
+  @MetaStoreAttribute
   protected String indexTablespace; // index storage location, For Oracle & perhaps others
 
   private boolean changed;
 
+  @MetaStoreAttribute
   protected Properties attributes;
 
-  private ObjectId objectId;
-
+  @MetaStoreAttribute
   protected String pluginId;
+  @MetaStoreAttribute
   protected String pluginName;
 
 
@@ -267,42 +278,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   }
 
   /**
-   * @return Returns the connection name.
-   */
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The connection Name to set.
-   */
-  @Override
-  public void setName( String name ) {
-    this.name = name;
-
-    // Default display name to be the same as connection name if it has not
-    // been initialized before
-    if ( ( getDisplayName() == null ) || ( getDisplayName().length() == 0 ) ) {
-      setDisplayName( name );
-    }
-  }
-
-  /**
-   * @return Returns the un-escaped connection Name.
-   */
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  /**
-   * @param displayName The un-escaped connection Name to set.
-   */
-  public void setDisplayName( String displayName ) {
-    this.displayName = displayName;
-  }
-
-  /**
    * @return Returns the databaseName.
    */
   @Override
@@ -348,22 +323,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
    */
   public void setPort( String port ) {
     this.port = port;
-  }
-
-  /**
-   * @return Returns the id.
-   */
-  @Override
-  public ObjectId getObjectId() {
-    return objectId;
-  }
-
-  /**
-   * @param id The id to set.
-   */
-  @Override
-  public void setObjectId( ObjectId id ) {
-    this.objectId = id;
   }
 
   /**

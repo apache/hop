@@ -25,7 +25,7 @@ package org.apache.hop.core.gui;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.trans.TransMeta;
 
-public interface HopUiInterface extends OverwritePrompter {
+public interface HopUiInterface {
 
   public static final int STATE_CORE_OBJECTS_NONE = 1; // No core objects
   public static final int STATE_CORE_OBJECTS_CHEF = 2; // Chef state: job entries

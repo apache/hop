@@ -51,8 +51,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -98,17 +97,14 @@ public class JobEntryFileCompare extends JobEntryBase implements Cloneable, JobE
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename1", filename1 ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename2", filename2 ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename1 );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename2 );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename1 = XMLHandler.getTagValue( entrynode, "filename1" );
       filename2 = XMLHandler.getTagValue( entrynode, "filename2" );
       addFilenameToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
@@ -117,30 +113,7 @@ public class JobEntryFileCompare extends JobEntryBase implements Cloneable, JobE
         PKG, "JobEntryFileCompare.ERROR_0001_Unable_To_Load_From_Xml_Node" ), xe );
     }
   }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename1 = rep.getJobEntryAttributeString( id_jobentry, "filename1" );
-      filename2 = rep.getJobEntryAttributeString( id_jobentry, "filename2" );
-      addFilenameToResult = rep.getJobEntryAttributeBoolean( id_jobentry, "add_filename_result" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryFileCompare.ERROR_0002_Unable_To_Load_Job_From_Repository", id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename1", filename1 );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename2", filename2 );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_filename_result", addFilenameToResult );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryFileCompare.ERROR_0003_Unable_To_Save_Job", id_job ), dbe );
-    }
-  }
-
+  
   public String getRealFilename1() {
     return environmentSubstitute( getFilename1() );
   }
@@ -217,11 +190,6 @@ public class JobEntryFileCompare extends JobEntryBase implements Cloneable, JobE
     FileObject file2 = null;
     try {
       if ( filename1 != null && filename2 != null ) {
-        //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-        if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-          parentJobMeta.getNamedClusterEmbedManager()
-            .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-        }
 
         file1 = HopVFS.getFileObject( realFilename1, this );
         file2 = HopVFS.getFileObject( realFilename2, this );
@@ -324,7 +292,7 @@ public class JobEntryFileCompare extends JobEntryBase implements Cloneable, JobE
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(),

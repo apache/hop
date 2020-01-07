@@ -119,7 +119,7 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     meta.setFieldDefinitions( new FieldDefinition[]{ field } );
 
     RowMetaInterface rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "stepName", null, null, new Variables(), null, null );
+    meta.getFields( rowMeta, "stepName", null, null, new Variables(), null );
 
     assertNotNull( rowMeta );
     assertEquals( 1, rowMeta.size() );

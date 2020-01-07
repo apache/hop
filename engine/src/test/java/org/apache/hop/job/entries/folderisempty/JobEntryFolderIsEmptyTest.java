@@ -61,7 +61,7 @@ public class JobEntryFolderIsEmptyTest {
 
   @Before
   public void setUp() throws Exception {
-    job = new Job( null, new JobMeta() );
+    job = new Job( new JobMeta() );
     entry = new JobEntryFolderIsEmpty();
 
     job.getJobMeta().addJobEntry( new JobEntryCopy( entry ) );

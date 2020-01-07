@@ -53,8 +53,8 @@ public class MetaStoreConst {
 
   public static final String DB_ATTR_ID_ATTRIBUTES = "attributes";
 
-  public static final String getDefaultPentahoMetaStoreLocation() {
-    return System.getProperty( "user.home" ) + File.separator + ".pentaho";
+  public static final String getDefaultHopMetaStoreLocation() {
+    return System.getProperty( "user.home" ) + File.separator + ".hop";
   }
 
   public static IMetaStore openLocalPentahoMetaStore() throws MetaStoreException {
@@ -65,9 +65,9 @@ public class MetaStoreConst {
     if ( disableMetaStore ) {
       return null;
     }
-    String rootFolder = System.getProperty( Const.PENTAHO_METASTORE_FOLDER );
+    String rootFolder = System.getProperty( Const.HOP_METASTORE_FOLDER );
     if ( Utils.isEmpty( rootFolder ) ) {
-      rootFolder = getDefaultPentahoMetaStoreLocation();
+      rootFolder = getDefaultHopMetaStoreLocation();
     }
     File rootFolderFile = new File( rootFolder );
     File metaFolder = new File( rootFolder + File.separator + XmlUtil.META_FOLDER_NAME );
@@ -80,7 +80,7 @@ public class MetaStoreConst {
 
     XmlMetaStore metaStore = new XmlMetaStore( rootFolder );
     if ( allowCreate ) {
-      metaStore.setName( Const.PENTAHO_METASTORE_NAME );
+      metaStore.setName( Const.HOP_METASTORE_NAME );
     }
     return metaStore;
   }

@@ -37,8 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -75,7 +74,7 @@ public class DetectLastRowMeta extends BaseStepMeta implements StepMetaInterface
     this.resultfieldname = resultfieldname;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -90,7 +89,7 @@ public class DetectLastRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v =
@@ -115,27 +114,9 @@ public class DetectLastRowMeta extends BaseStepMeta implements StepMetaInterface
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DetectLastRowMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DetectLastRowMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

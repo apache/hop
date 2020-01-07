@@ -32,7 +32,7 @@ public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTest<Sort
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new SortedMergeMeta() );
   }
 

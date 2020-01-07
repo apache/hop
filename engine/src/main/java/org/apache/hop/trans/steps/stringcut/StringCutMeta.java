@@ -38,8 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -116,7 +115,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
     this.cutTo = cutTo;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -190,41 +189,8 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "in_stream_name" );
-
-      allocate( nrkeys );
-      for ( int i = 0; i < nrkeys; i++ ) {
-        fieldInStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "out_stream_name" ), "" );
-        cutFrom[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "cut_from" ), "" );
-        cutTo[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "cut_to" ), "" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "StringCutMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      for ( int i = 0; i < fieldInStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "in_stream_name", fieldInStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "out_stream_name", fieldOutStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "cut_from", cutFrom[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "cut_to", cutTo[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "StringCutMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       ValueMetaInterface v;
       if ( !Utils.isEmpty( fieldOutStream[i] ) ) {
@@ -244,7 +210,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";

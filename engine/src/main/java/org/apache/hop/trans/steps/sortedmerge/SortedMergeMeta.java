@@ -40,8 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -68,7 +67,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "ASCENDING", group = "FIELDS" )
   private boolean[] ascending;
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -137,34 +136,8 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        ascending[i] = rep.getStepAttributeBoolean( id_step, i, "field_ascending" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_ascending", ascending[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Set the sorted properties: ascending/descending
     for ( int i = 0; i < fieldName.length; i++ ) {
       int idx = inputRowMeta.indexOfValue( fieldName[i] );
@@ -180,7 +153,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

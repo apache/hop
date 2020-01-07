@@ -55,8 +55,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -153,16 +152,14 @@ public class JobEntrySFTP extends JobEntryBase implements Cloneable, JobEntryInt
     retval.append( "      " ).append( XMLHandler.addTagValue( "proxyUsername", proxyUsername ) );
     retval.append( "      " ).append(
       XMLHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( targetDirectory );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -196,83 +193,6 @@ public class JobEntrySFTP extends JobEntryBase implements Cloneable, JobEntryInt
         Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxyPassword" ) );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'SFTP' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      serverPort = rep.getJobEntryAttributeString( id_jobentry, "serverport" );
-
-      userName = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-
-      sftpDirectory = rep.getJobEntryAttributeString( id_jobentry, "sftpdirectory" );
-      targetDirectory = rep.getJobEntryAttributeString( id_jobentry, "targetdirectory" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      remove = rep.getJobEntryAttributeBoolean( id_jobentry, "remove" );
-
-      String addToResult = rep.getJobEntryAttributeString( id_jobentry, "isaddresult" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        isaddresult = true;
-      } else {
-        isaddresult = rep.getJobEntryAttributeBoolean( id_jobentry, "isaddresult" );
-      }
-
-      createtargetfolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createtargetfolder" );
-      copyprevious = rep.getJobEntryAttributeBoolean( id_jobentry, "copyprevious" );
-
-      usekeyfilename = rep.getJobEntryAttributeBoolean( id_jobentry, "usekeyfilename" );
-      keyfilename = rep.getJobEntryAttributeString( id_jobentry, "keyfilename" );
-      keyfilepass =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "keyfilepass" ) );
-      compression = rep.getJobEntryAttributeString( id_jobentry, "compression" );
-
-      proxyType = rep.getJobEntryAttributeString( id_jobentry, "proxyType" );
-      proxyHost = rep.getJobEntryAttributeString( id_jobentry, "proxyHost" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxyPort" );
-      proxyUsername = rep.getJobEntryAttributeString( id_jobentry, "proxyUsername" );
-      proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "proxyPassword" ) );
-
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'SFTP' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "serverport", serverPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", userName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sftpdirectory", sftpDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targetdirectory", targetDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "remove", remove );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "isaddresult", isaddresult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createtargetfolder", createtargetfolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "copyprevious", copyprevious );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "usekeyfilename", usekeyfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilename", keyfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilepass", Encr
-        .encryptPasswordIfNotUsingVariables( keyfilepass ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compression", compression );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyType", proxyType );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyHost", proxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyPort", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyUsername", proxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyPassword", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'SFTP' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -516,12 +436,6 @@ public class JobEntrySFTP extends JobEntryBase implements Cloneable, JobEntryInt
 
     result.setResult( false );
     long filesRetrieved = 0;
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "JobSFTP.Log.StartJobEntry" ) );
@@ -787,7 +701,7 @@ public class JobEntrySFTP extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
 
     ValidatorContext ctx = new ValidatorContext();
@@ -799,11 +713,4 @@ public class JobEntrySFTP extends JobEntryBase implements Cloneable, JobEntryInt
     JobEntryValidatorUtils.andValidator().validate( this, "password", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "serverPort", remarks, AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
-
-  public static void main( String[] args ) {
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    new JobEntrySFTP().check( remarks, null, new Variables(), null, null );
-    System.out.printf( "Remarks: %s\n", remarks );
-  }
-
 }

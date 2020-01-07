@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -76,7 +78,7 @@ import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSQL;
   private StyledTextComp wSQL;
@@ -161,11 +163,7 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
 
     // SQL editor...
     wlSQL = new Label( shell, SWT.NONE );
@@ -479,8 +477,6 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
 
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
 
     wParam.setRowNums();

@@ -40,8 +40,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -93,7 +92,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -188,8 +187,8 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
    * @param command
    *          The commandfieldname to set.
    */
-  public void setCommand( String value ) {
-    this.command = value;
+  public void setCommand( String command ) {
+    this.command = command;
   }
 
   /**
@@ -430,71 +429,9 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      dynamicCommandField = rep.getStepAttributeBoolean( id_step, "dynamicCommandField" );
-      command = rep.getStepAttributeString( id_step, "command" );
-      commandfieldname = rep.getStepAttributeString( id_step, "commandfieldname" );
-      serverName = rep.getStepAttributeString( id_step, "servername" );
-      port = rep.getStepAttributeString( id_step, "port" );
-      userName = rep.getStepAttributeString( id_step, "userName" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-
-      usePrivateKey = rep.getStepAttributeBoolean( id_step, "usePrivateKey" );
-      keyFileName = rep.getStepAttributeString( id_step, "keyFileName" );
-      passPhrase =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "passPhrase" ) );
-      stdOutFieldName = rep.getStepAttributeString( id_step, "stdOutFieldName" );
-      stdErrFieldName = rep.getStepAttributeString( id_step, "stdErrFieldName" );
-      timeOut = rep.getStepAttributeString( id_step, "timeOut" );
-      proxyHost = rep.getStepAttributeString( id_step, "proxyHost" );
-      proxyPort = rep.getStepAttributeString( id_step, "proxyPort" );
-      proxyUsername = rep.getStepAttributeString( id_step, "proxyUsername" );
-      proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "proxyPassword" ) );
-
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "SSHMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicCommandField", dynamicCommandField );
-      rep.saveStepAttribute( id_transformation, id_step, "command", command );
-      rep.saveStepAttribute( id_transformation, id_step, "commandfieldname", commandfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "port", port );
-      rep.saveStepAttribute( id_transformation, id_step, "servername", serverName );
-      rep.saveStepAttribute( id_transformation, id_step, "userName", userName );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "usePrivateKey", usePrivateKey );
-      rep.saveStepAttribute( id_transformation, id_step, "keyFileName", keyFileName );
-      rep.saveStepAttribute( id_transformation, id_step, "passPhrase", Encr
-        .encryptPasswordIfNotUsingVariables( passPhrase ) );
-      rep.saveStepAttribute( id_transformation, id_step, "stdOutFieldName", stdOutFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "stdErrFieldName", stdErrFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "timeOut", timeOut );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyHost", proxyHost );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPort", proxyPort );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyUsername", proxyUsername );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPassword", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "SSHMeta.Exception.UnableToSaveStepInfo" ) + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -553,7 +490,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !isDynamicCommand() ) {
       row.clear();

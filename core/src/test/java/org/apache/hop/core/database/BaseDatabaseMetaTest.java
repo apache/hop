@@ -45,8 +45,6 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.repository.LongObjectId;
-
 public class BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   BaseDatabaseMeta nativeMeta, odbcMeta;
@@ -219,21 +217,10 @@ public class BaseDatabaseMetaTest {
     assertFalse( nativeMeta.isChanged() );
     nativeMeta.setChanged( true );
     assertTrue( nativeMeta.isChanged() );
-    nativeMeta.setName( "FOO" );
-    assertEquals( "FOO", nativeMeta.getName() );
-    assertEquals( "FOO", nativeMeta.getDisplayName() );
-    nativeMeta.setName( null );
-    assertNull( nativeMeta.getName() );
-    assertEquals( "FOO", nativeMeta.getDisplayName() );
-    nativeMeta.setDisplayName( null );
-    assertNull( nativeMeta.getDisplayName() );
     nativeMeta.setDatabaseName( "FOO" );
     assertEquals( "FOO", nativeMeta.getDatabaseName() );
     nativeMeta.setHostname( "FOO" );
     assertEquals( "FOO", nativeMeta.getHostname() );
-    LongObjectId id = new LongObjectId( 9876 );
-    nativeMeta.setObjectId( id );
-    assertEquals( id, nativeMeta.getObjectId() );
     nativeMeta.setServername( "FOO" );
     assertEquals( "FOO", nativeMeta.getServername() );
     nativeMeta.setDataTablespace( "FOO" );

@@ -62,7 +62,7 @@ public class TransConfiguration {
     Node trecNode = XMLHandler.getSubNode( configNode, TransExecutionConfiguration.XML_TAG );
     transExecutionConfiguration = new TransExecutionConfiguration( trecNode );
     Node transNode = XMLHandler.getSubNode( configNode, TransMeta.XML_TAG );
-    transMeta = new TransMeta( transNode, transExecutionConfiguration.getRepository() );
+    transMeta = new TransMeta( transNode );
   }
 
   public static final TransConfiguration fromXML( String xml ) throws HopException {

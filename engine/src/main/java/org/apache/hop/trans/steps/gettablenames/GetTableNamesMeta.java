@@ -40,8 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -107,7 +106,7 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
   @Injection( name = "SCHEMANAMEFIELD", group = "FIELDS" )
   private String schemaNameField;
 
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   public GetTableNamesMeta() {
     super(); // allocate BaseStepMeta
@@ -216,7 +215,7 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param schenameNameField
+   * @param schemaNameField
    *          The schemaNameField to set.
    */
   public void setSchemaFieldName( String schemaNameField ) {
@@ -289,11 +288,15 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
 
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
-    database = DatabaseMeta.findDatabase( databases, connectionName );
+    try {
+      database = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch(Exception e) {
+      throw new RuntimeException( "Unable to load connection '"+connectionName+"'", e );
+    }
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -321,7 +324,7 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     String realtablename = space.environmentSubstitute( tablenamefieldname );
     if ( !Utils.isEmpty( realtablename ) ) {
       ValueMetaInterface v = new ValueMetaString( realtablename );
@@ -379,11 +382,11 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      this.databases = databases;
+      this.metaStore = metaStore;
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      database = DatabaseMeta.findDatabase( databases, con );
+      database = DatabaseMeta.loadDatabase( metaStore, con );
       schemaname = XMLHandler.getTagValue( stepnode, "schemaname" );
       tablenamefieldname = XMLHandler.getTagValue( stepnode, "tablenamefieldname" );
       objecttypefieldname = XMLHandler.getTagValue( stepnode, "objecttypefieldname" );
@@ -413,70 +416,9 @@ public class GetTableNamesMeta extends BaseStepMeta implements StepMetaInterface
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      this.databases = databases;
-      database = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      schemaname = rep.getStepAttributeString( id_step, "schemaname" );
-      tablenamefieldname = rep.getStepAttributeString( id_step, "tablenamefieldname" );
-      objecttypefieldname = rep.getStepAttributeString( id_step, "objecttypefieldname" );
-      sqlcreationfieldname = rep.getStepAttributeString( id_step, "sqlcreationfieldname" );
-
-      issystemobjectfieldname = rep.getStepAttributeString( id_step, "issystemobjectfieldname" );
-      includeCatalog = rep.getStepAttributeBoolean( id_step, "includeCatalog" );
-      includeSchema = rep.getStepAttributeBoolean( id_step, "includeSchema" );
-      includeTable = rep.getStepAttributeBoolean( id_step, "includeTable" );
-      includeView = rep.getStepAttributeBoolean( id_step, "includeView" );
-      includeProcedure = rep.getStepAttributeBoolean( id_step, "includeProcedure" );
-      includeSynonym = rep.getStepAttributeBoolean( id_step, "includeSynonym" );
-      addSchemaInOutput = rep.getStepAttributeBoolean( id_step, "addSchemaInOutput" );
-      dynamicSchema = rep.getStepAttributeBoolean( id_step, "dynamicSchema" );
-      schemaNameField = rep.getStepAttributeString( id_step, "schemaNameField" );
-
-      if ( rep.getStepAttributeString( id_step, "schenameNameField" ) != null ) {
-        /*
-         * Fix for wrong field name in the 7.0. Can be removed if we don't want to keep backward compatibility with 7.0
-         * tranformations.
-         */
-        schemaNameField = rep.getStepAttributeString( id_step, "schenameNameField" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "GetTableNamesMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", database );
-      rep.saveStepAttribute( id_transformation, id_step, "schemaname", schemaname );
-      rep.saveStepAttribute( id_transformation, id_step, "tablenamefieldname", tablenamefieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "objecttypefieldname", objecttypefieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "sqlcreationfieldname", sqlcreationfieldname );
-
-      rep.saveStepAttribute( id_transformation, id_step, "issystemobjectfieldname", issystemobjectfieldname );
-      // Also, save the step-database relationship!
-      if ( database != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, database.getObjectId() );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "includeCatalog", includeCatalog );
-      rep.saveStepAttribute( id_transformation, id_step, "includeSchema", includeSchema );
-      rep.saveStepAttribute( id_transformation, id_step, "includeTable", includeTable );
-      rep.saveStepAttribute( id_transformation, id_step, "includeView", includeView );
-      rep.saveStepAttribute( id_transformation, id_step, "includeProcedure", includeProcedure );
-      rep.saveStepAttribute( id_transformation, id_step, "includeSynonym", includeSynonym );
-      rep.saveStepAttribute( id_transformation, id_step, "addSchemaInOutput", addSchemaInOutput );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicSchema", dynamicSchema );
-      rep.saveStepAttribute( id_transformation, id_step, "schemaNameField", schemaNameField );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "GetTableNamesMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

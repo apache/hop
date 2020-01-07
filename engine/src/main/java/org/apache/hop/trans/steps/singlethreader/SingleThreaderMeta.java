@@ -25,11 +25,11 @@ package org.apache.hop.trans.steps.singlethreader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -38,14 +38,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HasRepositoryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryImportLocation;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.StringObjectId;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -69,8 +61,7 @@ import org.w3c.dom.Node;
  *
  */
 
-public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaInterface, HasRepositoryInterface,
-  ISubTransAwareMeta {
+public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaInterface, ISubTransAwareMeta {
 
   private static Class<?>  PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -93,16 +84,9 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
     setDefault();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      String method = XMLHandler.getTagValue( stepnode, "specification_method" );
-      specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-      String transId = XMLHandler.getTagValue( stepnode, "trans_object_id" );
-      transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-
-      transName = XMLHandler.getTagValue( stepnode, "trans_name" );
       fileName = XMLHandler.getTagValue( stepnode, "filename" );
-      directoryPath = XMLHandler.getTagValue( stepnode, "directory_path" );
 
       batchSize = XMLHandler.getTagValue( stepnode, "batch_size" );
       batchTime = XMLHandler.getTagValue( stepnode, "batch_time" );
@@ -148,29 +132,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append(
-      XMLHandler.addTagValue( "specification_method", specificationMethod == null ? null : specificationMethod
-        .getCode() ) );
-    retval.append( "    " ).append(
-      XMLHandler.addTagValue( "trans_object_id", transObjectId == null ? null : transObjectId.toString() ) );
-    // Export a little bit of extra information regarding the reference since it doesn't really matter outside the same
-    // repository.
-    //
-    if ( repository != null && transObjectId != null ) {
-      try {
-        RepositoryObject objectInformation =
-          repository.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-        if ( objectInformation != null ) {
-          transName = objectInformation.getName();
-          directoryPath = objectInformation.getRepositoryDirectory().getPath();
-        }
-      } catch ( HopException e ) {
-        // Ignore object reference problems. It simply means that the reference is no longer valid.
-      }
-    }
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trans_name", transName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "directory_path", directoryPath ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "batch_size", batchSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "batch_time", batchTime ) );
@@ -196,65 +158,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    String method = rep.getStepAttributeString( id_step, "specification_method" );
-    specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-    String transId = rep.getStepAttributeString( id_step, "trans_object_id" );
-    transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-    transName = rep.getStepAttributeString( id_step, "trans_name" );
-    fileName = rep.getStepAttributeString( id_step, "filename" );
-    directoryPath = rep.getStepAttributeString( id_step, "directory_path" );
-
-    batchSize = rep.getStepAttributeString( id_step, "batch_size" );
-    batchTime = rep.getStepAttributeString( id_step, "batch_time" );
-    injectStep = rep.getStepAttributeString( id_step, "inject_step" );
-    retrieveStep = rep.getStepAttributeString( id_step, "retrieve_step" );
-
-    // The parameters...
-    //
-    int parameternr = rep.countNrStepAttributes( id_step, "parameter_name" );
-    parameters = new String[parameternr];
-    parameterValues = new String[parameternr];
-
-    // Read all parameters ...
-    for ( int a = 0; a < parameternr; a++ ) {
-      parameters[a] = rep.getStepAttributeString( id_step, a, "parameter_name" );
-      parameterValues[a] = rep.getStepAttributeString( id_step, a, "parameter_value" );
-    }
-
-    passingAllParameters = rep.getStepAttributeBoolean( id_step, 0, "pass_all_parameters", true );
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "specification_method", specificationMethod == null
-      ? null : specificationMethod.getCode() );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_object_id", transObjectId == null
-      ? null : transObjectId.toString() );
-    rep.saveStepAttribute( id_transformation, id_step, "filename", fileName );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_name", transName );
-    rep.saveStepAttribute( id_transformation, id_step, "directory_path", directoryPath );
-
-    rep.saveStepAttribute( id_transformation, id_step, "batch_size", batchSize );
-    rep.saveStepAttribute( id_transformation, id_step, "batch_time", batchTime );
-    rep.saveStepAttribute( id_transformation, id_step, "inject_step", injectStep );
-    rep.saveStepAttribute( id_transformation, id_step, "retrieve_step", retrieveStep );
-
-    // The parameters...
-    //
-    // Save the parameters...
-    if ( parameters != null ) {
-      for ( int i = 0; i < parameters.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_name", parameters[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_value", Const
-          .NVL( parameterValues[i], "" ) );
-      }
-    }
-
-    rep.saveStepAttribute( id_transformation, id_step, "pass_all_parameters", passingAllParameters );
-  }
-
   public void setDefault() {
-    specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
     batchSize = "100";
     batchTime = "";
 
@@ -265,7 +169,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // First load some interesting data...
     //
@@ -273,7 +177,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
     //
     TransMeta mappingTransMeta = null;
     try {
-      mappingTransMeta = loadSingleThreadedTransMeta( this, repository, space );
+      mappingTransMeta = loadSingleThreadedTransMeta( this, space );
     } catch ( HopException e ) {
       throw new HopStepException( BaseMessages.getString(
         PKG, "SingleThreaderMeta.Exception.UnableToLoadMappingTransformation" ), e );
@@ -291,18 +195,18 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
 
 
   public static final synchronized TransMeta loadSingleThreadedTransMeta( SingleThreaderMeta mappingMeta,
-                                                                          Repository rep, VariableSpace space ) throws HopException {
-    return loadMappingMeta( mappingMeta, rep, null, space );
+                                                                          VariableSpace space ) throws HopException {
+    return loadMappingMeta( mappingMeta, null, space );
   }
 
   public static final synchronized TransMeta loadSingleThreadedTransMeta( SingleThreaderMeta mappingMeta,
-                                                                          Repository rep, VariableSpace space, boolean passingAllParameters  ) throws HopException {
-    return loadMappingMeta( mappingMeta, rep, null, space, passingAllParameters );
+                                                                          VariableSpace space, boolean passingAllParameters  ) throws HopException {
+    return loadMappingMeta( mappingMeta, null, space, passingAllParameters );
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -344,38 +248,16 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   public List<ResourceReference> getResourceDependencies( TransMeta transMeta, StepMeta stepInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
     String realFilename = transMeta.environmentSubstitute( fileName );
-    String realTransname = transMeta.environmentSubstitute( transName );
     ResourceReference reference = new ResourceReference( stepInfo );
     references.add( reference );
 
-    if ( !Utils.isEmpty( realFilename ) ) {
+    if ( StringUtils.isNotEmpty( realFilename ) ) {
       // Add the filename to the references, including a reference to this step
       // meta data.
       //
       reference.getEntries().add( new ResourceEntry( realFilename, ResourceType.ACTIONFILE ) );
-    } else if ( !Utils.isEmpty( realTransname ) ) {
-      // Add the filename to the references, including a reference to this step
-      // meta data.
-      //
-      reference.getEntries().add( new ResourceEntry( realTransname, ResourceType.ACTIONFILE ) );
-      references.add( reference );
     }
     return references;
-  }
-
-  /**
-   * @return the repository
-   */
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * @param repository
-   *          the repository to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   public TransformationType[] getSupportedTransformationTypes() {
@@ -487,20 +369,6 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
     this.batchTime = batchTime;
   }
 
-  @Override
-  public boolean hasRepositoryReferences() {
-    return specificationMethod == ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-  }
-
-  @Override
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    // The correct reference is stored in the trans name and directory attributes...
-    //
-    RepositoryDirectoryInterface repositoryDirectoryInterface =
-      RepositoryImportLocation.getRepositoryImportLocation().findDirectory( directoryPath );
-    transObjectId = repository.getTransformationID( transName, repositoryDirectoryInterface );
-  }
-
   /**
    * @return The objects referenced in the step, like a mapping, a transformation, a job, ...
    */
@@ -509,8 +377,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   private boolean isTransformationDefined() {
-    return !Utils.isEmpty( fileName )
-      || transObjectId != null || ( !Utils.isEmpty( this.directoryPath ) && !Utils.isEmpty( transName ) );
+    return StringUtils.isNotEmpty( fileName );
   }
 
   public boolean[] isReferencedObjectEnabled() {
@@ -522,20 +389,18 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
    *
    * @param index
    *          the object index to load
-   * @param rep
-   *          the repository
    * @param space
    *          the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Deprecated
-  public Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws HopException {
-    return loadSingleThreadedTransMeta( this, rep, space );
+  public Object loadReferencedObject( int index, VariableSpace space ) throws HopException {
+    return loadSingleThreadedTransMeta( this, space );
   }
 
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadMappingMeta( this, rep, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+    return loadMappingMeta( this, metaStore, space );
   }
 
   @Override

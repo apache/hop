@@ -33,7 +33,6 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.RowListener;
@@ -382,18 +381,6 @@ public class ScriptDummy implements StepInterface {
 
   @Override
   public IMetaStore getMetaStore() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public void setRepository( Repository repository ) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public Repository getRepository() {
     // TODO Auto-generated method stub
     return null;
   }

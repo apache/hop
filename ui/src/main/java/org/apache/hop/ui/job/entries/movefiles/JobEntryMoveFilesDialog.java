@@ -56,7 +56,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.movefiles.JobEntryMoveFiles;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -238,8 +237,8 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
   private Button wSimulate;
   private FormData fdlSimulate, fdSimulate;
 
-  public JobEntryMoveFilesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryMoveFilesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMoveFiles) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

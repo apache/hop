@@ -54,7 +54,7 @@ public class GetSubFoldersMetaTest {
     String stepName = UUID.randomUUID().toString();
 
     RowMeta rowMeta = new RowMeta();
-    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null, null );
+    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null );
 
     assertFalse( stepMeta.includeRowNumber() );
     assertEquals( 10, rowMeta.size() );
@@ -71,7 +71,7 @@ public class GetSubFoldersMetaTest {
 
     stepMeta.setIncludeRowNumber( true );
     rowMeta = new RowMeta();
-    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null, null );
+    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null );
     assertTrue( stepMeta.includeRowNumber() );
     assertEquals( 11, rowMeta.size() );
     assertEquals( "folderName", rowMeta.getValueMeta( 0 ).getName() );
@@ -88,7 +88,7 @@ public class GetSubFoldersMetaTest {
 
     stepMeta.setRowNumberField( "MyRowNumber" );
     rowMeta = new RowMeta();
-    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null, null );
+    stepMeta.getFields( rowMeta, stepName, null, null, new Variables(), null );
     assertEquals( "MyRowNumber", stepMeta.getRowNumberField() );
     assertEquals( 11, rowMeta.size() );
     assertEquals( "MyRowNumber", rowMeta.getValueMeta( 10 ).getName() );

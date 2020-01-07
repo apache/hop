@@ -32,7 +32,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -76,7 +75,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // It's best that this method doesn't change anything by itself.
     // Eventually it's the Mapping step that's going to tell this step how to behave meta-data wise.
     // It is the mapping step that tells the mapping output step what fields to rename.
@@ -108,7 +107,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

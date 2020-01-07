@@ -85,7 +85,7 @@ public class FilterRows extends BaseStep implements StepInterface {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( getInputRowMeta(), getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( getInputRowMeta(), getStepname(), null, null, this, metaStore );
 
       // if filter refers to non-existing fields, throw exception
       checkNonExistingFields();

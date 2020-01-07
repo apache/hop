@@ -38,8 +38,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -171,10 +170,10 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       oid = XMLHandler.getTagValue( entrynode, "oid" );
@@ -192,46 +191,6 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
     }
   }
 
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      oid = rep.getJobEntryAttributeString( id_jobentry, "oid" );
-      message = rep.getJobEntryAttributeString( id_jobentry, "message" );
-      comString = rep.getJobEntryAttributeString( id_jobentry, "comstring" );
-      timeout = rep.getJobEntryAttributeString( id_jobentry, "timeout" );
-      nrretry = rep.getJobEntryAttributeString( id_jobentry, "nrretry" );
-      targettype = rep.getJobEntryAttributeString( id_jobentry, "targettype" );
-      user = rep.getJobEntryAttributeString( id_jobentry, "user" );
-      passphrase = Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "passphrase" ) );
-      engineid = rep.getJobEntryAttributeString( id_jobentry, "engineid" );
-
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'SNMPTrap' from the repository for id_jobentry=" + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "oid", oid );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "message", message );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "comstring", comString );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nrretry", nrretry );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targettype", targettype );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "user", user );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "engineid", engineid );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'SNMPTrap' to the repository for id_job="
-        + id_job, dbe );
-    }
-  }
 
   /**
    * @return Returns the serverName.
@@ -256,7 +215,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param serverName
+   * @param oid
    *          The oid to set.
    */
   public void setOID( String oid ) {

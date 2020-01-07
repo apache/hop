@@ -46,7 +46,7 @@ public class AddSequenceMetaTest {
 
   @Test
   public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList( "valuename", "useDatabase", "database", "schemaName", "sequenceName",
+    List<String> attributes = Arrays.asList( "valuename", "useDatabase", "databaseMeta", "schemaName", "sequenceName",
       "useCounter", "counterName", "startAt", "incrementBy", "maxValue" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
@@ -57,8 +57,7 @@ public class AddSequenceMetaTest {
     Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<String, FieldLoadSaveValidator<?>>();
     Map<String, FieldLoadSaveValidator<?>> fieldValidators = new HashMap<String, FieldLoadSaveValidator<?>>();
 
-    LoadSaveTester loadSaveTester =
-      new LoadSaveTester( AddSequenceMeta.class, attributes, getterMap, setterMap, fieldValidators, typeValidators );
+    LoadSaveTester loadSaveTester = new LoadSaveTester( AddSequenceMeta.class, attributes, getterMap, setterMap, fieldValidators, typeValidators );
     loadSaveTester.testSerialization();
   }
 }

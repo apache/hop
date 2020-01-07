@@ -77,7 +77,7 @@ public abstract class BaseTextParsingTest extends BaseParsingTest<TextFileInputM
    */
   protected void setFields( BaseFileField... fields ) throws Exception {
     meta.inputFields = fields;
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null, null );
+    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
     data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
   }
 }

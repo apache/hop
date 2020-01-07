@@ -431,9 +431,9 @@ public class PGPDecryptStreamDialog extends BaseStepDialog implements StepDialog
       return;
     }
     input.setStreamField( wStreamFieldName.getText() );
-    input.setGPGPLocation( wGPGLocation.getText() );
+    input.setGPGLocation( wGPGLocation.getText() );
     input.setPassphrase( wPassphrase.getText() );
-    input.setResultfieldname( wResult.getText() );
+    input.setResultFieldName( wResult.getText() );
     input.setPassphraseFromField( wPassphraseFromField.getSelection() );
     input.setPassphraseFieldName( wPassphraseFieldName.getText() );
     stepname = wStepname.getText(); // return value

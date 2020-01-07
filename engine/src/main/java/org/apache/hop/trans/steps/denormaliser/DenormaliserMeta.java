@@ -37,8 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -137,7 +136,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
     this.denormaliserTargetField = pivotField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -160,7 +159,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Remove the key value (there will be different entries for each output row)
     //
@@ -291,83 +290,9 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      keyField = rep.getStepAttributeString( id_step, "key_field" );
-
-      int groupsize = rep.countNrStepAttributes( id_step, "group_name" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( groupsize, nrvalues );
-
-      for ( int i = 0; i < groupsize; i++ ) {
-        groupField[i] = rep.getStepAttributeString( id_step, i, "group_name" );
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        denormaliserTargetField[i] = new DenormaliserTargetField();
-        denormaliserTargetField[i].setFieldName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        denormaliserTargetField[i].setKeyValue( rep.getStepAttributeString( id_step, i, "key_value" ) );
-        denormaliserTargetField[i].setTargetName( rep.getStepAttributeString( id_step, i, "target_name" ) );
-        denormaliserTargetField[i].setTargetType( rep.getStepAttributeString( id_step, i, "target_type" ) );
-        denormaliserTargetField[i].setTargetFormat( rep.getStepAttributeString( id_step, i, "target_format" ) );
-        denormaliserTargetField[i].setTargetLength( (int) rep
-          .getStepAttributeInteger( id_step, i, "target_length" ) );
-        denormaliserTargetField[i].setTargetPrecision( (int) rep.getStepAttributeInteger(
-          id_step, i, "target_precision" ) );
-        denormaliserTargetField[i].setTargetDecimalSymbol( rep.getStepAttributeString(
-          id_step, i, "target_decimal_symbol" ) );
-        denormaliserTargetField[i].setTargetGroupingSymbol( rep.getStepAttributeString(
-          id_step, i, "target_grouping_symbol" ) );
-        denormaliserTargetField[i].setTargetCurrencySymbol( rep.getStepAttributeString(
-          id_step, i, "target_currency_symbol" ) );
-        denormaliserTargetField[i].setTargetNullString( rep.getStepAttributeString(
-          id_step, i, "target_null_string" ) );
-        denormaliserTargetField[i].setTargetAggregationType( rep.getStepAttributeString(
-          id_step, i, "target_aggregation_type" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "key_field", keyField );
-
-      for ( int i = 0; i < groupField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "group_name", groupField[i] );
-      }
-
-      for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
-        DenormaliserTargetField field = denormaliserTargetField[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_value", field.getKeyValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_name", field.getTargetName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_type", field.getTargetTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_format", field.getTargetFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_length", field.getTargetLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_precision", field.getTargetPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_decimal_symbol", field
-          .getTargetDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_grouping_symbol", field
-          .getTargetGroupingSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_currency_symbol", field
-          .getTargetCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_null_string", field.getTargetNullString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_aggregation_type", field
-          .getTargetAggregationTypeDesc() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DenormaliserMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

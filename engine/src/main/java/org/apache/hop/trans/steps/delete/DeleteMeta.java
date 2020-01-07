@@ -39,8 +39,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -226,8 +225,8 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
     this.tableName = tableName;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys ) {
@@ -251,13 +250,13 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String csize;
       int nrkeys;
 
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       csize = XMLHandler.getTagValue( stepnode, "commit" );
       commitSize = ( csize != null ) ? csize : "0";
       schemaName = XMLHandler.getTagValue( stepnode, "lookup", "schema" );
@@ -323,73 +322,14 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      commitSize = rep.getStepAttributeString( id_step, "commit" );
-      if ( commitSize == null ) {
-        long comSz = -1;
-        try {
-          comSz = rep.getStepAttributeInteger( id_step, "commit" );
-        } catch ( Exception ex ) {
-          commitSize = "100";
-        }
-        if ( comSz >= 0 ) {
-          commitSize = Long.toString( comSz );
-        }
-      }
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "key_name" );
-
-      allocate( nrkeys );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        keyStream[i] = rep.getStepAttributeString( id_step, i, "key_name" );
-        keyLookup[i] = rep.getStepAttributeString( id_step, i, "key_field" );
-        keyCondition[i] = rep.getStepAttributeString( id_step, i, "key_condition" );
-        keyStream2[i] = rep.getStepAttributeString( id_step, i, "key_name2" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DeleteMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-
-      for ( int i = 0; i < keyStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name", keyStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_field", keyLookup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_condition", keyCondition[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name2", keyStream2[i] );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DeleteMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -531,7 +471,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -589,7 +529,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys

@@ -208,7 +208,7 @@ public class DatabaseConnectingTest {
 
 
   private DatabaseStub createStubDatabase( Connection sharedConnection ) {
-    DatabaseMeta meta = new DatabaseMeta( "test", "H2", "", "", "", "", "", "" );
+    DatabaseMeta meta = new DatabaseMeta( "test", "None", "", "", "", "", "", "" );
     return new DatabaseStub( null, meta, sharedConnection );
   }
 

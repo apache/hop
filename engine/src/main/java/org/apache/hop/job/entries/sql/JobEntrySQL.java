@@ -49,8 +49,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -107,10 +106,10 @@ public class JobEntrySQL extends JobEntryBase implements Cloneable, JobEntryInte
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       sql = XMLHandler.getTagValue( entrynode, "sql" );
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
       String sSubs = XMLHandler.getTagValue( entrynode, "useVariableSubstitution" );
@@ -118,7 +117,7 @@ public class JobEntrySQL extends JobEntryBase implements Cloneable, JobEntryInte
       if ( sSubs != null && sSubs.equalsIgnoreCase( "T" ) ) {
         useVariableSubstitution = true;
       }
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
       String ssql = XMLHandler.getTagValue( entrynode, "sqlfromfile" );
       if ( ssql != null && ssql.equalsIgnoreCase( "T" ) ) {
@@ -134,52 +133,6 @@ public class JobEntrySQL extends JobEntryBase implements Cloneable, JobEntryInte
 
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'sql' from XML node", e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      sql = rep.getJobEntryAttributeString( id_jobentry, "sql" );
-      String sSubs = rep.getJobEntryAttributeString( id_jobentry, "useVariableSubstitution" );
-      if ( sSubs != null && sSubs.equalsIgnoreCase( "T" ) ) {
-        useVariableSubstitution = true;
-      }
-
-      String ssql = rep.getJobEntryAttributeString( id_jobentry, "sqlfromfile" );
-      if ( ssql != null && ssql.equalsIgnoreCase( "T" ) ) {
-        sqlfromfile = true;
-      }
-
-      String ssendOneStatement = rep.getJobEntryAttributeString( id_jobentry, "sendOneStatement" );
-      if ( ssendOneStatement != null && ssendOneStatement.equalsIgnoreCase( "T" ) ) {
-        sendOneStatement = true;
-      }
-
-      sqlfilename = rep.getJobEntryAttributeString( id_jobentry, "sqlfilename" );
-
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'sql' from the repository with id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sql", sql );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "useVariableSubstitution", useVariableSubstitution
-        ? "T" : "F" );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sqlfromfile", sqlfromfile ? "T" : "F" );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sqlfilename", sqlfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sendOneStatement", sendOneStatement ? "T" : "F" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'sql' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -352,7 +305,7 @@ public class JobEntrySQL extends JobEntryBase implements Cloneable, JobEntryInte
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "SQL", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

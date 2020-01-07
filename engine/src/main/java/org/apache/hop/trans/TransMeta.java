@@ -57,7 +57,6 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogChannel;
@@ -84,12 +83,8 @@ import org.apache.hop.core.xml.XMLFormatter;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.HasRepositoryInterface;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
@@ -107,10 +102,8 @@ import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta;
 import org.apache.hop.trans.steps.mapping.MappingMeta;
 import org.apache.hop.trans.steps.missing.MissingTrans;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 import org.apache.hop.trans.steps.singlethreader.SingleThreaderMeta;
 import org.apache.hop.trans.steps.transexecutor.TransExecutorMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -126,24 +119,27 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * This class defines information about a transformation and offers methods to save and load it from XML or a PDI
  * database repository, as well as methods to alter a transformation by adding/removing databases, steps, hops, etc.
  *
- * @since 20-jun-2003
  * @author Matt Casters
+ * @since 20-jun-2003
  */
 public class TransMeta extends AbstractMeta
-    implements XMLInterface, Comparator<TransMeta>, Comparable<TransMeta>, Cloneable, ResourceExportInterface,
-    RepositoryElementInterface, LoggingObjectInterface {
+  implements XMLInterface, Comparator<TransMeta>, Comparable<TransMeta>, Cloneable, ResourceExportInterface,
+  LoggingObjectInterface {
 
-  /** The package name, used for internationalization of messages. */
+  /**
+   * The package name, used for internationalization of messages.
+   */
   private static Class<?> PKG = Trans.class; // for i18n purposes, needed by Translator2!!
 
-  /** A constant specifying the tag value for the XML node of the transformation. */
+  /**
+   * A constant specifying the tag value for the XML node of the transformation.
+   */
   public static final String XML_TAG = "transformation";
 
   /**
@@ -151,66 +147,97 @@ public class TransMeta extends AbstractMeta
    */
   public static final String STRING_TRANSMETA = "Transformation metadata";
 
-  /** A constant specifying the repository element type as a Transformation. */
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.TRANSFORMATION;
-
   public static final int BORDER_INDENT = 20;
-  /** The list of steps associated with the transformation. */
+  /**
+   * The list of steps associated with the transformation.
+   */
   protected List<StepMeta> steps;
 
-  /** The list of hops associated with the transformation. */
+  /**
+   * The list of hops associated with the transformation.
+   */
   protected List<TransHopMeta> hops;
 
-  /** The list of dependencies associated with the transformation. */
+  /**
+   * The list of dependencies associated with the transformation.
+   */
   protected List<TransDependency> dependencies;
 
-  /** The list of cluster schemas associated with the transformation. */
+  /**
+   * The list of cluster schemas associated with the transformation.
+   */
   protected List<ClusterSchema> clusterSchemas;
 
-  /** The list of partition schemas associated with the transformation. */
+  /**
+   * The list of partition schemas associated with the transformation.
+   */
   private List<PartitionSchema> partitionSchemas;
 
-  /** The version string for the transformation. */
+  /**
+   * The version string for the transformation.
+   */
   protected String trans_version;
 
-  /** The status of the transformation. */
+  /**
+   * The status of the transformation.
+   */
   protected int trans_status;
 
-  /** The transformation logging table associated with the transformation. */
+  /**
+   * The transformation logging table associated with the transformation.
+   */
   protected TransLogTable transLogTable;
 
-  /** The performance logging table associated with the transformation. */
+  /**
+   * The performance logging table associated with the transformation.
+   */
   protected PerformanceLogTable performanceLogTable;
 
-  /** The step logging table associated with the transformation. */
+  /**
+   * The step logging table associated with the transformation.
+   */
   protected StepLogTable stepLogTable;
 
-  /** The metricslogging table associated with the transformation. */
+  /**
+   * The metricslogging table associated with the transformation.
+   */
   protected MetricsLogTable metricsLogTable;
 
-  /** The size of the current rowset. */
+  /**
+   * The size of the current rowset.
+   */
   protected int sizeRowset;
 
-  /** The meta-data for the database connection associated with "max date" auditing information. */
+  /**
+   * The meta-data for the database connection associated with "max date" auditing information.
+   */
   protected DatabaseMeta maxDateConnection;
 
-  /** The table name associated with "max date" auditing information. */
+  /**
+   * The table name associated with "max date" auditing information.
+   */
   protected String maxDateTable;
 
-  /** The field associated with "max date" auditing information. */
+  /**
+   * The field associated with "max date" auditing information.
+   */
   protected String maxDateField;
 
-  /** The amount by which to increase the "max date" value. */
+  /**
+   * The amount by which to increase the "max date" value.
+   */
   protected double maxDateOffset;
 
-  /** The maximum date difference used for "max date" auditing and limiting job sizes. */
+  /**
+   * The maximum date difference used for "max date" auditing and limiting job sizes.
+   */
   protected double maxDateDifference;
 
   /**
    * The list of arguments to the transformation.
    *
    * @deprecated Moved to Trans
-   * */
+   */
   @Deprecated
   protected String[] arguments;
 
@@ -222,26 +249,36 @@ public class TransMeta extends AbstractMeta
   @Deprecated
   protected Hashtable<String, Counter> counters;
 
-  /** Indicators for changes in steps, databases, hops, and notes. */
+  /**
+   * Indicators for changes in steps, databases, hops, and notes.
+   */
   protected boolean changed_steps, changed_hops;
 
-  /** The database cache. */
+  /**
+   * The database cache.
+   */
   protected DBCache dbCache;
 
-  /** The time (in nanoseconds) to wait when the input buffer is empty. */
+  /**
+   * The time (in nanoseconds) to wait when the input buffer is empty.
+   */
   protected int sleepTimeEmpty;
 
-  /** The time (in nanoseconds) to wait when the input buffer is full. */
+  /**
+   * The time (in nanoseconds) to wait when the input buffer is full.
+   */
   protected int sleepTimeFull;
 
-  /** The previous result. */
+  /**
+   * The previous result.
+   */
   protected Result previousResult;
 
   /**
    * The result rows.
    *
    * @deprecated
-   * */
+   */
   @Deprecated
   protected List<RowMetaAndData> resultRows;
 
@@ -249,17 +286,23 @@ public class TransMeta extends AbstractMeta
    * The result files.
    *
    * @deprecated
-   * */
+   */
   @Deprecated
   protected List<ResultFile> resultFiles;
 
-  /** Whether the transformation is using unique connections. */
+  /**
+   * Whether the transformation is using unique connections.
+   */
   protected boolean usingUniqueConnections;
 
-  /** Whether the feedback is shown. */
+  /**
+   * Whether the feedback is shown.
+   */
   protected boolean feedbackShown;
 
-  /** The feedback size. */
+  /**
+   * The feedback size.
+   */
   protected int feedbackSize;
 
   /**
@@ -268,34 +311,54 @@ public class TransMeta extends AbstractMeta
    */
   protected boolean usingThreadPriorityManagment;
 
-  /** The slave-step-copy/partition distribution. Only used for slave transformations in a clustering environment. */
+  /**
+   * The slave-step-copy/partition distribution. Only used for slave transformations in a clustering environment.
+   */
   protected SlaveStepCopyPartitionDistribution slaveStepCopyPartitionDistribution;
 
-  /** Just a flag indicating that this is a slave transformation - internal use only, no GUI option. */
+  /**
+   * Just a flag indicating that this is a slave transformation - internal use only, no GUI option.
+   */
   protected boolean slaveTransformation;
 
-  /** Whether the transformation is capturing step performance snap shots. */
+  /**
+   * Whether the transformation is capturing step performance snap shots.
+   */
   protected boolean capturingStepPerformanceSnapShots;
 
-  /** The step performance capturing delay. */
+  /**
+   * The step performance capturing delay.
+   */
   protected long stepPerformanceCapturingDelay;
 
-  /** The step performance capturing size limit. */
+  /**
+   * The step performance capturing size limit.
+   */
   protected String stepPerformanceCapturingSizeLimit;
 
-  /** The steps fields cache. */
+  /**
+   * The steps fields cache.
+   */
   protected Map<String, RowMetaInterface> stepsFieldsCache;
 
-  /** The loop cache. */
+  /**
+   * The loop cache.
+   */
   protected Map<String, Boolean> loopCache;
 
-  /** The previous step cache */
+  /**
+   * The previous step cache
+   */
   protected Map<String, List<StepMeta>> previousStepCache;
 
-  /** The log channel interface. */
+  /**
+   * The log channel interface.
+   */
   protected LogChannelInterface log;
 
-  /** The list of StepChangeListeners */
+  /**
+   * The list of StepChangeListeners
+   */
   protected List<StepMetaChangeListenerInterface> stepChangeListeners;
 
   protected byte[] keyForSessionKey;
@@ -308,30 +371,38 @@ public class TransMeta extends AbstractMeta
    */
   public enum TransformationType {
 
-    /** A normal transformation. */
+    /**
+     * A normal transformation.
+     */
     Normal( "Normal", BaseMessages.getString( PKG, "TransMeta.TransformationType.Normal" ) ),
 
-      /** A serial single-threaded transformation. */
-      SerialSingleThreaded( "SerialSingleThreaded", BaseMessages.getString(
-        PKG, "TransMeta.TransformationType.SerialSingleThreaded" ) ),
+    /**
+     * A serial single-threaded transformation.
+     */
+    SerialSingleThreaded( "SerialSingleThreaded", BaseMessages.getString(
+      PKG, "TransMeta.TransformationType.SerialSingleThreaded" ) ),
 
-      /** A single-threaded transformation. */
-      SingleThreaded( "SingleThreaded", BaseMessages
-        .getString( PKG, "TransMeta.TransformationType.SingleThreaded" ) );
+    /**
+     * A single-threaded transformation.
+     */
+    SingleThreaded( "SingleThreaded", BaseMessages
+      .getString( PKG, "TransMeta.TransformationType.SingleThreaded" ) );
 
-    /** The code corresponding to the transformation type. */
+    /**
+     * The code corresponding to the transformation type.
+     */
     private final String code;
 
-    /** The description of the transformation type. */
+    /**
+     * The description of the transformation type.
+     */
     private final String description;
 
     /**
      * Instantiates a new transformation type.
      *
-     * @param code
-     *          the code
-     * @param description
-     *          the description
+     * @param code        the code
+     * @param description the description
      */
     TransformationType( String code, String description ) {
       this.code = code;
@@ -359,8 +430,7 @@ public class TransMeta extends AbstractMeta
     /**
      * Gets the transformation type by code.
      *
-     * @param transTypeCode
-     *          the trans type code
+     * @param transTypeCode the trans type code
      * @return the transformation type by code
      */
     public static TransformationType getTransformationTypeByCode( String transTypeCode ) {
@@ -380,20 +450,24 @@ public class TransMeta extends AbstractMeta
      * @return the transformation types descriptions
      */
     public static String[] getTransformationTypesDescriptions() {
-      String[] desc = new String[values().length];
+      String[] desc = new String[ values().length ];
       for ( int i = 0; i < values().length; i++ ) {
-        desc[i] = values()[i].getDescription();
+        desc[ i ] = values()[ i ].getDescription();
       }
       return desc;
     }
   }
 
-  /** The transformation type. */
+  /**
+   * The transformation type.
+   */
   protected TransformationType transformationType;
 
   // //////////////////////////////////////////////////////////////////////////
 
-  /** A list of localized strings corresponding to string descriptions of the undo/redo actions. */
+  /**
+   * A list of localized strings corresponding to string descriptions of the undo/redo actions.
+   */
   public static final String[] desc_type_undo = {
     "",
     BaseMessages.getString( PKG, "TransMeta.UndoTypeDesc.UndoChange" ),
@@ -401,31 +475,49 @@ public class TransMeta extends AbstractMeta
     BaseMessages.getString( PKG, "TransMeta.UndoTypeDesc.UndoDelete" ),
     BaseMessages.getString( PKG, "TransMeta.UndoTypeDesc.UndoPosition" ) };
 
-  /** A constant specifying the tag value for the XML node of the transformation information. */
+  /**
+   * A constant specifying the tag value for the XML node of the transformation information.
+   */
   protected static final String XML_TAG_INFO = "info";
 
-  /** A constant specifying the tag value for the XML node of the order of steps. */
+  /**
+   * A constant specifying the tag value for the XML node of the order of steps.
+   */
   public static final String XML_TAG_ORDER = "order";
 
-  /** A constant specifying the tag value for the XML node of the notes. */
+  /**
+   * A constant specifying the tag value for the XML node of the notes.
+   */
   public static final String XML_TAG_NOTEPADS = "notepads";
 
-  /** A constant specifying the tag value for the XML node of the transformation parameters. */
+  /**
+   * A constant specifying the tag value for the XML node of the transformation parameters.
+   */
   public static final String XML_TAG_PARAMETERS = "parameters";
 
-  /** A constant specifying the tag value for the XML node of the transformation dependencies. */
+  /**
+   * A constant specifying the tag value for the XML node of the transformation dependencies.
+   */
   protected static final String XML_TAG_DEPENDENCIES = "dependencies";
 
-  /** A constant specifying the tag value for the XML node of the transformation's partition schemas. */
+  /**
+   * A constant specifying the tag value for the XML node of the transformation's partition schemas.
+   */
   public static final String XML_TAG_PARTITIONSCHEMAS = "partitionschemas";
 
-  /** A constant specifying the tag value for the XML node of the slave servers. */
+  /**
+   * A constant specifying the tag value for the XML node of the slave servers.
+   */
   public static final String XML_TAG_SLAVESERVERS = "slaveservers";
 
-  /** A constant specifying the tag value for the XML node of the cluster schemas. */
+  /**
+   * A constant specifying the tag value for the XML node of the cluster schemas.
+   */
   public static final String XML_TAG_CLUSTERSCHEMAS = "clusterschemas";
 
-  /** A constant specifying the tag value for the XML node of the steps' error-handling information. */
+  /**
+   * A constant specifying the tag value for the XML node of the steps' error-handling information.
+   */
   public static final String XML_TAG_STEP_ERROR_HANDLING = "step_error_handling";
 
   /**
@@ -440,8 +532,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Builds a new empty transformation with a set of variables to inherit from.
    *
-   * @param parent
-   *          the variable space to inherit from
+   * @param parent the variable space to inherit from
    */
   public TransMeta( VariableSpace parent ) {
     clear();
@@ -458,12 +549,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Constructs a new transformation specifying the filename, name and arguments.
    *
-   * @param filename
-   *          The filename of the transformation
-   * @param name
-   *          The name of the transformation
-   * @param arguments
-   *          The arguments as Strings
+   * @param filename  The filename of the transformation
+   * @param name      The name of the transformation
+   * @param arguments The arguments as Strings
    * @deprecated passing in arguments (a runtime argument) into the metadata is deprecated, pass it to Trans
    */
   @Deprecated
@@ -495,12 +583,9 @@ public class TransMeta extends AbstractMeta
    * and then performing a string comparison, ultimately returning the result of the filename string comparison.
    * </ol>
    *
-   * @param t1
-   *          the first transformation to compare
-   * @param t2
-   *          the second transformation to compare
+   * @param t1 the first transformation to compare
+   * @param t2 the second transformation to compare
    * @return 0 if the two transformations are equal, 1 or -1 depending on the values (see description above)
-   *
    */
   @Override
   public int compare( TransMeta t1, TransMeta t2 ) {
@@ -511,8 +596,7 @@ public class TransMeta extends AbstractMeta
    * Compares this transformation's meta-data to the specified transformation's meta-data. This method simply calls
    * compare(this, o)
    *
-   * @param o
-   *          the o
+   * @param o the o
    * @return the int
    * @see #compare(TransMeta, TransMeta)
    * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -527,8 +611,7 @@ public class TransMeta extends AbstractMeta
    * not an instance of TransMeta, false is returned. Otherwise the method returns whether a call to compare() indicates
    * equality (i.e. compare(this, (TransMeta)obj)==0).
    *
-   * @param obj
-   *          the obj
+   * @param obj the obj
    * @return true, if successful
    * @see #compare(TransMeta, TransMeta)
    * @see java.lang.Object#equals(java.lang.Object)
@@ -558,8 +641,7 @@ public class TransMeta extends AbstractMeta
    * the doClear parameter is true, the clone will be cleared of ALL values before the copy. If false, only the copied
    * fields will be cleared.
    *
-   * @param doClear
-   *          Whether to clear all of the clone's data before copying from the source object
+   * @param doClear Whether to clear all of the clone's data before copying from the source object
    * @return a real clone of the calling object
    */
   public Object realClone( boolean doClear ) {
@@ -570,7 +652,6 @@ public class TransMeta extends AbstractMeta
         transMeta.clear();
       } else {
         // Clear out the things we're replacing below
-        transMeta.databases = new ArrayList<>();
         transMeta.steps = new ArrayList<>();
         transMeta.hops = new ArrayList<>();
         transMeta.notes = new ArrayList<>();
@@ -580,9 +661,6 @@ public class TransMeta extends AbstractMeta
         transMeta.clusterSchemas = new ArrayList<>();
         transMeta.namedParams = new NamedParamsDefault();
         transMeta.stepChangeListeners = new ArrayList<>();
-      }
-      for ( DatabaseMeta db : databases ) {
-        transMeta.addDatabase( (DatabaseMeta) db.clone() );
       }
       for ( StepMeta step : steps ) {
         transMeta.addStep( (StepMeta) step.clone() );
@@ -639,7 +717,6 @@ public class TransMeta extends AbstractMeta
    */
   @Override
   public void clear() {
-    setObjectId( null );
     steps = new ArrayList<>();
     hops = new ArrayList<>();
     dependencies = new ArrayList<>();
@@ -653,10 +730,10 @@ public class TransMeta extends AbstractMeta
     trans_status = -1;
     trans_version = null;
 
-    transLogTable = TransLogTable.getDefault( this, this, steps );
-    performanceLogTable = PerformanceLogTable.getDefault( this, this );
-    stepLogTable = StepLogTable.getDefault( this, this );
-    metricsLogTable = MetricsLogTable.getDefault( this, this );
+    transLogTable = TransLogTable.getDefault( this, metaStore, steps );
+    performanceLogTable = PerformanceLogTable.getDefault( this, metaStore );
+    stepLogTable = StepLogTable.getDefault( this, metaStore );
+    metricsLogTable = MetricsLogTable.getDefault( this, metaStore );
 
     sizeRowset = Const.ROWS_IN_ROWSET;
     sleepTimeEmpty = Const.TIMEOUT_GET_MILLIS;
@@ -710,8 +787,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Add a new step to the transformation. Also marks that the transformation's steps have changed.
    *
-   * @param stepMeta
-   *          The meta-data for the step to be added.
+   * @param stepMeta The meta-data for the step to be added.
    */
   public void addStep( StepMeta stepMeta ) {
     steps.add( stepMeta );
@@ -728,8 +804,7 @@ public class TransMeta extends AbstractMeta
    * Add a new step to the transformation if that step didn't exist yet. Otherwise, replace the step. This method also
    * marks that the transformation's steps have changed.
    *
-   * @param stepMeta
-   *          The meta-data for the step to be added.
+   * @param stepMeta The meta-data for the step to be added.
    */
   public void addOrReplaceStep( StepMeta stepMeta ) {
     int index = steps.indexOf( stepMeta );
@@ -752,8 +827,7 @@ public class TransMeta extends AbstractMeta
    * Add a new hop to the transformation. The hop information (source and target steps, e.g.) should be configured in
    * the TransHopMeta object before calling addTransHop(). Also marks that the transformation's hops have changed.
    *
-   * @param hi
-   *          The hop meta-data to be added.
+   * @param hi The hop meta-data to be added.
    */
   public void addTransHop( TransHopMeta hi ) {
     hops.add( hi );
@@ -764,8 +838,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Add a new dependency to the transformation.
    *
-   * @param td
-   *          The transformation dependency to be added.
+   * @param td The transformation dependency to be added.
    */
   public void addDependency( TransDependency td ) {
     dependencies.add( td );
@@ -775,10 +848,8 @@ public class TransMeta extends AbstractMeta
    * Add a new step to the transformation at the specified index. This method sets the step's parent transformation to
    * the this transformation, and marks that the transformations' steps have changed.
    *
-   * @param p
-   *          The index into the step list
-   * @param stepMeta
-   *          The step to be added.
+   * @param p        The index into the step list
+   * @param stepMeta The step to be added.
    */
   public void addStep( int p, StepMeta stepMeta ) {
     steps.add( p, stepMeta );
@@ -795,10 +866,8 @@ public class TransMeta extends AbstractMeta
    * Add a new hop to the transformation on a certain location (i.e. the specified index). Also marks that the
    * transformation's hops have changed.
    *
-   * @param p
-   *          the index into the hop list
-   * @param hi
-   *          The hop to be added.
+   * @param p  the index into the hop list
+   * @param hi The hop to be added.
    */
   public void addTransHop( int p, TransHopMeta hi ) {
     try {
@@ -813,10 +882,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Add a new dependency to the transformation on a certain location (i.e. the specified index).
    *
-   * @param p
-   *          The index into the dependencies list.
-   * @param td
-   *          The transformation dependency to be added.
+   * @param p  The index into the dependencies list.
+   * @param td The transformation dependency to be added.
    */
   public void addDependency( int p, TransDependency td ) {
     dependencies.add( p, td );
@@ -834,8 +901,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieves a step on a certain location (i.e. the specified index).
    *
-   * @param i
-   *          The index into the steps list.
+   * @param i The index into the steps list.
    * @return The desired step's meta-data.
    */
   public StepMeta getStep( int i ) {
@@ -854,8 +920,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieves a hop on a certain location (i.e. the specified index).
    *
-   * @param i
-   *          The index into the hops list.
+   * @param i The index into the hops list.
    * @return The desired hop's meta-data.
    */
   public TransHopMeta getTransHop( int i ) {
@@ -865,8 +930,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieves a dependency on a certain location (i.e. the specified index).
    *
-   * @param i
-   *          The index into the dependencies list.
+   * @param i The index into the dependencies list.
    * @return The dependency object.
    */
   public TransDependency getDependency( int i ) {
@@ -877,8 +941,7 @@ public class TransMeta extends AbstractMeta
    * Removes a step from the transformation on a certain location (i.e. the specified index). Also marks that the
    * transformation's steps have changed.
    *
-   * @param i
-   *          The index
+   * @param i The index
    */
   public void removeStep( int i ) {
     if ( i < 0 || i >= steps.size() ) {
@@ -905,8 +968,7 @@ public class TransMeta extends AbstractMeta
    * Removes a hop from the transformation on a certain location (i.e. the specified index). Also marks that the
    * transformation's hops have changed.
    *
-   * @param i
-   *          The index into the hops list
+   * @param i The index into the hops list
    */
   public void removeTransHop( int i ) {
     if ( i < 0 || i >= hops.size() ) {
@@ -922,8 +984,7 @@ public class TransMeta extends AbstractMeta
    * Removes a hop from the transformation. Also marks that the
    * transformation's hops have changed.
    *
-   * @param hop
-   *          The hop to remove from the list of hops
+   * @param hop The hop to remove from the list of hops
    */
   public void removeTransHop( TransHopMeta hop ) {
     hops.remove( hop );
@@ -934,8 +995,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Removes a dependency from the transformation on a certain location (i.e. the specified index).
    *
-   * @param i
-   *          The location
+   * @param i The location
    */
   public void removeDependency( int i ) {
     if ( i < 0 || i >= dependencies.size() ) {
@@ -992,10 +1052,8 @@ public class TransMeta extends AbstractMeta
    * specified index to the specified meta-data object. The new step's parent transformation is updated to be this
    * transformation.
    *
-   * @param i
-   *          The index into the steps list
-   * @param stepMeta
-   *          The step meta-data to set
+   * @param i        The index into the steps list
+   * @param stepMeta The step meta-data to set
    */
   public void setStep( int i, StepMeta stepMeta ) {
     StepMetaInterface iface = stepMeta.getStepMetaInterface();
@@ -1011,10 +1069,8 @@ public class TransMeta extends AbstractMeta
    * Changes the content of a hop on a certain position. This is accomplished by setting the hop's metadata at the
    * specified index to the specified meta-data object.
    *
-   * @param i
-   *          The index into the hops list
-   * @param hi
-   *          The hop meta-data to set
+   * @param i  The index into the hops list
+   * @param hi The hop meta-data to set
    */
   public void setTransHop( int i, TransHopMeta hi ) {
     hops.set( i, hi );
@@ -1044,8 +1100,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Searches the list of steps for a step with a certain name.
    *
-   * @param name
-   *          The name of the step to look for
+   * @param name The name of the step to look for
    * @return The step information or null if no nothing was found.
    */
   public StepMeta findStep( String name ) {
@@ -1055,10 +1110,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Searches the list of steps for a step with a certain name while excluding one step.
    *
-   * @param name
-   *          The name of the step to look for
-   * @param exclude
-   *          The step information to exclude.
+   * @param name    The name of the step to look for
+   * @param exclude The step information to exclude.
    * @return The step information or null if nothing was found.
    */
   public StepMeta findStep( String name, StepMeta exclude ) {
@@ -1083,8 +1136,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Searches the list of hops for a hop with a certain name.
    *
-   * @param name
-   *          The name of the hop to look for
+   * @param name The name of the hop to look for
    * @return The hop information or null if nothing was found.
    */
   public TransHopMeta findTransHop( String name ) {
@@ -1102,8 +1154,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Search all hops for a hop where a certain step is at the start.
    *
-   * @param fromstep
-   *          The step at the start of the hop.
+   * @param fromstep The step at the start of the hop.
    * @return The hop or null if no hop was found.
    */
   public TransHopMeta findTransHopFrom( StepMeta fromstep ) {
@@ -1119,14 +1170,14 @@ public class TransMeta extends AbstractMeta
 
   public List<TransHopMeta> findAllTransHopFrom( StepMeta fromstep ) {
     return hops.stream()
-      .filter( hop ->  hop.getFromStep() != null && hop.getFromStep().equals( fromstep ) )
+      .filter( hop -> hop.getFromStep() != null && hop.getFromStep().equals( fromstep ) )
       .collect( Collectors.toList() );
   }
+
   /**
    * Find a certain hop in the transformation.
    *
-   * @param hi
-   *          The hop information to look for.
+   * @param hi The hop information to look for.
    * @return The hop or null if no hop was found.
    */
   public TransHopMeta findTransHop( TransHopMeta hi ) {
@@ -1136,10 +1187,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Search all hops for a hop where a certain step is at the start and another is at the end.
    *
-   * @param from
-   *          The step at the start of the hop.
-   * @param to
-   *          The step at the end of the hop.
+   * @param from The step at the start of the hop.
+   * @param to   The step at the end of the hop.
    * @return The hop or null if no hop was found.
    */
   public TransHopMeta findTransHop( StepMeta from, StepMeta to ) {
@@ -1149,12 +1198,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Search all hops for a hop where a certain step is at the start and another is at the end.
    *
-   * @param from
-   *          The step at the start of the hop.
-   * @param to
-   *          The step at the end of the hop.
-   * @param disabledToo
-   *          the disabled too
+   * @param from        The step at the start of the hop.
+   * @param to          The step at the end of the hop.
+   * @param disabledToo the disabled too
    * @return The hop or null if no hop was found.
    */
   public TransHopMeta findTransHop( StepMeta from, StepMeta to, boolean disabledToo ) {
@@ -1162,7 +1208,7 @@ public class TransMeta extends AbstractMeta
       TransHopMeta hi = getTransHop( i );
       if ( hi.isEnabled() || disabledToo ) {
         if ( hi.getFromStep() != null && hi.getToStep() != null && hi.getFromStep().equals( from ) && hi.getToStep()
-            .equals( to ) ) {
+          .equals( to ) ) {
           return hi;
         }
       }
@@ -1173,8 +1219,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Search all hops for a hop where a certain step is at the end.
    *
-   * @param tostep
-   *          The step at the end of the hop.
+   * @param tostep The step at the end of the hop.
    * @return The hop or null if no hop was found.
    */
   public TransHopMeta findTransHopTo( StepMeta tostep ) {
@@ -1193,10 +1238,8 @@ public class TransMeta extends AbstractMeta
    * to this step, but only informative. This means that this step is using the information to process the actual stream
    * of data. We use this in StreamLookup, TableInput and other types of steps.
    *
-   * @param this_step
-   *          The step that is receiving information.
-   * @param prev_step
-   *          The step that is sending information
+   * @param this_step The step that is receiving information.
+   * @param prev_step The step that is sending information
    * @return true if prev_step if informative for this_step.
    */
   public boolean isStepInformative( StepMeta this_step, StepMeta prev_step ) {
@@ -1205,7 +1248,7 @@ public class TransMeta extends AbstractMeta
       return false;
     }
     for ( int i = 0; i < infoSteps.length; i++ ) {
-      if ( prev_step.getName().equalsIgnoreCase( infoSteps[i] ) ) {
+      if ( prev_step.getName().equalsIgnoreCase( infoSteps[ i ] ) ) {
         return true;
       }
     }
@@ -1216,8 +1259,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Counts the number of previous steps for a step name.
    *
-   * @param stepname
-   *          The name of the step to start from
+   * @param stepname The name of the step to start from
    * @return The number of preceding steps.
    * @deprecated
    */
@@ -1229,10 +1271,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Counts the number of previous steps for a step name taking into account whether or not they are informational.
    *
-   * @param stepname
-   *          The name of the step to start from
-   * @param info
-   *          true if only the informational steps are desired, false otherwise
+   * @param stepname The name of the step to start from
+   * @param info     true if only the informational steps are desired, false otherwise
    * @return The number of preceding steps.
    * @deprecated
    */
@@ -1244,9 +1284,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the number of steps that precede the indicated step.
    *
-   * @param stepMeta
-   *          The source step
-   *
+   * @param stepMeta The source step
    * @return The number of preceding steps found.
    */
   public int findNrPrevSteps( StepMeta stepMeta ) {
@@ -1256,11 +1294,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the previous step on a certain location (i.e. the specified index).
    *
-   * @param stepname
-   *          The source step name
-   * @param nr
-   *          the index into the step list
-   *
+   * @param stepname The source step name
+   * @param nr       the index into the step list
    * @return The preceding step found.
    * @deprecated
    */
@@ -1272,12 +1307,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the previous step on a certain location taking into account the steps being informational or not.
    *
-   * @param stepname
-   *          The name of the step
-   * @param nr
-   *          The index into the step list
-   * @param info
-   *          true if only the informational steps are desired, false otherwise
+   * @param stepname The name of the step
+   * @param nr       The index into the step list
+   * @param info     true if only the informational steps are desired, false otherwise
    * @return The step information
    * @deprecated
    */
@@ -1289,11 +1321,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the previous step on a certain location (i.e. the specified index).
    *
-   * @param stepMeta
-   *          The source step information
-   * @param nr
-   *          the index into the hops list
-   *
+   * @param stepMeta The source step information
+   * @param nr       the index into the hops list
    * @return The preceding step found.
    */
   public StepMeta findPrevStep( StepMeta stepMeta, int nr ) {
@@ -1303,10 +1332,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Count the number of previous steps on a certain location taking into account the steps being informational or not.
    *
-   * @param stepMeta
-   *          The name of the step
-   * @param info
-   *          true if only the informational steps are desired, false otherwise
+   * @param stepMeta The name of the step
+   * @param info     true if only the informational steps are desired, false otherwise
    * @return The number of preceding steps
    * @deprecated please use method findPreviousSteps
    */
@@ -1331,12 +1358,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the previous step on a certain location taking into account the steps being informational or not.
    *
-   * @param stepMeta
-   *          The step
-   * @param nr
-   *          The index into the hops list
-   * @param info
-   *          true if we only want the informational steps.
+   * @param stepMeta The step
+   * @param nr       The index into the hops list
+   * @param info     true if we only want the informational steps.
    * @return The preceding step information
    * @deprecated please use method findPreviousSteps
    */
@@ -1363,8 +1387,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Get the list of previous steps for a certain reference step. This includes the info steps.
    *
-   * @param stepMeta
-   *          The reference step
+   * @param stepMeta The reference step
    * @return The list of the preceding steps, including the info steps.
    */
   public List<StepMeta> findPreviousSteps( StepMeta stepMeta ) {
@@ -1374,10 +1397,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Get the previous steps on a certain location taking into account the steps being informational or not.
    *
-   * @param stepMeta
-   *          The name of the step
-   * @param info
-   *          true if we only want the informational steps.
+   * @param stepMeta The name of the step
+   * @param info     true if we only want the informational steps.
    * @return The list of the preceding steps
    */
   public List<StepMeta> findPreviousSteps( StepMeta stepMeta, boolean info ) {
@@ -1407,8 +1428,7 @@ public class TransMeta extends AbstractMeta
    * Get the informational steps for a certain step. An informational step is a step that provides information for
    * lookups, etc.
    *
-   * @param stepMeta
-   *          The name of the step
+   * @param stepMeta The name of the step
    * @return An array of the informational steps found
    */
   public StepMeta[] getInfoStep( StepMeta stepMeta ) {
@@ -1417,9 +1437,9 @@ public class TransMeta extends AbstractMeta
       return null;
     }
 
-    StepMeta[] infoStep = new StepMeta[infoStepName.length];
+    StepMeta[] infoStep = new StepMeta[ infoStepName.length ];
     for ( int i = 0; i < infoStep.length; i++ ) {
-      infoStep[i] = findStep( infoStepName[i] );
+      infoStep[ i ] = findStep( infoStepName[ i ] );
     }
 
     return infoStep;
@@ -1428,8 +1448,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the the number of informational steps for a certain step.
    *
-   * @param stepMeta
-   *          The step
+   * @param stepMeta The step
    * @return The number of informational steps found.
    */
   public int findNrInfoSteps( StepMeta stepMeta ) {
@@ -1459,11 +1478,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the informational fields coming from an informational step into the step specified.
    *
-   * @param stepname
-   *          The name of the step
+   * @param stepname The name of the step
    * @return A row containing fields with origin.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getPrevInfoFields( String stepname ) throws HopStepException {
     return getPrevInfoFields( findStep( stepname ) );
@@ -1472,11 +1489,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the informational fields coming from an informational step into the step specified.
    *
-   * @param stepMeta
-   *          The receiving step
+   * @param stepMeta The receiving step
    * @return A row containing fields with origin.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getPrevInfoFields( StepMeta stepMeta ) throws HopStepException {
     for ( int i = 0; i < nrTransHops(); i++ ) { // Look at all the hops;
@@ -1496,8 +1511,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the number of succeeding steps for a certain originating step.
    *
-   * @param stepMeta
-   *          The originating step
+   * @param stepMeta The originating step
    * @return The number of succeeding steps.
    * @deprecated use {@link #getNextSteps(StepMeta)}
    */
@@ -1518,10 +1532,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the succeeding step at a location for an originating step.
    *
-   * @param stepMeta
-   *          The originating step
-   * @param nr
-   *          The location
+   * @param stepMeta The originating step
+   * @param nr       The location
    * @return The step found.
    * @deprecated use {@link #getNextSteps(StepMeta)}
    */
@@ -1546,8 +1558,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieve an array of preceding steps for a certain destination step. This includes the info steps.
    *
-   * @param stepMeta
-   *          The destination step
+   * @param stepMeta The destination step
    * @return An array containing the preceding steps.
    */
   public StepMeta[] getPrevSteps( StepMeta stepMeta ) {
@@ -1562,14 +1573,13 @@ public class TransMeta extends AbstractMeta
       }
     }
 
-    return prevSteps.toArray( new StepMeta[prevSteps.size()] );
+    return prevSteps.toArray( new StepMeta[ prevSteps.size() ] );
   }
 
   /**
    * Retrieve an array of succeeding step names for a certain originating step name.
    *
-   * @param stepname
-   *          The originating step name
+   * @param stepname The originating step name
    * @return An array of succeeding step names
    */
   public String[] getPrevStepNames( String stepname ) {
@@ -1579,15 +1589,14 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieve an array of preceding steps for a certain destination step.
    *
-   * @param stepMeta
-   *          The destination step
+   * @param stepMeta The destination step
    * @return an array of preceding step names.
    */
   public String[] getPrevStepNames( StepMeta stepMeta ) {
     StepMeta[] prevStepMetas = getPrevSteps( stepMeta );
-    String[] retval = new String[prevStepMetas.length];
+    String[] retval = new String[ prevStepMetas.length ];
     for ( int x = 0; x < prevStepMetas.length; x++ ) {
-      retval[x] = prevStepMetas[x].getName();
+      retval[ x ] = prevStepMetas[ x ].getName();
     }
 
     return retval;
@@ -1596,8 +1605,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieve an array of succeeding steps for a certain originating step.
    *
-   * @param stepMeta
-   *          The originating step
+   * @param stepMeta The originating step
    * @return an array of succeeding steps.
    * @deprecated use findNextSteps instead
    */
@@ -1612,14 +1620,13 @@ public class TransMeta extends AbstractMeta
       }
     }
 
-    return nextSteps.toArray( new StepMeta[nextSteps.size()] );
+    return nextSteps.toArray( new StepMeta[ nextSteps.size() ] );
   }
 
   /**
    * Retrieve a list of succeeding steps for a certain originating step.
    *
-   * @param stepMeta
-   *          The originating step
+   * @param stepMeta The originating step
    * @return an array of succeeding steps.
    */
   public List<StepMeta> findNextSteps( StepMeta stepMeta ) {
@@ -1638,15 +1645,14 @@ public class TransMeta extends AbstractMeta
   /**
    * Retrieve an array of succeeding step names for a certain originating step.
    *
-   * @param stepMeta
-   *          The originating step
+   * @param stepMeta The originating step
    * @return an array of succeeding step names.
    */
   public String[] getNextStepNames( StepMeta stepMeta ) {
     StepMeta[] nextStepMeta = getNextSteps( stepMeta );
-    String[] retval = new String[nextStepMeta.length];
+    String[] retval = new String[ nextStepMeta.length ];
     for ( int x = 0; x < nextStepMeta.length; x++ ) {
-      retval[x] = nextStepMeta[x].getName();
+      retval[ x ] = nextStepMeta[ x ].getName();
     }
 
     return retval;
@@ -1655,12 +1661,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the step that is located on a certain point on the canvas, taking into account the icon size.
    *
-   * @param x
-   *          the x-coordinate of the point queried
-   * @param y
-   *          the y-coordinate of the point queried
-   * @param iconsize
-   *          the iconsize
+   * @param x        the x-coordinate of the point queried
+   * @param y        the y-coordinate of the point queried
+   * @param iconsize the iconsize
    * @return The step information if a step is located at the point. Otherwise, if no step was found: null.
    */
   public StepMeta getStep( int x, int y, int iconsize ) {
@@ -1683,8 +1686,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Determines whether or not a certain step is part of a hop.
    *
-   * @param stepMeta
-   *          The step queried
+   * @param stepMeta The step queried
    * @return true if the step is part of a hop.
    */
   public boolean partOfTransHop( StepMeta stepMeta ) {
@@ -1704,11 +1706,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a certain step name.
    *
-   * @param stepname
-   *          The stepname of the step to be queried.
+   * @param stepname The stepname of the step to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( String stepname ) throws HopStepException {
     StepMeta stepMeta = findStep( stepname );
@@ -1722,11 +1722,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a certain step.
    *
-   * @param stepMeta
-   *          The step to be queried.
+   * @param stepMeta The step to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( StepMeta stepMeta ) throws HopStepException {
     return getStepFields( stepMeta, null );
@@ -1735,19 +1733,17 @@ public class TransMeta extends AbstractMeta
   /**
    * Gets the fields for each of the specified steps and merges them into a single set
    *
-   * @param stepMeta
-   *          the step meta
+   * @param stepMeta the step meta
    * @return an interface to the step fields
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( StepMeta[] stepMeta ) throws HopStepException {
     RowMetaInterface fields = new RowMeta();
 
     for ( int i = 0; i < stepMeta.length; i++ ) {
-      RowMetaInterface flds = getStepFields( stepMeta[i] );
+      RowMetaInterface flds = getStepFields( stepMeta[ i ] );
       if ( flds != null ) {
-        fields.mergeRowMeta( flds, stepMeta[i].getName() );
+        fields.mergeRowMeta( flds, stepMeta[ i ].getName() );
       }
     }
     return fields;
@@ -1756,13 +1752,10 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a certain step.
    *
-   * @param stepMeta
-   *          The step to be queried.
-   * @param monitor
-   *          The progress monitor for progress dialog. (null if not used!)
+   * @param stepMeta The step to be queried.
+   * @param monitor  The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopStepException {
     setRepositoryOnMappingSteps();
@@ -1772,15 +1765,11 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a certain step.
    *
-   * @param stepMeta
-   *          The step to be queried.
-   * @param targetStep
-   *          the target step
-   * @param monitor
-   *          The progress monitor for progress dialog. (null if not used!)
+   * @param stepMeta   The step to be queried.
+   * @param targetStep the target step
+   * @param monitor    The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( StepMeta stepMeta, StepMeta targetStep, ProgressMonitorListener monitor ) throws HopStepException {
     RowMetaInterface row = new RowMeta();
@@ -1822,14 +1811,14 @@ public class TransMeta extends AbstractMeta
 
     if ( log.isDebug() ) {
       log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.FromStepALookingAtPreviousStep", stepMeta.getName(),
-          String.valueOf( nrPrevious ) ) );
+        String.valueOf( nrPrevious ) ) );
     }
     for ( int i = 0; i < prevSteps.size(); i++ ) {
       StepMeta prevStepMeta = prevSteps.get( i );
 
       if ( monitor != null ) {
         monitor.subTask(
-            BaseMessages.getString( PKG, "TransMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
+          BaseMessages.getString( PKG, "TransMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
       }
 
       RowMetaInterface add = getStepFields( prevStepMeta, stepMeta, monitor );
@@ -1881,11 +1870,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the fields that are entering a step with a certain name.
    *
-   * @param stepname
-   *          The name of the step queried
+   * @param stepname The name of the step queried
    * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getPrevStepFields( String stepname ) throws HopStepException {
     return getPrevStepFields( findStep( stepname ) );
@@ -1894,11 +1881,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the fields that are entering a certain step.
    *
-   * @param stepMeta
-   *          The step queried
+   * @param stepMeta The step queried
    * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getPrevStepFields( StepMeta stepMeta ) throws HopStepException {
     return getPrevStepFields( stepMeta, null );
@@ -1907,13 +1892,10 @@ public class TransMeta extends AbstractMeta
   /**
    * Find the fields that are entering a certain step.
    *
-   * @param stepMeta
-   *          The step queried
-   * @param monitor
-   *          The progress monitor for progress dialog. (null if not used!)
+   * @param stepMeta The step queried
+   * @param monitor  The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields (w/ origin) entering the step
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
 
 
@@ -1922,7 +1904,7 @@ public class TransMeta extends AbstractMeta
   }
 
   public RowMetaInterface getPrevStepFields(
-    StepMeta stepMeta, final String stepName, ProgressMonitorListener  monitor )
+    StepMeta stepMeta, final String stepName, ProgressMonitorListener monitor )
     throws HopStepException {
     clearStepFieldsCachce();
     RowMetaInterface row = new RowMeta();
@@ -1934,18 +1916,18 @@ public class TransMeta extends AbstractMeta
     int nrPrevSteps = prevSteps.size();
     if ( log.isDebug() ) {
       log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.FromStepALookingAtPreviousStep", stepMeta.getName(),
-          String.valueOf( nrPrevSteps ) ) );
+        String.valueOf( nrPrevSteps ) ) );
     }
     StepMeta prevStepMeta = null;
     for ( int i = 0; i < nrPrevSteps; i++ ) {
       prevStepMeta = prevSteps.get( i );
-      if  ( stepName != null && !stepName.equalsIgnoreCase( prevStepMeta.getName() ) ) {
+      if ( stepName != null && !stepName.equalsIgnoreCase( prevStepMeta.getName() ) ) {
         continue;
       }
 
       if ( monitor != null ) {
         monitor.subTask(
-            BaseMessages.getString( PKG, "TransMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
+          BaseMessages.getString( PKG, "TransMeta.Monitor.CheckingStepTask.Title", prevStepMeta.getName() ) );
       }
 
       RowMetaInterface add = getStepFields( prevStepMeta, stepMeta, monitor );
@@ -1974,13 +1956,10 @@ public class TransMeta extends AbstractMeta
   /**
    * Return the fields that are emitted by a step with a certain name.
    *
-   * @param stepname
-   *          The name of the step that's being queried.
-   * @param row
-   *          A row containing the input fields or an empty row if no input is required.
+   * @param stepname The name of the step that's being queried.
+   * @param row      A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getThisStepFields( String stepname, RowMetaInterface row ) throws HopStepException {
     return getThisStepFields( findStep( stepname ), null, row );
@@ -1989,15 +1968,11 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a step.
    *
-   * @param stepMeta
-   *          : The StepMeta object that's being queried
-   * @param nextStep
-   *          : if non-null this is the next step that's call back to ask what's being sent
-   * @param row
-   *          : A row containing the input fields or an empty row if no input is required.
+   * @param stepMeta : The StepMeta object that's being queried
+   * @param nextStep : if non-null this is the next step that's call back to ask what's being sent
+   * @param row      : A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getThisStepFields( StepMeta stepMeta, StepMeta nextStep, RowMetaInterface row ) throws HopStepException {
     return getThisStepFields( stepMeta, nextStep, row, null );
@@ -2006,24 +1981,19 @@ public class TransMeta extends AbstractMeta
   /**
    * Returns the fields that are emitted by a step.
    *
-   * @param stepMeta
-   *          : The StepMeta object that's being queried
-   * @param nextStep
-   *          : if non-null this is the next step that's call back to ask what's being sent
-   * @param row
-   *          : A row containing the input fields or an empty row if no input is required.
-   * @param monitor
-   *          the monitor
+   * @param stepMeta : The StepMeta object that's being queried
+   * @param nextStep : if non-null this is the next step that's call back to ask what's being sent
+   * @param row      : A row containing the input fields or an empty row if no input is required.
+   * @param monitor  the monitor
    * @return A Row containing the output fields.
-   * @throws HopStepException
-   *           the kettle step exception
+   * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getThisStepFields( StepMeta stepMeta, StepMeta nextStep, RowMetaInterface row,
-      ProgressMonitorListener monitor ) throws HopStepException {
+                                             ProgressMonitorListener monitor ) throws HopStepException {
     // Then this one.
     if ( log.isDebug() ) {
       log.logDebug( BaseMessages
-          .getString( PKG, "TransMeta.Log.GettingFieldsFromStep", stepMeta.getName(), stepMeta.getStepID() ) );
+        .getString( PKG, "TransMeta.Log.GettingFieldsFromStep", stepMeta.getName(), stepMeta.getStepID() ) );
     }
     String name = stepMeta.getName();
 
@@ -2037,9 +2007,9 @@ public class TransMeta extends AbstractMeta
     if ( Utils.isEmpty( lu ) ) {
       inform = new RowMetaInterface[] { stepint.getTableFields(), };
     } else {
-      inform = new RowMetaInterface[lu.length];
+      inform = new RowMetaInterface[ lu.length ];
       for ( int i = 0; i < lu.length; i++ ) {
-        inform[i] = getStepFields( lu[i] );
+        inform[ i ] = getStepFields( lu[ i ] );
       }
     }
 
@@ -2049,22 +2019,13 @@ public class TransMeta extends AbstractMeta
     //
     RowMetaInterface before = row.clone();
     RowMetaInterface[] clonedInfo = cloneRowMetaInterfaces( inform );
-    compatibleGetStepFields( stepint, row, name, clonedInfo, nextStep, this );
     if ( !isSomethingDifferentInRow( before, row ) ) {
-      stepint.getFields( before, name, clonedInfo, nextStep, this, repository, metaStore );
+      stepint.getFields( before, name, clonedInfo, nextStep, this, metaStore );
       // pass the clone object to prevent from spoiling data by other steps
       row = before;
     }
 
     return row;
-  }
-
-  @SuppressWarnings( "deprecation" )
-  private void compatibleGetStepFields( StepMetaInterface stepint, RowMetaInterface row, String name,
-      RowMetaInterface[] inform, StepMeta nextStep, VariableSpace space ) throws HopStepException {
-
-    stepint.getFields( row, name, inform, nextStep, space );
-
   }
 
   private boolean isSomethingDifferentInRow( RowMetaInterface before, RowMetaInterface after ) {
@@ -2130,19 +2091,15 @@ public class TransMeta extends AbstractMeta
 
     for ( StepMeta step : steps ) {
       if ( step.getStepMetaInterface() instanceof MappingMeta ) {
-        ( (MappingMeta) step.getStepMetaInterface() ).setRepository( repository );
         ( (MappingMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
       }
       if ( step.getStepMetaInterface() instanceof SingleThreaderMeta ) {
-        ( (SingleThreaderMeta) step.getStepMetaInterface() ).setRepository( repository );
         ( (SingleThreaderMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
       }
       if ( step.getStepMetaInterface() instanceof JobExecutorMeta ) {
-        ( (JobExecutorMeta) step.getStepMetaInterface() ).setRepository( repository );
         ( (JobExecutorMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
       }
       if ( step.getStepMetaInterface() instanceof TransExecutorMeta ) {
-        ( (TransExecutorMeta) step.getStepMetaInterface() ).setRepository( repository );
         ( (TransExecutorMeta) step.getStepMetaInterface() ).setMetaStore( metaStore );
       }
     }
@@ -2151,8 +2108,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks if the transformation is using the specified partition schema.
    *
-   * @param partitionSchema
-   *          the partition schema
+   * @param partitionSchema the partition schema
    * @return true if the transformation is using the partition schema, false otherwise
    */
   public boolean isUsingPartitionSchema( PartitionSchema partitionSchema ) {
@@ -2181,8 +2137,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks if the transformation is using the specified cluster schema.
    *
-   * @param clusterSchema
-   *          the cluster schema to check
+   * @param clusterSchema the cluster schema to check
    * @return true if the specified cluster schema is used on one or more steps in this transformation
    */
   public boolean isUsingClusterSchema( ClusterSchema clusterSchema ) {
@@ -2199,11 +2154,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks if the transformation is using the specified slave server.
    *
-   * @param slaveServer
-   *          the slave server
+   * @param slaveServer the slave server
    * @return true if the transformation is using the slave server, false otherwise
-   * @throws HopException
-   *           if any errors occur while checking for the slave server
+   * @throws HopException if any errors occur while checking for the slave server
    */
   public boolean isUsingSlaveServer( SlaveServer slaveServer ) throws HopException {
     // Loop over all steps and see if the slave server is used.
@@ -2246,10 +2199,8 @@ public class TransMeta extends AbstractMeta
    * referenced by a repository, the exact filename should be empty and the exact transformation name should be
    * non-empty.
    *
-   * @param exactFilename
-   *          the exact filename
-   * @param exactTransname
-   *          the exact transformation name
+   * @param exactFilename  the exact filename
+   * @param exactTransname the exact transformation name
    * @return true if the transformation is referenced by a repository, false otherwise
    */
   public static boolean isRepReference( String exactFilename, String exactTransname ) {
@@ -2261,10 +2212,8 @@ public class TransMeta extends AbstractMeta
    * referenced by a repository, the exact filename should be non-empty and the exact transformation name should be
    * empty.
    *
-   * @param exactFilename
-   *          the exact filename
-   * @param exactTransname
-   *          the exact transformation name
+   * @param exactFilename  the exact filename
+   * @param exactTransname the exact transformation name
    * @return true if the transformation is referenced by a file, false otherwise
    * @see #isRepReference(String, String)
    */
@@ -2275,8 +2224,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Finds the location (index) of the specified hop.
    *
-   * @param hi
-   *          The hop queried
+   * @param hi The hop queried
    * @return The location of the hop, or -1 if nothing was found.
    */
   public int indexOfTransHop( TransHopMeta hi ) {
@@ -2286,8 +2234,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Finds the location (index) of the specified step.
    *
-   * @param stepMeta
-   *          The step queried
+   * @param stepMeta The step queried
    * @return The location of the step, or -1 if nothing was found.
    */
   public int indexOfStep( StepMeta stepMeta ) {
@@ -2344,8 +2291,7 @@ public class TransMeta extends AbstractMeta
    * Gets the XML representation of this transformation.
    *
    * @return the XML representation of this transformation
-   * @throws HopException
-   *           if any errors occur during generation of the XML
+   * @throws HopException if any errors occur during generation of the XML
    * @see org.apache.hop.core.xml.XMLInterface#getXML()
    */
   @Override
@@ -2357,22 +2303,16 @@ public class TransMeta extends AbstractMeta
    * Gets the XML representation of this transformation, including or excluding step, database, slave server, cluster,
    * or partition information as specified by the parameters
    *
-   * @param includeSteps
-   *          whether to include step data
-   * @param includeDatabase
-   *          whether to include database data
-   * @param includeSlaves
-   *          whether to include slave server data
-   * @param includeClusters
-   *          whether to include cluster data
-   * @param includePartitions
-   *          whether to include partition data
+   * @param includeSteps      whether to include step data
+   * @param includeDatabase   whether to include database data
+   * @param includeSlaves     whether to include slave server data
+   * @param includeClusters   whether to include cluster data
+   * @param includePartitions whether to include partition data
    * @return the XML representation of this transformation
-   * @throws HopException
-   *           if any errors occur during generation of the XML
+   * @throws HopException if any errors occur during generation of the XML
    */
   public String getXML( boolean includeSteps, boolean includeDatabase, boolean includeSlaves, boolean includeClusters,
-      boolean includePartitions ) throws HopException {
+                        boolean includePartitions ) throws HopException {
     return getXML( true, true, true, true, true, true, true, true, true, true );
   }
 
@@ -2380,36 +2320,22 @@ public class TransMeta extends AbstractMeta
    * Gets the XML representation of this transformation, including or excluding step, database, slave server, cluster,
    * or partition information as specified by the parameters
    *
-   * @param includeSteps
-   *          whether to include step data
-   * @param includeDatabase
-   *          whether to include database data
-   * @param includeSlaves
-   *          whether to include slave server data
-   * @param includeClusters
-   *          whether to include cluster data
-   * @param includePartitions
-   *          whether to include partition data
-   * @param includeNamedParameters
-   *          whether to include named parameters data
-   * @param includeLog
-   *          whether to include log data
-   * @param includeDependencies
-   *          whether to include dependencies data
-   * @param includeNotePads
-   *          whether to include notepads data
-   * @param includeAttributeGroups
-   *          whether to include attributes map data
+   * @param includeSteps           whether to include step data
+   * @param includeDatabase        whether to include database data
+   * @param includeSlaves          whether to include slave server data
+   * @param includeClusters        whether to include cluster data
+   * @param includePartitions      whether to include partition data
+   * @param includeNamedParameters whether to include named parameters data
+   * @param includeLog             whether to include log data
+   * @param includeDependencies    whether to include dependencies data
+   * @param includeNotePads        whether to include notepads data
+   * @param includeAttributeGroups whether to include attributes map data
    * @return the XML representation of this transformation
-   * @throws HopException
-   *           if any errors occur during generation of the XML
+   * @throws HopException if any errors occur during generation of the XML
    */
   public String getXML( boolean includeSteps, boolean includeDatabase, boolean includeSlaves, boolean includeClusters,
-    boolean includePartitions, boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
-    boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
-
-    //Clear the embedded named clusters.  We will be repopulating from steps that used named clusters
-    getNamedClusterEmbedManager().clear();
+                        boolean includePartitions, boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
+                        boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
 
     Props props = null;
     if ( Props.isInitialized() ) {
@@ -2431,20 +2357,17 @@ public class TransMeta extends AbstractMeta
     if ( trans_status >= 0 ) {
       retval.append( "    " ).append( XMLHandler.addTagValue( "trans_status", trans_status ) );
     }
-    retval.append( "    " ).append( XMLHandler.addTagValue( "directory",
-            directory != null ? directory.getPath() : RepositoryDirectory.DIRECTORY_SEPARATOR ) );
-
 
     if ( includeNamedParameters ) {
       retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
       String[] parameters = listParameters();
       for ( int idx = 0; idx < parameters.length; idx++ ) {
         retval.append( "      " ).append( XMLHandler.openTag( "parameter" ) ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[idx] ) );
+        retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[ idx ] ) );
         retval.append( "        " )
-                .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[idx] ) ) );
+          .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
         retval.append( "        " )
-                .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[idx] ) ) );
+          .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
         retval.append( "      " ).append( XMLHandler.closeTag( "parameter" ) ).append( Const.CR );
       }
       retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
@@ -2466,7 +2389,7 @@ public class TransMeta extends AbstractMeta
 
     retval.append( "    " ).append( XMLHandler.openTag( "maxdate" ) ).append( Const.CR );
     retval.append( "      " )
-        .append( XMLHandler.addTagValue( "connection", maxDateConnection == null ? "" : maxDateConnection.getName() ) );
+      .append( XMLHandler.addTagValue( "connection", maxDateConnection == null ? "" : maxDateConnection.getName() ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "table", maxDateTable ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "field", maxDateField ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "offset", maxDateOffset ) );
@@ -2488,11 +2411,11 @@ public class TransMeta extends AbstractMeta
     // Performance monitoring
     //
     retval.append( "    " )
-        .append( XMLHandler.addTagValue( "capture_step_performance", capturingStepPerformanceSnapShots ) );
+      .append( XMLHandler.addTagValue( "capture_step_performance", capturingStepPerformanceSnapShots ) );
     retval.append( "    " )
-        .append( XMLHandler.addTagValue( "step_performance_capturing_delay", stepPerformanceCapturingDelay ) );
+      .append( XMLHandler.addTagValue( "step_performance_capturing_delay", stepPerformanceCapturingDelay ) );
     retval.append( "    " )
-        .append( XMLHandler.addTagValue( "step_performance_capturing_size_limit", stepPerformanceCapturingSizeLimit ) );
+      .append( XMLHandler.addTagValue( "step_performance_capturing_size_limit", stepPerformanceCapturingSizeLimit ) );
 
     if ( includeDependencies ) {
       retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
@@ -2560,20 +2483,6 @@ public class TransMeta extends AbstractMeta
       retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
     }
 
-    // The database connections...
-    if ( includeDatabase ) {
-      for ( int i = 0; i < nrDatabases(); i++ ) {
-        DatabaseMeta dbMeta = getDatabase( i );
-        if ( props != null && props.areOnlyUsedConnectionsSavedToXML() ) {
-          if ( isDatabaseConnectionUsed( dbMeta ) ) {
-            retval.append( dbMeta.getXML() );
-          }
-        } else {
-          retval.append( dbMeta.getXML() );
-        }
-      }
-    }
-
     if ( includeSteps ) {
       retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
       for ( int i = 0; i < nrTransHops(); i++ ) {
@@ -2585,9 +2494,6 @@ public class TransMeta extends AbstractMeta
       /* The steps... */
       for ( int i = 0; i < nrSteps(); i++ ) {
         StepMeta stepMeta = getStep( i );
-        if ( stepMeta.getStepMetaInterface() instanceof HasRepositoryInterface ) {
-          ( (HasRepositoryInterface) stepMeta.getStepMetaInterface() ).setRepository( repository );
-        }
         retval.append( stepMeta.getXML() );
       }
 
@@ -2624,15 +2530,12 @@ public class TransMeta extends AbstractMeta
    * repository is available at this time. Since the filename is set, internal variables are being set that relate to
    * this.
    *
-   * @param fname
-   *          The filename
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param fname The filename
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
   public TransMeta( String fname ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, true );
+    this( fname, (VariableSpace) null );
   }
 
   /**
@@ -2640,145 +2543,47 @@ public class TransMeta extends AbstractMeta
    * repository is available at this time. Since the filename is set, variables are set in the specified variable space
    * that relate to this.
    *
-   * @param fname
-   *          The filename
-   * @param parentVariableSpace
-   *          the parent variable space
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param fname               The filename
+   * @param parentVariableSpace the parent variable space
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
   public TransMeta( String fname, VariableSpace parentVariableSpace ) throws HopXMLException,
     HopMissingPluginsException {
-    this( fname, null, true, parentVariableSpace );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation. No default connections are loaded since no
-   * repository is available at this time.
-   *
-   * @param fname
-   *          The filename
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, boolean setInternalVariables ) throws HopXMLException,
-    HopMissingPluginsException {
-    this( fname, null, setInternalVariables );
+    this( fname, true, parentVariableSpace );
   }
 
   /**
    * Parses a file containing the XML that describes the transformation.
    *
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default set of connections from, null if no repository is available
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param fname                The filename
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public TransMeta( String fname, Repository rep ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, rep, true );
+  public TransMeta( String fname, boolean setInternalVariables, VariableSpace parentVariableSpace ) throws HopXMLException, HopMissingPluginsException {
+    this( fname, null, setInternalVariables, parentVariableSpace );
   }
 
   /**
    * Parses a file containing the XML that describes the transformation.
    *
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default set of connections from, null if no repository is available
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param fname                The filename
+   * @param metaStore            the metadata store to reference (or null if there is none)
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public TransMeta( String fname, Repository rep, boolean setInternalVariables ) throws HopXMLException,
-    HopMissingPluginsException {
-    this( fname, rep, setInternalVariables, null );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.
-   *
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default set of connections from, null if no repository is available
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, Repository rep, boolean setInternalVariables, VariableSpace parentVariableSpace ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, rep, setInternalVariables, parentVariableSpace, null );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.
-   *
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default set of connections from, null if no repository is available
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @param prompter
-   *          the changed/replace listener or null if there is none
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, Repository rep, boolean setInternalVariables, VariableSpace parentVariableSpace,
-      OverwritePrompter prompter ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, null, rep, setInternalVariables, parentVariableSpace, prompter );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.
-   *
-   * @param fname
-   *          The filename
-   * @param metaStore
-   *          the metadata store to reference (or null if there is none)
-   * @param rep
-   *          The repository to load the default set of connections from, null if no repository is available
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @param prompter
-   *          the changed/replace listener or null if there is none
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, IMetaStore metaStore, Repository rep, boolean setInternalVariables,
-                    VariableSpace parentVariableSpace, OverwritePrompter prompter )
+  public TransMeta( String fname, IMetaStore metaStore, boolean setInternalVariables,
+                    VariableSpace parentVariableSpace )
     throws HopXMLException, HopMissingPluginsException {
     // if fname is not provided, there's not much we can do, throw an exception
     if ( StringUtils.isBlank( fname ) ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "TransMeta.Exception.MissingXMLFilePath" ) );
     }
     this.metaStore = metaStore;
-    this.repository = rep;
 
     // OK, try to load using the VFS stuff...
     Document doc = null;
@@ -2806,7 +2611,7 @@ public class TransMeta extends AbstractMeta
       }
 
       // Load from this node...
-      loadXML( transnode, fname, metaStore, rep, setInternalVariables, parentVariableSpace, prompter );
+      loadXML( transnode, fname, metaStore, setInternalVariables, parentVariableSpace );
 
     } else {
       throw new HopXMLException( BaseMessages.getString(
@@ -2817,157 +2622,83 @@ public class TransMeta extends AbstractMeta
   /**
    * Instantiates a new transformation meta-data object.
    *
-   * @param xmlStream
-   *          the XML input stream from which to read the transformation definition
-   * @param rep
-   *          the repository
-   * @param setInternalVariables
-   *          whether to set internal variables as a result of the creation
-   * @param parentVariableSpace
-   *          the parent variable space
-   * @param prompter
-   *          a GUI component that will prompt the user if the new transformation will overwrite an existing one
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified stream
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param xmlStream            the XML input stream from which to read the transformation definition
+   * @param setInternalVariables whether to set internal variables as a result of the creation
+   * @param parentVariableSpace  the parent variable space
+   * @throws HopXMLException            if any errors occur during parsing of the specified stream
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public TransMeta( InputStream xmlStream, Repository rep, boolean setInternalVariables,
-                    VariableSpace parentVariableSpace, OverwritePrompter prompter )
+  public TransMeta( InputStream xmlStream, boolean setInternalVariables, VariableSpace parentVariableSpace )
     throws HopXMLException, HopMissingPluginsException {
     Document doc = XMLHandler.loadXMLFile( xmlStream, null, false, false );
     Node transnode = XMLHandler.getSubNode( doc, XML_TAG );
-    loadXML( transnode, rep, setInternalVariables, parentVariableSpace, prompter );
+    loadXML( transnode, setInternalVariables, parentVariableSpace );
   }
 
   /**
    * Parse a file containing the XML that describes the transformation. Specify a repository to load default list of
    * database connections from and to reference in mappings etc.
    *
-   * @param transnode
-   *          The XML node to load from
-   * @param rep
-   *          the repository to reference.
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param transnode The XML node to load from
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public TransMeta( Node transnode, Repository rep ) throws HopXMLException, HopMissingPluginsException {
-    loadXML( transnode, rep, false );
+  public TransMeta( Node transnode ) throws HopXMLException, HopMissingPluginsException {
+    loadXML( transnode, false );
   }
 
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the transformation.
    *
-   * @param transnode
-   *          The XML node to load from
-   * @param rep
-   *          The repository to load the default list of database connections from (null if no repository is available)
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param transnode            The XML node to load from
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node transnode, Repository rep, boolean setInternalVariables ) throws HopXMLException,
+  public void loadXML( Node transnode, boolean setInternalVariables ) throws HopXMLException,
     HopMissingPluginsException {
-    loadXML( transnode, rep, setInternalVariables, null );
+    loadXML( transnode, setInternalVariables, null );
   }
 
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the transformation.
    *
-   * @param transnode
-   *          The XML node to load from
-   * @param rep
-   *          The repository to load the default list of database connections from (null if no repository is available)
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param transnode            The XML node to load from
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node transnode, Repository rep, boolean setInternalVariables, VariableSpace parentVariableSpace )
+  public void loadXML( Node transnode, boolean setInternalVariables, VariableSpace parentVariableSpace ) throws HopXMLException, HopMissingPluginsException {
+    loadXML( transnode, null, setInternalVariables, parentVariableSpace );
+  }
+
+  /**
+   * Parses an XML DOM (starting at the specified Node) that describes the transformation.
+   *
+   * @param transnode            The XML node to load from
+   * @param fname                The filename
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
+   */
+  public void loadXML( Node transnode, String fname, boolean setInternalVariables, VariableSpace parentVariableSpace )
     throws HopXMLException, HopMissingPluginsException {
-    loadXML( transnode, rep, setInternalVariables, parentVariableSpace, null );
+    loadXML( transnode, fname, null, setInternalVariables, parentVariableSpace );
   }
 
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the transformation.
    *
-   * @param transnode
-   *          The XML node to load from
-   * @param rep
-   *          The repository to load the default list of database connections from (null if no repository is available)
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @param prompter
-   *          the changed/replace listener or null if there is none
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
+   * @param transnode            The XML node to load from
+   * @param fname                The filename
+   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
+   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
+   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node transnode, Repository rep, boolean setInternalVariables, VariableSpace parentVariableSpace,
-      OverwritePrompter prompter ) throws HopXMLException, HopMissingPluginsException {
-    loadXML( transnode, null, rep, setInternalVariables, parentVariableSpace, prompter );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the transformation.
-   *
-   * @param transnode
-   *          The XML node to load from
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default list of database connections from (null if no repository is available)
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @param prompter
-   *          the changed/replace listener or null if there is none
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXML( Node transnode, String fname, Repository rep, boolean setInternalVariables,
-                       VariableSpace parentVariableSpace, OverwritePrompter prompter )
-    throws HopXMLException, HopMissingPluginsException {
-    loadXML( transnode, fname, null, rep, setInternalVariables, parentVariableSpace, prompter );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the transformation.
-   *
-   * @param transnode
-   *          The XML node to load from
-   * @param fname
-   *          The filename
-   * @param rep
-   *          The repository to load the default list of database connections from (null if no repository is available)
-   * @param setInternalVariables
-   *          true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace
-   *          the parent variable space to use during TransMeta construction
-   * @param prompter
-   *          the changed/replace listener or null if there is none
-   * @throws HopXMLException
-   *           if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException
-   *           in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXML( Node transnode, String fname, IMetaStore metaStore, Repository rep, boolean setInternalVariables,
-                       VariableSpace parentVariableSpace, OverwritePrompter prompter )
+  public void loadXML( Node transnode, String fname, IMetaStore metaStore, boolean setInternalVariables, VariableSpace parentVariableSpace )
     throws HopXMLException, HopMissingPluginsException {
 
     HopMissingPluginsException
@@ -2990,65 +2721,21 @@ public class TransMeta extends AbstractMeta
         // Clear the transformation
         clear();
 
-        // If we are not using a repository, we are getting the transformation from a file
         // Set the filename here so it can be used in variables for ALL aspects of the transformation FIX: PDI-8890
-        if ( null == rep ) {
-          setFilename( fname );
-        } else {
-          // Set the repository here so it can be used in variables for ALL aspects of the job FIX: PDI-16441
-          setRepository( rep );
-        }
+        //
+        setFilename( fname );
 
         // Read all the database connections from the repository to make sure that we don't overwrite any there by
         // loading from XML.
         //
         try {
           sharedObjectsFile = XMLHandler.getTagValue( transnode, "info", "shared_objects_file" );
-          sharedObjects = rep != null ? rep.readTransSharedObjects( this ) : readSharedObjects();
+          sharedObjects = readSharedObjects();
         } catch ( Exception e ) {
           log
             .logError( BaseMessages.getString( PKG, "TransMeta.ErrorReadingSharedObjects.Message", e.toString() ) );
           log.logError( Const.getStackTracker( e ) );
         }
-
-        // Load the database connections, slave servers, cluster schemas & partition schemas into this object.
-        //
-        importFromMetaStore();
-
-        // Handle connections
-        int n = XMLHandler.countNodes( transnode, DatabaseMeta.XML_TAG );
-        Set<String> privateTransformationDatabases = new HashSet<>( n );
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.WeHaveConnections", String.valueOf( n ) ) );
-        }
-        for ( int i = 0; i < n; i++ ) {
-          if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.LookingAtConnection" ) + i );
-          }
-          Node nodecon = XMLHandler.getSubNodeByNr( transnode, DatabaseMeta.XML_TAG, i );
-
-          DatabaseMeta dbcon = new DatabaseMeta( nodecon );
-          dbcon.shareVariablesWith( this );
-          if ( !dbcon.isShared() ) {
-            privateTransformationDatabases.add( dbcon.getName() );
-          }
-
-          DatabaseMeta exist = findDatabase( dbcon.getName() );
-          if ( exist == null ) {
-            addDatabase( dbcon );
-          } else {
-            if ( !exist.isShared() ) { // otherwise, we just keep the shared connection.
-              if ( shouldOverwrite( prompter, props, BaseMessages.getString( PKG,
-                  "TransMeta.Message.OverwriteConnectionYN", dbcon.getName() ), BaseMessages.getString( PKG,
-                  "TransMeta.Message.OverwriteConnection.DontShowAnyMoreMessage" ) ) ) {
-                int idx = indexOfDatabase( exist );
-                removeDatabase( idx );
-                addDatabase( idx, dbcon );
-              }
-            }
-          }
-        }
-        setPrivateDatabases( privateTransformationDatabases );
 
         // Read the notes...
         Node notepadsnode = XMLHandler.getSubNode( transnode, XML_TAG_NOTEPADS );
@@ -3072,7 +2759,7 @@ public class TransMeta extends AbstractMeta
             log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.LookingAtStep" ) + i );
           }
 
-          StepMeta stepMeta = new StepMeta( stepnode, databases, metaStore );
+          StepMeta stepMeta = new StepMeta( stepnode, metaStore );
           stepMeta.setParentTransMeta( this ); // for tracing, retain hierarchy
 
           if ( stepMeta.isMissing() ) {
@@ -3122,7 +2809,7 @@ public class TransMeta extends AbstractMeta
         // Handle Hops
         //
         Node ordernode = XMLHandler.getSubNode( transnode, XML_TAG_ORDER );
-        n = XMLHandler.countNodes( ordernode, TransHopMeta.XML_HOP_TAG );
+        int n = XMLHandler.countNodes( ordernode, TransHopMeta.XML_HOP_TAG );
 
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "TransMeta.Log.WeHaveHops" ) + n + " hops..." );
@@ -3166,18 +2853,6 @@ public class TransMeta extends AbstractMeta
         String transTypeCode = XMLHandler.getTagValue( infonode, "trans_type" );
         transformationType = TransformationType.getTransformationTypeByCode( transTypeCode );
 
-        // Optionally load the repository directory...
-        //
-        if ( rep != null ) {
-          String directoryPath = XMLHandler.getTagValue( infonode, "directory" );
-          if ( directoryPath != null ) {
-            directory = rep.findDirectory( directoryPath );
-            if ( directory == null ) { // not found
-              directory = new RepositoryDirectory(); // The root as default
-            }
-          }
-        }
-
         // Read logging table information
         //
         Node logNode = XMLHandler.getSubNode( infonode, "log" );
@@ -3190,25 +2865,25 @@ public class TransMeta extends AbstractMeta
             // Load the XML
             //
             transLogTable.findField( TransLogTable.ID.LINES_READ )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "read" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "read" ) ) );
             transLogTable.findField( TransLogTable.ID.LINES_WRITTEN )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "write" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "write" ) ) );
             transLogTable.findField( TransLogTable.ID.LINES_INPUT )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "input" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "input" ) ) );
             transLogTable.findField( TransLogTable.ID.LINES_OUTPUT )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "output" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "output" ) ) );
             transLogTable.findField( TransLogTable.ID.LINES_UPDATED )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "update" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "update" ) ) );
             transLogTable.findField( TransLogTable.ID.LINES_REJECTED )
-                .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "rejected" ) ) );
+              .setSubject( findStep( XMLHandler.getTagValue( infonode, "log", "rejected" ) ) );
 
             transLogTable.setConnectionName( XMLHandler.getTagValue( infonode, "log", "connection" ) );
             transLogTable.setSchemaName( XMLHandler.getTagValue( infonode, "log", "schema" ) );
             transLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "table" ) );
             transLogTable.findField( TransLogTable.ID.ID_BATCH )
-                .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "use_batchid" ) ) );
+              .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "use_batchid" ) ) );
             transLogTable.findField( TransLogTable.ID.LOG_FIELD )
-                .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "USE_LOGFIELD" ) ) );
+              .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "USE_LOGFIELD" ) ) );
             transLogTable.setLogSizeLimit( XMLHandler.getTagValue( infonode, "log", "size_limit_lines" ) );
             transLogTable.setLogInterval( XMLHandler.getTagValue( infonode, "log", "interval" ) );
             transLogTable.findField( TransLogTable.ID.CHANNEL_ID ).setEnabled( false );
@@ -3216,23 +2891,23 @@ public class TransMeta extends AbstractMeta
             performanceLogTable.setConnectionName( transLogTable.getConnectionName() );
             performanceLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "step_performance_table" ) );
           } else {
-            transLogTable.loadXML( transLogNode, databases, steps );
+            transLogTable.loadXML( transLogNode, steps );
           }
           Node perfLogNode = XMLHandler.getSubNode( logNode, PerformanceLogTable.XML_TAG );
           if ( perfLogNode != null ) {
-            performanceLogTable.loadXML( perfLogNode, databases, steps );
+            performanceLogTable.loadXML( perfLogNode, steps );
           }
           Node channelLogNode = XMLHandler.getSubNode( logNode, ChannelLogTable.XML_TAG );
           if ( channelLogNode != null ) {
-            channelLogTable.loadXML( channelLogNode, databases, steps );
+            channelLogTable.loadXML( channelLogNode, steps );
           }
           Node stepLogNode = XMLHandler.getSubNode( logNode, StepLogTable.XML_TAG );
           if ( stepLogNode != null ) {
-            stepLogTable.loadXML( stepLogNode, databases, steps );
+            stepLogTable.loadXML( stepLogNode, steps );
           }
           Node metricsLogNode = XMLHandler.getSubNode( logNode, MetricsLogTable.XML_TAG );
           if ( metricsLogNode != null ) {
-            metricsLogTable.loadXML( metricsLogNode, databases, steps );
+            metricsLogTable.loadXML( metricsLogNode, steps );
           }
         }
 
@@ -3256,7 +2931,7 @@ public class TransMeta extends AbstractMeta
         for ( int i = 0; i < nrDeps; i++ ) {
           Node depNode = XMLHandler.getSubNodeByNr( depsNode, TransDependency.XML_TAG, i );
 
-          TransDependency transDependency = new TransDependency( depNode, databases );
+          TransDependency transDependency = new TransDependency( depNode, getDatabases() );
           if ( transDependency.getDatabase() != null && transDependency.getFieldname() != null ) {
             addDependency( transDependency );
           }
@@ -3284,24 +2959,7 @@ public class TransMeta extends AbstractMeta
           Node partSchemaNode = XMLHandler.getSubNodeByNr( partSchemasNode, PartitionSchema.XML_TAG, i );
           PartitionSchema partitionSchema = new PartitionSchema( partSchemaNode );
 
-          // Check if the step exists and if it's a shared step.
-          // If so, then we will keep the shared version, not this one.
-          // The stored XML is only for backup purposes.
-          //
-          PartitionSchema check = findPartitionSchema( partitionSchema.getName() );
-          if ( check != null ) {
-            if ( !check.isShared() ) {
-              // we don't overwrite shared objects.
-              if ( shouldOverwrite( prompter, props, BaseMessages
-                  .getString( PKG, "TransMeta.Message.OverwritePartitionSchemaYN", partitionSchema.getName() ),
-                  BaseMessages.getString( PKG, "TransMeta.Message.OverwriteConnection.DontShowAnyMoreMessage" ) ) ) {
-                addOrReplacePartitionSchema( partitionSchema );
-              }
-            }
-          } else {
-            partitionSchemas.add( partitionSchema );
-          }
-
+          partitionSchemas.add( partitionSchema );
         }
 
         // Have all step partitioning meta-data reference the correct schemas that we just loaded
@@ -3329,23 +2987,7 @@ public class TransMeta extends AbstractMeta
             continue;
           }
           slaveServer.shareVariablesWith( this );
-
-          // Check if the object exists and if it's a shared object.
-          // If so, then we will keep the shared version, not this one.
-          // The stored XML is only for backup purposes.
-          SlaveServer check = findSlaveServer( slaveServer.getName() );
-          if ( check != null ) {
-            if ( !check.isShared() ) {
-              // we don't overwrite shared objects.
-              if ( shouldOverwrite( prompter, props,
-                  BaseMessages.getString( PKG, "TransMeta.Message.OverwriteSlaveServerYN", slaveServer.getName() ),
-                  BaseMessages.getString( PKG, "TransMeta.Message.OverwriteConnection.DontShowAnyMoreMessage" ) ) ) {
-                addOrReplaceSlaveServer( slaveServer );
-              }
-            }
-          } else {
-            slaveServers.add( slaveServer );
-          }
+          slaveServers.add( slaveServer );
         }
 
         // Read the cluster schemas
@@ -3356,23 +2998,7 @@ public class TransMeta extends AbstractMeta
           Node clusterSchemaNode = XMLHandler.getSubNodeByNr( clusterSchemasNode, ClusterSchema.XML_TAG, i );
           ClusterSchema clusterSchema = new ClusterSchema( clusterSchemaNode, slaveServers );
           clusterSchema.shareVariablesWith( this );
-
-          // Check if the object exists and if it's a shared object.
-          // If so, then we will keep the shared version, not this one.
-          // The stored XML is only for backup purposes.
-          ClusterSchema check = findClusterSchema( clusterSchema.getName() );
-          if ( check != null ) {
-            if ( !check.isShared() ) {
-              // we don't overwrite shared objects.
-              if ( shouldOverwrite( prompter, props,
-                  BaseMessages.getString( PKG, "TransMeta.Message.OverwriteClusterSchemaYN", clusterSchema.getName() ),
-                  BaseMessages.getString( PKG, "TransMeta.Message.OverwriteConnection.DontShowAnyMoreMessage" ) ) ) {
-                addOrReplaceClusterSchema( clusterSchema );
-              }
-            }
-          } else {
-            clusterSchemas.add( clusterSchema );
-          }
+          clusterSchemas.add( clusterSchema );
         }
 
         // Have all step clustering schema meta-data reference the correct cluster schemas that we just loaded
@@ -3384,21 +3010,21 @@ public class TransMeta extends AbstractMeta
         String srowset = XMLHandler.getTagValue( infonode, "size_rowset" );
         sizeRowset = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
         sleepTimeEmpty =
-            Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
+          Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
         sleepTimeFull = Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
         usingUniqueConnections = "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "unique_connections" ) );
 
         feedbackShown = !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "feedback_shown" ) );
         feedbackSize = Const.toInt( XMLHandler.getTagValue( infonode, "feedback_size" ), Const.ROWS_UPDATE );
         usingThreadPriorityManagment =
-            !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
+          !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
         // Performance monitoring for steps...
         //
         capturingStepPerformanceSnapShots =
-            "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "capture_step_performance" ) );
+          "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "capture_step_performance" ) );
         stepPerformanceCapturingDelay =
-            Const.toLong( XMLHandler.getTagValue( infonode, "step_performance_capturing_delay" ), 1000 );
+          Const.toLong( XMLHandler.getTagValue( infonode, "step_performance_capturing_delay" ), 1000 );
         stepPerformanceCapturingSizeLimit = XMLHandler.getTagValue( infonode, "step_performance_capturing_size_limit" );
 
         // Created user/date
@@ -3440,7 +3066,7 @@ public class TransMeta extends AbstractMeta
 
       } catch ( HopXMLException xe ) {
         throw new HopXMLException( BaseMessages.getString( PKG, "TransMeta.Exception.ErrorReadingTransformation" ),
-            xe );
+          xe );
       } catch ( HopException e ) {
         throw new HopXMLException( e );
       } finally {
@@ -3458,7 +3084,7 @@ public class TransMeta extends AbstractMeta
         throw missingPluginsException;
       } else {
         throw new HopXMLException( BaseMessages.getString( PKG, "TransMeta.Exception.ErrorReadingTransformation" ),
-            e );
+          e );
       }
     } finally {
       if ( !missingPluginsException.getMissingPluginDetailsList().isEmpty() ) {
@@ -3509,8 +3135,7 @@ public class TransMeta extends AbstractMeta
    * Update 3.0 : we also add those steps that are not linked to another hop, but have at least one remote input or
    * output step defined.
    *
-   * @param all
-   *          true if you want to get ALL the steps from the transformation, false otherwise
+   * @param all true if you want to get ALL the steps from the transformation, false otherwise
    * @return A List of steps
    */
   public List<StepMeta> getTransHopSteps( boolean all ) {
@@ -3551,8 +3176,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks if a step has been used in a hop or not.
    *
-   * @param stepMeta
-   *          The step queried.
+   * @param stepMeta The step queried.
    * @return true if a step is used in a hop (active or not), false otherwise
    */
   public boolean isStepUsedInTransHops( StepMeta stepMeta ) {
@@ -3581,7 +3205,6 @@ public class TransMeta extends AbstractMeta
 
   /**
    * Clears the different changed flags of the transformation.
-   *
    */
   @Override
   public void clearChanged() {
@@ -3727,7 +3350,7 @@ public class TransMeta extends AbstractMeta
         String tagetContent = errorTagetNode.getTextContent().trim();
 
         if ( sourceContent.equals( nodeHopFrom.getTextContent().trim() )
-            && tagetContent.equals( nodeHopTo.getTextContent().trim() ) ) {
+          && tagetContent.equals( nodeHopTo.getTextContent().trim() ) ) {
           return true;
         }
         i++;
@@ -3741,9 +3364,7 @@ public class TransMeta extends AbstractMeta
    * previous steps. If you keep going backward and find the step, there is a loop. Both the informational and the
    * normal steps need to be checked for loops!
    *
-   * @param stepMeta
-   *          The step position to start looking
-   *
+   * @param stepMeta The step position to start looking
    * @return true if a loop has been found, false if no loop is found.
    */
   public boolean hasLoop( StepMeta stepMeta ) {
@@ -3762,8 +3383,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks for loop.
    *
-   * @param stepMeta  the stepmeta
-   * @param lookup the lookup
+   * @param stepMeta the stepmeta
+   * @param lookup   the lookup
    * @return true, if successful
    */
 
@@ -3775,18 +3396,14 @@ public class TransMeta extends AbstractMeta
    * See if there are any loops in the transformation, starting at the indicated step. This works by looking at all the
    * previous steps. If you keep going backward and find the original step again, there is a loop.
    *
-   * @param stepMeta
-   *          The step position to start looking
-   * @param lookup
-   *          The original step when wandering around the transformation.
-   * @param checkedEntries
-   *          Already checked entries
-   *
+   * @param stepMeta       The step position to start looking
+   * @param lookup         The original step when wandering around the transformation.
+   * @param checkedEntries Already checked entries
    * @return true if a loop has been found, false if no loop is found.
    */
   private boolean hasLoop( StepMeta stepMeta, StepMeta lookup, HashSet<StepMeta> checkedEntries ) {
     String cacheKey =
-            stepMeta.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
+      stepMeta.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
 
     Boolean hasLoop = loopCache.get( cacheKey );
 
@@ -3803,7 +3420,7 @@ public class TransMeta extends AbstractMeta
     for ( int i = 0; i < nr; i++ ) {
       StepMeta prevStepMeta = prevSteps.get( i );
       if ( prevStepMeta != null && ( prevStepMeta.equals( lookup )
-              || ( !checkedEntries.contains( prevStepMeta ) && hasLoop( prevStepMeta, lookup == null ? stepMeta : lookup, checkedEntries ) ) ) ) {
+        || ( !checkedEntries.contains( prevStepMeta ) && hasLoop( prevStepMeta, lookup == null ? stepMeta : lookup, checkedEntries ) ) ) ) {
         hasLoop = true;
         break;
       }
@@ -3815,7 +3432,6 @@ public class TransMeta extends AbstractMeta
 
   /**
    * Mark all steps in the transformation as selected.
-   *
    */
   public void selectAll() {
     int i;
@@ -3834,7 +3450,6 @@ public class TransMeta extends AbstractMeta
 
   /**
    * Clear the selection of all steps.
-   *
    */
   public void unselectAll() {
     int i;
@@ -3861,7 +3476,7 @@ public class TransMeta extends AbstractMeta
       points.add( new Point( p.x, p.y ) ); // explicit copy of location
     }
 
-    return points.toArray( new Point[points.size()] );
+    return points.toArray( new Point[ points.size() ] );
   }
 
   /**
@@ -3877,7 +3492,7 @@ public class TransMeta extends AbstractMeta
       points.add( new Point( p.x, p.y ) ); // explicit copy of location
     }
 
-    return points.toArray( new Point[points.size()] );
+    return points.toArray( new Point[ points.size() ] );
   }
 
   /**
@@ -3903,10 +3518,10 @@ public class TransMeta extends AbstractMeta
    */
   public String[] getSelectedStepNames() {
     List<StepMeta> selection = getSelectedSteps();
-    String[] retval = new String[selection.size()];
+    String[] retval = new String[ selection.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
       StepMeta stepMeta = selection.get( i );
-      retval[i] = stepMeta.getName();
+      retval[ i ] = stepMeta.getName();
     }
     return retval;
   }
@@ -3914,15 +3529,14 @@ public class TransMeta extends AbstractMeta
   /**
    * Gets an array of the locations of an array of steps.
    *
-   * @param steps
-   *          An array of steps
+   * @param steps An array of steps
    * @return an array of the locations of an array of steps
    */
   public int[] getStepIndexes( List<StepMeta> steps ) {
-    int[] retval = new int[steps.size()];
+    int[] retval = new int[ steps.size() ];
 
     for ( int i = 0; i < steps.size(); i++ ) {
-      retval[i] = indexOfStep( steps.get( i ) );
+      retval[ i ] = indexOfStep( steps.get( i ) );
     }
 
     return retval;
@@ -4007,10 +3621,10 @@ public class TransMeta extends AbstractMeta
    * @return An array of step names.
    */
   public String[] getStepNames() {
-    String[] retval = new String[nrSteps()];
+    String[] retval = new String[ nrSteps() ];
 
     for ( int i = 0; i < nrSteps(); i++ ) {
-      retval[i] = getStep( i ).getName();
+      retval[ i ] = getStep( i ).getName();
     }
 
     return retval;
@@ -4022,10 +3636,10 @@ public class TransMeta extends AbstractMeta
    * @return An array of all the steps in the transformation.
    */
   public StepMeta[] getStepsArray() {
-    StepMeta[] retval = new StepMeta[nrSteps()];
+    StepMeta[] retval = new StepMeta[ nrSteps() ];
 
     for ( int i = 0; i < nrSteps(); i++ ) {
-      retval[i] = getStep( i );
+      retval[ i ] = getStep( i );
     }
 
     return retval;
@@ -4034,10 +3648,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Looks in the transformation to find a step in a previous location starting somewhere.
    *
-   * @param startStep
-   *          The starting step
-   * @param stepToFind
-   *          The step to look for backward in the transformation
+   * @param startStep  The starting step
+   * @param stepToFind The step to look for backward in the transformation
    * @return true if we can find the step in an earlier location in the transformation.
    */
   public boolean findPrevious( StepMeta startStep, StepMeta stepToFind ) {
@@ -4103,7 +3715,9 @@ public class TransMeta extends AbstractMeta
     Collections.sort( hops );
   }
 
-  /** The previous count. */
+  /**
+   * The previous count.
+   */
   private long prevCount;
 
   /**
@@ -4171,7 +3785,7 @@ public class TransMeta extends AbstractMeta
 
     long endTime = System.currentTimeMillis();
     log.logBasic(
-        BaseMessages.getString( PKG, "TransMeta.Log.TimeExecutionStepSort", ( endTime - startTime ), prevCount ) );
+      BaseMessages.getString( PKG, "TransMeta.Log.TimeExecutionStepSort", ( endTime - startTime ), prevCount ) );
 
     return stepMap;
   }
@@ -4182,18 +3796,14 @@ public class TransMeta extends AbstractMeta
    * Otherwise, the previous steps are determined and added to the map recursively, and a cache is constructed for later
    * use.
    *
-   * @param previousCache
-   *          the previous cache, must be non-null
-   * @param beforeCache
-   *          the before cache, must be non-null
-   * @param originStepMeta
-   *          the origin step meta
-   * @param previousStepMeta
-   *          the previous step meta
+   * @param previousCache    the previous cache, must be non-null
+   * @param beforeCache      the before cache, must be non-null
+   * @param originStepMeta   the origin step meta
+   * @param previousStepMeta the previous step meta
    * @return the map
    */
   private Map<StepMeta, Boolean> updateFillStepMap( Map<StepMeta, List<StepMeta>> previousCache,
-      Map<StepMeta, Map<StepMeta, Boolean>> beforeCache, StepMeta originStepMeta, StepMeta previousStepMeta ) {
+                                                    Map<StepMeta, Map<StepMeta, Boolean>> beforeCache, StepMeta originStepMeta, StepMeta previousStepMeta ) {
 
     // See if we have a hash map to store step occurrence (located before the step)
     //
@@ -4260,12 +3870,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Determines the impact of the different steps in a transformation on databases, tables and field.
    *
-   * @param impact
-   *          An ArrayList of DatabaseImpact objects.
-   * @param monitor
-   *          a progress monitor listener to be updated as the transformation is analyzed
-   * @throws HopStepException
-   *           if any errors occur during analysis
+   * @param impact  An ArrayList of DatabaseImpact objects.
+   * @param monitor a progress monitor listener to be updated as the transformation is analyzed
+   * @throws HopStepException if any errors occur during analysis
    */
   public void analyseImpact( List<DatabaseImpact> impact, ProgressMonitorListener monitor ) throws HopStepException {
     if ( monitor != null ) {
@@ -4276,7 +3883,7 @@ public class TransMeta extends AbstractMeta
     for ( int i = 0; i < nrSteps() && !stop; i++ ) {
       if ( monitor != null ) {
         monitor.subTask(
-            BaseMessages.getString( PKG, "TransMeta.Monitor.LookingAtStepTask.Title" ) + ( i + 1 ) + "/" + nrSteps() );
+          BaseMessages.getString( PKG, "TransMeta.Monitor.LookingAtStepTask.Title" ) + ( i + 1 ) + "/" + nrSteps() );
       }
       StepMeta stepMeta = getStep( i );
 
@@ -4290,8 +3897,7 @@ public class TransMeta extends AbstractMeta
         inform = stepint.getTableFields();
       }
 
-      compatibleAnalyseImpactStep( impact, stepint, this, stepMeta, prev, inform );
-      stepint.analyseImpact( impact, this, stepMeta, prev, null, null, inform, repository, metaStore );
+      stepint.analyseImpact( impact, this, stepMeta, prev, null, null, inform, metaStore );
 
       if ( monitor != null ) {
         monitor.worked( 1 );
@@ -4304,17 +3910,10 @@ public class TransMeta extends AbstractMeta
     }
   }
 
-  @SuppressWarnings( "deprecation" )
-  private void compatibleAnalyseImpactStep( List<DatabaseImpact> impact, StepMetaInterface stepint, TransMeta transMeta,
-      StepMeta stepMeta, RowMetaInterface prev, RowMetaInterface inform ) throws HopStepException {
-    stepint.analyseImpact( impact, transMeta, stepMeta, prev, null, null, inform );
-  }
-
   /**
    * Proposes an alternative stepname when the original already exists.
    *
-   * @param stepname
-   *          The stepname to find an alternative for
+   * @param stepname The stepname to find an alternative for
    * @return The suggested alternative stepname.
    */
   public String getAlternativeStepname( String stepname ) {
@@ -4334,8 +3933,7 @@ public class TransMeta extends AbstractMeta
    * Builds a list of all the SQL statements that this transformation needs in order to work properly.
    *
    * @return An ArrayList of SQLStatement objects.
-   * @throws HopStepException
-   *           if any errors occur during SQL statement generation
+   * @throws HopStepException if any errors occur during SQL statement generation
    */
   public List<SQLStatement> getSQLStatements() throws HopStepException {
     return getSQLStatements( null );
@@ -4344,11 +3942,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Builds a list of all the SQL statements that this transformation needs in order to work properly.
    *
-   * @param monitor
-   *          a progress monitor listener to be updated as the SQL statements are generated
+   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
    * @return An ArrayList of SQLStatement objects.
-   * @throws HopStepException
-   *           if any errors occur during SQL statement generation
+   * @throws HopStepException if any errors occur during SQL statement generation
    */
   public List<SQLStatement> getSQLStatements( ProgressMonitorListener monitor ) throws HopStepException {
     if ( monitor != null ) {
@@ -4360,16 +3956,10 @@ public class TransMeta extends AbstractMeta
       StepMeta stepMeta = getStep( i );
       if ( monitor != null ) {
         monitor.subTask(
-            BaseMessages.getString( PKG, "TransMeta.Monitor.GettingTheSQLForStepTask.Title", "" + stepMeta ) );
+          BaseMessages.getString( PKG, "TransMeta.Monitor.GettingTheSQLForStepTask.Title", "" + stepMeta ) );
       }
       RowMetaInterface prev = getPrevStepFields( stepMeta );
-      SQLStatement sqlCompat = compatibleStepMetaGetSQLStatements( stepMeta.getStepMetaInterface(), stepMeta, prev );
-      if ( sqlCompat.getSQL() != null || sqlCompat.hasError() ) {
-        stats.add( sqlCompat );
-      }
-      SQLStatement
-          sql =
-          stepMeta.getStepMetaInterface().getSQLStatements( this, stepMeta, prev, repository, metaStore );
+      SQLStatement sql = stepMeta.getStepMetaInterface().getSQLStatements( this, stepMeta, prev, metaStore );
       if ( sql.getSQL() != null || sql.hasError() ) {
         stats.add( sql );
       }
@@ -4384,7 +3974,7 @@ public class TransMeta extends AbstractMeta
       monitor.subTask( BaseMessages.getString( PKG, "TransMeta.Monitor.GettingTheSQLForTransformationTask.Title2" ) );
     }
     if ( transLogTable.getDatabaseMeta() != null && ( !Utils.isEmpty( transLogTable.getTableName() ) || !Utils
-        .isEmpty( performanceLogTable.getTableName() ) ) ) {
+      .isEmpty( performanceLogTable.getTableName() ) ) ) {
       try {
         for ( LogTableInterface logTable : new LogTableInterface[] { transLogTable, performanceLogTable,
           channelLogTable, stepLogTable, } ) {
@@ -4398,9 +3988,9 @@ public class TransMeta extends AbstractMeta
 
               RowMetaInterface fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
               String
-                  schemaTable =
-                  logTable.getDatabaseMeta()
-                      .getQuotedSchemaTableCombination( logTable.getSchemaName(), logTable.getTableName() );
+                schemaTable =
+                logTable.getDatabaseMeta()
+                  .getQuotedSchemaTableCombination( logTable.getSchemaName(), logTable.getTableName() );
               String sql = db.getDDL( schemaTable, fields );
               if ( !Utils.isEmpty( sql ) ) {
                 SQLStatement stat = new SQLStatement( "<this transformation>", transLogTable.getDatabaseMeta(), sql );
@@ -4408,7 +3998,7 @@ public class TransMeta extends AbstractMeta
               }
             } catch ( Exception e ) {
               throw new HopDatabaseException(
-                  "Unable to connect to logging database [" + logTable.getDatabaseMeta() + "]", e );
+                "Unable to connect to logging database [" + logTable.getDatabaseMeta() + "]", e );
             } finally {
               if ( db != null ) {
                 db.disconnect();
@@ -4419,8 +4009,8 @@ public class TransMeta extends AbstractMeta
       } catch ( HopDatabaseException dbe ) {
         SQLStatement stat = new SQLStatement( "<this transformation>", transLogTable.getDatabaseMeta(), null );
         stat.setError(
-            BaseMessages.getString( PKG, "TransMeta.SQLStatement.ErrorDesc.ErrorObtainingTransformationLogTableInfo" )
-                + dbe.getMessage() );
+          BaseMessages.getString( PKG, "TransMeta.SQLStatement.ErrorDesc.ErrorObtainingTransformationLogTableInfo" )
+            + dbe.getMessage() );
         stats.add( stat );
       }
     }
@@ -4434,18 +4024,11 @@ public class TransMeta extends AbstractMeta
     return stats;
   }
 
-  @SuppressWarnings( "deprecation" )
-  private SQLStatement compatibleStepMetaGetSQLStatements( StepMetaInterface stepMetaInterface, StepMeta stepMeta,
-      RowMetaInterface prev ) throws HopStepException {
-    return stepMetaInterface.getSQLStatements( this, stepMeta, prev );
-  }
-
   /**
    * Get the SQL statements (needed to run this transformation) as a single String.
    *
    * @return the SQL statements needed to run this transformation
-   * @throws HopStepException
-   *           if any errors occur during SQL statement generation
+   * @throws HopStepException if any errors occur during SQL statement generation
    */
   public String getSQLStatementsString() throws HopStepException {
     String sql = "";
@@ -4463,30 +4046,12 @@ public class TransMeta extends AbstractMeta
   /**
    * Checks all the steps and fills a List of (CheckResult) remarks.
    *
-   * @param remarks
-   *          The remarks list to add to.
-   * @param only_selected
-   *          true to check only the selected steps, false for all steps
-   * @param monitor
-   *          a progress monitor listener to be updated as the SQL statements are generated
-   */
-  @Deprecated
-  public void checkSteps( List<CheckResultInterface> remarks, boolean only_selected, ProgressMonitorListener monitor ) {
-    checkSteps( remarks, only_selected, monitor, this, null, null );
-  }
-
-  /**
-   * Checks all the steps and fills a List of (CheckResult) remarks.
-   *
-   * @param remarks
-   *          The remarks list to add to.
-   * @param only_selected
-   *          true to check only the selected steps, false for all steps
-   * @param monitor
-   *          a progress monitor listener to be updated as the SQL statements are generated
+   * @param remarks       The remarks list to add to.
+   * @param only_selected true to check only the selected steps, false for all steps
+   * @param monitor       a progress monitor listener to be updated as the SQL statements are generated
    */
   public void checkSteps( List<CheckResultInterface> remarks, boolean only_selected, ProgressMonitorListener monitor,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) {
+                          VariableSpace space, IMetaStore metaStore ) {
     try {
       remarks.clear(); // Start with a clean slate...
 
@@ -4499,25 +4064,25 @@ public class TransMeta extends AbstractMeta
         steps = getStepsArray();
       } else {
         stepnames = getSelectedStepNames();
-        steps = selectedSteps.toArray( new StepMeta[selectedSteps.size()] );
+        steps = selectedSteps.toArray( new StepMeta[ selectedSteps.size() ] );
       }
 
       ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckSteps.id,
-          new CheckStepsExtension( remarks, space, this, steps, repository, metaStore ) );
+        new CheckStepsExtension( remarks, space, this, steps, metaStore ) );
 
       boolean stop_checking = false;
 
       if ( monitor != null ) {
         monitor.beginTask( BaseMessages.getString( PKG, "TransMeta.Monitor.VerifyingThisTransformationTask.Title" ),
-            steps.length + 2 );
+          steps.length + 2 );
       }
 
       for ( int i = 0; i < steps.length && !stop_checking; i++ ) {
         if ( monitor != null ) {
-          monitor.subTask( BaseMessages.getString( PKG, "TransMeta.Monitor.VerifyingStepTask.Title", stepnames[i] ) );
+          monitor.subTask( BaseMessages.getString( PKG, "TransMeta.Monitor.VerifyingStepTask.Title", stepnames[ i ] ) );
         }
 
-        StepMeta stepMeta = steps[i];
+        StepMeta stepMeta = steps[ i ];
 
         int nrinfo = findNrInfoSteps( stepMeta );
         StepMeta[] infostep = null;
@@ -4532,10 +4097,10 @@ public class TransMeta extends AbstractMeta
           } catch ( HopStepException kse ) {
             info = null;
             CheckResult
-                cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                    "TransMeta.CheckResult.TypeResultError.ErrorOccurredGettingStepInfoFields.Description",
-                    "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
+              cr =
+              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+                "TransMeta.CheckResult.TypeResultError.ErrorOccurredGettingStepInfoFields.Description",
+                "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
             remarks.add( cr );
           }
         }
@@ -4546,10 +4111,10 @@ public class TransMeta extends AbstractMeta
           prev = getPrevStepFields( stepMeta );
         } catch ( HopStepException kse ) {
           CheckResult
-              cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
-                  .getString( PKG, "TransMeta.CheckResult.TypeResultError.ErrorOccurredGettingInputFields.Description",
-                      "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
+            cr =
+            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
+              .getString( PKG, "TransMeta.CheckResult.TypeResultError.ErrorOccurredGettingInputFields.Description",
+                "" + stepMeta, Const.CR + kse.getMessage() ), stepMeta );
           remarks.add( cr );
           // This is a severe error: stop checking...
           // Otherwise we wind up checking time & time again because nothing gets put in the database
@@ -4565,10 +4130,10 @@ public class TransMeta extends AbstractMeta
 
           // Check step specific info...
           ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.BeforeCheckStep.id,
-              new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, repository, metaStore ) );
-          stepMeta.check( remarks, this, prev, input, output, info, space, repository, metaStore );
+            new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, metaStore ) );
+          stepMeta.check( remarks, this, prev, input, output, info, space, metaStore );
           ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckStep.id,
-              new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, repository, metaStore ) );
+            new CheckStepsExtension( remarks, space, this, new StepMeta[] { stepMeta }, metaStore ) );
 
           // See if illegal characters etc. were used in field-names...
           if ( prev != null ) {
@@ -4577,19 +4142,19 @@ public class TransMeta extends AbstractMeta
               String name = v.getName();
               if ( name == null ) {
                 values.put( v,
-                    BaseMessages.getString( PKG, "TransMeta.Value.CheckingFieldName.FieldNameIsEmpty.Description" ) );
+                  BaseMessages.getString( PKG, "TransMeta.Value.CheckingFieldName.FieldNameIsEmpty.Description" ) );
               } else if ( name.indexOf( ' ' ) >= 0 ) {
                 values.put( v, BaseMessages
-                    .getString( PKG, "TransMeta.Value.CheckingFieldName.FieldNameContainsSpaces.Description" ) );
+                  .getString( PKG, "TransMeta.Value.CheckingFieldName.FieldNameContainsSpaces.Description" ) );
               } else {
                 char[] list =
                   new char[] { '.', ',', '-', '/', '+', '*', '\'', '\t', '"', '|', '@', '(', ')', '{', '}', '!',
                     '^' };
                 for ( int c = 0; c < list.length; c++ ) {
-                  if ( name.indexOf( list[c] ) >= 0 ) {
+                  if ( name.indexOf( list[ c ] ) >= 0 ) {
                     values.put( v, BaseMessages.getString( PKG,
-                        "TransMeta.Value.CheckingFieldName.FieldNameContainsUnfriendlyCodes.Description",
-                        String.valueOf( list[c] ) ) );
+                      "TransMeta.Value.CheckingFieldName.FieldNameContainsUnfriendlyCodes.Description",
+                      String.valueOf( list[ c ] ) ) );
                   }
                 }
               }
@@ -4600,36 +4165,36 @@ public class TransMeta extends AbstractMeta
               String[] fieldNames = prev.getFieldNames();
               String[] sortedNames = Const.sortStrings( fieldNames );
 
-              String prevName = sortedNames[0];
+              String prevName = sortedNames[ 0 ];
               for ( int x = 1; x < sortedNames.length; x++ ) {
                 // Checking for doubles
-                if ( prevName.equalsIgnoreCase( sortedNames[x] ) ) {
+                if ( prevName.equalsIgnoreCase( sortedNames[ x ] ) ) {
                   // Give a warning!!
                   CheckResult
-                      cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
-                          .getString( PKG, "TransMeta.CheckResult.TypeResultWarning.HaveTheSameNameField.Description",
-                              prevName ), stepMeta );
+                    cr =
+                    new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
+                      .getString( PKG, "TransMeta.CheckResult.TypeResultWarning.HaveTheSameNameField.Description",
+                        prevName ), stepMeta );
                   remarks.add( cr );
                 } else {
-                  prevName = sortedNames[x];
+                  prevName = sortedNames[ x ];
                 }
               }
             }
           } else {
             CheckResult
-                cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
-                    .getString( PKG, "TransMeta.CheckResult.TypeResultError.CannotFindPreviousFields.Description" )
-                    + stepMeta.getName(), stepMeta );
+              cr =
+              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
+                .getString( PKG, "TransMeta.CheckResult.TypeResultError.CannotFindPreviousFields.Description" )
+                + stepMeta.getName(), stepMeta );
             remarks.add( cr );
           }
         } else {
           CheckResult
-              cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
-                  BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultWarning.StepIsNotUsed.Description" ),
-                  stepMeta );
+            cr =
+            new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING,
+              BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultWarning.StepIsNotUsed.Description" ),
+              stepMeta );
           remarks.add( cr );
         }
 
@@ -4660,48 +4225,48 @@ public class TransMeta extends AbstractMeta
           try {
             logdb.connect();
             CheckResult
-                cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-                    BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.ConnectingWorks.Description" ),
-                    null );
+              cr =
+              new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+                BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.ConnectingWorks.Description" ),
+                null );
             remarks.add( cr );
 
             if ( transLogTable.getTableName() != null ) {
               if ( logdb.checkTableExists( transLogTable.getSchemaName(), transLogTable.getTableName() ) ) {
                 cr =
-                    new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages
-                        .getString( PKG, "TransMeta.CheckResult.TypeResultOK.LoggingTableExists.Description",
-                            transLogTable.getTableName() ), null );
+                  new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages
+                    .getString( PKG, "TransMeta.CheckResult.TypeResultOK.LoggingTableExists.Description",
+                      transLogTable.getTableName() ), null );
                 remarks.add( cr );
 
                 RowMetaInterface fields = transLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
                 String sql = logdb.getDDL( transLogTable.getTableName(), fields );
                 if ( sql == null || sql.length() == 0 ) {
                   cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-                          BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.CorrectLayout.Description" ),
-                          null );
+                    new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+                      BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.CorrectLayout.Description" ),
+                      null );
                   remarks.add( cr );
                 } else {
                   cr =
-                      new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                          "TransMeta.CheckResult.TypeResultError.LoggingTableNeedsAdjustments.Description" ) + Const.CR
-                          + sql, null );
+                    new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+                      "TransMeta.CheckResult.TypeResultError.LoggingTableNeedsAdjustments.Description" ) + Const.CR
+                      + sql, null );
                   remarks.add( cr );
                 }
 
               } else {
                 cr =
-                    new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
-                        .getString( PKG, "TransMeta.CheckResult.TypeResultError.LoggingTableDoesNotExist.Description" ),
-                        null );
+                  new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
+                    .getString( PKG, "TransMeta.CheckResult.TypeResultError.LoggingTableDoesNotExist.Description" ),
+                    null );
                 remarks.add( cr );
               }
             } else {
               cr =
-                  new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
-                      .getString( PKG, "TransMeta.CheckResult.TypeResultError.LogTableNotSpecified.Description" ),
-                      null );
+                new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages
+                  .getString( PKG, "TransMeta.CheckResult.TypeResultError.LogTableNotSpecified.Description" ),
+                  null );
               remarks.add( cr );
             }
           } catch ( HopDatabaseException dbe ) {
@@ -4718,30 +4283,30 @@ public class TransMeta extends AbstractMeta
 
       if ( monitor != null ) {
         monitor.subTask( BaseMessages
-            .getString( PKG, "TransMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title" ) );
+          .getString( PKG, "TransMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title" ) );
       }
       if ( values.size() > 0 ) {
         for ( ValueMetaInterface v : values.keySet() ) {
           String message = values.get( v );
           CheckResult
-              cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages
-                  .getString( PKG, "TransMeta.CheckResult.TypeResultWarning.Description", v.getName(), message,
-                      v.getOrigin() ), findStep( v.getOrigin() ) );
+            cr =
+            new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages
+              .getString( PKG, "TransMeta.CheckResult.TypeResultWarning.Description", v.getName(), message,
+                v.getOrigin() ), findStep( v.getOrigin() ) );
           remarks.add( cr );
         }
       } else {
         CheckResult
-            cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-                BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.Description" ), null );
+          cr =
+          new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+            BaseMessages.getString( PKG, "TransMeta.CheckResult.TypeResultOK.Description" ), null );
         remarks.add( cr );
       }
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
       ExtensionPointHandler.callExtensionPoint( getLogChannel(), HopExtensionPoint.AfterCheckSteps.id,
-          new CheckStepsExtension( remarks, space, this, steps, repository, metaStore ) );
+        new CheckStepsExtension( remarks, space, this, steps, metaStore ) );
     } catch ( Exception e ) {
       log.logError( Const.getStackTracker( e ) );
       throw new RuntimeException( e );
@@ -4763,26 +4328,12 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the list of result rows.
    *
-   * @param resultRows
-   *          The list of result rows to set.
+   * @param resultRows The list of result rows to set.
    * @deprecated Moved to Trans to make this class stateless
    */
   @Deprecated
   public void setResultRows( List<RowMetaAndData> resultRows ) {
     this.resultRows = resultRows;
-  }
-
-  /**
-   * Gets the repository directory path and name of the transformation.
-   *
-   * @return The repository directory path plus the name of the transformation
-   */
-  public String getPathAndName() {
-    if ( getRepositoryDirectory().isRoot() ) {
-      return getRepositoryDirectory().getPath() + getName();
-    } else {
-      return getRepositoryDirectory().getPath() + RepositoryDirectory.DIRECTORY_SEPARATOR + getName();
-    }
   }
 
   /**
@@ -4799,8 +4350,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the arguments used for this transformation.
    *
-   * @param arguments
-   *          The arguments to set.
+   * @param arguments The arguments to set.
    * @deprecated moved to Trans
    */
   @Deprecated
@@ -4822,8 +4372,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the counters (database sequence values, e.g.) for the transformation.
    *
-   * @param counters
-   *          The counters to set.
+   * @param counters The counters to set.
    * @deprecated moved to Trans
    */
   @Deprecated
@@ -4843,8 +4392,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the dependencies for the transformation.
    *
-   * @param dependencies
-   *          The dependency list to set.
+   * @param dependencies The dependency list to set.
    */
   public void setDependencies( List<TransDependency> dependencies ) {
     this.dependencies = dependencies;
@@ -4865,8 +4413,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the database connection associated with "max date" processing.
    *
-   * @param maxDateConnection
-   *          the database meta-data to set
+   * @param maxDateConnection the database meta-data to set
    * @see #getMaxDateConnection()
    */
   public void setMaxDateConnection( DatabaseMeta maxDateConnection ) {
@@ -4886,8 +4433,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the maximum date difference between start and end dates for row/record processing.
    *
-   * @param maxDateDifference
-   *          The date difference to set.
+   * @param maxDateDifference The date difference to set.
    * @see #getMaxDateDifference()
    */
   public void setMaxDateDifference( double maxDateDifference ) {
@@ -4909,8 +4455,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the date field associated with "max date" processing.
    *
-   * @param maxDateField
-   *          The date field to set.
+   * @param maxDateField The date field to set.
    * @see #getMaxDateField()
    */
   public void setMaxDateField( String maxDateField ) {
@@ -4934,8 +4479,7 @@ public class TransMeta extends AbstractMeta
    * fine-grained control of the date range. For example, if the end date specifies a minute for which the data is not
    * complete, you can "roll-back" the end date by one minute by setting the offset to -60.
    *
-   * @param maxDateOffset
-   *          The maxDateOffset to set.
+   * @param maxDateOffset The maxDateOffset to set.
    */
   public void setMaxDateOffset( double maxDateOffset ) {
     this.maxDateOffset = maxDateOffset;
@@ -4956,8 +4500,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the table name associated with "max date" processing.
    *
-   * @param maxDateTable
-   *          The maxDateTable to set.
+   * @param maxDateTable The maxDateTable to set.
    * @see #getMaxDateTable()
    */
   public void setMaxDateTable( String maxDateTable ) {
@@ -4983,8 +4526,7 @@ public class TransMeta extends AbstractMeta
    * Sets the size of the rowsets. This method allows you to change the size of the buffers between the connected steps
    * in a transformation. <b>NOTE:</b> Do not change this parameter unless you are running low on memory, for example.
    *
-   * @param sizeRowset
-   *          The sizeRowset to set.
+   * @param sizeRowset The sizeRowset to set.
    */
   public void setSizeRowset( int sizeRowset ) {
     this.sizeRowset = sizeRowset;
@@ -5002,8 +4544,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the database cache object.
    *
-   * @param dbCache
-   *          the database cache object to set
+   * @param dbCache the database cache object to set
    */
   public void setDbCache( DBCache dbCache ) {
     this.dbCache = dbCache;
@@ -5021,8 +4562,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the version of the transformation.
    *
-   * @param n
-   *          The new version description of the transformation
+   * @param n The new version description of the transformation
    */
   public void setTransversion( String n ) {
     trans_version = n;
@@ -5031,8 +4571,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the status of the transformation.
    *
-   * @param n
-   *          The new status description of the transformation
+   * @param n The new status description of the transformation
    */
   public void setTransstatus( int n ) {
     trans_status = n;
@@ -5064,16 +4603,7 @@ public class TransMeta extends AbstractMeta
     }
 
     if ( name != null ) {
-      if ( directory != null ) {
-        String path = directory.getPath();
-        if ( path.endsWith( RepositoryDirectory.DIRECTORY_SEPARATOR ) ) {
-          return path + name;
-        } else {
-          return path + RepositoryDirectory.DIRECTORY_SEPARATOR + name;
-        }
-      } else {
-        return name;
-      }
+      return name;
     } else {
       return TransMeta.class.getName();
     }
@@ -5082,8 +4612,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Cancels queries opened for checking & fieldprediction.
    *
-   * @throws HopDatabaseException
-   *           if any errors occur during query cancellation
+   * @throws HopDatabaseException if any errors occur during query cancellation
    */
   public void cancelQueries() throws HopDatabaseException {
     for ( int i = 0; i < nrSteps(); i++ ) {
@@ -5096,8 +4625,7 @@ public class TransMeta extends AbstractMeta
    * the values will used for the arguments. If the values are null or empty, the method will attempt to use argument
    * values from a previous execution.
    *
-   * @param arguments
-   *          the values for the arguments
+   * @param arguments the values for the arguments
    * @return A row with the used arguments (and their values) in it.
    */
   public Map<String, String> getUsedArguments( String[] arguments ) {
@@ -5121,12 +4649,12 @@ public class TransMeta extends AbstractMeta
       String value = "";
       int argNr = Const.toInt( argument, -1 );
       if ( arguments != null && argNr > 0 && argNr <= arguments.length ) {
-        value = Const.NVL( arguments[argNr - 1], "" );
+        value = Const.NVL( arguments[ argNr - 1 ], "" );
       }
       if ( value.length() == 0 ) { // try the saved option...
 
-        if ( argNr > 0 && argNr < saved.length && saved[argNr] != null ) {
-          value = saved[argNr - 1];
+        if ( argNr > 0 && argNr < saved.length && saved[ argNr ] != null ) {
+          value = saved[ argNr - 1 ];
         }
       }
       transArgs.put( argument, value );
@@ -5156,8 +4684,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the amount of time (in nano-seconds) to wait while the input buffer is empty.
    *
-   * @param sleepTimeEmpty
-   *          the number of nano-seconds to wait while the input buffer is empty.
+   * @param sleepTimeEmpty the number of nano-seconds to wait while the input buffer is empty.
    */
   public void setSleepTimeEmpty( int sleepTimeEmpty ) {
     this.sleepTimeEmpty = sleepTimeEmpty;
@@ -5166,52 +4693,25 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the amount of time (in nano-seconds) to wait while the input buffer is full.
    *
-   * @param sleepTimeFull
-   *          the number of nano-seconds to wait while the input buffer is full.
+   * @param sleepTimeFull the number of nano-seconds to wait while the input buffer is full.
    */
   public void setSleepTimeFull( int sleepTimeFull ) {
     this.sleepTimeFull = sleepTimeFull;
   }
 
-  /**
-   * This method asks all steps in the transformation whether or not the specified database connection is used. The
-   * connection is used in the transformation if any of the steps uses it or if it is being used to log to.
-   *
-   * @param databaseMeta
-   *          The connection to check
-   * @return true if the connection is used in this transformation.
-   */
-  public boolean isDatabaseConnectionUsed( DatabaseMeta databaseMeta ) {
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMeta stepMeta = getStep( i );
-      DatabaseMeta[] dbs = stepMeta.getStepMetaInterface().getUsedDatabaseConnections();
-      for ( int d = 0; d < dbs.length; d++ ) {
-        if ( dbs[d].equals( databaseMeta ) ) {
-          return true;
-        }
-      }
-    }
-
-    return transLogTable.getDatabaseMeta() != null && transLogTable.getDatabaseMeta().equals( databaseMeta );
-
-  }
 
   /**
    * Gets a list of all the strings used in this transformation. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchSteps
-   *          true if steps should be searched, false otherwise
-   * @param searchDatabases
-   *          true if databases should be searched, false otherwise
-   * @param searchNotes
-   *          true if notes should be searched, false otherwise
-   * @param includePasswords
-   *          true if passwords should be searched, false otherwise
+   * @param searchSteps      true if steps should be searched, false otherwise
+   * @param searchDatabases  true if databases should be searched, false otherwise
+   * @param searchNotes      true if notes should be searched, false otherwise
+   * @param includePasswords true if passwords should be searched, false otherwise
    * @return a list of search results for strings used in the transformation.
    */
   public List<StringSearchResult> getStringList( boolean searchSteps, boolean searchDatabases, boolean searchNotes,
-      boolean includePasswords ) {
+                                                 boolean includePasswords ) {
     List<StringSearchResult> stringList = new ArrayList<>();
 
     if ( searchSteps ) {
@@ -5219,10 +4719,10 @@ public class TransMeta extends AbstractMeta
       for ( int i = 0; i < nrSteps(); i++ ) {
         StepMeta stepMeta = getStep( i );
         stringList.add( new StringSearchResult( stepMeta.getName(), stepMeta, this,
-            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.StepName" ) ) );
+          BaseMessages.getString( PKG, "TransMeta.SearchMetadata.StepName" ) ) );
         if ( stepMeta.getDescription() != null ) {
           stringList.add( new StringSearchResult( stepMeta.getDescription(), stepMeta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.StepDescription" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.StepDescription" ) ) );
         }
         StepMetaInterface metaInterface = stepMeta.getStepMetaInterface();
         StringSearcher.findMetaData( metaInterface, 1, stringList, stepMeta, this );
@@ -5231,38 +4731,37 @@ public class TransMeta extends AbstractMeta
 
     // Loop over all steps in the transformation and see what the used vars are...
     if ( searchDatabases ) {
-      for ( int i = 0; i < nrDatabases(); i++ ) {
-        DatabaseMeta meta = getDatabase( i );
+      for ( DatabaseMeta meta : getDatabases() ) {
         stringList.add( new StringSearchResult( meta.getName(), meta, this,
-            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseConnectionName" ) ) );
+          BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseConnectionName" ) ) );
         if ( meta.getHostname() != null ) {
           stringList.add( new StringSearchResult( meta.getHostname(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseHostName" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseHostName" ) ) );
         }
         if ( meta.getDatabaseName() != null ) {
           stringList.add( new StringSearchResult( meta.getDatabaseName(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseName" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseName" ) ) );
         }
         if ( meta.getUsername() != null ) {
           stringList.add( new StringSearchResult( meta.getUsername(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseUsername" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseUsername" ) ) );
         }
         if ( meta.getPluginId() != null ) {
           stringList.add( new StringSearchResult( meta.getPluginId(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
         }
         if ( meta.getPort() != null ) {
           stringList.add( new StringSearchResult( meta.getPort(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabasePort" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabasePort" ) ) );
         }
         if ( meta.getServername() != null ) {
           stringList.add( new StringSearchResult( meta.getServername(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseServer" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabaseServer" ) ) );
         }
         if ( includePasswords ) {
           if ( meta.getPassword() != null ) {
             stringList.add( new StringSearchResult( meta.getPassword(), meta, this,
-                BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabasePassword" ) ) );
+              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.DatabasePassword" ) ) );
           }
         }
       }
@@ -5274,7 +4773,7 @@ public class TransMeta extends AbstractMeta
         NotePadMeta meta = getNote( i );
         if ( meta.getNote() != null ) {
           stringList.add( new StringSearchResult( meta.getNote(), meta, this,
-              BaseMessages.getString( PKG, "TransMeta.SearchMetadata.NotepadText" ) ) );
+            BaseMessages.getString( PKG, "TransMeta.SearchMetadata.NotepadText" ) ) );
         }
       }
     }
@@ -5286,12 +4785,9 @@ public class TransMeta extends AbstractMeta
    * Get a list of all the strings used in this transformation. The parameters indicate which collections to search and
    * which to exclude.
    *
-   * @param searchSteps
-   *          true if steps should be searched, false otherwise
-   * @param searchDatabases
-   *          true if databases should be searched, false otherwise
-   * @param searchNotes
-   *          true if notes should be searched, false otherwise
+   * @param searchSteps     true if steps should be searched, false otherwise
+   * @param searchDatabases true if databases should be searched, false otherwise
+   * @param searchNotes     true if notes should be searched, false otherwise
    * @return a list of search results for strings used in the transformation.
    */
   public List<StringSearchResult> getStringList( boolean searchSteps, boolean searchDatabases, boolean searchNotes ) {
@@ -5332,8 +4828,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the previous result.
    *
-   * @param previousResult
-   *          The previous Result to set.
+   * @param previousResult The previous Result to set.
    * @deprecated this was moved to Trans to keep the metadata stateless
    */
   @Deprecated
@@ -5345,7 +4840,6 @@ public class TransMeta extends AbstractMeta
    * Gets a list of the files in the result.
    *
    * @return a list of ResultFiles.
-   *
    * @deprecated this was moved to Trans to keep the metadata stateless
    */
   @Deprecated
@@ -5356,8 +4850,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the list of the files in the result.
    *
-   * @param resultFiles
-   *          The list of ResultFiles to set.
+   * @param resultFiles The list of ResultFiles to set.
    * @deprecated this was moved to Trans to keep the metadata stateless
    */
   @Deprecated
@@ -5377,8 +4870,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the list of partition schemas for this transformation.
    *
-   * @param partitionSchemas
-   *          the list of PartitionSchemas to set
+   * @param partitionSchemas the list of PartitionSchemas to set
    */
   public void setPartitionSchemas( List<PartitionSchema> partitionSchemas ) {
     this.partitionSchemas = partitionSchemas;
@@ -5390,9 +4882,9 @@ public class TransMeta extends AbstractMeta
    * @return a String array containing the available partition schema names.
    */
   public String[] getPartitionSchemasNames() {
-    String[] names = new String[partitionSchemas.size()];
+    String[] names = new String[ partitionSchemas.size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      names[i] = partitionSchemas.get( i ).getName();
+      names[ i ] = partitionSchemas.get( i ).getName();
     }
     return names;
   }
@@ -5409,8 +4901,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets whether the feedback should be shown.
    *
-   * @param feedbackShown
-   *          true if feedback should be shown, false otherwise
+   * @param feedbackShown true if feedback should be shown, false otherwise
    */
   public void setFeedbackShown( boolean feedbackShown ) {
     this.feedbackShown = feedbackShown;
@@ -5428,8 +4919,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the feedback size.
    *
-   * @param feedbackSize
-   *          the feedback size to set
+   * @param feedbackSize the feedback size to set
    */
   public void setFeedbackSize( int feedbackSize ) {
     this.feedbackSize = feedbackSize;
@@ -5447,8 +4937,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets whether the transformation is using unique database connections.
    *
-   * @param usingUniqueConnections
-   *          true if the transformation is using unique database connections, false otherwise
+   * @param usingUniqueConnections true if the transformation is using unique database connections, false otherwise
    */
   public void setUsingUniqueConnections( boolean usingUniqueConnections ) {
     this.usingUniqueConnections = usingUniqueConnections;
@@ -5466,8 +4955,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets list of the cluster schemas used by the transformation.
    *
-   * @param clusterSchemas
-   *          the list of ClusterSchemas to set
+   * @param clusterSchemas the list of ClusterSchemas to set
    */
   public void setClusterSchemas( List<ClusterSchema> clusterSchemas ) {
     this.clusterSchemas = clusterSchemas;
@@ -5479,9 +4967,9 @@ public class TransMeta extends AbstractMeta
    * @return a String array containing the cluster schemas' names
    */
   public String[] getClusterSchemaNames() {
-    String[] names = new String[clusterSchemas.size()];
+    String[] names = new String[ clusterSchemas.size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      names[i] = clusterSchemas.get( i ).getName();
+      names[ i ] = clusterSchemas.get( i ).getName();
     }
     return names;
   }
@@ -5489,8 +4977,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Find a partition schema using its name.
    *
-   * @param name
-   *          The name of the partition schema to look for.
+   * @param name The name of the partition schema to look for.
    * @return the partition with the specified name of null if nothing was found
    */
   public PartitionSchema findPartitionSchema( String name ) {
@@ -5506,8 +4993,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Find a clustering schema using its name.
    *
-   * @param name
-   *          The name of the clustering schema to look for.
+   * @param name The name of the clustering schema to look for.
    * @return the cluster schema with the specified name of null if nothing was found
    */
   public ClusterSchema findClusterSchema( String name ) {
@@ -5523,8 +5009,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Add a new partition schema to the transformation if that didn't exist yet. Otherwise, replace it.
    *
-   * @param partitionSchema
-   *          The partition schema to be added.
+   * @param partitionSchema The partition schema to be added.
    */
   public void addOrReplacePartitionSchema( PartitionSchema partitionSchema ) {
     int index = partitionSchemas.indexOf( partitionSchema );
@@ -5540,8 +5025,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Add a new cluster schema to the transformation if that didn't exist yet. Otherwise, replace it.
    *
-   * @param clusterSchema
-   *          The cluster schema to be added.
+   * @param clusterSchema The cluster schema to be added.
    */
   public void addOrReplaceClusterSchema( ClusterSchema clusterSchema ) {
     int index = clusterSchemas.indexOf( clusterSchema );
@@ -5574,8 +5058,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets whether the transformation is using thread priority management.
    *
-   * @param usingThreadPriorityManagment
-   *          true if the transformation is using thread priority management, false otherwise
+   * @param usingThreadPriorityManagment true if the transformation is using thread priority management, false otherwise
    */
   public void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment ) {
     this.usingThreadPriorityManagment = usingThreadPriorityManagment;
@@ -5585,12 +5068,9 @@ public class TransMeta extends AbstractMeta
    * Check a step to see if there are no multiple steps to read from. If so, check to see if the receiving rows are all
    * the same in layout. We only want to ONLY use the DBCache for this to prevent GUI stalls.
    *
-   * @param stepMeta
-   *          the step to check
-   * @param monitor
-   *          the monitor
-   * @throws HopRowException
-   *           in case we detect a row mixing violation
+   * @param stepMeta the step to check
+   * @param monitor  the monitor
+   * @throws HopRowException in case we detect a row mixing violation
    */
   public void checkRowMixingStatically( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopRowException {
     List<StepMeta> prevSteps = findPreviousSteps( stepMeta );
@@ -5618,28 +5098,12 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the internal kettle variables.
    *
-   * @param var
-   *          the new internal kettle variables
+   * @param var the new internal kettle variables
    */
   @Override
   public void setInternalHopVariables( VariableSpace var ) {
     setInternalFilenameHopVariables( var );
     setInternalNameHopVariable( var );
-
-    // The name of the directory in the repository
-    //
-    variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY,
-        directory != null ? directory.getPath() : "" );
-
-    boolean hasRepoDir = getRepositoryDirectory() != null && getRepository() != null;
-
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY,
-          variables.getVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY ) );
-    } else {
-      variables.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY,
-          variables.getVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY ) );
-    }
 
     // Here we don't remove the job specific parameters, as they may come in handy.
     //
@@ -5652,9 +5116,6 @@ public class TransMeta extends AbstractMeta
     if ( variables.getVariable( Const.INTERNAL_VARIABLE_JOB_NAME ) == null ) {
       variables.setVariable( Const.INTERNAL_VARIABLE_JOB_NAME, "Parent Job Name" );
     }
-    if ( variables.getVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY ) == null ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "Parent Job Repository Directory" );
-    }
 
     setInternalEntryCurrentDirectory();
 
@@ -5663,8 +5124,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the internal name kettle variable.
    *
-   * @param var
-   *          the new internal name kettle variable
+   * @param var the new internal name kettle variable
    */
   @Override
   protected void setInternalNameHopVariable( VariableSpace var ) {
@@ -5676,8 +5136,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the internal filename kettle variables.
    *
-   * @param var
-   *          the new internal filename kettle variables
+   * @param var the new internal filename kettle variables
    */
   @Override
   protected void setInternalFilenameHopVariables( VariableSpace var ) {
@@ -5711,8 +5170,8 @@ public class TransMeta extends AbstractMeta
 
   protected void setInternalEntryCurrentDirectory() {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-      repository != null ?  Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY
-        : filename != null ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
+      StringUtils.isNotEmpty( filename )
+        ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
         : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
@@ -5720,11 +5179,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Finds the mapping input step with the specified name. If no mapping input step is found, null is returned
    *
-   * @param stepname
-   *          the name to search for
+   * @param stepname the name to search for
    * @return the step meta-data corresponding to the desired mapping input step, or null if no step was found
-   * @throws HopStepException
-   *           if any errors occur during the search
+   * @throws HopStepException if any errors occur during the search
    */
   public StepMeta findMappingInputStep( String stepname ) throws HopStepException {
     if ( !Utils.isEmpty( stepname ) ) {
@@ -5758,11 +5215,9 @@ public class TransMeta extends AbstractMeta
   /**
    * Finds the mapping output step with the specified name. If no mapping output step is found, null is returned.
    *
-   * @param stepname
-   *          the name to search for
+   * @param stepname the name to search for
    * @return the step meta-data corresponding to the desired mapping input step, or null if no step was found
-   * @throws HopStepException
-   *           if any errors occur during the search
+   * @throws HopStepException if any errors occur during the search
    */
   public StepMeta findMappingOutputStep( String stepname ) throws HopStepException {
     if ( !Utils.isEmpty( stepname ) ) {
@@ -5800,7 +5255,7 @@ public class TransMeta extends AbstractMeta
    */
   public List<ResourceReference> getResourceDependencies() {
     return steps.stream()
-      .flatMap( (StepMeta stepMeta) -> stepMeta.getResourceDependencies( this ).stream() )
+      .flatMap( ( StepMeta stepMeta ) -> stepMeta.getResourceDependencies( this ).stream() )
       .collect( Collectors.toList() );
   }
 
@@ -5809,21 +5264,17 @@ public class TransMeta extends AbstractMeta
    * supplied resource naming interface allows the object to name appropriately without worrying about those parts of
    * the implementation specific details.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
 
+    String exportFileName = null;
     try {
       // Handle naming for both repository and XML bases resources...
       //
@@ -5831,82 +5282,65 @@ public class TransMeta extends AbstractMeta
       String originalPath;
       String fullname;
       String extension = "ktr";
-      if ( Utils.isEmpty( getFilename() ) ) {
-        // Assume repository...
-        //
-        originalPath = directory.getPath();
-        baseName = getName();
-        fullname =
-          directory.getPath()
-            + ( directory.getPath().endsWith( RepositoryDirectory.DIRECTORY_SEPARATOR )
-              ? "" : RepositoryDirectory.DIRECTORY_SEPARATOR ) + getName() + "." + extension; //
-      } else {
-        // Assume file
-        //
+      if ( StringUtils.isNotEmpty( getFilename() ) ) {
         FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( getFilename() ), space );
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();
-      }
 
-      String
-          exportFileName =
-          resourceNamingInterface
-              .nameResource( baseName, originalPath, extension, ResourceNamingInterface.FileNamingType.TRANSFORMATION );
-      ResourceDefinition definition = definitions.get( exportFileName );
-      if ( definition == null ) {
-        // If we do this once, it will be plenty :-)
-        //
-        TransMeta transMeta = (TransMeta) this.realClone( false );
-        // transMeta.copyVariablesFrom(space);
+        exportFileName = resourceNamingInterface.nameResource( baseName, originalPath, extension, ResourceNamingInterface.FileNamingType.TRANSFORMATION );
+        ResourceDefinition definition = definitions.get( exportFileName );
+        if ( definition == null ) {
+          // If we do this once, it will be plenty :-)
+          //
+          TransMeta transMeta = (TransMeta) this.realClone( false );
+          // transMeta.copyVariablesFrom(space);
 
-        // Add used resources, modify transMeta accordingly
-        // Go through the list of steps, etc.
-        // These critters change the steps in the cloned TransMeta
-        // At the end we make a new XML version of it in "exported"
-        // format...
+          // Add used resources, modify transMeta accordingly
+          // Go through the list of steps, etc.
+          // These critters change the steps in the cloned TransMeta
+          // At the end we make a new XML version of it in "exported"
+          // format...
 
-        // loop over steps, databases will be exported to XML anyway.
-        //
-        for ( StepMeta stepMeta : transMeta.getSteps() ) {
-          stepMeta.exportResources( space, definitions, resourceNamingInterface, repository, metaStore );
-        }
-
-        // Change the filename, calling this sets internal variables
-        // inside of the transformation.
-        //
-        transMeta.setFilename( exportFileName );
-
-        // All objects get re-located to the root folder
-        //
-        transMeta.setRepositoryDirectory( new RepositoryDirectory() );
-
-        // Set a number of parameters for all the data files referenced so far...
-        //
-        Map<String, String> directoryMap = resourceNamingInterface.getDirectoryMap();
-        if ( directoryMap != null ) {
-          for ( String directory : directoryMap.keySet() ) {
-            String parameterName = directoryMap.get( directory );
-            transMeta.addParameterDefinition( parameterName, directory, "Data file path discovered during export" );
+          // loop over steps, databases will be exported to XML anyway.
+          //
+          for ( StepMeta stepMeta : transMeta.getSteps() ) {
+            stepMeta.exportResources( space, definitions, resourceNamingInterface, metaStore );
           }
+
+          // Change the filename, calling this sets internal variables
+          // inside of the transformation.
+          //
+          transMeta.setFilename( exportFileName );
+
+          // Set a number of parameters for all the data files referenced so far...
+          //
+          Map<String, String> directoryMap = resourceNamingInterface.getDirectoryMap();
+          if ( directoryMap != null ) {
+            for ( String directory : directoryMap.keySet() ) {
+              String parameterName = directoryMap.get( directory );
+              transMeta.addParameterDefinition( parameterName, directory, "Data file path discovered during export" );
+            }
+          }
+
+          // At the end, add ourselves to the map...
+          //
+          String transMetaContent = transMeta.getXML();
+
+          definition = new ResourceDefinition( exportFileName, transMetaContent );
+
+          // Also remember the original filename (if any), including variables etc.
+          //
+          if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
+            definition.setOrigin( fullname );
+          } else {
+            definition.setOrigin( this.getFilename() );
+          }
+
+          definitions.put( fullname, definition );
         }
-
-        // At the end, add ourselves to the map...
-        //
-        String transMetaContent = transMeta.getXML();
-
-        definition = new ResourceDefinition( exportFileName, transMetaContent );
-
-        // Also remember the original filename (if any), including variables etc.
-        //
-        if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
-          definition.setOrigin( fullname );
-        } else {
-          definition.setOrigin( this.getFilename() );
-        }
-
-        definitions.put( fullname, definition );
       }
+
       return exportFileName;
     } catch ( FileSystemException e ) {
       throw new HopException( BaseMessages.getString(
@@ -5929,11 +5363,10 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the slave step copy partition distribution.
    *
-   * @param slaveStepCopyPartitionDistribution
-   *          the slaveStepCopyPartitionDistribution to set
+   * @param slaveStepCopyPartitionDistribution the slaveStepCopyPartitionDistribution to set
    */
   public void setSlaveStepCopyPartitionDistribution(
-      SlaveStepCopyPartitionDistribution slaveStepCopyPartitionDistribution ) {
+    SlaveStepCopyPartitionDistribution slaveStepCopyPartitionDistribution ) {
     this.slaveStepCopyPartitionDistribution = slaveStepCopyPartitionDistribution;
   }
 
@@ -5963,8 +5396,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets whether the transformation is a slave transformation.
    *
-   * @param slaveTransformation
-   *          true if the transformation is a slave transformation, false otherwise
+   * @param slaveTransformation true if the transformation is a slave transformation, false otherwise
    */
   public void setSlaveTransformation( boolean slaveTransformation ) {
     this.slaveTransformation = slaveTransformation;
@@ -5982,8 +5414,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets whether the transformation is capturing step performance snapshots.
    *
-   * @param capturingStepPerformanceSnapShots
-   *          true if the transformation is capturing step performance snapshots, false otherwise
+   * @param capturingStepPerformanceSnapShots true if the transformation is capturing step performance snapshots, false otherwise
    */
   public void setCapturingStepPerformanceSnapShots( boolean capturingStepPerformanceSnapShots ) {
     this.capturingStepPerformanceSnapShots = capturingStepPerformanceSnapShots;
@@ -6001,8 +5432,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the step performance capturing delay.
    *
-   * @param stepPerformanceCapturingDelay
-   *          the stepPerformanceCapturingDelay to set
+   * @param stepPerformanceCapturingDelay the stepPerformanceCapturingDelay to set
    */
   public void setStepPerformanceCapturingDelay( long stepPerformanceCapturingDelay ) {
     this.stepPerformanceCapturingDelay = stepPerformanceCapturingDelay;
@@ -6020,8 +5450,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the step performance capturing size limit.
    *
-   * @param stepPerformanceCapturingSizeLimit
-   *          the step performance capturing size limit to set
+   * @param stepPerformanceCapturingSizeLimit the step performance capturing size limit to set
    */
   public void setStepPerformanceCapturingSizeLimit( String stepPerformanceCapturingSizeLimit ) {
     this.stepPerformanceCapturingSizeLimit = stepPerformanceCapturingSizeLimit;
@@ -6053,17 +5482,6 @@ public class TransMeta extends AbstractMeta
   @VisibleForTesting
   void clearPreviousStepCache() {
     previousStepCache.clear();
-  }
-
-  /**
-   * Gets the repository element type.
-   *
-   * @return the repository element type
-   * @see org.apache.hop.repository.RepositoryElementInterface#getRepositoryElementType()
-   */
-  @Override
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
   }
 
   /**
@@ -6127,8 +5545,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the performance log table for the transformation.
    *
-   * @param performanceLogTable
-   *          the performance log table to set
+   * @param performanceLogTable the performance log table to set
    */
   public void setPerformanceLogTable( PerformanceLogTable performanceLogTable ) {
     this.performanceLogTable = performanceLogTable;
@@ -6146,8 +5563,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the step log table for the transformation.
    *
-   * @param stepLogTable
-   *          the step log table to set
+   * @param stepLogTable the step log table to set
    */
   public void setStepLogTable( StepLogTable stepLogTable ) {
     this.stepLogTable = stepLogTable;
@@ -6180,8 +5596,7 @@ public class TransMeta extends AbstractMeta
   /**
    * Sets the transformation type.
    *
-   * @param transformationType
-   *          the transformationType to set
+   * @param transformationType the transformationType to set
    */
   public void setTransformationType( TransformationType transformationType ) {
     this.transformationType = transformationType;
@@ -6190,10 +5605,8 @@ public class TransMeta extends AbstractMeta
   /**
    * Utility method to write the XML of this transformation to a file, mostly for testing purposes.
    *
-   * @param filename
-   *          The filename to save to
-   * @throws HopXMLException
-   *           in case something goes wrong.
+   * @param filename The filename to save to
+   * @throws HopXMLException in case something goes wrong.
    */
   public void writeXML( String filename ) throws HopXMLException {
     FileOutputStream fos = null;
@@ -6215,34 +5628,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Checks whether the transformation has repository references.
-   *
-   * @return true if the transformation has repository references, false otherwise
-   */
-  public boolean hasRepositoryReferences() {
-    for ( StepMeta stepMeta : steps ) {
-      if ( stepMeta.getStepMetaInterface().hasRepositoryReferences() ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Looks up the references after a repository import.
-   *
-   * @param repository
-   *          the repository to reference.
-   * @throws HopException
-   *           the kettle exception
-   */
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    for ( StepMeta stepMeta : steps ) {
-      stepMeta.getStepMetaInterface().lookupRepositoryReferences( repository );
-    }
-  }
-
-  /**
    * @return the metricsLogTable
    */
   public MetricsLogTable getMetricsLogTable() {
@@ -6250,8 +5635,7 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * @param metricsLogTable
-   *          the metricsLogTable to set
+   * @param metricsLogTable the metricsLogTable to set
    */
   public void setMetricsLogTable( MetricsLogTable metricsLogTable ) {
     this.metricsLogTable = metricsLogTable;
@@ -6347,67 +5731,58 @@ public class TransMeta extends AbstractMeta
     return missingTrans != null && !missingTrans.isEmpty();
   }
 
-  @Override
-  public NamedClusterEmbedManager getNamedClusterEmbedManager( ) {
-    if ( namedClusterEmbedManager == null ) {
-      namedClusterEmbedManager = new NamedClusterEmbedManager( this, getLogChannel() );
-    }
-    return namedClusterEmbedManager;
-  }
-
   /**
-   *
    * @return
    */
   public int getCacheVersion() throws HopException {
-    HashCodeBuilder hashCodeBuilder =  new HashCodeBuilder( 17, 31 )
-        // info
-        .append( this.getName() )
-        .append( this.getTransformationType() )
-        .append( this.getSizeRowset() )
-        .append( this.getSleepTimeEmpty() )
-        .append( this.getSleepTimeFull() )
-        .append( this.isUsingUniqueConnections() )
-        .append( this.isFeedbackShown() )
-        .append( this.getFeedbackSize() )
-        .append( this.isUsingThreadPriorityManagment() )
-        .append( this.getSharedObjectsFile() )
-        .append( this.isCapturingStepPerformanceSnapShots() )
-        .append( this.getStepPerformanceCapturingDelay() )
-        .append( this.getStepPerformanceCapturingSizeLimit() )
+    HashCodeBuilder hashCodeBuilder = new HashCodeBuilder( 17, 31 )
+      // info
+      .append( this.getName() )
+      .append( this.getTransformationType() )
+      .append( this.getSizeRowset() )
+      .append( this.getSleepTimeEmpty() )
+      .append( this.getSleepTimeFull() )
+      .append( this.isUsingUniqueConnections() )
+      .append( this.isFeedbackShown() )
+      .append( this.getFeedbackSize() )
+      .append( this.isUsingThreadPriorityManagment() )
+      .append( this.getSharedObjectsFile() )
+      .append( this.isCapturingStepPerformanceSnapShots() )
+      .append( this.getStepPerformanceCapturingDelay() )
+      .append( this.getStepPerformanceCapturingSizeLimit() )
 
-        .append( this.getMaxDateConnection() )
-        .append( this.getMaxDateTable() )
-        .append( this.getMaxDateField() )
-        .append( this.getMaxDateOffset() )
-        .append( this.getMaxDateDifference() )
+      .append( this.getMaxDateConnection() )
+      .append( this.getMaxDateTable() )
+      .append( this.getMaxDateField() )
+      .append( this.getMaxDateOffset() )
+      .append( this.getMaxDateDifference() )
 
-        .append( this.getDependencies() )
-        .append( this.getPartitionSchemas() )
-        .append( this.getSlaveServers() )
-        .append( this.getClusterSchemas() )
-        .append( this.getSlaveStepCopyPartitionDistribution() )
-        .append( this.isSlaveTransformation() )
+      .append( this.getDependencies() )
+      .append( this.getPartitionSchemas() )
+      .append( this.getSlaveServers() )
+      .append( this.getClusterSchemas() )
+      .append( this.getSlaveStepCopyPartitionDistribution() )
+      .append( this.isSlaveTransformation() )
 
-        .append( this.nrTransHops() )
+      .append( this.nrTransHops() )
 
-        // steps
-        .append( this.getSteps().size() )
-        .append( this.getStepNames() )
+      // steps
+      .append( this.getSteps().size() )
+      .append( this.getStepNames() )
 
-        // hops
-        .append( this.hops );
+      // hops
+      .append( this.hops );
 
     List<StepMeta> steps = this.getSteps();
 
     for ( StepMeta step : steps ) {
       hashCodeBuilder
-          .append( step.getName() )
-          .append( step.getStepMetaInterface().getXML() )
-          .append( step.getClusterSchema() )
-          .append( step.getRemoteInputSteps() )
-          .append( step.getRemoteOutputSteps() )
-          .append( step.isDoingErrorHandling() );
+        .append( step.getName() )
+        .append( step.getStepMetaInterface().getXML() )
+        .append( step.getClusterSchema() )
+        .append( step.getRemoteInputSteps() )
+        .append( step.getRemoteOutputSteps() )
+        .append( step.isDoingErrorHandling() );
     }
     return hashCodeBuilder.toHashCode();
   }
@@ -6419,8 +5794,8 @@ public class TransMeta extends AbstractMeta
   private static RowMetaInterface[] cloneRowMetaInterfaces( RowMetaInterface[] inform ) {
     RowMetaInterface[] cloned = inform.clone();
     for ( int i = 0; i < cloned.length; i++ ) {
-      if ( cloned[i] != null ) {
-        cloned[i] = cloned[i].clone();
+      if ( cloned[ i ] != null ) {
+        cloned[ i ] = cloned[ i ].clone();
       }
     }
     return cloned;

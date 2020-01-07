@@ -113,9 +113,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
       // was...
       //
       StepMeta before = (StepMeta) stepMeta.clone();
-      StepDialogInterface dialog = hopUi.getStepEntryDialog( stepMeta.getStepMetaInterface(), transMeta, name );
+      StepDialogInterface dialog = hopUi.getStepDialog( stepMeta.getStepMetaInterface(), transMeta, name );
       if ( dialog != null ) {
-        dialog.setRepository( hopUi.getRepository() );
         dialog.setMetaStore( hopUi.getMetaStore() );
         stepname = dialog.open();
       }
@@ -163,12 +162,6 @@ public class HopUiStepsDelegate extends HopUiDelegate {
         StepMeta after = (StepMeta) stepMeta.clone();
         hopUi.addUndoChange( transMeta, new StepMeta[] { before }, new StepMeta[] { after }, new int[] { transMeta
           .indexOfStep( stepMeta ) } );
-      } else {
-        // Scenario: change connections and click cancel...
-        // Perhaps new connections were created in the step dialog?
-        if ( transMeta.haveConnectionsChanged() ) {
-          refresh = true;
-        }
       }
       hopUi.refreshGraph(); // name is displayed on the graph too.
 
@@ -248,10 +241,14 @@ public class HopUiStepsDelegate extends HopUiDelegate {
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginInterface plugin = registry.getPlugin( StepPluginType.class, stepMeta );
     String dialogClassName = plugin.getClassMap().get( StepDialogInterface.class );
-    if ( dialogClassName == null ) {
-      // try the deprecated way
-      log.logDebug( "Use of StepMetaInterface#getDialogClassName is deprecated, use PluginDialog annotation instead." );
+    if (dialogClassName==null) {
+      // Calculate it from the base meta class...
+      //
       dialogClassName = stepMeta.getDialogClassName();
+    }
+
+    if ( dialogClassName == null ) {
+      throw new HopException( "Unable to find dialog class for plugin '"+plugin.getIds()[0]+"' : "+plugin.getName() );
     }
 
     try {

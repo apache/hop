@@ -37,8 +37,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.kdr.HopDatabaseRepository;
 
 /**
  * @author Tatsiana_Kasiankova
@@ -48,8 +46,6 @@ public class JobEntryHTTPTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private JobEntryHTTP jobEntryHttp = new JobEntryHTTP();
-  private HopDatabaseRepository ktlDbRepMock = mock( HopDatabaseRepository.class );
-  private ObjectId objIdMock = mock( ObjectId.class );
 
   @BeforeClass
   public static void beforeClass() throws HopException {
@@ -58,17 +54,6 @@ public class JobEntryHTTPTest {
     String passwordEncoderPluginID =
         Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
     Encr.init( passwordEncoderPluginID );
-  }
-
-  @Test
-  public void testDateTimeAddedFieldIsSetInTrue_WhenRepoReturnsTrue() throws HopException {
-    when( ktlDbRepMock.getJobEntryAttributeBoolean( objIdMock, "date_time_added" ) ).thenReturn( true );
-
-    jobEntryHttp.loadRep( ktlDbRepMock, ktlDbRepMock.getMetaStore(), objIdMock, null, null );
-    verify( ktlDbRepMock, never() ).getJobEntryAttributeString( objIdMock, "date_time_added" );
-    verify( ktlDbRepMock ).getJobEntryAttributeBoolean( objIdMock, "date_time_added" );
-    assertTrue( "DateTimeAdded field should be TRUE.", jobEntryHttp.isDateTimeAdded() );
-
   }
 
   @SuppressWarnings( "deprecation" )

@@ -110,7 +110,7 @@ public class PartitionSchemaDialog extends Dialog {
   private VariableSpace variableSpace;
 
   public PartitionSchemaDialog( Shell par, PartitionSchema partitionSchema,
-      Collection<PartitionSchema> existingSchemas, List<DatabaseMeta> databases, VariableSpace variableSpace ) {
+      Collection<PartitionSchema> existingSchemas, VariableSpace variableSpace ) {
     super( par, SWT.NONE );
     this.partitionSchema = (PartitionSchema) partitionSchema.clone();
     this.originalSchema = partitionSchema;
@@ -120,11 +120,6 @@ public class PartitionSchemaDialog extends Dialog {
 
     props = PropsUI.getInstance();
     ok = false;
-  }
-
-  public PartitionSchemaDialog( Shell par, PartitionSchema partitionSchema, List<DatabaseMeta> databases,
-      VariableSpace variableSpace ) {
-    this( par, partitionSchema, Collections.<PartitionSchema>emptyList(), databases, variableSpace );
   }
 
   public boolean open() {

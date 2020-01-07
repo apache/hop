@@ -53,8 +53,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -196,18 +195,15 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
 
     retval.append( "      " ).append( XMLHandler.addTagValue( "nr_limit", nr_limit ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( targetDirectory );
-    }
+    retval.append( "      " ).append( XMLHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -256,107 +252,6 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
           XMLHandler.getTagValue( entrynode, "connection_type" ), "" ) );
     } catch ( Exception xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'FTPS' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      userName = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-      FTPSDirectory = rep.getJobEntryAttributeString( id_jobentry, "FTPSdirectory" );
-      targetDirectory = rep.getJobEntryAttributeString( id_jobentry, "targetdirectory" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      binaryMode = rep.getJobEntryAttributeBoolean( id_jobentry, "binary" );
-      timeout = (int) rep.getJobEntryAttributeInteger( id_jobentry, "timeout" );
-      remove = rep.getJobEntryAttributeBoolean( id_jobentry, "remove" );
-      onlyGettingNewFiles = rep.getJobEntryAttributeBoolean( id_jobentry, "only_new" );
-      activeConnection = rep.getJobEntryAttributeBoolean( id_jobentry, "active" );
-
-      movefiles = rep.getJobEntryAttributeBoolean( id_jobentry, "movefiles" );
-      movetodirectory = rep.getJobEntryAttributeString( id_jobentry, "movetodirectory" );
-
-      adddate = rep.getJobEntryAttributeBoolean( id_jobentry, "adddate" );
-      addtime = rep.getJobEntryAttributeBoolean( id_jobentry, "adddate" );
-      SpecifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      date_time_format = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      AddDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddDateBeforeExtension" );
-
-      String addToResult = rep.getJobEntryAttributeString( id_jobentry, "isaddresult" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        isaddresult = true;
-      } else {
-        isaddresult = rep.getJobEntryAttributeBoolean( id_jobentry, "isaddresult" );
-      }
-
-      createmovefolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createmovefolder" );
-
-      proxyHost = rep.getJobEntryAttributeString( id_jobentry, "proxy_host" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxy_port" );
-      proxyUsername = rep.getJobEntryAttributeString( id_jobentry, "proxy_username" );
-      proxyPassword =
-        Encr
-          .decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "proxy_password" ) );
-
-      ifFileExists = getFileExistsIndex( rep.getJobEntryAttributeString( id_jobentry, "ifFileExists" ) );
-      nr_limit = rep.getJobEntryAttributeString( id_jobentry, "nr_limit" );
-      success_condition =
-        Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "success_condition" ), SUCCESS_IF_NO_ERRORS );
-      connectionType =
-        FTPSConnection.getConnectionTypeByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "connection_type" ), "" ) );
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'FTPS' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", userName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "FTPSdirectory", FTPSDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targetdirectory", targetDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "binary", binaryMode );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "remove", remove );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "only_new", onlyGettingNewFiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "active", activeConnection );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "movefiles", movefiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "movetodirectory", movetodirectory );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addtime", addtime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "adddate", adddate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", SpecifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", date_time_format );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "AddDateBeforeExtension", AddDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "isaddresult", isaddresult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createmovefolder", createmovefolder );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_host", proxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_port", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_username", proxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ifFileExists", getFileExistsAction( ifFileExists ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_limit", nr_limit );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "connection_type", FTPSConnection
-        .getConnectionType( connectionType ) );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'FTPS' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -620,7 +515,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param onlyGettingNewFiles
+   * @param onlyGettingNewFilesin
    *          The onlyGettingNewFiles to set.
    */
   public void setOnlyGettingNewFiles( boolean onlyGettingNewFilesin ) {
@@ -727,12 +622,6 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
     successConditionBroken = false;
     boolean exitjobentry = false;
     limitFiles = Const.toInt( environmentSubstitute( getLimit() ), 10 );
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     // Here let's put some controls before stating the job
     if ( movefiles ) {
@@ -1009,7 +898,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param string
+   * @param filename
    *          the filename from the FTPS server
    *
    * @return the calculated target filename
@@ -1072,8 +961,6 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
    *
    * @param filename
    *          The local filename to check
-   * @param remoteFileSize
-   *          The size of the remote file
    * @return true if the file needs downloading
    */
   protected boolean needsDownload( String filename ) {
@@ -1134,7 +1021,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param connectionType
+   * @param type
    *          the connectionType to set
    */
   public void setConnectionType( int type ) {
@@ -1145,8 +1032,8 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
    * @param activeConnection
    *          the activeConnection to set
    */
-  public void setActiveConnection( boolean passive ) {
-    this.activeConnection = passive;
+  public void setActiveConnection( boolean activeConnection ) {
+    this.activeConnection = activeConnection;
   }
 
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
@@ -1162,7 +1049,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(

@@ -48,7 +48,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.folderisempty.JobEntryFolderIsEmpty;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -95,8 +94,8 @@ public class JobEntryFolderIsEmptyDialog extends JobEntryDialog implements JobEn
 
   private boolean changed;
 
-  public JobEntryFolderIsEmptyDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFolderIsEmptyDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFolderIsEmpty) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFolderIsEmpty.Name.Default" ) );

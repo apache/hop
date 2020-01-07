@@ -1020,7 +1020,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
 
       try {
 
-        meta.getFields( rowMeta, stepname, null, null, transMeta, repository, metaStore );
+        meta.getFields( rowMeta, stepname, null, null, transMeta, metaStore );
 
         TransMeta previewTransMeta = TransPreviewFactory.generatePreviewTransformation( transMeta, meta, stepname );
         final Trans trans = new Trans( previewTransMeta );

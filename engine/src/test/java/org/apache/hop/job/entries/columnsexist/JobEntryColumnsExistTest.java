@@ -81,7 +81,7 @@ public class JobEntryColumnsExistTest {
 
   @Before
   public void setUp() {
-    Job parentJob = new Job( null, new JobMeta() );
+    Job parentJob = new Job( new JobMeta() );
     jobEntry = spy( new JobEntryColumnsExist( "" ) );
     parentJob.getJobMeta().addJobEntry( new JobEntryCopy( jobEntry ) );
     parentJob.setStopped( false );

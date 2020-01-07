@@ -39,8 +39,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -119,7 +118,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
    *              if an error occurs
    */
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
 
     int nrStats = XMLHandler.countNodes( stepnode, UnivariateStatsMetaFunction.XML_TAG );
 
@@ -198,43 +197,8 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-
-    int nrStats = rep.countNrStepAttributes( id_step, "source_field_name" );
-    allocate( nrStats );
-
-    for ( int i = 0; i < nrStats; i++ ) {
-      m_stats[i] = new UnivariateStatsMetaFunction( rep, id_step, i );
-    }
-  }
-
-  /**
-   * Save this step's meta data to a repository
-   *
-   * @param rep
-   *          the repository to save to
-   * @param metaStore
-   *          the MetaStore to save to
-   * @param id_transformation
-   *          transformation id
-   * @param id_step
-   *          step id
-   * @exception HopException
-   *              if an error occurs
-   */
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-
-    for ( int i = 0; i < m_stats.length; i++ ) {
-      m_stats[i].saveRep( rep, metaStore, id_transformation, id_step, i );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     row.clear();
     for ( int i = 0; i < m_stats.length; i++ ) {
@@ -332,7 +296,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
    */
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
 
     CheckResult cr;

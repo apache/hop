@@ -57,8 +57,7 @@ import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -83,13 +82,6 @@ public class UpdateMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
   Class<UpdateMeta> testMetaClass = UpdateMeta.class;
   private StepMockHelper<UpdateMeta, UpdateData> mockHelper;
-
-  public static final String databaseXML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-        + "<connection>" + "<name>lookup</name>" + "<server>127.0.0.1</server>" + "<type>H2</type>"
-        + "<access>Native</access>" + "<database>mem:db</database>" + "<port></port>" + "<username>sa</username>"
-        + "<password></password>" + "</connection>";
-
 
   @Before
   public void setUp() throws HopException {
@@ -205,40 +197,6 @@ public class UpdateMetaTest implements InitializerInterface<StepMetaInterface> {
     }
   }
 
-  @Test
-  public void testUseDefaultSchemaName() throws Exception {
-    String schemaName = "";
-    String tableName = "tableName";
-    String schemaTable = "default.tableName";
-
-    DatabaseMeta databaseMeta = spy( new DatabaseMeta( databaseXML ) );
-    doReturn( "someValue" ).when( databaseMeta )
-      .getFieldDefinition( any( ValueMetaInterface.class ), anyString(), anyString(), anyBoolean() );
-    doReturn( schemaTable ).when( databaseMeta ).getQuotedSchemaTableCombination( schemaName, tableName );
-
-    ValueMetaInterface valueMeta = mock( ValueMetaInterface.class );
-    when( valueMeta.clone() ).thenReturn( mock( ValueMetaInterface.class ) );
-    RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
-    when( rowMetaInterface.size() ).thenReturn( 1 );
-    when( rowMetaInterface.searchValueMeta( anyString() ) ).thenReturn( valueMeta );
-
-    UpdateMeta updateMeta = new UpdateMeta();
-    updateMeta.setDatabaseMeta( databaseMeta );
-    updateMeta.setTableName( tableName );
-    updateMeta.setSchemaName( schemaName );
-    updateMeta.setKeyLookup( new String[] { "KeyLookup1", "KeyLookup2" } );
-    updateMeta.setKeyStream( new String[] { "KeyStream1", "KeyStream2" } );
-    updateMeta.setUpdateLookup( new String[] { "updateLookup1", "updateLookup2" } );
-    updateMeta.setUpdateStream( new String[] { "UpdateStream1", "UpdateStream2" } );
-
-    SQLStatement sqlStatement =
-        updateMeta.getSQLStatements( new TransMeta(), mock( StepMeta.class ), rowMetaInterface,
-            mock( Repository.class ), mock( IMetaStore.class ) );
-    String sql = sqlStatement.getSQL();
-
-    assertTrue( StringUtils.countMatches( sql, schemaTable ) == 2 );
-  }
-
   // Call the allocate method on the LoadSaveTester meta class
   @Override
   public void modify( StepMetaInterface someMeta ) {
@@ -282,36 +240,5 @@ public class UpdateMetaTest implements InitializerInterface<StepMetaInterface> {
     targetSz = update.getUpdateLookup().length;
     assertEquals( targetSz, update.getUpdateStream().length );
 
-  }
-
-  @Test
-  public void testReadRepAllocatesSizeProperly() throws Exception {
-    Repository rep = mock( Repository.class );
-    ObjectId objectId = new ObjectId() {
-      @Override public String getId() {
-        return "testId";
-      }
-    };
-    when( rep.countNrStepAttributes( objectId, "key_name" ) ).thenReturn( 2 );
-    when( rep.countNrStepAttributes( objectId, "key_field" ) ).thenReturn( 2 );
-    when( rep.countNrStepAttributes( objectId, "key_condition" ) ).thenReturn( 0 );
-    when( rep.countNrStepAttributes( objectId, "key_name2" ) ).thenReturn( 0 );
-
-    when( rep.countNrStepAttributes( objectId, "value_name" ) ).thenReturn( 3 );
-    when( rep.countNrStepAttributes( objectId, "value_rename" ) ).thenReturn( 2 );
-
-    UpdateMeta updateMeta = spy( new UpdateMeta() );
-
-    updateMeta.readRep( rep, null, objectId, null );
-
-    verify( rep ).countNrStepAttributes( objectId, "key_name" );
-    verify( rep ).countNrStepAttributes( objectId, "key_field" );
-    verify( rep ).countNrStepAttributes( objectId, "key_condition" );
-    verify( rep ).countNrStepAttributes( objectId, "key_name2" );
-
-    verify( rep ).countNrStepAttributes( objectId, "value_name" );
-    verify( rep ).countNrStepAttributes( objectId, "value_rename" );
-
-    verify( updateMeta ).allocate( 2, 3 );
   }
 }

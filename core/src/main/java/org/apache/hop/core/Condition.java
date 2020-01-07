@@ -37,7 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.repository.ObjectId;
+
 import org.w3c.dom.Node;
 
 /**
@@ -102,15 +102,12 @@ public class Condition implements Cloneable, XMLInterface {
   // NOT value = othervalue
   //
 
-  private ObjectId id;
-
   private boolean negate;
   private int operator;
   private String left_valuename;
   private int function;
   private String right_valuename;
   private ValueMetaAndData right_exact;
-  private ObjectId id_right_exact;
 
   private int left_fieldnr;
   private int right_fieldnr;
@@ -131,8 +128,6 @@ public class Condition implements Cloneable, XMLInterface {
 
     left_fieldnr = -2;
     right_fieldnr = -2;
-
-    id = null;
   }
 
   public Condition( String valuename, int function, String valuename2, ValueMetaAndData exact ) {
@@ -159,26 +154,6 @@ public class Condition implements Cloneable, XMLInterface {
   public Condition( boolean negate, String valuename, int function, String valuename2, ValueMetaAndData exact ) {
     this( valuename, function, valuename2, exact );
     this.negate = negate;
-  }
-
-  /**
-   * Returns the database ID of this Condition if a repository was used before.
-   *
-   * @return the ID of the db connection.
-   */
-  public ObjectId getObjectId() {
-    return id;
-  }
-
-  /**
-   * Set the database ID for this Condition in the repository.
-   *
-   * @param id
-   *          The ID to set on this condition.
-   *
-   */
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
   }
 
   @Override
@@ -298,26 +273,6 @@ public class Condition implements Cloneable, XMLInterface {
       return null;
     }
     return right_exact.toString();
-  }
-
-  /**
-   * Get the id of the RightExact Value in the repository
-   *
-   * @return The id of the RightExact Value in the repository
-   */
-  public ObjectId getRightExactID() {
-    return id_right_exact;
-  }
-
-  /**
-   * Set the database ID for the RightExact Value in the repository.
-   *
-   * @param id_right_exact
-   *          The ID to set on this Value.
-   *
-   */
-  public void setRightExactID( ObjectId id_right_exact ) {
-    this.id_right_exact = id_right_exact;
   }
 
   public boolean isAtomic() {

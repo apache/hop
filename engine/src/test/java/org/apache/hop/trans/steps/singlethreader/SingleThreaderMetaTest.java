@@ -39,8 +39,6 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.ObjectIdLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.ObjectLocationSpecificationMethodLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
 
 public class SingleThreaderMetaTest implements InitializerInterface<StepMetaInterface> {
@@ -53,8 +51,8 @@ public class SingleThreaderMetaTest implements InitializerInterface<StepMetaInte
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "transName", "fileName", "directoryPath", "batchSize", "batchTime", "injectStep", "retrieveStep",
-            "passingAllParameters", "specificationMethod", "transObjectId", "parameters", "parameterValues" );
+        Arrays.asList( "fileName", "batchSize", "batchTime", "injectStep", "retrieveStep",
+            "passingAllParameters", "parameters", "parameterValues" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
@@ -66,8 +64,6 @@ public class SingleThreaderMetaTest implements InitializerInterface<StepMetaInte
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "parameters", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "parameterValues", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "specificationMethod", new ObjectLocationSpecificationMethodLoadSaveValidator() );
-    attrValidatorMap.put( "transObjectId", new ObjectIdLoadSaveValidator() );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 

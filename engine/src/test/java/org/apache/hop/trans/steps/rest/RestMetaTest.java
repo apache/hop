@@ -48,7 +48,6 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -110,14 +109,13 @@ public class RestMetaTest {
     String[] input = new String[0];
     String[] output = new String[0];
     VariableSpace variables = new Variables();
-    Repository repo = null;
     IMetaStore metaStore = null;
 
     // In a default configuration, it's expected that some errors will occur.
     // For this, we'll grab a baseline count of the number of errors
     // as the error count should decrease as we change configuration settings to proper values.
     remarks.clear();
-    meta.check( remarks, transMeta, step, prev, input, output, info, variables, repo, metaStore );
+    meta.check( remarks, transMeta, step, prev, input, output, info, variables, metaStore );
     final int errorsDefault = getCheckResultErrorCount( remarks );
     assertTrue( errorsDefault > 0 );
 
@@ -126,7 +124,7 @@ public class RestMetaTest {
     meta.setUrlField( "urlField" );
     prev.addValueMeta( new ValueMetaString( "urlField" ) );
     remarks.clear();
-    meta.check( remarks, transMeta, step, prev, input, output, info, variables, repo, metaStore );
+    meta.check( remarks, transMeta, step, prev, input, output, info, variables, metaStore );
     int errorsCurrent = getCheckResultErrorCount( remarks );
     assertTrue( errorsDefault > errorsCurrent );
   }

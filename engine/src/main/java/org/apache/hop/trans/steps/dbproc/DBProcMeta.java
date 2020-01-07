@@ -41,8 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -210,8 +209,8 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
     this.autoCommit = autoCommit;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrargs ) {
@@ -256,7 +255,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( resultName ) ) {
       ValueMetaInterface v;
@@ -315,13 +314,13 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       int i;
       int nrargs;
 
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      database = DatabaseMeta.findDatabase( databases, con );
+      database = DatabaseMeta.loadDatabase( metaStore, con );
       procedure = XMLHandler.getTagValue( stepnode, "procedure" );
 
       Node lookup = XMLHandler.getSubNode( stepnode, "lookup" );
@@ -346,59 +345,9 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      database = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      procedure = rep.getStepAttributeString( id_step, "procedure" );
-
-      int nrargs = rep.countNrStepAttributes( id_step, "arg_name" );
-      allocate( nrargs );
-
-      for ( int i = 0; i < nrargs; i++ ) {
-        argument[i] = rep.getStepAttributeString( id_step, i, "arg_name" );
-        argumentDirection[i] = rep.getStepAttributeString( id_step, i, "arg_direction" );
-        argumentType[i] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "arg_type" ) );
-      }
-
-      resultName = rep.getStepAttributeString( id_step, "result_name" );
-      resultType = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, "result_type" ) );
-      autoCommit = rep.getStepAttributeBoolean( id_step, 0, "auto_commit", true );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DBProcMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", database );
-      rep.saveStepAttribute( id_transformation, id_step, "procedure", procedure );
-
-      for ( int i = 0; i < argument.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_name", argument[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_direction", argumentDirection[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_type",
-          ValueMetaFactory.getValueMetaName( argumentType[i] ) );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "result_name", resultName );
-      rep.saveStepAttribute( id_transformation, id_step, "result_type",
-        ValueMetaFactory.getValueMetaName( resultType ) );
-      rep.saveStepAttribute( id_transformation, id_step, "auto_commit", autoCommit );
-
-      // Also, save the step-database relationship!
-      if ( database != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, database.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DBProcMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

@@ -46,8 +46,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -155,6 +154,8 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
   @Injection( name = "BULK_SIZE" )
   private String bulkSize;
 
+  private IMetaStore metaStore;
+
   /**
    * @return Returns the database.
    */
@@ -215,8 +216,8 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
     this.fieldStream = fieldStream;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrvalues ) {
@@ -237,10 +238,11 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       tableName = XMLHandler.getTagValue( stepnode, "table" );
@@ -324,81 +326,13 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-      delimiter = rep.getStepAttributeString( id_step, "delimiter" );
-      escapeChar = rep.getStepAttributeString( id_step, "escape_char" );
-      fifoFileName = rep.getStepAttributeString( id_step, "fifo_file_name" );
-      replacingData = rep.getStepAttributeBoolean( id_step, "replace" );
-      ignoringErrors = rep.getStepAttributeBoolean( id_step, "ignore" );
-      localFile = rep.getStepAttributeBoolean( id_step, "local" );
-      bulkSize = rep.getStepAttributeString( id_step, "bulk_size" );
-
-      int nrvalues = rep.countNrStepAttributes( id_step, "stream_name" );
-
-      allocate( nrvalues );
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        fieldTable[i] = rep.getStepAttributeString( id_step, i, "stream_name" );
-        fieldStream[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        if ( fieldStream[i] == null ) {
-          fieldStream[i] = fieldTable[i];
-        }
-        fieldFormatType[i] = getFieldFormatType( rep.getStepAttributeString( id_step, i, "field_format_ok" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "MySQLBulkLoaderMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-      rep.saveStepAttribute( id_transformation, id_step, "delimiter", delimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "escape_char", escapeChar );
-      rep.saveStepAttribute( id_transformation, id_step, "fifo_file_name", fifoFileName );
-      rep.saveStepAttribute( id_transformation, id_step, "replace", replacingData );
-      rep.saveStepAttribute( id_transformation, id_step, "ignore", ignoringErrors );
-      rep.saveStepAttribute( id_transformation, id_step, "local", localFile );
-      rep.saveStepAttribute( id_transformation, id_step, "bulk_size", bulkSize );
-
-      for ( int i = 0; i < fieldTable.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "stream_name", fieldTable[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format_ok",
-            getFieldFormatTypeCode( fieldFormatType[i] ) );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "MySQLBulkLoaderMeta.Exception.UnableToSaveStepInfoToRepository" )
-          + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
@@ -531,7 +465,7 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      Repository repository, IMetaStore metaStore ) throws HopStepException {
+      IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -586,7 +520,7 @@ public class MySQLBulkLoaderMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
       IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */

@@ -46,8 +46,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;

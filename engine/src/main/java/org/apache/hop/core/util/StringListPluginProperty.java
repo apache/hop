@@ -30,8 +30,7 @@ import java.util.prefs.Preferences;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -93,9 +92,6 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#appendXml(java.lang.StringBuilder)
    */
   public void appendXml( final StringBuilder builder ) {
     if ( !this.evaluate() ) {
@@ -106,18 +102,12 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#evaluate()
    */
   public boolean evaluate() {
     return CollectionPredicates.NOT_NULL_OR_EMPTY_COLLECTION.evaluate( this.getValue() );
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#loadXml(org.w3c.dom.Node)
    */
   public void loadXml( final Node node ) {
     final String stringValue = XMLHandler.getTagValue( node, this.getKey() );
@@ -126,47 +116,19 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#readFromPreferences(java.util.prefs.Preferences)
    */
   public void readFromPreferences( final Preferences node ) {
     final String stringValue = node.get( this.getKey(), asString( this.getValue() ) );
     this.setValue( fromString( stringValue ) );
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#readFromRepositoryStep(org.apache.hop.repository.Repository,
-   *      long)
-   */
-  public void readFromRepositoryStep( final Repository repository, final IMetaStore metaStore,
-    final ObjectId stepId ) throws HopException {
-    final String stringValue = repository.getStepAttributeString( stepId, this.getKey() );
-    this.setValue( fromString( stringValue ) );
-  }
 
   /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#saveToPreferences(java.util.prefs.Preferences)
    */
   public void saveToPreferences( final Preferences node ) {
     node.put( this.getKey(), asString( this.getValue() ) );
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see at.aschauer.commons.pentaho.plugin.PluginProperty#saveToRepositoryStep(org.apache.hop.repository.Repository,
-   *      long, long)
-   */
-  public void saveToRepositoryStep( final Repository repository, final IMetaStore metaStore,
-    final ObjectId transformationId, final ObjectId stepId ) throws HopException {
-    final String stringValue = asString( this.getValue() );
-    repository.saveStepAttribute( transformationId, stepId, this.getKey(), stringValue );
-  }
 
   /**
    * @param values

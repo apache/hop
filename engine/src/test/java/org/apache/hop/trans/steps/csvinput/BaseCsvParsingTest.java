@@ -74,7 +74,7 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
    */
   protected void setFields( TextFileInputField... fields ) throws Exception {
     meta.setInputFields( fields );
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null, null );
+    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
     data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
   }
 

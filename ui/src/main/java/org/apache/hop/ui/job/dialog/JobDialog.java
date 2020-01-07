@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.job.dialog;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,7 +55,6 @@ import org.apache.hop.core.DBCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
@@ -72,10 +72,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.HopRepositoryLostException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -88,7 +84,6 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.repository.RepositoryDirectoryUI;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 
@@ -125,17 +120,7 @@ public class JobDialog extends Dialog {
 
   private FormData fdlJobFilename, fdJobFilename;
 
-  private Label wlDirectory;
-
-  private Text wDirectory;
-
-  private Button wbDirectory;
-
-  private FormData fdlDirectory, fdbDirectory, fdDirectory;
-
-  private Button wbLogconnection;
-
-  private ComboVar wLogconnection;
+  private MetaSelectionManager<DatabaseMeta> wLogConnection;
 
   private TextVar wLogSchema;
 
@@ -152,8 +137,6 @@ public class JobDialog extends Dialog {
   private JobMeta jobMeta;
 
   private Shell shell;
-
-  private Repository rep;
 
   private SelectionAdapter lsDef;
 
@@ -202,8 +185,6 @@ public class JobDialog extends Dialog {
 
   private Text wModDate;
 
-  private RepositoryDirectoryInterface newDirectory;
-
   private boolean directoryChangeAllowed;
 
   private TextVar wLogSizeLimit;
@@ -231,13 +212,10 @@ public class JobDialog extends Dialog {
 
   private ArrayList<JobDialogPluginInterface> extraTabs;
 
-  public JobDialog( Shell parent, int style, JobMeta jobMeta, Repository rep ) {
+  public JobDialog( Shell parent, int style, JobMeta jobMeta) {
     super( parent, style );
     this.jobMeta = jobMeta;
     this.props = PropsUI.getInstance();
-    this.rep = rep;
-
-    this.newDirectory = null;
 
     directoryChangeAllowed = true;
 
@@ -297,10 +275,6 @@ public class JobDialog extends Dialog {
         extraTab.addTab( jobMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
-        HopRepositoryLostException krle = HopRepositoryLostException.lookupStackStrace( e );
-        if ( krle != null ) {
-          throw krle;
-        }
         new ErrorDialog(
           shell, "Error", "Error loading job dialog plugin with id " + jobDialogPlugin.getIds()[0], e );
       }
@@ -422,9 +396,7 @@ public class JobDialog extends Dialog {
     fdlJobname.right = new FormAttachment( middle, -margin );
     fdlJobname.top = new FormAttachment( 0, margin );
     wlJobname.setLayoutData( fdlJobname );
-    wJobname = new Text( wJobComp, rep == null ? SWT.SINGLE | SWT.LEFT | SWT.BORDER
-      : SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY );
-    wJobname.setEnabled( rep == null );
+    wJobname = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wJobname );
     wJobname.addModifyListener( lsMod );
     fdJobname = new FormData();
@@ -531,48 +503,7 @@ public class JobDialog extends Dialog {
     fdJobversion.right = new FormAttachment( 100, 0 );
     wJobversion.setLayoutData( fdJobversion );
 
-    // Directory:
-    wlDirectory = new Label( wJobComp, SWT.RIGHT );
-    wlDirectory.setText( BaseMessages.getString( PKG, "JobDialog.Directory.Label" ) );
-    props.setLook( wlDirectory );
-    fdlDirectory = new FormData();
-    fdlDirectory.left = new FormAttachment( 0, 0 );
-    fdlDirectory.right = new FormAttachment( middle, -margin );
-    fdlDirectory.top = new FormAttachment( wJobversion, margin );
-    wlDirectory.setLayoutData( fdlDirectory );
 
-    wbDirectory = new Button( wJobComp, SWT.PUSH );
-    wbDirectory.setToolTipText( BaseMessages.getString( PKG, "JobDialog.SelectJobFolderFolder.Tooltip" ) );
-    wbDirectory.setImage( GUIResource.getInstance().getImageArrow() );
-    props.setLook( wbDirectory );
-    fdbDirectory = new FormData();
-    fdbDirectory.top = new FormAttachment( wJobversion, 0 );
-    fdbDirectory.right = new FormAttachment( 100, 0 );
-    wbDirectory.setLayoutData( fdbDirectory );
-    wbDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        RepositoryDirectoryInterface directoryFrom = jobMeta.getRepositoryDirectory();
-        RepositoryDirectoryInterface rd = RepositoryDirectoryUI.chooseDirectory( shell, rep, directoryFrom );
-        if ( rd == null ) {
-          return;
-        }
-        // We need to change this in the repository as well!!
-        // We do this when the user pressed OK
-        newDirectory = rd;
-        wDirectory.setText( rd.getPath() );
-      }
-    } );
-
-    wDirectory = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wDirectory );
-    wDirectory.setToolTipText( BaseMessages.getString( PKG, "JobDialog.Directory.Tooltip" ) );
-    wDirectory.setEditable( false );
-    wDirectory.setEnabled( false );
-    fdDirectory = new FormData();
-    fdDirectory.top = new FormAttachment( wJobversion, margin );
-    fdDirectory.left = new FormAttachment( middle, 0 );
-    fdDirectory.right = new FormAttachment( wbDirectory, 0 );
-    wDirectory.setLayoutData( fdDirectory );
 
     // Create User:
     Label wlCreateUser = new Label( wJobComp, SWT.RIGHT );
@@ -581,7 +512,7 @@ public class JobDialog extends Dialog {
     FormData fdlCreateUser = new FormData();
     fdlCreateUser.left = new FormAttachment( 0, 0 );
     fdlCreateUser.right = new FormAttachment( middle, -margin );
-    fdlCreateUser.top = new FormAttachment( wDirectory, margin );
+    fdlCreateUser.top = new FormAttachment( wJobversion, margin );
     wlCreateUser.setLayoutData( fdlCreateUser );
     wCreateUser = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCreateUser );
@@ -589,7 +520,7 @@ public class JobDialog extends Dialog {
     wCreateUser.addModifyListener( lsMod );
     FormData fdCreateUser = new FormData();
     fdCreateUser.left = new FormAttachment( middle, 0 );
-    fdCreateUser.top = new FormAttachment( wDirectory, margin );
+    fdCreateUser.top = new FormAttachment( wJobversion, margin );
     fdCreateUser.right = new FormAttachment( 100, 0 );
     wCreateUser.setLayoutData( fdCreateUser );
 
@@ -862,7 +793,7 @@ public class JobDialog extends Dialog {
 
     // The connection...
     //
-    jobLogTable.setConnectionName( wLogconnection.getText() );
+    jobLogTable.setConnectionName( wLogConnection.getText() );
     jobLogTable.setSchemaName( wLogSchema.getText() );
     jobLogTable.setTableName( wLogTable.getText() );
     jobLogTable.setLogInterval( wLogInterval.getText() );
@@ -880,50 +811,14 @@ public class JobDialog extends Dialog {
 
   private Control addDBSchemaTableLogOptions( LogTableInterface logTable ) {
 
-    // Log table connection...
-    //
-    Label wlLogconnection = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogconnection.setText( BaseMessages.getString( PKG, "JobDialog.LogConnection.Label" ) );
-    props.setLook( wlLogconnection );
-    FormData fdlLogconnection = new FormData();
-    fdlLogconnection.left = new FormAttachment( 0, 0 );
-    fdlLogconnection.right = new FormAttachment( middle, -margin );
-    fdlLogconnection.top = new FormAttachment( 0, 0 );
-    wlLogconnection.setLayoutData( fdlLogconnection );
-
-    wbLogconnection = new Button( wLogOptionsComposite, SWT.PUSH );
-    wbLogconnection.setText( BaseMessages.getString( PKG, "JobDialog.LogconnectionButton.Label" ) );
-    wbLogconnection.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DatabaseMeta databaseMeta = new DatabaseMeta();
-        databaseMeta.shareVariablesWith( jobMeta );
-
-        getDatabaseDialog().setDatabaseMeta( databaseMeta );
-
-        if ( getDatabaseDialog().open() != null ) {
-          jobMeta.addDatabase( getDatabaseDialog().getDatabaseMeta() );
-          wLogconnection.add( getDatabaseDialog().getDatabaseMeta().getName() );
-          wLogconnection.select( wLogconnection.getItemCount() - 1 );
-        }
-      }
-    } );
-    FormData fdbLogconnection = new FormData();
-    fdbLogconnection.right = new FormAttachment( 100, 0 );
-    fdbLogconnection.top = new FormAttachment( 0, 0 );
-    wbLogconnection.setLayoutData( fdbLogconnection );
-
-    wLogconnection = new ComboVar( jobMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wLogconnection );
-    wLogconnection.addModifyListener( lsMod );
-    FormData fdLogconnection = new FormData();
-    fdLogconnection.left = new FormAttachment( middle, 0 );
-    fdLogconnection.top = new FormAttachment( 0, 0 );
-    fdLogconnection.right = new FormAttachment( wbLogconnection, -margin );
-    wLogconnection.setLayoutData( fdLogconnection );
-    wLogconnection.setItems( jobMeta.getDatabaseNames() );
-    wLogconnection.setText( Const.NVL( logTable.getConnectionName(), "" ) );
-    wLogconnection.setToolTipText( BaseMessages.getString( PKG, "JobDialog.LogConnection.Tooltip", logTable
-      .getConnectionNameVariable() ) );
+    wLogConnection = new MetaSelectionManager<DatabaseMeta>(jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
+      BaseMessages.getString( PKG, "JobDialog.LogConnection.Label" ),
+      BaseMessages.getString( PKG, "JobDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() ) );
+    FormData fdLogConnection = new FormData();
+    fdLogConnection.left = new FormAttachment( 0, 0 );
+    fdLogConnection.right = new FormAttachment( 100, 0 );
+    fdLogConnection.top = new FormAttachment( 0, 0 );
+    wLogConnection.setLayoutData( fdLogConnection );
 
     // Log schema ...
     //
@@ -933,14 +828,14 @@ public class JobDialog extends Dialog {
     FormData fdlLogSchema = new FormData();
     fdlLogSchema.left = new FormAttachment( 0, 0 );
     fdlLogSchema.right = new FormAttachment( middle, -margin );
-    fdlLogSchema.top = new FormAttachment( wLogconnection, margin );
+    fdlLogSchema.top = new FormAttachment( wLogConnection, margin );
     wlLogSchema.setLayoutData( fdlLogSchema );
     wLogSchema = new TextVar( jobMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogSchema );
     wLogSchema.addModifyListener( lsMod );
     FormData fdLogSchema = new FormData();
     fdLogSchema.left = new FormAttachment( middle, 0 );
-    fdLogSchema.top = new FormAttachment( wLogconnection, margin );
+    fdLogSchema.top = new FormAttachment( wLogConnection, margin );
     fdLogSchema.right = new FormAttachment( 100, 0 );
     wLogSchema.setLayoutData( fdLogSchema );
     wLogSchema.setText( Const.NVL( logTable.getSchemaName(), "" ) );
@@ -1099,7 +994,7 @@ public class JobDialog extends Dialog {
 
     // The connection...
     //
-    channelLogTable.setConnectionName( wLogconnection.getText() );
+    channelLogTable.setConnectionName( wLogConnection.getText() );
     channelLogTable.setSchemaName( wLogSchema.getText() );
     channelLogTable.setTableName( wLogTable.getText() );
     channelLogTable.setTimeoutInDays( wLogTimeout.getText() );
@@ -1211,7 +1106,7 @@ public class JobDialog extends Dialog {
 
     // The connection...
     //
-    jobEntryLogTable.setConnectionName( wLogconnection.getText() );
+    jobEntryLogTable.setConnectionName( wLogConnection.getText() );
     jobEntryLogTable.setSchemaName( wLogSchema.getText() );
     jobEntryLogTable.setTableName( wLogTable.getText() );
     jobEntryLogTable.setTimeoutInDays( wLogTimeout.getText() );
@@ -1410,10 +1305,6 @@ public class JobDialog extends Dialog {
     wLogTypeList.select( 0 );
     showJobLogTableOptions( (JobLogTable) logTables.get( 0 ) );
 
-    if ( jobMeta.getRepositoryDirectory() != null ) {
-      wDirectory.setText( jobMeta.getRepositoryDirectory().getPath() );
-    }
-
     if ( jobMeta.getCreatedUser() != null ) {
       wCreateUser.setText( jobMeta.getCreatedUser() );
     }
@@ -1461,20 +1352,6 @@ public class JobDialog extends Dialog {
     for ( JobDialogPluginInterface extraTab : extraTabs ) {
       extraTab.getData( jobMeta );
     }
-
-    setFlags();
-  }
-
-  public void setFlags() {
-    wbDirectory.setEnabled( false );
-    // wDirectory.setEnabled(rep!=null);
-    wlDirectory.setEnabled( false );
-
-    // DatabaseMeta dbMeta = jobMeta.findDatabase(wLogconnection.getText());
-    // wbLogconnection.setEnabled(dbMeta!=null);
-
-    // wlLogSizeLimit.setEnabled(wLogfield.getSelection());
-    // wLogSizeLimit.setEnabled(wLogfield.getSelection());
   }
 
   private void cancel() {
@@ -1523,31 +1400,6 @@ public class JobDialog extends Dialog {
 
     for ( JobDialogPluginInterface extraTab : extraTabs ) {
       extraTab.ok( jobMeta );
-    }
-
-    if ( newDirectory != null ) {
-      if ( directoryChangeAllowed ) {
-        RepositoryDirectoryInterface dirFrom = jobMeta.getRepositoryDirectory();
-
-        try {
-          if ( jobMeta.getObjectId() != null ) {
-            ObjectId newId = rep.renameJob( jobMeta.getObjectId(), newDirectory, jobMeta.getName() );
-            jobMeta.setObjectId( newId );
-          }
-          jobMeta.setRepositoryDirectory( newDirectory );
-          wDirectory.setText( jobMeta.getRepositoryDirectory().getPath() );
-        } catch ( HopException dbe ) {
-          jobMeta.setRepositoryDirectory( dirFrom );
-
-          new ErrorDialog(
-            shell, BaseMessages.getString( PKG, "JobDialog.Dialog.ErrorChangingDirectory.Title" ), BaseMessages
-              .getString( PKG, "JobDialog.Dialog.ErrorChangingDirectory.Message" ), dbe );
-        }
-      } else {
-        // Just update to the new selected directory...
-        //
-        jobMeta.setRepositoryDirectory( newDirectory );
-      }
     }
 
     jobMeta.setChanged( changed || jobMeta.hasChanged() );

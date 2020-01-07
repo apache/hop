@@ -25,8 +25,7 @@ package org.apache.hop.trans.steps.mapping;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -104,28 +103,6 @@ public class MappingParameters implements Cloneable {
     xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    for ( int i = 0; i < variable.length; i++ ) {
-      rep.saveStepAttribute( id_transformation, id_step, i, "mapping_parameter_variable", variable[i] );
-      rep.saveStepAttribute( id_transformation, id_step, i, "mapping_parameter_input", input[i] );
-    }
-    rep.saveStepAttribute(
-      id_transformation, id_step, "mapping_parameter_inherit_all_vars", inheritingAllVariables );
-  }
-
-  public MappingParameters( Repository rep, ObjectId id_step ) throws HopException {
-    int nrVariables = rep.countNrStepAttributes( id_step, "mapping_parameter_variable" );
-
-    variable = new String[nrVariables];
-    input = new String[nrVariables];
-
-    for ( int i = 0; i < nrVariables; i++ ) {
-      variable[i] = rep.getStepAttributeString( id_step, i, "mapping_parameter_variable" );
-      input[i] = rep.getStepAttributeString( id_step, i, "mapping_parameter_input" );
-    }
-    inheritingAllVariables = rep.getStepAttributeBoolean( id_step, "mapping_parameter_inherit_all_vars" );
   }
 
   /**

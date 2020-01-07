@@ -29,11 +29,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.StepWithMappingMeta;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -92,10 +90,6 @@ public class MappingParametersTest {
 
   private void prepareMappingParametesActions( boolean override ) throws HopException {
     MappingMeta meta = new MappingMeta();
-    meta.setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE );
-    Repository rep = Mockito.mock( Repository.class );
-    Mockito.when( step.getTransMeta().getRepository() ).thenReturn( rep );
-    Mockito.when( rep.loadTransformation( Mockito.any( ObjectId.class ), Mockito.anyString() ) ).thenReturn( transMeta );
 
     MappingParameters mapPar = new MappingParameters();
     mapPar.setInheritingAllVariables( override );

@@ -76,7 +76,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
@@ -156,7 +155,6 @@ public class DatabaseLookupUTest {
 
   private DatabaseLookupMeta createDatabaseMeta() throws HopException {
     MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
-    mysql.setName( "MySQL" );
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setDatabaseInterface( mysql );
 
@@ -190,7 +188,6 @@ public class DatabaseLookupUTest {
       any( RowMetaInterface[].class ),
       any( StepMeta.class ),
       any( VariableSpace.class ),
-      any( Repository.class ),
       any( IMetaStore.class ) );
     return meta;
   }
@@ -262,7 +259,6 @@ public class DatabaseLookupUTest {
     lookData.lookupMeta = new RowMeta();
 
     MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
-    mysql.setName( "MySQL" );
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setDatabaseInterface( mysql );
 
@@ -296,7 +292,6 @@ public class DatabaseLookupUTest {
       any( RowMetaInterface[].class ),
       any( StepMeta.class ),
       any( VariableSpace.class ),
-      any( Repository.class ),
       any( IMetaStore.class ) );
 
 

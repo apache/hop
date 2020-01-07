@@ -25,10 +25,8 @@
   <servlet id="allocateSocket"> <description>Service for the allocation of server sockets</description> <classname>org.apache.hop.www.AllocateServerSocketServlet</classname> </servlet>
   <servlet id="listSocket"> <description>Lists server socket allocation information</description> <classname>org.apache.hop.www.ListServerSocketServlet</classname> </servlet>
   <servlet id="sniffStep"> <description>Sniff test a transformation step</description> <classname>org.apache.hop.www.SniffStepServlet</classname> </servlet>
-  <servlet id="executeTrans"> <description>Execute (prepare and start) a specific transformation and pass output to the servlet</description> <classname>org.apache.hop.www.ExecuteTransServlet</classname> </servlet>
   <servlet id="transImage"> <description>Generate a PNG image of a transformation</description> <classname>org.apache.hop.www.GetTransImageServlet</classname> </servlet>
-  <servlet id="runTrans"> <description>Run a transformation directly from a repository</description> <classname>org.apache.hop.www.RunTransServlet</classname> </servlet>
-  
+
   <!-- The job handlers... -->
   
   <servlet id="startJob"> <description>Start a job</description> <classname>org.apache.hop.www.StartJobServlet</classname> </servlet>
@@ -36,8 +34,6 @@
   <servlet id="jobStatus"> <description>Get the status of a job</description> <classname>org.apache.hop.www.GetJobStatusServlet</classname> </servlet>
   <servlet id="addJob"> <description>Add a job to the server</description> <classname>org.apache.hop.www.AddJobServlet</classname> </servlet>
   <servlet id="removeJob"> <description>Remove a job from the server</description> <classname>org.apache.hop.www.RemoveJobServlet</classname> </servlet>
-  <servlet id="runJob"> <description>Run a job directly from a repository</description> <classname>org.apache.hop.www.RunJobServlet</classname> </servlet>
-  <servlet id="executeJob"> <description>Execute (prepare and start) a specific job</description> <classname>org.apache.hop.www.ExecuteJobServlet</classname> </servlet>
   <servlet id="jobImage"> <description>Generate a PNG image of a job</description> <classname>org.apache.hop.www.GetJobImageServlet</classname> </servlet>
   
   <servlet id="registerJob"> <description>Add a job to the server</description> <classname>org.apache.hop.www.RegisterJobServlet</classname> </servlet>

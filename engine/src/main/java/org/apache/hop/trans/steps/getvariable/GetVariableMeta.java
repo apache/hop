@@ -44,8 +44,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -79,7 +78,7 @@ public class GetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -151,7 +150,7 @@ public class GetVariableMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Determine the maximum length...
     //
     int length = -1;
@@ -229,74 +228,8 @@ public class GetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldDefinitions[i].setFieldName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        fieldDefinitions[i].setVariableString( rep.getStepAttributeString( id_step, i, "field_variable" ) );
-        fieldDefinitions[i].setFieldType(
-          ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-
-        fieldDefinitions[i].setFieldFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        fieldDefinitions[i].setCurrency( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        fieldDefinitions[i].setDecimal( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        fieldDefinitions[i].setGroup( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        fieldDefinitions[i].setFieldLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        fieldDefinitions[i].setFieldPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        fieldDefinitions[i].setTrimType(
-          ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString( id_step, i, "field_trim_type" ) ) );
-
-        // Backward compatibility
-        //
-        int fieldType = fieldDefinitions[i].getFieldType();
-        if ( fieldType == ValueMetaInterface.TYPE_NONE ) {
-          fieldDefinitions[i].setFieldType( ValueMetaInterface.TYPE_STRING );
-        }
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-
-      for ( int i = 0; i < fieldDefinitions.length; i++ ) {
-        String fieldName = fieldDefinitions[i].getFieldName();
-        if ( fieldName != null && fieldName.length() != 0 ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_variable", fieldDefinitions[i]
-              .getVariableString() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-            ValueMetaFactory.getValueMetaName( fieldDefinitions[i].getFieldType() ) );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_format", fieldDefinitions[i].getFieldFormat() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", fieldDefinitions[i].getCurrency() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", fieldDefinitions[i].getDecimal() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_group", fieldDefinitions[i].getGroup() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_length", fieldDefinitions[i].getFieldLength() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", fieldDefinitions[i]
-              .getFieldPrecision() );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type",
-            ValueMetaString.getTrimTypeCode( fieldDefinitions[i].getTrimType() ) );
-        }
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     int nrRemarks = remarks.size();

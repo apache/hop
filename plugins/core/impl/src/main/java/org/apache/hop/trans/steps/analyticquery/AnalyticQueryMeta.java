@@ -42,8 +42,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -177,7 +176,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     this.valueField = valueField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -263,7 +262,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // re-assemble a new row of metadata
     //
     RowMetaInterface fields = new RowMeta();
@@ -326,54 +325,9 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      int groupsize = rep.countNrStepAttributes( id_step, "group_name" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "aggregate_name" );
-
-      allocate( groupsize, nrvalues );
-
-      for ( int i = 0; i < groupsize; i++ ) {
-        groupField[i] = rep.getStepAttributeString( id_step, i, "group_name" );
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        aggregateField[i] = rep.getStepAttributeString( id_step, i, "aggregate_name" );
-        subjectField[i] = rep.getStepAttributeString( id_step, i, "aggregate_subject" );
-        aggregateType[i] = getType( rep.getStepAttributeString( id_step, i, "aggregate_type" ) );
-        valueField[i] = (int) rep.getStepAttributeInteger( id_step, i, "aggregate_value_field" );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AnalyticQueryMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      for ( int i = 0; i < groupField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "group_name", groupField[i] );
-      }
-
-      for ( int i = 0; i < subjectField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_name", aggregateField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_subject", subjectField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_type", getTypeDesc( aggregateType[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_value_field", valueField[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AnalyticQueryMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

@@ -49,8 +49,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -132,10 +131,10 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
@@ -149,63 +148,10 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
       outdumpvalue = Const.toInt( XMLHandler.getTagValue( entrynode, "outdumpvalue" ), -1 );
       iffileexists = Const.toInt( XMLHandler.getTagValue( entrynode, "iffileexists" ), -1 );
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
       addfiletoresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'table exists' from XML node", e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      schemaname = rep.getJobEntryAttributeString( id_jobentry, "schemaname" );
-      tablename = rep.getJobEntryAttributeString( id_jobentry, "tablename" );
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      separator = rep.getJobEntryAttributeString( id_jobentry, "separator" );
-      enclosed = rep.getJobEntryAttributeString( id_jobentry, "enclosed" );
-      lineterminated = rep.getJobEntryAttributeString( id_jobentry, "lineterminated" );
-      limitlines = rep.getJobEntryAttributeString( id_jobentry, "limitlines" );
-      listcolumn = rep.getJobEntryAttributeString( id_jobentry, "listcolumn" );
-      highpriority = rep.getJobEntryAttributeBoolean( id_jobentry, "highpriority" );
-      optionenclosed = rep.getJobEntryAttributeBoolean( id_jobentry, "optionenclosed" );
-
-      outdumpvalue = (int) rep.getJobEntryAttributeInteger( id_jobentry, "outdumpvalue" );
-
-      iffileexists = (int) rep.getJobEntryAttributeInteger( id_jobentry, "iffileexists" );
-
-      addfiletoresult = rep.getJobEntryAttributeBoolean( id_jobentry, "addfiletoresult" );
-
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'table exists' from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schemaname", schemaname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablename", tablename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "separator", separator );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "enclosed", enclosed );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "lineterminated", lineterminated );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "limitlines", limitlines );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "listcolumn", listcolumn );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "highpriority", highpriority );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "optionenclosed", optionenclosed );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "outdumpvalue", outdumpvalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "iffileexists", iffileexists );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addfiletoresult", addfiletoresult );
-
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'Mysql Bulk Load' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -577,7 +523,7 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks,

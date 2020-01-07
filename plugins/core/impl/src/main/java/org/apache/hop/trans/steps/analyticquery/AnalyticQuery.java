@@ -79,7 +79,7 @@ public class AnalyticQuery extends BaseStep implements StepInterface {
       }
 
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.groupnrs = new int[meta.getGroupField().length];
       for ( int i = 0; i < meta.getGroupField().length; i++ ) {

@@ -22,6 +22,7 @@
 
 package org.apache.hop.trans.steps.pgbulkloader;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -43,6 +44,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -86,7 +88,7 @@ import java.util.Set;
 public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -198,11 +200,7 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
 
     // Schema line...
     wlSchema = new Label( shell, SWT.RIGHT );
@@ -557,10 +555,6 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
 
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else {
-      if ( transMeta.nrDatabases() == 1 ) {
-        wConnection.setText( transMeta.getDatabase( 0 ).getName() );
-      }
     }
     if ( input.getSchemaName() != null ) {
       wSchema.setText( input.getSchemaName() );
@@ -804,17 +798,15 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
   }
 
   private void getTableName() {
-    DatabaseMeta inf = null;
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      inf = transMeta.getDatabase( connr );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
     }
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if ( databaseMeta != null ) {
+      logDebug( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
 
-    if ( inf != null ) {
-      logDebug( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Log.LookingAtConnection" ) + inf.toString() );
-
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -864,7 +856,7 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
         new StepMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.StepMeta.Title" ), name, info );
       RowMetaInterface prev = transMeta.getPrevStepFields( stepname );
 
-      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, repository, metaStore );
+      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

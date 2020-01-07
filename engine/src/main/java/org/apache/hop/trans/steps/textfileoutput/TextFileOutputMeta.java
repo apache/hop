@@ -47,8 +47,7 @@ import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -551,7 +550,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode, metaStore );
   }
 
@@ -756,7 +755,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // No values are added to the row in this type of step
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
@@ -784,13 +783,6 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
         v.setOutputPaddingEnabled( true );
       }
     }
-  }
-
-  @Override
-  @Deprecated
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space ) throws HopStepException {
-    getFields( inputRowMeta, name, info, nextStep, space, null, null );
   }
 
   @Override
@@ -839,9 +831,6 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   protected void saveFileOptions( StringBuilder retval ) {
-    if ( parentStepMeta != null && parentStepMeta.getParentTransMeta() != null ) {
-      parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( fileName );
-    }
     saveSource( retval, fileName );
     retval.append( "      " ).append( XMLHandler.addTagValue( "servlet_output", servletOutput ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "do_not_open_new_file_init", doNotOpenNewFileInit ) );
@@ -861,145 +850,8 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      separator = rep.getStepAttributeString( id_step, "separator" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-      enclosureForced = rep.getStepAttributeBoolean( id_step, "enclosure_forced" );
-      disableEnclosureFix = rep.getStepAttributeBoolean( id_step, 0, "enclosure_fix_disabled", true );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "create_parent_folder" );
-      headerEnabled = rep.getStepAttributeBoolean( id_step, "header" );
-      footerEnabled = rep.getStepAttributeBoolean( id_step, "footer" );
-      fileFormat = rep.getStepAttributeString( id_step, "format" );
-      setFileCompression( rep.getStepAttributeString( id_step, "compression" ) );
-      fileNameInField = rep.getStepAttributeBoolean( id_step, "fileNameInField" );
-      fileNameField = rep.getStepAttributeString( id_step, "fileNameField" );
-      if ( getFileCompression() == null ) {
-        if ( rep.getStepAttributeBoolean( id_step, "zipped" ) ) {
-          setFileCompression( fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_ZIP] );
-        } else {
-          setFileCompression( fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE] );
-        }
-      }
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-
-      fileName = loadSourceRep( rep, id_step, metaStore );
-      servletOutput = rep.getStepAttributeBoolean( id_step, "file_servlet_output" );
-      doNotOpenNewFileInit = rep.getStepAttributeBoolean( id_step, "do_not_open_new_file_init" );
-      extension = rep.getStepAttributeString( id_step, "file_extention" );
-      fileAppended = rep.getStepAttributeBoolean( id_step, "file_append" );
-
-      splitEveryRows = rep.getStepAttributeString( id_step, "file_split_rows" );
-      if ( Utils.isEmpty( splitEveryRows ) ) {
-        // test for legacy
-        long splitEvery = rep.getStepAttributeInteger( id_step, "file_split" );
-        if ( splitEvery > 0 ) {
-          splitEveryRows = Long.toString( splitEvery );
-        }
-      }
-
-      stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
-      partNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_partnr" );
-      dateInFilename = rep.getStepAttributeBoolean( id_step, "file_add_date" );
-      timeInFilename = rep.getStepAttributeBoolean( id_step, "file_add_time" );
-      setSpecifyingFormat( rep.getStepAttributeBoolean( id_step, "SpecifyFormat" ) );
-      setDateTimeFormat( rep.getStepAttributeString( id_step, "date_time_format" ) );
-
-      String AddToResultFiles = rep.getStepAttributeString( id_step, "add_to_result_filenames" );
-      if ( Utils.isEmpty( AddToResultFiles ) ) {
-        addToResultFilenames = true;
-      } else {
-        addToResultFilenames = rep.getStepAttributeBoolean( id_step, "add_to_result_filenames" );
-      }
-
-      padded = rep.getStepAttributeBoolean( id_step, "file_pad" );
-      fastDump = rep.getStepAttributeBoolean( id_step, "file_fast_dump" );
-
-      newline = getNewLine( fileFormat );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        outputFields[i] = new TextFileField();
-
-        outputFields[i].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        outputFields[i].setType( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        outputFields[i].setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        outputFields[i].setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        outputFields[i].setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        outputFields[i].setGroupingSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        outputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString( id_step, i,
-            "field_trim_type" ) ) );
-        outputFields[i].setNullString( rep.getStepAttributeString( id_step, i, "field_nullif" ) );
-        outputFields[i].setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        outputFields[i].setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-      }
-      endedLine = rep.getStepAttributeString( id_step, "endedLine" );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "separator", separator );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure_forced", enclosureForced );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "enclosure_fix_disabled", disableEnclosureFix );
-      rep.saveStepAttribute( id_transformation, id_step, "header", headerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "footer", footerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "format", fileFormat );
-      rep.saveStepAttribute( id_transformation, id_step, "compression", getFileCompression() );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      saveSourceRep( rep, id_transformation, id_step, fileName );
-      rep.saveStepAttribute( id_transformation, id_step, "file_servlet_output", servletOutput );
-      rep.saveStepAttribute( id_transformation, id_step, "do_not_open_new_file_init", doNotOpenNewFileInit );
-      rep.saveStepAttribute( id_transformation, id_step, "file_extention", extension );
-      rep.saveStepAttribute( id_transformation, id_step, "file_append", fileAppended );
-      rep.saveStepAttribute( id_transformation, id_step, "file_split_rows", splitEveryRows );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_stepnr", stepNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_partnr", partNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_date", dateInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "date_time_format", getDateTimeFormat() );
-      rep.saveStepAttribute( id_transformation, id_step, "create_parent_folder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "SpecifyFormat", isSpecifyingFormat() );
-
-      rep.saveStepAttribute( id_transformation, id_step, "add_to_result_filenames", addToResultFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_time", timeInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_pad", padded );
-      rep.saveStepAttribute( id_transformation, id_step, "file_fast_dump", fastDump );
-      rep.saveStepAttribute( id_transformation, id_step, "fileNameInField", fileNameInField );
-      rep.saveStepAttribute( id_transformation, id_step, "fileNameField", fileNameField );
-
-      for ( int i = 0; i < outputFields.length; i++ ) {
-        TextFileField field = outputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupingSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field.getTrimTypeCode() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_nullif", field.getNullString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "endedLine", endedLine );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -1071,8 +923,6 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -1080,7 +930,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore )
+      ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
@@ -1116,15 +966,6 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   protected void saveSource( StringBuilder retVal, String value ) {
     retVal.append( "      " ).append( XMLHandler.addTagValue( "name", fileName ) );
-  }
-
-  protected String loadSourceRep( Repository rep, ObjectId id_step, IMetaStore metaStore  ) throws HopException {
-    return rep.getStepAttributeString( id_step, "file_name" );
-  }
-
-  protected void saveSourceRep( Repository rep, ObjectId id_transformation, ObjectId id_step, String value )
-    throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
   }
 
   /**

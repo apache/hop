@@ -24,7 +24,6 @@ package org.apache.hop.trans.step;
 
 import org.junit.Test;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 
@@ -45,7 +44,6 @@ public class BaseStepMetaCloningTest {
   public void testClone() throws Exception {
     final Database db1 = mock( Database.class );
     final Database db2 = mock( Database.class );
-    final Repository repository = mock( Repository.class );
     final StepMeta stepMeta = mock( StepMeta.class );
 
     BaseStepMeta meta = new BaseStepMeta();
@@ -53,7 +51,6 @@ public class BaseStepMetaCloningTest {
     meta.databases = new Database[] { db1, db2 };
     StepIOMetaInterface ioMeta = new StepIOMeta( true, false, false, false, false, false );
     meta.setStepIOMeta( ioMeta ); 
-    meta.repository = repository;
     meta.parentStepMeta = stepMeta;
 
     BaseStepMeta clone = (BaseStepMeta) meta.clone();
@@ -63,7 +60,6 @@ public class BaseStepMetaCloningTest {
     assertTrue( clone.databases == meta.databases );
     assertArrayEquals( meta.databases, clone.databases );
 
-    assertEquals( meta.repository, clone.repository );
     assertEquals( meta.parentStepMeta, clone.parentStepMeta );
 
     StepIOMetaInterface cloneIOMeta = clone.getStepIOMeta();
@@ -82,7 +78,6 @@ public class BaseStepMetaCloningTest {
   public void testCloneWithInfoSteps() throws Exception {
     final Database db1 = mock( Database.class );
     final Database db2 = mock( Database.class );
-    final Repository repository = mock( Repository.class );
     final StepMeta stepMeta = mock( StepMeta.class );
 
     BaseStepMeta meta = new BaseStepMeta();
@@ -96,7 +91,6 @@ public class BaseStepMetaCloningTest {
     doReturn( refStepName ).when( refStepMeta ).getName();
     StreamInterface stream = new Stream( StreamInterface.StreamType.INFO, refStepMeta, null, null, refStepName );
     ioMeta.addStream( stream );
-    meta.repository = repository;
     meta.parentStepMeta = stepMeta;
 
     BaseStepMeta clone = (BaseStepMeta) meta.clone();
@@ -106,7 +100,6 @@ public class BaseStepMetaCloningTest {
     assertTrue( clone.databases == meta.databases );
     assertArrayEquals( meta.databases, clone.databases );
 
-    assertEquals( meta.repository, clone.repository );
     assertEquals( meta.parentStepMeta, clone.parentStepMeta );
 
 

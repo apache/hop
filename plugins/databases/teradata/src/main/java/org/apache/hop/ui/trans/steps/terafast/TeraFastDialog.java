@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -91,11 +93,7 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
 
   private TeraFastMeta meta;
 
-  private CCombo wConnection;
-
-  private Label wlConnection;
-
-  private Button wbwConnection, wbnConnection, wbeConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlTable;
 
@@ -314,7 +312,7 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     setTextIfPropertyValue( this.meta.getTargetTable(), this.wTable );
     setTextIfPropertyValue( this.meta.getErrorLimit(), this.wErrLimit );
     setTextIfPropertyValue( this.meta.getSessions(), this.wSessions );
-    setTextIfPropertyValue( this.meta.getConnectionName(), this.wConnection );
+    setTextIfPropertyValue( this.meta.getConnectionName(), this.wConnection.getComboWidget() );
     this.wbTruncateTable.setSelection( this.meta.getTruncateTable().getValue() );
     this.wUseControlFile.setSelection( this.meta.getUseControlFile().getValue() );
     this.wVariableSubstitution.setSelection( this.meta.getVariableSubstitution().getValue() );
@@ -329,10 +327,6 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     // DatabaseMeta dbMeta = this.transMeta.findDatabase(this.meta.getDbConnection().getValue());
     if ( this.meta.getDbMeta() != null ) {
       this.wConnection.setText( this.meta.getConnectionName().getValue() );
-    } else {
-      if ( this.transMeta.nrDatabases() == 1 ) {
-        this.wConnection.setText( this.transMeta.getDatabase( 0 ).getName() );
-      }
     }
     setTableFieldCombo();
 
@@ -570,15 +564,7 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     this.buildVariableSubstitutionLine( factory );
     this.buildFastloadLine( factory );
     this.buildLogFileLine( factory );
-    // connection line
-    this.wbwConnection = new Button( this.shell, SWT.PUSH );
-    this.wbnConnection = new Button( this.shell, SWT.PUSH );
-    this.wbeConnection = new Button( this.shell, SWT.PUSH );
-    this.wlConnection = new Label( this.shell, SWT.RIGHT );
-    this.wConnection =
-      addConnectionLine(
-        this.shell, this.wLogFile, factory.getMiddle(), factory.getMargin(), this.wlConnection,
-        this.wbwConnection, this.wbnConnection, this.wbeConnection, TeradataDatabaseMeta.class );
+    this.wConnection = addConnectionLine( this.shell, this.wLogFile, meta.getDbMeta(), null );
     this.buildTableLine( factory );
     this.buildTruncateTableLine( factory );
     this.buildDataFileLine( factory );
@@ -938,9 +924,6 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     this.wTable.setEnabled( !useControlFile );
     this.wbTruncateTable.setEnabled( !useControlFile );
     this.wConnection.setEnabled( !useControlFile );
-    this.wbeConnection.setEnabled( !useControlFile );
-    this.wbwConnection.setEnabled( !useControlFile );
-    this.wbnConnection.setEnabled( !useControlFile );
     this.wVariableSubstitution.setEnabled( useControlFile );
   }
 

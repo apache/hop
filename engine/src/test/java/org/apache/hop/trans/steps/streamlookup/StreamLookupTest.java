@@ -44,7 +44,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepIOMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.errorhandling.Stream;
@@ -159,7 +158,7 @@ public class StreamLookupTest {
     doReturn( new String[] { "Value" } ).when( meta ).getValueName();
     doReturn( new String[] { "Value" } ).when( meta ).getValue();
     doCallRealMethod().when( meta ).getFields( any( RowMetaInterface.class ), anyString(), any( RowMetaInterface[].class ), any( StepMeta.class ),
-      any( VariableSpace.class ), any( Repository.class ), any( IMetaStore.class ) );
+      any( VariableSpace.class ), any( IMetaStore.class ) );
 
     return meta;
   }

@@ -117,7 +117,7 @@ public class GetTableNames extends BaseStep implements StepInterface {
         data.outputRowMeta = new RowMeta();
       }
 
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
     }
 
@@ -423,7 +423,7 @@ public class GetTableNames extends BaseStep implements StepInterface {
       try {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore ); // get the
+        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
                                                                                                       // metadata
                                                                                                       // populated
       } catch ( Exception e ) {

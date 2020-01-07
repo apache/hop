@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -79,15 +78,6 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
 
   public PGPDecryptStreamMeta() {
     super(); // allocate BaseStepMeta
-  }
-
-  /**
-   * @deprecated typo
-   * @param gpglocation
-   */
-  @Deprecated
-  public void setGPGPLocation( String value ) {
-    this.setGPGLocation( value );
   }
 
   public void setGPGLocation( String gpglocation ) {
@@ -151,16 +141,6 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
-   * @deprecated typo
-   */
-  @Deprecated
-  public void setResultfieldname( String value ) {
-    this.setResultFieldName( value );
-  }
-
-  /**
    *
    * @param resultfieldname
    *          The resultFieldName to set
@@ -185,8 +165,8 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -206,7 +186,7 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( resultfieldname ) );
@@ -229,7 +209,7 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       gpglocation = XMLHandler.getTagValue( stepnode, "gpglocation" );
       passhrase = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( stepnode, "passhrase" ) );
@@ -244,42 +224,9 @@ public class PGPDecryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      gpglocation = rep.getStepAttributeString( id_step, "gpglocation" );
-      passhrase = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "passhrase" ) );
-
-      streamfield = rep.getStepAttributeString( id_step, "streamfield" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      passphraseFromField = rep.getStepAttributeBoolean( id_step, "passphraseFromField" );
-      passphraseFieldName = rep.getStepAttributeString( id_step, "passphraseFieldName" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "PGPDecryptStreamMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "gpglocation", gpglocation );
-      rep.saveStepAttribute( id_transformation, id_step, "passhrase", Encr
-        .encryptPasswordIfNotUsingVariables( passhrase ) );
-      rep.saveStepAttribute( id_transformation, id_step, "streamfield", streamfield );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "passphraseFromField", passphraseFromField );
-      rep.saveStepAttribute( id_transformation, id_step, "passphraseFieldName", passphraseFieldName );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "PGPDecryptStreamMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

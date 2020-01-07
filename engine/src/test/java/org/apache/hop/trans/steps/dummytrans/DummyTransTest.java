@@ -44,7 +44,7 @@ public class DummyTransTest {
   private StepMockHelper<StepMetaInterface, StepDataInterface> stepMockHelper;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     stepMockHelper =
       new StepMockHelper<StepMetaInterface, StepDataInterface>(
         "DUMMY TEST", StepMetaInterface.class, StepDataInterface.class );

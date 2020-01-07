@@ -360,10 +360,6 @@ public class PropsUI extends Props {
       properties.setProperty( "filetype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
           LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
       properties.setProperty( "lastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
-      properties.setProperty( "lastdir" + ( i + 1 ), Const.NVL( lastUsedFile.getDirectory(), "" ) );
-      properties.setProperty( "lasttype" + ( i + 1 ), lastUsedFile.isSourceRepository() ? YES : NO );
-      properties.setProperty( "lastrepo" + ( i + 1 ), Const.NVL( lastUsedFile.getRepositoryName(), "" ) );
-      properties.setProperty( "lastuser" + ( i + 1 ), Const.NVL( lastUsedFile.getUsername(), "" ) );
     }
   }
 
@@ -379,10 +375,6 @@ public class PropsUI extends Props {
         properties.setProperty( "repofiletype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
           LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
         properties.setProperty( "repolastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
-        properties.setProperty( "repolastdir" + ( i + 1 ), Const.NVL( lastUsedFile.getDirectory(), "" ) );
-        properties.setProperty( "repolasttype" + ( i + 1 ), lastUsedFile.isSourceRepository() ? YES : NO );
-        properties.setProperty( "repolastrepo" + ( i + 1 ), Const.NVL( lastUsedFile.getRepositoryName(), "" ) );
-        properties.setProperty( "repolastuser" + ( i + 1 ), Const.NVL( lastUsedFile.getUsername(), "" ) );
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
         properties.setProperty( "repolastdate" + ( i + 1 ),
           Const.NVL( simpleDateFormat.format( lastUsedFile.getLastOpened() ), "" ) );
@@ -399,9 +391,6 @@ public class PropsUI extends Props {
       properties.setProperty( "tabtype" + ( i + 1 ), Const.NVL( openTabFile.getFileType(),
           LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
       properties.setProperty( "tabfile" + ( i + 1 ), Const.NVL( openTabFile.getFilename(), "" ) );
-      properties.setProperty( "tabdir" + ( i + 1 ), Const.NVL( openTabFile.getDirectory(), "" ) );
-      properties.setProperty( "tabrep" + ( i + 1 ), openTabFile.isSourceRepository() ? YES : NO );
-      properties.setProperty( "tabrepname" + ( i + 1 ), Const.NVL( openTabFile.getRepositoryName(), "" ) );
       properties.setProperty( "tabopened" + ( i + 1 ), openTabFile.isOpened() ? YES : NO );
       properties.setProperty( "tabopentypes" + ( i + 1 ), "" + openTabFile.getOpenItemTypes() );
     }
@@ -414,16 +403,9 @@ public class PropsUI extends Props {
    *          the type of file to use @see LastUsedFile
    * @param filename
    *          The name of the file or transformation
-   * @param directory
-   *          The repository directory path, null in case lf is an XML file
-   * @param sourceRepository
-   *          True if the file was loaded from repository, false if ld is an XML file.
-   * @param repositoryName
-   *          The name of the repository the file was loaded from or save to.
    */
-  public void addLastFile( String fileType, String filename, String directory, boolean sourceRepository,
-                           String repositoryName ) {
-    addLastFile( fileType, filename, directory, sourceRepository, repositoryName, "", null );
+  public void addLastFile( String fileType, String filename ) {
+    addLastFile( fileType, filename, null );
   }
 
   /**
@@ -431,14 +413,9 @@ public class PropsUI extends Props {
    *
    * @param fileType         the type of file to use @see LastUsedFile
    * @param filename         The name of the file or transformation
-   * @param directory        The repository directory path, null in case lf is an XML file
-   * @param sourceRepository True if the file was loaded from repository, false if ld is an XML file.
-   * @param repositoryName   The name of the repository the file was loaded from or save to.
    */
-  public void addLastFile( String fileType, String filename, String directory, boolean sourceRepository,
-                           String repositoryName, String username, Date lastOpened ) {
-    LastUsedFile lastUsedFile =
-      new LastUsedFile( fileType, filename, directory, sourceRepository, repositoryName, username, false,
+  public void addLastFile( String fileType, String filename, Date lastOpened ) {
+    LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, false,
         LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH, lastOpened );
 
     int idx = lastUsedFiles.indexOf( lastUsedFile );
@@ -452,30 +429,8 @@ public class PropsUI extends Props {
     while ( lastUsedFiles.size() > Const.MAX_FILE_HIST ) {
       lastUsedFiles.remove( lastUsedFiles.size() - 1 );
     }
-
-    addLastRepoFile( lastUsedFile );
   }
 
-  private void addLastRepoFile( LastUsedFile lastUsedFile ) {
-    String repositoryName = lastUsedFile.getRepositoryName();
-    String username = lastUsedFile.getUsername() != null ? lastUsedFile.getUsername() : "";
-    if ( !Utils.isEmpty( repositoryName ) ) {
-      List<LastUsedFile> lastUsedFiles =
-        lastUsedRepoFiles.getOrDefault( repositoryName + ":" + username, new ArrayList<>() );
-      int idx = lastUsedFiles.indexOf( lastUsedFile );
-      if ( idx >= 0 ) {
-        lastUsedFiles.remove( idx );
-      }
-
-      lastUsedFiles.add( 0, lastUsedFile );
-      lastUsedRepoFiles.put( repositoryName + ":" + username, lastUsedFiles );
-
-      // If we have more than Const.MAX_FILE_HIST, top it off
-      while ( lastUsedFiles.size() > 12 ) {
-        lastUsedFiles.remove( lastUsedRepoFiles.get( repositoryName + ":" + username ).size() - 1 );
-      }
-    }
-  }
 
   /**
    * Add a last opened file to the top of the recently used list.
@@ -484,17 +439,9 @@ public class PropsUI extends Props {
    *          the type of file to use @see LastUsedFile
    * @param filename
    *          The name of the file or transformation
-   * @param directory
-   *          The repository directory path, null in case lf is an XML file
-   * @param sourceRepository
-   *          True if the file was loaded from repository, false if ld is an XML file.
-   * @param repositoryName
-   *          The name of the repository the file was loaded from or save to.
    */
-  public void addOpenTabFile( String fileType, String filename, String directory, boolean sourceRepository,
-      String repositoryName, int openTypes ) {
-    LastUsedFile lastUsedFile =
-        new LastUsedFile( fileType, filename, directory, sourceRepository, repositoryName, true, openTypes );
+  public void addOpenTabFile( String fileType, String filename, int openTypes ) {
+    LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, true, openTypes, new Date() );
     openTabFiles.add( lastUsedFile );
   }
 
@@ -504,15 +451,11 @@ public class PropsUI extends Props {
     for ( int i = 0; i < nr; i++ ) {
       String fileType = properties.getProperty( "filetype" + ( i + 1 ), LastUsedFile.FILE_TYPE_TRANSFORMATION );
       String filename = properties.getProperty( "lastfile" + ( i + 1 ), "" );
-      String directory = properties.getProperty( "lastdir" + ( i + 1 ), "" );
-      boolean sourceRepository = YES.equalsIgnoreCase( properties.getProperty( "lasttype" + ( i + 1 ), NO ) );
-      String repositoryName = properties.getProperty( "lastrepo" + ( i + 1 ) );
       boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "lastopened" + ( i + 1 ), NO ) );
       int openItemTypes = Const.toInt( properties.getProperty( "lastopentypes" + ( i + 1 ), "0" ), 0 );
 
       lastUsedFiles.add(
-        new LastUsedFile( fileType, filename, directory, sourceRepository, repositoryName, isOpened,
-          openItemTypes ) );
+        new LastUsedFile( fileType, filename, isOpened, openItemTypes, new Date() ) );
     }
   }
 
@@ -540,9 +483,7 @@ public class PropsUI extends Props {
       }
 
       List<LastUsedFile> lastUsedFiles = lastUsedRepoFiles.getOrDefault( repositoryName + ":" + username, new ArrayList<>() );
-      lastUsedFiles.add(
-        new LastUsedFile( fileType, filename, directory, sourceRepository, repositoryName, username, isOpened,
-          openItemTypes, lastOpened ) );
+      lastUsedFiles.add( new LastUsedFile( fileType, filename, isOpened, openItemTypes, lastOpened ) );
       lastUsedRepoFiles.put( repositoryName + ":" + username, lastUsedFiles );
     }
   }
@@ -559,8 +500,7 @@ public class PropsUI extends Props {
       boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "tabopened" + ( i + 1 ), NO ) );
       int openItemTypes = Const.toInt( properties.getProperty( "tabopentypes" + ( i + 1 ), "0" ), 0 );
 
-      openTabFiles.add( new LastUsedFile( fileType, filename, directory, sourceRepository, repositoryName, isOpened,
-          openItemTypes ) );
+      openTabFiles.add( new LastUsedFile( fileType, filename, isOpened, openItemTypes, new Date() ) );
     }
   }
 
@@ -605,33 +545,6 @@ public class PropsUI extends Props {
     } else {
       return this.filename;
     }
-  }
-
-  public String[] getLastDirs() {
-    String[] retval = new String[lastUsedFiles.size()];
-    for ( int i = 0; i < retval.length; i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[i] = lastUsedFile.getDirectory();
-    }
-    return retval;
-  }
-
-  public boolean[] getLastTypes() {
-    boolean[] retval = new boolean[lastUsedFiles.size()];
-    for ( int i = 0; i < retval.length; i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[i] = lastUsedFile.isSourceRepository();
-    }
-    return retval;
-  }
-
-  public String[] getLastRepositories() {
-    String[] retval = new String[lastUsedFiles.size()];
-    for ( int i = 0; i < retval.length; i++ ) {
-      LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[i] = lastUsedFile.getRepositoryName();
-    }
-    return retval;
   }
 
   public void setFixedFont( FontData fd ) {

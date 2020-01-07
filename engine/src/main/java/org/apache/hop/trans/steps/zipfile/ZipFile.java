@@ -86,8 +86,7 @@ public class ZipFile extends BaseStep implements StepInterface {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, getTrans().getRepository(), getTrans()
-        .getMetaStore() );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, getTrans().getMetaStore() );
 
       // Check is source filename field is provided
       if ( Utils.isEmpty( meta.getDynamicSourceFileNameField() ) ) {
@@ -475,11 +474,6 @@ public class ZipFile extends BaseStep implements StepInterface {
     data = (ZipFileData) sdi;
 
     if ( super.init( smi, sdi ) ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-        getTransMeta().getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, getTransMeta().getEmbeddedMetastoreProviderKey() );
-      }
       return true;
     }
     return false;

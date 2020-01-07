@@ -51,8 +51,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceHolderInterface;
@@ -141,8 +140,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
 
   /** These are the remote output steps to write to, one per host:port combination */
   private List<RemoteStep> remoteOutputSteps;
-
-  private ObjectId id;
 
   private TransMeta parentTransMeta;
 
@@ -269,30 +266,11 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
    *
    * @param stepnode
    *          The XML step node.
-   * @param databases
-   *          A list of databases
-   * @param counters
-   *          A map with all defined counters.
-   * @deprecated use {@link #StepMeta(Node, List, IMetaStore)}
-   */
-  @Deprecated
-  public StepMeta( Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters )
-    throws HopXMLException, HopPluginLoaderException {
-    this( stepnode, databases, (IMetaStore) null );
-  }
-
-  /**
-   * Read the step data from XML
-   *
-   * @param stepnode
-   *          The XML step node.
-   * @param databases
-   *          A list of databases
    * @param metaStore
    *          The IMetaStore.
    *
    */
-  public StepMeta( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException,
+  public StepMeta( Node stepnode, IMetaStore metaStore ) throws HopXMLException,
     HopPluginLoaderException {
     this();
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -317,8 +295,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
 
         // Load the specifics from XML...
         if ( stepMetaInterface != null ) {
-          loadXmlCompatibleStepMeta( stepMetaInterface, stepnode, databases );
-          stepMetaInterface.loadXML( stepnode, databases, metaStore );
+          stepMetaInterface.loadXML( stepnode, metaStore );
         }
 
         /* Handle info general to all step types... */
@@ -398,20 +375,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * Just in case we missed a v4 plugin using deprecated methods.
-   *
-   * @param stepMetaInterface2
-   * @param stepnode
-   * @param databases
-   * @throws HopXMLException
-   */
-  @SuppressWarnings( "deprecation" )
-  private void loadXmlCompatibleStepMeta( StepMetaInterface stepMetaInterface2, Node stepnode,
-      List<DatabaseMeta> databases ) throws HopXMLException {
-    stepMetaInterface.loadXML( stepnode, databases, new HashMap<String, Counter>() );
-  }
-
-  /**
    * Resolves the name of the cluster loaded from XML/Repository to the correct clusterSchema object
    *
    * @param clusterSchemas
@@ -434,19 +397,10 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     try {
       doc = XMLHandler.loadXMLString( metaXml );
       Node stepNode = XMLHandler.getSubNode( doc, "step" );
-      return new StepMeta( stepNode, Collections.emptyList(), (IMetaStore) null );
+      return new StepMeta( stepNode, null );
     } catch ( HopXMLException | HopPluginLoaderException e ) {
       throw new RuntimeException( e );
     }
-  }
-
-  @Override
-  public ObjectId getObjectId() {
-    return id;
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
   }
 
   /**
@@ -588,7 +542,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   public Object clone() {
     StepMeta stepMeta = new StepMeta();
     stepMeta.replaceMeta( this );
-    stepMeta.setObjectId( null );
     return stepMeta;
   }
 
@@ -646,7 +599,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     this.attributesMap = copyStringMap( stepMeta.attributesMap );
 
     // this.setShared(stepMeta.isShared());
-    this.id = stepMeta.getObjectId();
     this.setChanged( true );
   }
 
@@ -723,11 +675,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     return terminator;
   }
 
-  public StepMeta( ObjectId id_step ) {
-    this( (String) null, (String) null, (StepMetaInterface) null );
-    setObjectId( id_step );
-  }
-
   @Override
   public void setLocation( int x, int y ) {
     int nx = ( x >= 0 ? x : 0 );
@@ -753,26 +700,10 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     return location;
   }
 
-  /**
-   * @deprecated use {@link #check(List, TransMeta, RowMetaInterface, String[], String[], RowMetaInterface, VariableSpace, Repository, IMetaStore)}
-   * @param remarks
-   * @param transMeta
-   * @param prev
-   * @param input
-   * @param output
-   * @param info
-   */
-  @Deprecated
+    @SuppressWarnings( "deprecation" )
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, RowMetaInterface prev, String[] input,
-      String[] output, RowMetaInterface info ) {
-    check( remarks, transMeta, prev, input, output, info, new Variables(), null, null );
-  }
-
-  @SuppressWarnings( "deprecation" )
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, RowMetaInterface prev, String[] input,
-      String[] output, RowMetaInterface info, VariableSpace space, Repository repository, IMetaStore metaStore ) {
-    stepMetaInterface.check( remarks, transMeta, this, prev, input, output, info );
-    stepMetaInterface.check( remarks, transMeta, this, prev, input, output, info, space, repository, metaStore );
+      String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+    stepMetaInterface.check( remarks, transMeta, this, prev, input, output, info, space, metaStore );
   }
 
   @Override
@@ -861,27 +792,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     this.stepErrorMeta = stepErrorMeta;
   }
 
-  /**
-   * Find a step with the ID in a given ArrayList of steps
-   *
-   * @param steps
-   *          The List of steps to search
-   * @param id
-   *          The ID of the step
-   * @return The step if it was found, null if nothing was found
-   */
-  public static final StepMeta findStep( List<StepMeta> steps, ObjectId id ) {
-    if ( steps == null ) {
-      return null;
-    }
-
-    for ( StepMeta stepMeta : steps ) {
-      if ( stepMeta.getObjectId() != null && stepMeta.getObjectId().equals( id ) ) {
-        return stepMeta;
-      }
-    }
-    return null;
-  }
 
   /**
    * Find a step with its name in a given ArrayList of steps
@@ -926,7 +836,11 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
    */
   @Override
   public String getTypeId() {
-    return this.getStepID();
+    return this.stepid;
+  }
+
+  public String getPluginId() {
+    return this.stepid;
   }
 
   public boolean isMapping() {
@@ -962,30 +876,15 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     return stepMetaInterface.getResourceDependencies( transMeta, this );
   }
 
-  /**
-   * @deprecated use {@link #exportResources(VariableSpace, Map, ResourceNamingInterface, Repository, IMetaStore)}
-   * @param space
-   * @param definitions
-   * @param resourceNamingInterface
-   * @param repository
-   * @return
-   * @throws HopException
-   */
-  @Deprecated
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, Repository repository ) throws HopException {
-    return exportResources( space, definitions, resourceNamingInterface, repository, repository.getMetaStore() );
-  }
-
   @Override
   @SuppressWarnings( "deprecation" )
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore )
+      ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
         throws HopException {
 
     // Compatibility with previous release...
     //
-    String resources = stepMetaInterface.exportResources( space, definitions, resourceNamingInterface, repository );
+    String resources = stepMetaInterface.exportResources( space, definitions, resourceNamingInterface, metaStore );
     if ( resources != null ) {
       return resources;
     }
@@ -994,7 +893,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     // These can in turn add anything to the map in terms of resources, etc.
     // Even reference files, etc. For now it's just XML probably...
     //
-    return stepMetaInterface.exportResources( space, definitions, resourceNamingInterface, repository, metaStore );
+    return stepMetaInterface.exportResources( space, definitions, resourceNamingInterface, metaStore );
   }
 
   /**
@@ -1050,11 +949,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
       return true;
     }
     return false;
-  }
-
-  @Override
-  public String getHolderType() {
-    return "STEP";
   }
 
   public boolean isClustered() {

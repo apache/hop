@@ -53,7 +53,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.writetofile.JobEntryWriteToFile;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -117,8 +116,8 @@ public class JobEntryWriteToFileDialog extends JobEntryDialog implements JobEntr
 
   private boolean gotEncodings = false;
 
-  public JobEntryWriteToFileDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryWriteToFileDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryWriteToFile) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobWriteToFile.Name.Default" ) );

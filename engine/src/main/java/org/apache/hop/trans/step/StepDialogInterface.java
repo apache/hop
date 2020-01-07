@@ -22,7 +22,6 @@
 
 package org.apache.hop.trans.step;
 
-import org.apache.hop.repository.Repository;
 import org.apache.hop.metastore.api.IMetaStore;
 
 /**
@@ -40,14 +39,6 @@ public interface StepDialogInterface {
    * @return the (potentially new) name of the step
    */
   String open();
-
-  /**
-   * Sets the repository.
-   *
-   * @param repository
-   *          the new repository
-   */
-  void setRepository( Repository repository );
 
   /**
    * @param metaStore

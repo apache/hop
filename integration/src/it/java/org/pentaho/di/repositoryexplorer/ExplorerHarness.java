@@ -23,9 +23,6 @@
 package org.apache.hop.repositoryexplorer;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.repository.UserInfo;
-import org.apache.hop.repository.kdr.HopDatabaseRepository;
-import org.apache.hop.repository.kdr.HopDatabaseRepositoryMeta;
 import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorerCallback;
 import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryContent;
 

@@ -34,7 +34,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.RepositoryElementInterface;
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -45,9 +44,6 @@ import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
  * 
  */
 public class SharedObjectSyncUtil {
-
-  private final ConnectionSynchronizationHandler connectionSynchronizationHandler =
-      new ConnectionSynchronizationHandler();
 
   private final SlaveServerSynchronizationHandler slaveServerSynchronizationHandler =
       new SlaveServerSynchronizationHandler();
@@ -70,24 +66,6 @@ public class SharedObjectSyncUtil {
     hopUiDelegates.slaves.setSharedObjectSyncUtil( this );
     hopUiDelegates.clusters.setSharedObjectSyncUtil( this );
     hopUiDelegates.partitions.setSharedObjectSyncUtil( this );
-  }
-
-  public synchronized void synchronizeConnections( DatabaseMeta database ) {
-    synchronizeConnections( database, database.getName() );
-  }
-  /**
-   * Synchronizes data from <code>database</code> to shared databases.
-   * 
-   * @param database
-   *          data to share
-   */
-  public synchronized void synchronizeConnections( DatabaseMeta database, String originalName ) {
-    if ( !database.isShared() ) {
-      return;
-    }
-    synchronizeJobs( database, connectionSynchronizationHandler, originalName );
-    synchronizeTransformations( database, connectionSynchronizationHandler, originalName );
-    saveSharedObjects();
   }
 
   private void saveSharedObjects() {
@@ -115,9 +93,6 @@ public class SharedObjectSyncUtil {
       synchronizeTransformations( slaveServer, slaveServerSynchronizationHandler, originalName );
       saveSharedObjects();
     }
-    if ( slaveServer.getObjectId() != null ) {
-      updateRepositoryObjects( slaveServer, slaveServerSynchronizationHandler );
-    }
   }
 
   public synchronized void deleteSlaveServer( SlaveServer removed ) {
@@ -130,37 +105,6 @@ public class SharedObjectSyncUtil {
 
   public synchronized void deletePartitionSchema( PartitionSchema removed ) {
     synchronizeTransformations( true, transMeta -> transMeta.getPartitionSchemas().remove( removed ) );
-  }
-
-  private <T extends SharedObjectInterface & RepositoryElementInterface>
-    void updateRepositoryObjects( T updatedObject, SynchronizationHandler<T> handler ) {
-    synchronizeJobs( true, job -> synchronizeByObjectId( updatedObject, handler.getObjectsForSyncFromJob( job ), handler ) );
-    synchronizeTransformations( true, trans ->
-      synchronizeByObjectId( updatedObject, handler.getObjectsForSyncFromTransformation( trans ), handler ) );
-  }
-
-  public synchronized void reloadTransformationRepositoryObjects( boolean includeActive ) {
-    if ( hopUi.rep != null ) {
-      synchronizeTransformations( includeActive, transMeta -> {
-        try {
-          hopUi.rep.readTransSharedObjects( transMeta );
-        } catch ( HopException e ) {
-          logError( e );
-        }
-      } );
-    }
-  }
-
-  public synchronized void reloadJobRepositoryObjects( boolean includeActive ) {
-    if ( hopUi.rep != null ) {
-      synchronizeJobs( includeActive, jobMeta -> {
-        try {
-          hopUi.rep.readJobMetaSharedObjects( jobMeta );
-        } catch ( HopException e ) {
-          logError( e );
-        }
-      } );
-    }
   }
 
   public synchronized void reloadSharedObjects() {
@@ -219,9 +163,6 @@ public class SharedObjectSyncUtil {
     if ( clusterSchema.isShared() ) {
       synchronizeTransformations( clusterSchema, clusterSchemaSynchronizationHandler, originalName );
     }
-    if ( clusterSchema.getObjectId() != null ) {
-      updateRepositoryObjects( clusterSchema, clusterSchemaSynchronizationHandler );
-    }
   }
 
   /**
@@ -237,9 +178,6 @@ public class SharedObjectSyncUtil {
   public synchronized void synchronizePartitionSchemas( PartitionSchema partitionSchema, String originalName ) {
     if ( partitionSchema.isShared() ) {
       synchronizeTransformations( partitionSchema, partitionSchemaSynchronizationHandler, originalName );
-    }
-    if ( partitionSchema.getObjectId() != null ) {
-      updateRepositoryObjects( partitionSchema, partitionSchemaSynchronizationHandler );
     }
   }
 
@@ -288,11 +226,6 @@ public class SharedObjectSyncUtil {
     synchronize( object, toSync -> toSync.isShared() && toSync.getName().equals( name ), objectsForSync, handler );
   }
 
-  private static <T extends SharedObjectInterface & RepositoryElementInterface>
-    void synchronizeByObjectId( T object, List<T> objectsForSync, SynchronizationHandler<T> handler ) {
-    synchronize( object, toSync -> object.getObjectId().equals( toSync.getObjectId() ), objectsForSync, handler );
-  }
-
   private static <T extends SharedObjectInterface> void synchronize( T object, Predicate<T> pred, List<T> objectsForSync,
       SynchronizationHandler<T> handler ) {
     for ( T objectToSync : objectsForSync ) {
@@ -309,25 +242,6 @@ public class SharedObjectSyncUtil {
     List<T> getObjectsForSyncFromTransformation( TransMeta transformation );
 
     void doSynchronization( T source, T target );
-
-  }
-
-  private static class ConnectionSynchronizationHandler implements SynchronizationHandler<DatabaseMeta> {
-
-    @Override
-    public List<DatabaseMeta> getObjectsForSyncFromJob( JobMeta job ) {
-      return job.getDatabases();
-    }
-
-    @Override
-    public List<DatabaseMeta> getObjectsForSyncFromTransformation( TransMeta transformation ) {
-      return transformation.getDatabases();
-    }
-
-    @Override
-    public void doSynchronization( DatabaseMeta source, DatabaseMeta target ) {
-      target.replaceMeta( source );
-    }
 
   }
 

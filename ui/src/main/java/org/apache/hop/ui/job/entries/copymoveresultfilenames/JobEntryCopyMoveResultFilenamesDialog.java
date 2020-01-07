@@ -50,7 +50,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.copymoveresultfilenames.JobEntryCopyMoveResultFilenames;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -151,9 +150,9 @@ public class JobEntryCopyMoveResultFilenamesDialog extends JobEntryDialog implem
   private Button wAddDestinationFilename;
   private FormData fdlAddDestinationFilename, fdAddDestinationFilename;
 
-  public JobEntryCopyMoveResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
+  public JobEntryCopyMoveResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt,
     JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCopyMoveResultFilenames) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

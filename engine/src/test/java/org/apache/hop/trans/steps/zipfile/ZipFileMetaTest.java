@@ -31,13 +31,10 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.StringObjectId;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -103,58 +100,9 @@ public class ZipFileMetaTest {
     StepMeta mockParentStepMeta = mock( StepMeta.class );
     zipFileMeta.setParentStepMeta( mockParentStepMeta );
     TransMeta mockTransMeta = mock( TransMeta.class );
-    NamedClusterEmbedManager embedManager = mock( NamedClusterEmbedManager.class );
     when( mockParentStepMeta.getParentTransMeta() ).thenReturn( mockTransMeta );
-    when( mockTransMeta.getNamedClusterEmbedManager() ).thenReturn( embedManager );
-    zipFileMeta.loadXML( stepnode, Collections.singletonList( dbMeta ), metaStore );
+    zipFileMeta.loadXML( stepnode, metaStore );
     assertXmlOutputMeta( zipFileMeta );
-  }
-
-  @Test
-  public void testReadRep() throws Exception {
-    ZipFileMeta zipFileMeta = new ZipFileMeta();
-    Repository rep = mock( Repository.class );
-    IMetaStore metastore = mock( IMetaStore.class );
-    DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-
-    StringObjectId oid = new StringObjectId( "oid" );
-
-    when( rep.getStepAttributeString( oid, "sourcefilenamefield" ) ).thenReturn( SOURCE_FILENAME );
-    when( rep.getStepAttributeString( oid, "targetfilenamefield" ) ).thenReturn( TARGET_FILENAME );
-    when( rep.getStepAttributeString( oid, "baseFolderField" ) ).thenReturn( BASE_FOLDER );
-    when( rep.getStepAttributeString( oid, "operation_type" ) ).thenReturn( OPERATION_TYPE );
-    when( rep.getStepAttributeBoolean( oid, "addresultfilenames" ) ).thenReturn( ADD_RESULT_FILENAME );
-    when( rep.getStepAttributeBoolean( oid, "overwritezipentry" ) ).thenReturn( OVERWRITE_ZIP_ENTRY );
-    when( rep.getStepAttributeBoolean( oid, "createparentfolder" ) ).thenReturn( CREATE_PARENT_FOLDER );
-    when( rep.getStepAttributeBoolean( oid, "keepsourcefolder" ) ).thenReturn( KEEP_SOURCE_FOLDER );
-    when( rep.getStepAttributeString( oid, "movetofolderfield" ) ).thenReturn( MOVE_TO_FOLDER_FIELD );
-
-    zipFileMeta.readRep( rep, metastore, oid, Collections.singletonList( dbMeta ) );
-
-    assertEquals( SOURCE_FILENAME, zipFileMeta.getDynamicSourceFileNameField() );
-    assertEquals( TARGET_FILENAME, zipFileMeta.getDynamicTargetFileNameField() );
-    assertEquals( BASE_FOLDER, zipFileMeta.getBaseFolderField() );
-    assertEquals( ZipFileMeta.getOperationTypeByDesc( OPERATION_TYPE ), zipFileMeta.getOperationType() );
-    assertEquals( MOVE_TO_FOLDER_FIELD, zipFileMeta.getMoveToFolderField() );
-    assertTrue( zipFileMeta.isaddTargetFileNametoResult() );
-    assertTrue( zipFileMeta.isOverwriteZipEntry() );
-    assertTrue( zipFileMeta.isKeepSouceFolder() );
-    assertTrue( zipFileMeta.isCreateParentFolder() );
-
-    Mockito.reset( rep, metastore );
-    StringObjectId transid = new StringObjectId( "transid" );
-    zipFileMeta.saveRep( rep, metastore, transid, oid );
-    verify( rep ).saveStepAttribute( transid, oid, "sourcefilenamefield", SOURCE_FILENAME );
-    verify( rep ).saveStepAttribute( transid, oid, "targetfilenamefield", TARGET_FILENAME );
-    verify( rep ).saveStepAttribute( transid, oid, "baseFolderField", BASE_FOLDER );
-    verify( rep ).saveStepAttribute( transid, oid, "operation_type", OPERATION_TYPE );
-    verify( rep ).saveStepAttribute( transid, oid, "addresultfilenames", ADD_RESULT_FILENAME );
-    verify( rep ).saveStepAttribute( transid, oid, "overwritezipentry", OVERWRITE_ZIP_ENTRY );
-    verify( rep ).saveStepAttribute( transid, oid, "createparentfolder", CREATE_PARENT_FOLDER );
-    verify( rep ).saveStepAttribute( transid, oid, "keepsourcefolder", KEEP_SOURCE_FOLDER );
-    verify( rep ).saveStepAttribute( transid, oid, "movetofolderfield", MOVE_TO_FOLDER_FIELD );
-
-    Mockito.verifyNoMoreInteractions( rep, metastore );
   }
 
   @Test
@@ -164,13 +112,12 @@ public class ZipFileMetaTest {
     TransMeta transMeta = mock( TransMeta.class );
     StepMeta stepInfo = mock( StepMeta.class );
     RowMetaInterface prev = mock( RowMetaInterface.class );
-    Repository repos = mock( Repository.class );
     IMetaStore metastore = mock( IMetaStore.class );
     RowMetaInterface info = mock( RowMetaInterface.class );
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
 
     zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[]{"input"}, new String[]{"output"}, info,
-      new Variables(), repos, metastore );
+      new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
     assertEquals( "Step is receiving info from other steps.", remarks.get( 1 ).getText() );
@@ -179,7 +126,7 @@ public class ZipFileMetaTest {
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
     zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[0], new String[]{"output"}, info,
-      new Variables(), repos, metastore );
+      new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other steps!", remarks.get( 1 ).getText() );

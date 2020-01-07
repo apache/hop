@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
@@ -50,12 +51,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryOperation;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.repository.RepositorySecurityUI;
 import org.apache.hop.ui.hopui.AbstractGraph;
 import org.apache.hop.ui.hopui.HopUiBrowser;
 import org.apache.hop.ui.hopui.TabItemInterface;
@@ -86,10 +84,6 @@ public class HopUiTabsDelegate extends HopUiDelegate {
   public boolean tabClose( TabItem item, boolean force ) throws HopException {
     // Try to find the tab-item that's being closed.
 
-    boolean createPerms = !RepositorySecurityUI
-        .verifyOperations( HopUi.getInstance().getShell(), HopUi.getInstance().getRepository(), false,
-            RepositoryOperation.MODIFY_TRANSFORMATION, RepositoryOperation.MODIFY_JOB );
-
     boolean close = true;
     boolean canSave = true;
     for ( TabMapEntry entry : tabMap ) {
@@ -105,7 +99,7 @@ public class HopUiTabsDelegate extends HopUiDelegate {
 
           if ( canSave ) {
             // Can we close this tab? Only allow users with create content perms to save
-            if ( !itemInterface.canBeClosed() && createPerms ) {
+            if ( !itemInterface.canBeClosed() ) {
               int reply = itemInterface.showChangedWarning();
               if ( reply == SWT.YES ) {
                 close = itemInterface.applyChanges();
@@ -320,7 +314,7 @@ public class HopUiTabsDelegate extends HopUiDelegate {
         tabItem.setControl( browser.getComposite() );
 
         tabMapEntry =
-          new TabMapEntry( tabItem, isURL ? urlString : null, name, null, null, browser, ObjectType.BROWSER );
+          new TabMapEntry( tabItem, isURL ? urlString : null, name, browser, ObjectType.BROWSER );
         tabMap.add( tabMapEntry );
       }
       int idx = tabfolder.indexOf( tabMapEntry.getTabItem() );
@@ -387,12 +381,6 @@ public class HopUiTabsDelegate extends HopUiDelegate {
           if ( entryFile.equals( transFile ) ) {
             return entry;
           }
-        } else if ( trans.getObjectId() != null && entry.getObject() != null ) {
-          EngineMetaInterface meta = entry.getObject().getMeta();
-          if ( meta != null && trans.getObjectId().equals( meta.getObjectId() ) ) {
-            // If the transformation has an object id and the entry shares the same id they are the same
-            return entry;
-          }
         }
       }
     }
@@ -454,24 +442,14 @@ public class HopUiTabsDelegate extends HopUiDelegate {
     String name = "";
 
     if ( showLocation ) {
-      if ( !Utils.isEmpty( transMeta.getFilename() ) ) {
+      if ( StringUtils.isNotEmpty( transMeta.getFilename() ) ) {
         // Regular file...
         //
         name += transMeta.getFilename() + " : ";
-      } else {
-        // Repository object...
-        //
-        name += transMeta.getRepositoryDirectory().getPath() + " : ";
       }
     }
 
     name += transMeta.getName();
-    if ( showLocation ) {
-      ObjectRevision version = transMeta.getObjectRevision();
-      if ( version != null ) {
-        name += " : r" + version.getName();
-      }
-    }
     return name;
   }
 

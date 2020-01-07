@@ -41,8 +41,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -244,8 +243,8 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
     this.updateField = updateField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -260,10 +259,10 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
     arguments = new String[nrargs];
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       String eachRow = XMLHandler.getTagValue( stepnode, "execute_each_row" );
       executedEachInputRow = "Y".equalsIgnoreCase( eachRow );
       singleStatement = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "single_statement" ) );
@@ -297,7 +296,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -332,63 +331,9 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      executedEachInputRow = rep.getStepAttributeBoolean( id_step, "execute_each_row" );
-      singleStatement = rep.getStepAttributeBoolean( id_step, "single_statement" );
-      replaceVariables = rep.getStepAttributeBoolean( id_step, "replace_variables" );
-      quoteString = rep.getStepAttributeBoolean( id_step, "quoteString" );
-      sql = rep.getStepAttributeString( id_step, "sql" );
-      setParams = rep.getStepAttributeBoolean( id_step, "set_params" );
-      insertField = rep.getStepAttributeString( id_step, "insert_field" );
-      updateField = rep.getStepAttributeString( id_step, "update_field" );
-      deleteField = rep.getStepAttributeString( id_step, "delete_field" );
-      readField = rep.getStepAttributeString( id_step, "read_field" );
-
-      int nrargs = rep.countNrStepAttributes( id_step, "arg_name" );
-      allocate( nrargs );
-
-      for ( int i = 0; i < nrargs; i++ ) {
-        arguments[i] = rep.getStepAttributeString( id_step, i, "arg_name" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ExecSQLMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "sql", sql );
-      rep.saveStepAttribute( id_transformation, id_step, "execute_each_row", executedEachInputRow );
-      rep.saveStepAttribute( id_transformation, id_step, "single_statement", singleStatement );
-      rep.saveStepAttribute( id_transformation, id_step, "replace_variables", replaceVariables );
-      rep.saveStepAttribute( id_transformation, id_step, "quoteString", quoteString );
-      rep.saveStepAttribute( id_transformation, id_step, "set_params", setParams );
-      rep.saveStepAttribute( id_transformation, id_step, "insert_field", insertField );
-      rep.saveStepAttribute( id_transformation, id_step, "update_field", updateField );
-      rep.saveStepAttribute( id_transformation, id_step, "delete_field", deleteField );
-      rep.saveStepAttribute( id_transformation, id_step, "read_field", readField );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-
-      for ( int i = 0; i < arguments.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "arg_name", arguments[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ExecSQLMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {

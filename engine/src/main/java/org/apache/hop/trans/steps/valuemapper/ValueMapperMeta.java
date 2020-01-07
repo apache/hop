@@ -41,8 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -109,7 +108,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -169,7 +168,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     ValueMetaInterface extra = null;
     if ( !Utils.isEmpty( getTargetField() ) ) {
       extra = new ValueMetaString( getTargetField() );
@@ -226,45 +225,6 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      fieldToUse = rep.getStepAttributeString( id_step, "field_to_use" );
-      targetField = rep.getStepAttributeString( id_step, "target_field" );
-      nonMatchDefault = rep.getStepAttributeString( id_step, "non_match_default" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "source_value" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        sourceValue[i] = rep.getStepAttributeString( id_step, i, "source_value" );
-        targetValue[i] = rep.getStepAttributeString( id_step, i, "target_value" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ValueMapperMeta.RuntimeError.UnableToReadRepository.VALUEMAPPER0005" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "field_to_use", fieldToUse );
-      rep.saveStepAttribute( id_transformation, id_step, "target_field", targetField );
-      rep.saveStepAttribute( id_transformation, id_step, "non_match_default", nonMatchDefault );
-
-      for ( int i = 0; i < sourceValue.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "source_value", getNullOrEmpty( sourceValue[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "target_value", getNullOrEmpty( targetValue[i] ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ValueMapperMeta.RuntimeError.UnableToSaveRepository.VALUEMAPPER0006", "" + id_step ), e );
-    }
-
-  }
-
   private String getNullOrEmpty( String str ) {
     return str == null ? StringUtils.EMPTY : str;
   }
@@ -272,7 +232,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

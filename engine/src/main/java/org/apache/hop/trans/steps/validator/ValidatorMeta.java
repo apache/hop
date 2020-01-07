@@ -36,8 +36,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -91,7 +90,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
     validations = new ArrayList<Validation>( nrValidations );
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     int nrCalcs = XMLHandler.countNodes( stepnode, Validation.XML_TAG );
     allocate( nrCalcs );
     validatingAll = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "validate_all" ) );
@@ -151,31 +150,9 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
     concatenationSeparator = "|";
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    int nrValidationFields = rep.countNrStepAttributes( id_step, "validator_field_name" );
-    allocate( nrValidationFields );
-    validatingAll = rep.getStepAttributeBoolean( id_step, "validate_all" );
-    concatenatingErrors = rep.getStepAttributeBoolean( id_step, "concat_errors" );
-    concatenationSeparator = rep.getStepAttributeString( id_step, "concat_separator" );
-
-    for ( int i = 0; i < nrValidationFields; i++ ) {
-      validations.add( new Validation( rep, id_step, i ) );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "validate_all", validatingAll );
-    rep.saveStepAttribute( id_transformation, id_step, "concat_errors", concatenatingErrors );
-    rep.saveStepAttribute( id_transformation, id_step, "concat_separator", concatenationSeparator );
-
-    for ( int i = 0; i < validations.size(); i++ ) {
-      validations.get( i ).saveRep( rep, metaStore, id_transformation, id_step, i );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

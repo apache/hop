@@ -68,7 +68,6 @@ import org.apache.hop.job.entries.getpop.MailConnection;
 import org.apache.hop.job.entries.getpop.MailConnectionMeta;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -394,8 +393,8 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
 
   private MailConnection mailConn = null;
 
-  public JobEntryGetPOPDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryGetPOPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryGetPOP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobGetPOP.Name.Default" ) );

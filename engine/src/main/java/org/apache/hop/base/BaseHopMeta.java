@@ -22,7 +22,7 @@
 package org.apache.hop.base;
 
 import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.repository.ObjectId;
+
 
 /**
  * This class defines a base hop from one job entry copy to another, or from one step to another.
@@ -36,16 +36,7 @@ public abstract class BaseHopMeta<T> implements Cloneable, XMLInterface {
   protected T from, to;
   protected boolean enabled;
   protected boolean changed;
-  protected ObjectId id;
   private boolean errorHop;
-
-  public ObjectId getObjectId() {
-    return id;
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
-  }
 
   public Object clone() {
     try {

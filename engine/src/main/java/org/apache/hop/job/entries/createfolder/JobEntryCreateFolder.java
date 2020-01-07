@@ -48,8 +48,7 @@ import org.apache.hop.job.entries.createfile.JobEntryCreateFile;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -86,43 +85,18 @@ public class JobEntryCreateFolder extends JobEntryBase implements Cloneable, Job
     retval.append( super.getXML() );
     retval.append( "      " ).append( XMLHandler.addTagValue( "foldername", foldername ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "fail_of_folder_exists", failOfFolderExists ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( foldername );
-    }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       failOfFolderExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_of_folder_exists" ) );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'create folder' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      foldername = rep.getJobEntryAttributeString( id_jobentry, "foldername" );
-      failOfFolderExists = rep.getJobEntryAttributeBoolean( id_jobentry, "fail_of_folder_exists" );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'create Folder' from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "foldername", foldername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fail_of_folder_exists", failOfFolderExists );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'create Folder' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -143,12 +117,6 @@ public class JobEntryCreateFolder extends JobEntryBase implements Cloneable, Job
     result.setResult( false );
 
     if ( foldername != null ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
-
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
@@ -217,14 +185,8 @@ public class JobEntryCreateFolder extends JobEntryBase implements Cloneable, Job
     this.failOfFolderExists = failIfFolderExists;
   }
 
-  public static void main( String[] args ) {
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    new JobEntryCreateFile().check( remarks, null, new Variables(), null, null );
-    System.out.printf( "Remarks: %s\n", remarks );
-  }
-
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

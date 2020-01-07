@@ -71,8 +71,7 @@ import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -252,10 +251,10 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       setServer( XMLHandler.getTagValue( entrynode, "server" ) );
       setPort( XMLHandler.getTagValue( entrynode, "port" ) );
       setDestination( XMLHandler.getTagValue( entrynode, "destination" ) );
@@ -316,123 +315,6 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
     } catch ( HopException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'mail' from XML node", xe );
     }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      // First load the common parts like name & description, then the attributes...
-      //
-      server = rep.getJobEntryAttributeString( id_jobentry, "server" );
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      destination = rep.getJobEntryAttributeString( id_jobentry, "destination" );
-      destinationCc = rep.getJobEntryAttributeString( id_jobentry, "destinationCc" );
-      destinationBCc = rep.getJobEntryAttributeString( id_jobentry, "destinationBCc" );
-      replyAddress = rep.getJobEntryAttributeString( id_jobentry, "replyto" );
-      replyName = rep.getJobEntryAttributeString( id_jobentry, "replytoname" );
-      subject = rep.getJobEntryAttributeString( id_jobentry, "subject" );
-      includeDate = rep.getJobEntryAttributeBoolean( id_jobentry, "include_date" );
-      contactPerson = rep.getJobEntryAttributeString( id_jobentry, "contact_person" );
-      contactPhone = rep.getJobEntryAttributeString( id_jobentry, "contact_phone" );
-      comment = rep.getJobEntryAttributeString( id_jobentry, "comment" );
-      encoding = rep.getJobEntryAttributeString( id_jobentry, "encoding" );
-      priority = rep.getJobEntryAttributeString( id_jobentry, "priority" );
-      importance = rep.getJobEntryAttributeString( id_jobentry, "importance" );
-      sensitivity = rep.getJobEntryAttributeString( id_jobentry, "sensitivity" );
-      includingFiles = rep.getJobEntryAttributeBoolean( id_jobentry, "include_files" );
-      usingAuthentication = rep.getJobEntryAttributeBoolean( id_jobentry, "use_auth" );
-      usingSecureAuthentication = rep.getJobEntryAttributeBoolean( id_jobentry, "use_secure_auth" );
-      authenticationUser = rep.getJobEntryAttributeString( id_jobentry, "auth_user" );
-      authenticationPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "auth_password" ) );
-      onlySendComment = rep.getJobEntryAttributeBoolean( id_jobentry, "only_comment" );
-      useHTML = rep.getJobEntryAttributeBoolean( id_jobentry, "use_HTML" );
-      usePriority = rep.getJobEntryAttributeBoolean( id_jobentry, "use_Priority" );
-      secureConnectionType = rep.getJobEntryAttributeString( id_jobentry, "secureconnectiontype" );
-
-      int nrTypes = rep.countNrJobEntryAttributes( id_jobentry, "file_type" );
-      allocate( nrTypes );
-
-      for ( int i = 0; i < nrTypes; i++ ) {
-        String typeCode = rep.getJobEntryAttributeString( id_jobentry, i, "file_type" );
-        fileType[i] = ResultFile.getType( typeCode );
-      }
-
-      zipFiles = rep.getJobEntryAttributeBoolean( id_jobentry, "zip_files" );
-      zipFilename = rep.getJobEntryAttributeString( id_jobentry, "zip_name" );
-      replyToAddresses = rep.getJobEntryAttributeString( id_jobentry, "replyToAddresses" );
-
-      // How many arguments?
-      int imagesnr = rep.countNrJobEntryAttributes( id_jobentry, "embeddedimage" );
-      allocateImages( imagesnr );
-
-      // Read them all...
-      for ( int a = 0; a < imagesnr; a++ ) {
-        embeddedimages[a] = rep.getJobEntryAttributeString( id_jobentry, a, "embeddedimage" );
-        contentids[a] = rep.getJobEntryAttributeString( id_jobentry, a, "contentid" );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'mail' from the repository with id_jobentry="
-        + id_jobentry, dbe );
-    }
-
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "server", server );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destination", destination );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destinationCc", destinationCc );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destinationBCc", destinationBCc );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "replyto", replyAddress );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "replytoname", replyName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "subject", subject );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_date", includeDate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "contact_person", contactPerson );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "contact_phone", contactPhone );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "comment", comment );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "encoding", encoding );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "priority", priority );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "importance", importance );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sensitivity", sensitivity );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_files", includingFiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "use_auth", usingAuthentication );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "use_secure_auth", usingSecureAuthentication );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "auth_user", authenticationUser );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "auth_password", Encr
-        .encryptPasswordIfNotUsingVariables( authenticationPassword ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "only_comment", onlySendComment );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "use_HTML", useHTML );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "use_Priority", usePriority );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "secureconnectiontype", secureConnectionType );
-
-      if ( fileType != null ) {
-        for ( int i = 0; i < fileType.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "file_type", ResultFile.getTypeCode( fileType[i] ) );
-        }
-      }
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "zip_files", zipFiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "zip_name", zipFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "replyToAddresses", replyToAddresses );
-
-      // save the arguments...
-      if ( embeddedimages != null ) {
-        for ( int i = 0; i < embeddedimages.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "embeddedimage", embeddedimages[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "contentid", contentids[i] );
-        }
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'mail' to the repository for id_job=" + id_job, dbe );
-    }
-
   }
 
   public void setServer( String s ) {
@@ -685,7 +567,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param secureconnectiontype
+   * @param replyToAddresses
    *          the replayToAddresses to set
    */
   public void setReplyToAddresses( String replyToAddresses ) {
@@ -900,8 +782,6 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
         messageText.append( "-----" ).append( endRow );
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.JobName" ) + "    : " ).append(
           parentJob.getJobMeta().getName() ).append( endRow );
-        messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.JobDirectory" ) + "  : " ).append(
-          parentJob.getJobMeta().getRepositoryDirectory() ).append( endRow );
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.JobEntry" ) + "   : " ).append(
           getName() ).append( endRow );
         messageText.append( Const.CR );
@@ -1335,7 +1215,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     JobEntryValidatorUtils.andValidator().validate( this, "server", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );

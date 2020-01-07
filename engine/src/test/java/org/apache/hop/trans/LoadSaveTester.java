@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.repository.Repository;
-import org.apache.hop.trans.steps.loadsave.MemoryRepository;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
@@ -50,7 +48,6 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
 
   public void testSerialization() throws HopException {
     testXmlRoundTrip();
-    testRepoRoundTrip();
     testClone();
   }
 
@@ -65,16 +62,6 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }
 
-  public void testRepoRoundTrip() throws HopException {
-    T metaToSave = createMeta();
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( repoAttributes, metaToSave );
-    T metaLoaded = createMeta();
-    Repository rep = new MemoryRepository();
-    metaToSave.saveRep( rep, null, null );
-    metaLoaded.loadRep( rep, null );
-    validateLoadedMeta( repoAttributes, validatorMap, metaToSave, metaLoaded );
-  }
 
   protected void testClone() {
     T metaToSave = createMeta();

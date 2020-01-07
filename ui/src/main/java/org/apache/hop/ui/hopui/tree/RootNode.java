@@ -68,7 +68,7 @@ public class RootNode extends TreeNode {
   public void checkUpdate( AbstractMeta abstractMeta, String filter ) {
     TreeNode treeNode = abstractMetas.get( abstractMeta );
     if ( treeNode != null ) {
-      for ( int i = 0; i < treeFolderProviders.size(); i++ ) {
+      for ( int i = 0; i < treeFolderProviders.size() && i<treeNode.getChildren().size(); i++ ) {
         TreeNode childTreeNode = treeNode.getChildren().get( i );
         treeFolderProviders.get( i ).checkUpdate( abstractMeta, childTreeNode, filter );
         if ( !Utils.isEmpty( filter ) ) {

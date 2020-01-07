@@ -35,8 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -153,8 +152,8 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
     this.createparentfolder = createparentfolder;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -186,7 +185,7 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       filenamefield = XMLHandler.getTagValue( stepnode, "filenamefield" );
       targetfilenamefield = XMLHandler.getTagValue( stepnode, "targetfilenamefield" );
@@ -202,45 +201,8 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      filenamefield = rep.getStepAttributeString( id_step, "filenamefield" );
-      targetfilenamefield = rep.getStepAttributeString( id_step, "targetfilenamefield" );
-      sourceencoding = rep.getStepAttributeString( id_step, "sourceencoding" );
-      targetencoding = rep.getStepAttributeString( id_step, "targetencoding" );
-
-      addsourceresultfilenames = rep.getStepAttributeBoolean( id_step, "addsourceresultfilenames" );
-      addtargetresultfilenames = rep.getStepAttributeBoolean( id_step, "addtargetresultfilenames" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "createparentfolder" );
-
-    } catch ( Exception e ) {
-      throw new HopException(
-          BaseMessages.getString( PKG, "ChangeFileEncodingMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "filenamefield", filenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "targetfilenamefield", targetfilenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "sourceencoding", sourceencoding );
-      rep.saveStepAttribute( id_transformation, id_step, "targetencoding", targetencoding );
-
-      rep.saveStepAttribute( id_transformation, id_step, "addsourceresultfilenames", addsourceresultfilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "addtargetresultfilenames", addtargetresultfilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "createparentfolder", createparentfolder );
-
-    } catch ( Exception e ) {
-      throw new HopException(
-          BaseMessages.getString( PKG, "ChangeFileEncodingMeta.Exception.UnableToSaveStepInfo" ) + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
-      IMetaStore metaStore ) {
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

@@ -34,7 +34,6 @@ import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 
 /**
@@ -49,16 +48,13 @@ public class GetJobSQLProgressDialog {
   private Shell shell;
   private JobMeta jobMeta;
   private List<SQLStatement> stats;
-  private Repository repository;
 
   /**
    * Creates a new dialog that will handle the wait while getting the SQL for a job...
    */
-  public GetJobSQLProgressDialog( Shell shell, JobMeta jobMeta, Repository repository ) {
+  public GetJobSQLProgressDialog( Shell shell, JobMeta jobMeta ) {
     this.shell = shell;
     this.jobMeta = jobMeta;
-    this.repository = repository;
-
   }
 
   public List<SQLStatement> open() {
@@ -70,7 +66,7 @@ public class GetJobSQLProgressDialog {
         // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
         try {
-          stats = jobMeta.getSQLStatements( repository, new ProgressMonitorAdapter( monitor ) );
+          stats = jobMeta.getSQLStatements( new ProgressMonitorAdapter( monitor ) );
         } catch ( HopException e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error

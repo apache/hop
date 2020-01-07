@@ -40,8 +40,7 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -86,40 +85,14 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       maximumTimeout = XMLHandler.getTagValue( entrynode, "maximumTimeout" );
       scaleTime = Integer.parseInt( XMLHandler.getTagValue( entrynode, "scaletime" ) );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryDelay.UnableToLoadFromXml.Label" ), e );
-    }
-  }
-
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      maximumTimeout = rep.getJobEntryAttributeString( id_jobentry, "maximumTimeout" );
-      scaleTime = (int) rep.getJobEntryAttributeInteger( id_jobentry, "scaletime" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryDelay.UnableToLoadFromRepo.Label" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  //
-  // Save the attributes of this job entry
-  //
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maximumTimeout", maximumTimeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "scaletime", scaleTime );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "JobEntryDelay.UnableToSaveToRepo.Label" ) + id_job, dbe );
     }
   }
 
@@ -244,7 +217,7 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "maximumTimeout", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.longValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "scaleTime", remarks,

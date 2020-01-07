@@ -72,8 +72,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -164,18 +163,14 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
     retval.append( "      " ).append( XMLHandler.addTagValue( "createMoveToDirectory", createMoveToDirectory ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includingSubFolders ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "stored_source_path_depth", storedSourcePathDepth ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( sourceDirectory );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( zipFilename );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( movetoDirectory );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       zipFilename = XMLHandler.getTagValue( entrynode, "zipfilename" );
       compressionRate = Const.toInt( XMLHandler.getTagValue( entrynode, "compressionrate" ), -1 );
       ifZipFileExists = Const.toInt( XMLHandler.getTagValue( entrynode, "ifzipfileexists" ), -1 );
@@ -196,59 +191,6 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
       storedSourcePathDepth = XMLHandler.getTagValue( entrynode, "stored_source_path_depth" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryZipFile.UnableLoadJobEntryXML" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      zipFilename = rep.getJobEntryAttributeString( id_jobentry, "zipfilename" );
-      compressionRate = (int) rep.getJobEntryAttributeInteger( id_jobentry, "compressionrate" );
-      ifZipFileExists = (int) rep.getJobEntryAttributeInteger( id_jobentry, "ifzipfileexists" );
-      afterZip = (int) rep.getJobEntryAttributeInteger( id_jobentry, "afterzip" );
-      wildCard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      excludeWildCard = rep.getJobEntryAttributeString( id_jobentry, "wildcardexclude" );
-      sourceDirectory = rep.getJobEntryAttributeString( id_jobentry, "sourcedirectory" );
-      movetoDirectory = rep.getJobEntryAttributeString( id_jobentry, "movetodirectory" );
-      addFileToResult = rep.getJobEntryAttributeBoolean( id_jobentry, "addfiletoresult" );
-      isFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "isfromprevious" );
-      createParentFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createparentfolder" );
-      addDate = rep.getJobEntryAttributeBoolean( id_jobentry, "adddate" );
-      addTime = rep.getJobEntryAttributeBoolean( id_jobentry, "addtime" );
-      specifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      dateTimeFormat = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      createMoveToDirectory = rep.getJobEntryAttributeBoolean( id_jobentry, "createMoveToDirectory" );
-      includingSubFolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      storedSourcePathDepth = rep.getJobEntryAttributeString( id_jobentry, "stored_source_path_depth" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryZipFile.UnableLoadJobEntryRep", ""
-        + id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "zipfilename", zipFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compressionrate", compressionRate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ifzipfileexists", ifZipFileExists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "afterzip", afterZip );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildCard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcardexclude", excludeWildCard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sourcedirectory", sourceDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "movetodirectory", movetoDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addfiletoresult", addFileToResult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "isfromprevious", isFromPrevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createparentfolder", createParentFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addtime", addTime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "adddate", addDate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", specifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", dateTimeFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createMoveToDirectory", createMoveToDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", includingSubFolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "stored_source_path_depth", storedSourcePathDepth );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "JobEntryZipFile.UnableSaveJobEntryRep", "" + id_job ), dbe );
     }
   }
 
@@ -817,12 +759,6 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
     String realTargetdirectory;
     String realMovetodirectory = environmentSubstitute( movetoDirectory );
 
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
-
     // Sanity check
     boolean SanityControlOK = true;
 
@@ -1111,7 +1047,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx1 = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx1, getVariables() );
     AndValidator.putValidators( ctx1, JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

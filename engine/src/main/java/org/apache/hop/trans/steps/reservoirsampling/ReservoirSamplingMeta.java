@@ -35,8 +35,7 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -171,7 +170,7 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
    * @exception HopXMLException
    *              if an error occurs
    */
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
 
     int nrSteps = XMLHandler.countNodes( stepnode, XML_TAG );
 
@@ -184,52 +183,15 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
     }
   }
 
-  /**
-   * Read this step's configuration from a repository
-   *
-   * @param rep
-   *          the repository to access
-   * @param metaStore
-   *          the MetaStore to read from
-   * @param id_step
-   *          the id for this step
-   * @exception HopException
-   *              if an error occurs
-   */
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-
-    m_sampleSize = rep.getStepAttributeString( id_step, "sample_size" );
-    m_randomSeed = rep.getStepAttributeString( id_step, "seed" );
-  }
-
-  /**
-   * Save this step's meta data to a repository
-   *
-   * @param rep
-   *          the repository to save to
-   * @param id_transformation
-   *          transformation id
-   * @param id_step
-   *          step id
-   * @exception HopException
-   *              if an error occurs
-   */
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-
-    rep.saveStepAttribute( id_transformation, id_step, "sample_size", m_sampleSize );
-    rep.saveStepAttribute( id_transformation, id_step, "seed", m_randomSeed );
-  }
-
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // nothing to do, as no fields are added/deleted
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

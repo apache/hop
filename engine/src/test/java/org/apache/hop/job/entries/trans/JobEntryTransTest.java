@@ -45,12 +45,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -64,9 +65,6 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -82,18 +80,11 @@ public class JobEntryTransTest {
   private final String JOB_ENTRY_DESCRIPTION = "JobEntryDescription";
 
   //prepare xml for use
-  public Node getEntryNode( boolean includeTransname, ObjectLocationSpecificationMethod method )
+  public Node getEntryNode( boolean includeTransname )
     throws ParserConfigurationException, SAXException, IOException {
     JobEntryTrans jobEntryTrans = getJobEntryTrans();
     jobEntryTrans.setDescription( JOB_ENTRY_DESCRIPTION );
     jobEntryTrans.setFileName( JOB_ENTRY_FILE_NAME );
-    jobEntryTrans.setDirectory( JOB_ENTRY_FILE_DIRECTORY );
-    if ( includeTransname ) {
-      jobEntryTrans.setTransname( JOB_ENTRY_FILE_NAME );
-    }
-    if ( method != null ) {
-      jobEntryTrans.setSpecificationMethod( method );
-    }
     String string = "<job>" + jobEntryTrans.getXML() + "</job>";
     InputStream stream = new ByteArrayInputStream( string.getBytes( StandardCharsets.UTF_8 ) );
     DocumentBuilder db;
@@ -110,128 +101,24 @@ public class JobEntryTransTest {
   }
 
   @SuppressWarnings( "unchecked" )
-  private void testJobEntry( Repository rep, boolean includeJobName, ObjectLocationSpecificationMethod method,
-      ObjectLocationSpecificationMethod expectedMethod )
+  private void testJobEntry( boolean includeJobName )
     throws HopXMLException, ParserConfigurationException, SAXException, IOException {
     List<DatabaseMeta> databases = mock( List.class );
     List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
     JobEntryTrans jobEntryTrans = getJobEntryTrans();
-    jobEntryTrans.loadXML( getEntryNode( includeJobName, method ), databases, slaveServers, rep, metaStore );
-    assertEquals( "If we connect to repository then we use rep_name method",
-        expectedMethod, jobEntryTrans.getSpecificationMethod() );
-  }
-
-  /**
-   * BACKLOG-179 - Exporting/Importing Jobs breaks Transformation specification when using "Specify by reference"
-   * 
-   * Test checks that we choose different {@link ObjectLocationSpecificationMethod} when connection to
-   * {@link Repository} and disconnected. 
-   * 
-   * <b>Important!</b> You must rewrite test when change import logic
-   * 
-   * @throws HopXMLException
-   * @throws IOException
-   * @throws SAXException
-   * @throws ParserConfigurationException
-   */
-  @Test
-  public void testChooseSpecMethodByRepositoryConnectionStatus()
-    throws HopXMLException, ParserConfigurationException, SAXException, IOException {
-    Repository rep = mock( Repository.class );
-    when( rep.isConnected() ).thenReturn( true );
-
-    // 000
-    // not connected, no jobname, no method
-    testJobEntry( null, false, null, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 001
-    // not connected, no jobname, REPOSITORY_BY_REFERENCE method
-    testJobEntry( null, false, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE );
-    // not connected, no jobname, REPOSITORY_BY_NAME method
-    testJobEntry( null, false, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    // not connected, no jobname, FILENAME method
-    testJobEntry( null, false, ObjectLocationSpecificationMethod.FILENAME, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 010
-    // not connected, jobname, no method
-    testJobEntry( null, true, null, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 011
-    // not connected, jobname, REPOSITORY_BY_REFERENCE method
-    testJobEntry( null, true, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE );
-    // not connected, jobname, REPOSITORY_BY_NAME method
-    testJobEntry( null, true, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    // not connected, jobname, FILENAME method
-    testJobEntry( null, true, ObjectLocationSpecificationMethod.FILENAME, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 100
-    // connected, no jobname, no method
-    testJobEntry( rep, false, null, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 101
-    // connected, no jobname, REPOSITORY_BY_REFERENCE method
-    testJobEntry( rep, false, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE );
-    // connected, no jobname, REPOSITORY_BY_NAME method
-    testJobEntry( rep, false, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    // connected, no jobname, FILENAME method
-    testJobEntry( rep, false, ObjectLocationSpecificationMethod.FILENAME, ObjectLocationSpecificationMethod.FILENAME );
-
-    // 110  
-    // connected, jobname, no method
-    testJobEntry( rep, true, null, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-
-    // 111
-    // connected, jobname, REPOSITORY_BY_REFERENCE method
-    testJobEntry( rep, true, ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    // connected, jobname, REPOSITORY_BY_NAME method
-    testJobEntry( rep, true, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    // connected, jobname, FILENAME method    
-    testJobEntry( rep, true, ObjectLocationSpecificationMethod.FILENAME, ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
+    jobEntryTrans.loadXML( getEntryNode( includeJobName), slaveServers, metaStore );
   }
 
   @Test
-  public void testExecute_result_false_get_transMeta_exception() throws HopException {
-    JobEntryTrans jobEntryTrans = spy( new JobEntryTrans( JOB_ENTRY_TRANS_NAME ) );
-    jobEntryTrans.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    jobEntryTrans.setParentJob( mock( Job.class ) );
-    JobMeta mockJobMeta = mock( JobMeta.class );
-    jobEntryTrans.setParentJobMeta( mockJobMeta );
-    jobEntryTrans.setLogLevel( LogLevel.NOTHING );
-    doThrow( new HopException( "Error while loading transformation" ) ).when( jobEntryTrans ).getTransMeta( any(
-        Repository.class ), any( IMetaStore.class ), any( VariableSpace.class ) );
-    Result result = mock( Result.class );
-
-    jobEntryTrans.execute( result, 1 );
-    verify( result ).setResult( false );
-  }
-
-  @Test
+  @Ignore // Not sure how this would work
   public void testCurrDirListener() throws Exception {
     JobMeta meta = mock( JobMeta.class );
     JobEntryTrans jet = getJobEntryTrans();
     jet.setParentJobMeta( meta );
     jet.setParentJobMeta( null );
-    verify( meta, times( 1 ) ).addCurrentDirectoryChangedListener( any() );
-    verify( meta, times( 1 ) ).removeCurrentDirectoryChangedListener( any() );
-  }
-
-  @Test
-  public void testExportResources() throws HopException {
-    JobEntryTrans jobEntryTrans = spy( getJobEntryTrans() );
-    TransMeta transMeta = mock( TransMeta.class );
-
-    String testName = "test";
-
-    doReturn( transMeta ).when( jobEntryTrans ).getTransMeta( any( Repository.class ),
-            any( VariableSpace.class ) );
-    when( transMeta.exportResources( any( TransMeta.class ), any( Map.class ), any( ResourceNamingInterface.class ),
-            any( Repository.class ), any( IMetaStore.class ) ) ).thenReturn( testName );
-
-    jobEntryTrans.exportResources( null, null, null, null, null );
-
-    verify( transMeta ).setFilename( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + testName );
-    verify( jobEntryTrans ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
+    verify( meta, times( 1 ) ).addCurrentDirectoryChangedListener( any( CurrentDirectoryChangedListener.class ) );
+    verify( meta, times( 1 ) ).removeCurrentDirectoryChangedListener( any(CurrentDirectoryChangedListener.class) );
   }
 
   @Test
@@ -263,96 +150,6 @@ public class JobEntryTransTest {
 
     Assert.assertEquals( "value1", jet.getVariable( "param1" ) );
     Assert.assertEquals( null, jet.getVariable( "param2" ) );
-  }
-
-  @Test
-  public void testGetTransMeta() throws HopException {
-    String param1 = "param1";
-    String param2 = "param2";
-    String param3 = "param3";
-    String parentValue1 = "parentValue1";
-    String parentValue2 = "parentValue2";
-    String childValue3 = "childValue3";
-
-    JobEntryTrans jobEntryTrans = spy( getJobEntryTrans() );
-    Repository rep = Mockito.mock( Repository.class );
-    RepositoryDirectory repositoryDirectory = Mockito.mock( RepositoryDirectory.class );
-    RepositoryDirectoryInterface repositoryDirectoryInterface = Mockito.mock( RepositoryDirectoryInterface.class );
-    Mockito.doReturn( repositoryDirectoryInterface ).when( rep ).loadRepositoryDirectoryTree();
-    Mockito.doReturn( repositoryDirectory ).when( repositoryDirectoryInterface ).findDirectory( "/home/admin" );
-
-    TransMeta meta = new TransMeta();
-    meta.setVariable( param2, "childValue2 should be override" );
-    meta.setVariable( param3, childValue3 );
-
-    Mockito.doReturn( meta ).when( rep )
-      .loadTransformation( Mockito.eq( "test.ktr" ), Mockito.anyObject(), Mockito.anyObject(), Mockito.anyBoolean(),
-        Mockito.anyObject() );
-
-    VariableSpace parentSpace = new Variables();
-    parentSpace.setVariable( param1, parentValue1 );
-    parentSpace.setVariable( param2, parentValue2 );
-
-    jobEntryTrans.setFileName( "/home/admin/test.ktr" );
-
-    Mockito.doNothing().when( jobEntryTrans ).logBasic( Mockito.anyString() );
-    jobEntryTrans.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-
-    TransMeta transMeta;
-    jobEntryTrans.setPassingAllParameters( false );
-    transMeta = jobEntryTrans.getTransMeta( rep, null, parentSpace );
-    Assert.assertEquals( null, transMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, transMeta.getVariable( param2 ) );
-    Assert.assertEquals( childValue3, transMeta.getVariable( param3 ) );
-
-    jobEntryTrans.setPassingAllParameters( true );
-    transMeta = jobEntryTrans.getTransMeta( rep, null, parentSpace );
-    Assert.assertEquals( parentValue1, transMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, transMeta.getVariable( param2 ) );
-    Assert.assertEquals( childValue3, transMeta.getVariable( param3 ) );
-  }
-
-  @Test
-  public void testGetTransMetaRepo() throws HopException {
-    String param1 = "dir";
-    String param2 = "file";
-    String parentValue1 = "/home/admin";
-    String parentValue2 = "test";
-
-    JobEntryTrans jobEntryTrans = spy( getJobEntryTrans() );
-    Repository rep = Mockito.mock( Repository.class );
-    RepositoryDirectory repositoryDirectory = Mockito.mock( RepositoryDirectory.class );
-    RepositoryDirectoryInterface repositoryDirectoryInterface = Mockito.mock( RepositoryDirectoryInterface.class );
-    Mockito.doReturn( repositoryDirectoryInterface ).when( rep ).loadRepositoryDirectoryTree();
-    Mockito.doReturn( repositoryDirectory ).when( repositoryDirectoryInterface ).findDirectory( parentValue1 );
-
-    TransMeta meta = new TransMeta();
-    meta.setVariable( param2, "childValue2 should be override" );
-
-    Mockito.doReturn( meta ).when( rep )
-            .loadTransformation( Mockito.eq( "test" ), Mockito.anyObject(), Mockito.anyObject(), Mockito.anyBoolean(),
-                    Mockito.anyObject() );
-
-    VariableSpace parentSpace = new Variables();
-    parentSpace.setVariable( param1, parentValue1 );
-    parentSpace.setVariable( param2, parentValue2 );
-
-    jobEntryTrans.setDirectory( "${dir}" );
-    jobEntryTrans.setTransname( "${file}" );
-
-    Mockito.doNothing().when( jobEntryTrans ).logBasic( Mockito.anyString() );
-    jobEntryTrans.setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-
-    TransMeta transMeta;
-    jobEntryTrans.setPassingAllParameters( false );
-    transMeta = jobEntryTrans.getTransMeta( rep, null, parentSpace );
-    Assert.assertEquals( null, transMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, transMeta.getVariable( param2 ) );
-
-    jobEntryTrans.setPassingAllParameters( true );
-    transMeta = jobEntryTrans.getTransMeta( rep, null, parentSpace );
-    Assert.assertEquals( parentValue1, transMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, transMeta.getVariable( param2 ) );
   }
 
   @Test

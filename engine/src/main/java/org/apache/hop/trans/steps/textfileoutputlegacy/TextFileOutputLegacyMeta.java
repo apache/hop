@@ -28,8 +28,7 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
@@ -90,28 +89,6 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
   protected void saveFileOptions( StringBuilder retval ) {
     super.saveFileOptions( retval );
     retval.append( "      " ).append( XMLHandler.addTagValue( "is_command", fileAsCommand ) );
-  }
-
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    super.readRep( rep, metaStore, id_step, databases );
-    try {
-      fileAsCommand = rep.getStepAttributeBoolean( id_step, "file_is_command" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    super.saveRep( rep, metaStore, id_transformation, id_step );
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "file_is_command", fileAsCommand );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
   }
 
   @Override

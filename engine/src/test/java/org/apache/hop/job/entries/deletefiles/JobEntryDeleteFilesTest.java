@@ -31,7 +31,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +52,6 @@ public class JobEntryDeleteFilesTest {
   private final String STRING_SPACES_ONLY = "   ";
 
   private JobEntryDeleteFiles jobEntry;
-  private NamedClusterEmbedManager mockNamedClusterEmbedManager;
 
   @Before
   public void setUp() throws Exception {
@@ -63,8 +61,6 @@ public class JobEntryDeleteFilesTest {
 
     jobEntry.setParentJob( parentJob );
     JobMeta mockJobMeta = mock( JobMeta.class );
-    mockNamedClusterEmbedManager = mock( NamedClusterEmbedManager.class );
-    when( mockJobMeta.getNamedClusterEmbedManager() ).thenReturn( mockNamedClusterEmbedManager );
     jobEntry.setParentJobMeta( mockJobMeta );
     jobEntry = spy( jobEntry );
     doReturn( true ).when( jobEntry ).processFile( anyString(), anyString(), eq( parentJob ) );
@@ -90,7 +86,6 @@ public class JobEntryDeleteFilesTest {
 
     jobEntry.execute( new Result(), 0 );
     verify( jobEntry, times( args.length ) ).processFile( anyString(), anyString(), any( Job.class ) );
-    verify( mockNamedClusterEmbedManager ).passEmbeddedMetastoreKey( anyObject(), anyString() );
   }
 
 

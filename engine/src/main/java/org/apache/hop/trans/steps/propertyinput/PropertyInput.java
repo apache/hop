@@ -77,7 +77,7 @@ public class PropertyInput extends BaseStep implements StepInterface {
 
       // Create the output row meta-data
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore ); // get the metadata
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the metadata
                                                                                                     // populated
 
       // Create convert meta-data objects that will contain Date & Number formatters
@@ -351,7 +351,7 @@ public class PropertyInput extends BaseStep implements StepInterface {
 
           data.inputRowMeta = getInputRowMeta();
           data.outputRowMeta = data.inputRowMeta.clone();
-          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
           // Get total previous fields
           data.totalpreviousfields = data.inputRowMeta.size();
@@ -499,11 +499,6 @@ public class PropertyInput extends BaseStep implements StepInterface {
     data = (PropertyInputData) sdi;
 
     if ( super.init( smi, sdi ) ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-        getTransMeta().getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, getTransMeta().getEmbeddedMetastoreProviderKey() );
-      }
 
       String realEncoding = environmentSubstitute( meta.getEncoding() );
       if ( !Utils.isEmpty( realEncoding ) ) {

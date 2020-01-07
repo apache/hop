@@ -38,8 +38,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -83,8 +82,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   public static final int CACHE_SIZE = 5000;
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
-      IMetaStore metaStore ) {
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -135,7 +133,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore )
+      VariableSpace space, IMetaStore metaStore )
     throws HopStepException {
     // Default: no values are added to the row in the step
   }
@@ -149,7 +147,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
     return new BlockingStepData();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -177,38 +175,8 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "compress", compressFiles ) );
-    parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( directory );
 
     return retval.toString();
-  }
-
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      passAllRows = rep.getStepAttributeBoolean( id_step, "pass_all_rows" );
-      directory = rep.getStepAttributeString( id_step, "directory" );
-      prefix = rep.getStepAttributeString( id_step, "prefix" );
-      cacheSize = (int) rep.getStepAttributeInteger( id_step, "cache_size" );
-      compressFiles = rep.getStepAttributeBoolean( id_step, "compress" );
-      if ( cacheSize == 0 ) {
-        cacheSize = CACHE_SIZE;
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "pass_all_rows", passAllRows );
-      rep.saveStepAttribute( id_transformation, id_step, "directory", directory );
-      rep.saveStepAttribute( id_transformation, id_step, "prefix", prefix );
-      rep.saveStepAttribute( id_transformation, id_step, "cache_size", cacheSize );
-      rep.saveStepAttribute( id_transformation, id_step, "compress", compressFiles );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
   }
 
   /**

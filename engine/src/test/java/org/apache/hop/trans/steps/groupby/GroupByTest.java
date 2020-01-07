@@ -48,7 +48,6 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
@@ -152,7 +151,7 @@ public class GroupByTest  {
       GroupByMeta.TYPE_GROUP_CONCAT_STRING } );
 
     meta.getFields( outputFields, "Group By Step", (RowMetaInterface[]) null, (StepMeta) null,
-      (Variables) null, (Repository) null, (IMetaStore) null );
+      (Variables) null, (IMetaStore) null );
 
     assertEquals( outputFields.getValueMetaList().size(), 9 );
     assertTrue( outputFields.getValueMeta( 0 ).getType() == ValueMetaInterface.TYPE_STRING );

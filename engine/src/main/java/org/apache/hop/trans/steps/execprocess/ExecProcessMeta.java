@@ -39,8 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -179,8 +178,8 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -200,7 +199,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     String realOutputFieldname = space.environmentSubstitute( resultfieldname );
     if ( !Utils.isEmpty( realOutputFieldname ) ) {
@@ -247,7 +246,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       processfield = XMLHandler.getTagValue( stepnode, "processfield" );
       resultfieldname = XMLHandler.getTagValue( stepnode, "resultfieldname" );
@@ -279,53 +278,9 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      processfield = rep.getStepAttributeString( id_step, "processfield" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      errorfieldname = rep.getStepAttributeString( id_step, "errorfieldname" );
-      exitvaluefieldname = rep.getStepAttributeString( id_step, "exitvaluefieldname" );
-      failwhennotsuccess = rep.getStepAttributeBoolean( id_step, "failwhennotsuccess" );
-      outputLineDelimiter = rep.getStepAttributeString( id_step, "outputlinedelimiter" );
-      if ( outputLineDelimiter == null ) {
-        outputLineDelimiter = ""; // default to empty string for backward compatibility
-      }
-      argumentsInFields = rep.getStepAttributeBoolean( id_step, "argumentsInFields" );
-
-      int argCount = rep.countNrStepAttributes( id_step, "argumentFieldName" );
-      argumentFieldNames = new String[argCount];
-      for ( int i = 0; i < argCount; i++ ) {
-        argumentFieldNames[i] = rep.getStepAttributeString( id_step, i, "argumentFieldName" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ExecProcessMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "processfield", processfield );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "errorfieldname", errorfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "exitvaluefieldname", exitvaluefieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "failwhennotsuccess", failwhennotsuccess );
-      rep.saveStepAttribute( id_transformation, id_step, "outputlinedelimiter", outputLineDelimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "argumentsInFields", argumentsInFields );
-      for ( int i = 0; i < argumentFieldNames.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "argumentFieldName", argumentFieldNames[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ExecProcessMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

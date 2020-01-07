@@ -39,8 +39,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -115,19 +114,14 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
     fieldsOut = new ArrayList<WebServiceField>();
   }
 
-  public WebServiceMeta( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public WebServiceMeta( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     this();
-    loadXML( stepnode, databases, metaStore );
-  }
-
-  public WebServiceMeta( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    this();
-    readRep( rep, metaStore, id_step, databases );
+    loadXML( stepnode, metaStore );
   }
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Input rows and output rows are different in the webservice step
     //
     if ( !isPassingInputData() ) {
@@ -174,7 +168,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -256,7 +250,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     // Load the URL
     //
     setUrl( XMLHandler.getTagValue( stepnode, "wsURL" ) );
@@ -313,100 +307,6 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
       field.setWsName( XMLHandler.getTagValue( fnode, "wsName" ) );
       field.setXsdType( XMLHandler.getTagValue( fnode, "xsdType" ) );
       getFieldsOut().add( field );
-    }
-  }
-
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    // Load the URL
-    //
-    setUrl( rep.getStepAttributeString( id_step, "wsUrl" ) );
-
-    // Load the operation
-    //
-    setOperationName( rep.getStepAttributeString( id_step, "wsOperation" ) );
-    setOperationRequestName( rep.getStepAttributeString( id_step, "wsOperationRequest" ) );
-    setOperationNamespace( rep.getStepAttributeString( id_step, "wsOperationNamespace" ) );
-    setInFieldContainerName( rep.getStepAttributeString( id_step, "wsInFieldContainer" ) );
-    setInFieldArgumentName( rep.getStepAttributeString( id_step, "wsInFieldArgument" ) );
-    setOutFieldContainerName( rep.getStepAttributeString( id_step, "wsOutFieldContainer" ) );
-    setOutFieldArgumentName( rep.getStepAttributeString( id_step, "wsOutFieldArgument" ) );
-    setProxyHost( rep.getStepAttributeString( id_step, "proxyHost" ) );
-    setProxyPort( rep.getStepAttributeString( id_step, "proxyPort" ) );
-    setHttpLogin( rep.getStepAttributeString( id_step, "httpLogin" ) );
-    setHttpPassword( rep.getStepAttributeString( id_step, "httpPassword" ) );
-    setCallStep( (int) rep.getStepAttributeInteger( id_step, "callStep" ) );
-    setPassingInputData( rep.getStepAttributeBoolean( id_step, "passingInputData" ) );
-    setCompatible( rep.getStepAttributeBoolean( id_step, 0, "compatible", true ) ); // Default to true for backward
-                                                                                    // compatibility
-    setRepeatingElementName( rep.getStepAttributeString( id_step, "repeating_element" ) );
-    setReturningReplyAsString( rep.getStepAttributeBoolean( id_step, 0, "reply_as_string" ) );
-
-    // Load the input fields mapping
-    //
-    int nb = rep.countNrStepAttributes( id_step, "fieldIn_ws_name" );
-    getFieldsIn().clear();
-    for ( int i = 0; i < nb; ++i ) {
-      WebServiceField field = new WebServiceField();
-      field.setName( rep.getStepAttributeString( id_step, i, "fieldIn_name" ) );
-      field.setWsName( rep.getStepAttributeString( id_step, i, "fieldIn_ws_name" ) );
-      field.setXsdType( rep.getStepAttributeString( id_step, i, "fieldIn_xsd_type" ) );
-      getFieldsIn().add( field );
-    }
-
-    // Load the output fields mapping
-    //
-    nb = rep.countNrStepAttributes( id_step, "fieldOut_ws_name" );
-    getFieldsOut().clear();
-    for ( int i = 0; i < nb; ++i ) {
-      WebServiceField field = new WebServiceField();
-      field.setName( rep.getStepAttributeString( id_step, i, "fieldOut_name" ) );
-      field.setWsName( rep.getStepAttributeString( id_step, i, "fieldOut_ws_name" ) );
-      field.setXsdType( rep.getStepAttributeString( id_step, i, "fieldOut_xsd_type" ) );
-      getFieldsOut().add( field );
-    }
-
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    // Store the URL
-    //
-    rep.saveStepAttribute( id_transformation, id_step, "wsUrl", getUrl() );
-
-    // Store the WS Operation
-    //
-    rep.saveStepAttribute( id_transformation, id_step, "wsOperation", getOperationName() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsOperationRequest", getOperationRequestName() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsOperationNamespace", getOperationNamespace() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsInFieldContainer", getInFieldContainerName() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsInFieldArgument", getInFieldArgumentName() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsOutFieldContainer", getOutFieldContainerName() );
-    rep.saveStepAttribute( id_transformation, id_step, "wsOutFieldArgument", getOutFieldArgumentName() );
-    rep.saveStepAttribute( id_transformation, id_step, "proxyHost", getProxyHost() );
-    rep.saveStepAttribute( id_transformation, id_step, "proxyPort", getProxyPort() );
-    rep.saveStepAttribute( id_transformation, id_step, "httpLogin", getHttpLogin() );
-    rep.saveStepAttribute( id_transformation, id_step, "httpPassword", getHttpPassword() );
-    rep.saveStepAttribute( id_transformation, id_step, "callStep", getCallStep() );
-    rep.saveStepAttribute( id_transformation, id_step, "passingInputData", isPassingInputData() );
-    rep.saveStepAttribute( id_transformation, id_step, "compatible", isCompatible() );
-    rep.saveStepAttribute( id_transformation, id_step, "repeating_element", getRepeatingElementName() );
-    rep.saveStepAttribute( id_transformation, id_step, "reply_as_string", isReturningReplyAsString() );
-
-    // Load the input fields mapping
-    //
-    for ( int i = 0; i < getFieldsIn().size(); ++i ) {
-      WebServiceField vField = getFieldsIn().get( i );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldIn_name", vField.getName() );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldIn_ws_name", vField.getWsName() );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldIn_xsd_type", vField.getXsdType() );
-    }
-
-    // Load the output fields mapping
-    //
-    for ( int i = 0; i < getFieldsOut().size(); ++i ) {
-      WebServiceField vField = getFieldsOut().get( i );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldOut_name", vField.getName() );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldOut_ws_name", vField.getWsName() );
-      rep.saveStepAttribute( id_transformation, id_step, i, "fieldOut_xsd_type", vField.getXsdType() );
     }
   }
 

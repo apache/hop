@@ -27,8 +27,6 @@ import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryElementInterface;
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.SharedObjectSyncUtil;
@@ -56,20 +54,6 @@ public abstract class HopUiSharedObjectDelegate extends HopUiDelegate {
       }
     }
     return false;
-  }
-
-  protected <T extends SharedObjectInterface & RepositoryElementInterface & ChangedFlagInterface>
-      void saveSharedObjectToRepository( T sharedObject, String versionComment ) throws HopException {
-    Repository rep = hopUi.getRepository();
-    if ( rep != null  ) {
-      if ( !rep.getSecurityProvider().isReadOnly() ) {
-        rep.save( sharedObject, versionComment, null );
-        sharedObject.clearChanged();
-      } else {
-        throw new HopException( BaseMessages.getString(
-            PKG, "Spoon.Dialog.Exception.ReadOnlyRepositoryUser" ) );
-      }
-    }
   }
 
   protected void saveSharedObjects() {

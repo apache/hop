@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -78,7 +81,6 @@ import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dimensionlookup.DimensionLookupMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -107,7 +109,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
 
   private FormData fdKeyComp, fdFieldsComp;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -331,20 +333,13 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     } );
 
     // Connection line
-    wConnection = addConnectionLine( comp, wUpdate, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    // wConnection.addModifyListener(lsConnectionMod);
-    // wConnection.addSelectionListener(lsSelection);
+    wConnection = addConnectionLine( comp, wUpdate, input.getDatabaseMeta(), lsMod );
     wConnection.addFocusListener( lsConnectionFocus );
-    wConnection.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
+    wConnection.addModifyListener( e-> {
         // We have new content: change ci connection:
         ci = transMeta.findDatabase( wConnection.getText() );
         setFlags();
-      }
-    } );
+      } );
 
     // Schema line...
     wlSchema = new Label( comp, SWT.RIGHT );
@@ -1310,8 +1305,6 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     }
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getDateField() != null ) {
       wDatefield.setText( input.getDateField() );
@@ -1508,15 +1501,17 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
   }
 
   private void getTableName() {
-    int connr = wConnection.getSelectionIndex();
-    if ( connr < 0 ) {
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta inf = transMeta.getDatabase( connr );
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if (databaseMeta==null) {
+      return;
+    }
+    logDebug( BaseMessages.getString( PKG, "DimensionLookupDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
 
-    logDebug( BaseMessages.getString( PKG, "DimensionLookupDialog.Log.LookingAtConnection" ) + inf.toString() );
-
-    DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+    DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
     std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
     if ( std.open() ) {
       wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1818,7 +1813,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
       }
 
       if ( message == null ) {
-        SQLStatement sql = info.getSQLStatements( transMeta, stepinfo, prev, repository, metaStore );
+        SQLStatement sql = info.getSQLStatements( transMeta, stepinfo, prev, metaStore );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
             SQLEditor sqledit =

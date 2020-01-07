@@ -32,7 +32,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<ExcelInputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new ExcelInputMeta() );
   }
 

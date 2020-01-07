@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.ObjectId;
+
 
 /**
  * This interface describes the methods that a database connection needs to have in order to describe it properly.
@@ -89,28 +89,6 @@ public interface DatabaseInterface extends Cloneable {
   public void setChanged( boolean changed );
 
   /**
-   * @return Returns the connection Name.
-   */
-  public String getName();
-
-  /**
-   * @param name
-   *          The connection Name to set.
-   */
-  public void setName( String name );
-
-  /**
-   * @return Returns the un-escaped connection Name.
-   */
-  public String getDisplayName();
-
-  /**
-   * @param displayName
-   *          The un-escaped connection Name to set.
-   */
-  public void setDisplayName( String displayName );
-
-  /**
    * @return Returns the databaseName.
    */
   public String getDatabaseName();
@@ -131,17 +109,6 @@ public interface DatabaseInterface extends Cloneable {
    *          The hostname to set.
    */
   public void setHostname( String hostname );
-
-  /**
-   * @return Returns the id.
-   */
-  public ObjectId getObjectId();
-
-  /**
-   * @param id
-   *          The id to set.
-   */
-  public void setObjectId( ObjectId id );
 
   /**
    * @return the username to log onto the database

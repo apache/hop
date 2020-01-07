@@ -29,6 +29,179 @@ import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.cluster.ClusterSchema;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.AddUndoPositionInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.DBCache;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.LastUsedFile;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.ObjectUsageCount;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.XmlExportHelper;
+import org.apache.hop.core.changed.ChangedFlagInterface;
+import org.apache.hop.core.changed.HopObserver;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopMissingPluginsException;
+import org.apache.hop.core.exception.HopRowException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.gui.GUIFactory;
+import org.apache.hop.core.gui.HopUiFactory;
+import org.apache.hop.core.gui.HopUiInterface;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.UndoInterface;
+import org.apache.hop.core.lifecycle.LifeEventHandler;
+import org.apache.hop.core.lifecycle.LifeEventInfo;
+import org.apache.hop.core.lifecycle.LifecycleException;
+import org.apache.hop.core.lifecycle.LifecycleSupport;
+import org.apache.hop.core.logging.ChannelLogTable;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.FileLoggingEventListener;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.JobEntryLogTable;
+import org.apache.hop.core.logging.JobLogTable;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.MetricsLogTable;
+import org.apache.hop.core.logging.PerformanceLogTable;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransLogTable;
+import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.LifecyclePluginType;
+import org.apache.hop.core.plugins.PartitionerPluginType;
+import org.apache.hop.core.plugins.PluginFolder;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.reflection.StringSearchResult;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfsDelegatingResolver;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobExecutionConfiguration;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metastore.MetaStoreConst;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metastore.util.HopDefaults;
+import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.resource.ResourceExportInterface;
+import org.apache.hop.resource.ResourceUtil;
+import org.apache.hop.resource.TopLevelResource;
+import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.shared.SharedObjects;
+import org.apache.hop.trans.DatabaseImpact;
+import org.apache.hop.trans.HasDatabasesInterface;
+import org.apache.hop.trans.HasSlaveServersInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.RowDistributionInterface;
+import org.apache.hop.trans.step.RowDistributionPluginType;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.FileDialogOperation;
+import org.apache.hop.ui.core.PrintSpool;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.auth.AuthProviderDialog;
+import org.apache.hop.ui.core.dialog.AboutDialog;
+import org.apache.hop.ui.core.dialog.BrowserEnvironmentWarningDialog;
+import org.apache.hop.ui.core.dialog.CheckResultDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
+import org.apache.hop.ui.core.dialog.EnterSearchDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringsDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.HopPropertiesFileDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
+import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
+import org.apache.hop.ui.core.dialog.Splash;
+import org.apache.hop.ui.core.dialog.SubjectDataBrowserDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.tree.TreeToolbar;
+import org.apache.hop.ui.hopui.HopUiLifecycleListener.SpoonLifeCycleEvent;
+import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
+import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopui.dialog.AnalyseImpactProgressDialog;
+import org.apache.hop.ui.hopui.dialog.CheckTransProgressDialog;
+import org.apache.hop.ui.hopui.dialog.LogSettingsDialog;
+import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
+import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopui.partition.PartitionMethodSelector;
+import org.apache.hop.ui.hopui.partition.PartitionSettings;
+import org.apache.hop.ui.hopui.partition.processor.MethodProcessor;
+import org.apache.hop.ui.hopui.partition.processor.MethodProcessorFactory;
+import org.apache.hop.ui.hopui.trans.TransGraph;
+import org.apache.hop.ui.hopui.tree.TreeManager;
+import org.apache.hop.ui.hopui.tree.provider.ClustersFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.HopsFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.JobEntriesFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.PartitionsFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.SlavesFolderProvider;
+import org.apache.hop.ui.hopui.tree.provider.StepsFolderProvider;
+import org.apache.hop.ui.job.dialog.JobDialogPluginType;
+import org.apache.hop.ui.trans.dialog.TransDialogPluginType;
+import org.apache.hop.ui.trans.dialog.TransHopDialog;
+import org.apache.hop.ui.util.EngineMetaUtils;
+import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
+import org.apache.hop.ui.util.ThreadGuiResources;
+import org.apache.hop.ui.xul.HopXulLoader;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabListener;
+import org.apache.xul.swt.tab.TabSet;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.Dialog;
@@ -37,8 +210,6 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.LocationEvent;
@@ -92,221 +263,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.AddUndoPositionInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.DBCache;
-import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.LastUsedFile;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.ObjectUsageCount;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.XmlExportHelper;
-import org.apache.hop.core.changed.ChangedFlagInterface;
-import org.apache.hop.core.changed.HopObserver;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopAuthException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopMissingPluginsException;
-import org.apache.hop.core.exception.HopRowException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.GUIFactory;
-import org.apache.hop.core.gui.OverwritePrompter;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.HopUiFactory;
-import org.apache.hop.core.gui.HopUiInterface;
-import org.apache.hop.core.gui.UndoInterface;
-import org.apache.hop.core.lifecycle.LifeEventHandler;
-import org.apache.hop.core.lifecycle.LifeEventInfo;
-import org.apache.hop.core.lifecycle.LifecycleException;
-import org.apache.hop.core.lifecycle.LifecycleSupport;
-import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.FileLoggingEventListener;
-import org.apache.hop.core.logging.JobEntryLogTable;
-import org.apache.hop.core.logging.JobLogTable;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.MetricsLogTable;
-import org.apache.hop.core.logging.PerformanceLogTable;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.logging.StepLogTable;
-import org.apache.hop.core.logging.TransLogTable;
-import org.apache.hop.core.parameters.NamedParams;
-import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.LifecyclePluginType;
-import org.apache.hop.core.plugins.PartitionerPluginType;
-import org.apache.hop.core.plugins.PluginFolder;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.plugins.PluginTypeListener;
-import org.apache.hop.core.plugins.RepositoryPluginType;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.reflection.StringSearchResult;
-import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.undo.TransAction;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.vfs.HopVfsDelegatingResolver;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.imp.ImportRules;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.pan.CommandLineOption;
-import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.HopRepositoryLostException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryCapabilities;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.RepositoryOperation;
-import org.apache.hop.repository.RepositorySecurityManager;
-import org.apache.hop.repository.RepositorySecurityProvider;
-import org.apache.hop.resource.ResourceExportInterface;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.shared.SharedObjectInterface;
-import org.apache.hop.shared.SharedObjects;
-import org.apache.hop.trans.DatabaseImpact;
-import org.apache.hop.trans.HasDatabasesInterface;
-import org.apache.hop.trans.HasSlaveServersInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.RowDistributionInterface;
-import org.apache.hop.trans.step.RowDistributionPluginType;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepErrorMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.step.StepPartitioningMeta;
-import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.FileDialogOperation;
-import org.apache.hop.ui.core.PrintSpool;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.auth.AuthProviderDialog;
-import org.apache.hop.ui.core.dialog.AboutDialog;
-import org.apache.hop.ui.core.dialog.BrowserEnvironmentWarningDialog;
-import org.apache.hop.ui.core.dialog.CheckResultDialog;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
-import org.apache.hop.ui.core.dialog.EnterSearchDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterStringsDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.HopPropertiesFileDialog;
-import org.apache.hop.ui.core.dialog.PopupOverwritePrompter;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
-import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
-import org.apache.hop.ui.core.dialog.Splash;
-import org.apache.hop.ui.core.dialog.SubjectDataBrowserDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.OsHelper;
-import org.apache.hop.ui.core.widget.tree.TreeToolbar;
-import org.apache.hop.ui.imp.ImportRulesDialog;
-import org.apache.hop.ui.job.dialog.JobDialogPluginType;
-import org.apache.hop.ui.job.dialog.JobLoadProgressDialog;
-import org.apache.hop.ui.repository.ILoginCallback;
-import org.apache.hop.ui.repository.RepositoriesDialog;
-import org.apache.hop.ui.repository.RepositorySecurityUI;
-import org.apache.hop.ui.repository.dialog.RepositoryDialogInterface;
-import org.apache.hop.ui.repository.dialog.RepositoryExportProgressDialog;
-import org.apache.hop.ui.repository.dialog.RepositoryImportProgressDialog;
-import org.apache.hop.ui.repository.dialog.RepositoryRevisionBrowserDialogInterface;
-import org.apache.hop.ui.repository.dialog.SelectDirectoryDialog;
-import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorer;
-import org.apache.hop.ui.repository.repositoryexplorer.RepositoryExplorerCallback;
-import org.apache.hop.ui.repository.repositoryexplorer.UISupportRegistery;
-import org.apache.hop.ui.repository.repositoryexplorer.model.UIRepositoryContent;
-import org.apache.hop.ui.repository.repositoryexplorer.uisupport.BaseRepositoryExplorerUISupport;
-import org.apache.hop.ui.repository.repositoryexplorer.uisupport.ManageUserUISupport;
-import org.apache.hop.ui.hopui.HopUiLifecycleListener.SpoonLifeCycleEvent;
-import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
-import org.apache.hop.ui.hopui.dialog.AnalyseImpactProgressDialog;
-import org.apache.hop.ui.hopui.dialog.CheckTransProgressDialog;
-import org.apache.hop.ui.hopui.dialog.LogSettingsDialog;
-import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
-import org.apache.hop.ui.hopui.dialog.SaveProgressDialog;
-import org.apache.hop.ui.hopui.job.JobGraph;
-import org.apache.hop.ui.hopui.partition.PartitionMethodSelector;
-import org.apache.hop.ui.hopui.partition.PartitionSettings;
-import org.apache.hop.ui.hopui.partition.processor.MethodProcessor;
-import org.apache.hop.ui.hopui.partition.processor.MethodProcessorFactory;
-import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.apache.hop.ui.hopui.tree.TreeManager;
-import org.apache.hop.ui.hopui.tree.provider.ClustersFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.HopsFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.JobEntriesFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.PartitionsFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.SlavesFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.StepsFolderProvider;
-import org.apache.hop.ui.hopui.wizards.CopyTableWizardPage1;
-import org.apache.hop.ui.hopui.wizards.CopyTableWizardPage2;
-import org.apache.hop.ui.trans.dialog.TransDialogPluginType;
-import org.apache.hop.ui.trans.dialog.TransHopDialog;
-import org.apache.hop.ui.trans.dialog.TransLoadProgressDialog;
-import org.apache.hop.ui.util.EngineMetaUtils;
-import org.apache.hop.ui.util.EnvironmentUtils;
-import org.apache.hop.ui.util.HelpUtils;
-import org.apache.hop.ui.util.ThreadGuiResources;
-import org.apache.hop.ui.xul.HopWaitBox;
-import org.apache.hop.ui.xul.HopXulLoader;
-import org.apache.hop.version.BuildVersion;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulEventSource;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.binding.DefaultBindingFactory;
-import org.pentaho.ui.xul.components.WaitBoxRunnable;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.components.XulMenuseparator;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
@@ -318,13 +279,10 @@ import org.pentaho.ui.xul.jface.tags.JfaceMenuitem;
 import org.pentaho.ui.xul.jface.tags.JfaceMenupopup;
 import org.pentaho.ui.xul.swt.tags.SwtDeck;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
-import org.apache.xul.swt.tab.TabItem;
-import org.apache.xul.swt.tab.TabListener;
-import org.apache.xul.swt.tab.TabSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -366,12 +324,12 @@ import java.util.stream.Collectors;
  * @since 16-may-2003, i18n at 07-Feb-2006, redesign 01-Dec-2006
  */
 public class HopUi extends ApplicationWindow implements AddUndoPositionInterface, TabListener, HopUiInterface,
-  OverwritePrompter, HopObserver, LifeEventHandler, XulEventSource, XulEventHandler, PartitionSchemasProvider {
+  HopObserver, LifeEventHandler, XulEventSource, XulEventHandler, PartitionSchemasProvider {
 
   private static Class<?> PKG = HopUi.class;
 
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject( "Spoon", LoggingObjectType.SPOON,
-      null );
+    null );
 
   public static final String STRING_TRANSFORMATIONS = BaseMessages.getString( PKG, "Spoon.STRING_TRANSFORMATIONS" );
 
@@ -414,7 +372,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static final String STRING_SPOON_MAIN_TREE = BaseMessages.getString( PKG, "Spoon.MainTree.Label" );
 
   private static final String STRING_SPOON_CORE_OBJECTS_TREE = BaseMessages
-      .getString( PKG, "Spoon.CoreObjectsTree.Label" );
+    .getString( PKG, "Spoon.CoreObjectsTree.Label" );
 
   public static final String XML_TAG_TRANSFORMATION_STEPS = "transformation-steps";
 
@@ -469,20 +427,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public PropsUI props;
 
-  public Repository rep;
-  private String repositoryName;
-
-  // private RepositorySecurityManager securityManager;
-
-  public RepositoryCapabilities capabilities;
-
-  // Save the last directory saved to for new files
-  // TODO: Save the last saved position to the defaultSaveLocation
-  private RepositoryDirectoryInterface defaultSaveLocation = null;
-
-  // Associate the defaultSaveLocation with a given repository; We should clear this out on a repo change
-  private Repository defaultSaveLocationRepository = null;
-
   private CTabItem view, design;
 
   private CTabFolder tabFolder;
@@ -497,11 +441,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   // "docs/English/welcome/index.html";
   private static final String FILE_WELCOME_PAGE = Const
-      .safeAppendDirectory( BasePropertyHandler.getProperty( "documentationDirBase", "docs/" ),
-          BaseMessages.getString( PKG, "Spoon.Title.STRING_DOCUMENT_WELCOME" ) );
+    .safeAppendDirectory( BasePropertyHandler.getProperty( "documentationDirBase", "docs/" ),
+      BaseMessages.getString( PKG, "Spoon.Title.STRING_DOCUMENT_WELCOME" ) );
 
   public static final String DOCUMENTATION_URL = Const
-      .getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
+    .getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
 
   private static final String UNDO_MENU_ITEM = "edit-undo";
 
@@ -580,14 +524,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private Map<String, XulComponent> menuMap = new HashMap<>();
 
-  private RepositoriesDialog loginDialog;
-
   private VfsFileChooserDialog vfsFileChooserDialog;
 
   // the id of the perspective to start in, if any
   protected String startupPerspective = null;
-
-  private CommandLineOption[] commandLineOptions;
 
   public DelegatingMetaStore metaStore;
 
@@ -601,8 +541,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * This is the main procedure for Spoon.
    *
-   * @param a
-   *     Arguments are available in the "Get System Info" step.
+   * @param a Arguments are available in the "Get System Info" step.
    */
   public static void main( String[] a ) throws HopException {
     boolean doConsoleRedirect = !Boolean.getBoolean( "Spoon.Console.Redirect.Disabled" );
@@ -671,8 +610,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       List<String> args = new ArrayList<>( Arrays.asList( a ) );
 
-      CommandLineOption[] commandLineOptions = getCommandLineArgs( args );
-
       HopException registryException = pluginRegistryFuture.get();
       if ( registryException != null ) {
         throw registryException;
@@ -681,20 +618,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
 
       HopLogStore
-          .init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
+        .init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
 
-      initLogging( commandLineOptions );
+      initLogging();
       // remember...
 
       staticHopUi = new HopUi();
-      staticHopUi.commandLineOptions = commandLineOptions;
-      // pull the startup perspective id from the command line options and hand it to Spoon
-      String pId;
-      StringBuilder perspectiveIdBuff = HopUi.getCommandLineOption( commandLineOptions, "perspective" ).getArgument();
-      pId = perspectiveIdBuff.toString();
-      if ( !Utils.isEmpty( pId ) ) {
-        HopUi.staticHopUi.startupPerspective = pId;
-      }
       HopUiFactory.setSpoonInstance( staticHopUi );
       staticHopUi.setDestroy( true );
       GUIFactory.setThreadDialogs( new ThreadGuiResources() );
@@ -717,38 +646,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     System.exit( 0 );
   }
 
-  private static void initLogging( CommandLineOption[] options ) throws HopException {
-    StringBuilder optionLogFile = getCommandLineOption( options, "logfile" ).getArgument();
-    StringBuilder optionLogLevel = getCommandLineOption( options, "level" ).getArgument();
-
+  private static void initLogging() throws HopException {
     // Set default Locale:
     Locale.setDefault( LanguageChoice.getInstance().getDefaultLocale() );
-
-    if ( !Utils.isEmpty( optionLogFile ) ) {
-      fileLoggingEventListener = new FileLoggingEventListener( optionLogFile.toString(), true );
-      if ( log.isBasic() ) {
-        String filename = fileLoggingEventListener.getFilename();
-        log.logBasic( BaseMessages.getString( PKG, "Spoon.Log.LoggingToFile" ) + filename );
-      }
-      HopLogStore.getAppender().addLoggingEventListener( fileLoggingEventListener );
-    } else {
-      fileLoggingEventListener = null;
-    }
-
-    if ( !Utils.isEmpty( optionLogLevel ) ) {
-      log.setLogLevel( LogLevel.getLogLevelForCode( optionLogLevel.toString() ) );
-      if ( log.isBasic() ) {
-        // "Logging is at level : "
-        log.logBasic( BaseMessages.getString( PKG, "Spoon.Log.LoggingAtLevel" ) + log.getLogLevel().getDescription() );
-      }
-    }
   }
 
   public HopUi() {
-    this( null );
-  }
-
-  public HopUi( Repository rep ) {
     super( null );
     this.addMenuBar();
     log = new LogChannel( APP_NAME );
@@ -761,15 +664,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       IMetaStore localMetaStore = MetaStoreConst.openLocalPentahoMetaStore();
       metaStore.addMetaStore( localMetaStore );
       metaStore.setActiveMetaStoreName( localMetaStore.getName() );
-      if ( rep != null ) {
-        metaStore.addMetaStore( 0, rep.getMetaStore() );
-        metaStore.setActiveMetaStoreName( rep.getMetaStore().getName() );
-      }
+
     } catch ( MetaStoreException e ) {
       new ErrorDialog( shell, "Error opening Pentaho Metastore", "Unable to open local Pentaho Metastore", e );
     }
-
-    setRepository( rep );
 
     props = PropsUI.getInstance();
     sharedObjectsFileMap = new Hashtable<>();
@@ -783,15 +681,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * The core plugin types don't know about UI classes. This method adds those in before initialization.
-   *
+   * <p>
    * TODO: create a SpoonLifecycle listener that can notify interested parties of a pre-initialization state so this can
    * happen in those listeners.
    */
   private static void registerUIPluginObjectTypes() {
-    RepositoryPluginType repositoryPluginType = RepositoryPluginType.getInstance();
-    repositoryPluginType.addObjectType( RepositoryRevisionBrowserDialogInterface.class, "version-browser-classname" );
-    repositoryPluginType.addObjectType( RepositoryDialogInterface.class, "dialog-classname" );
-
     PluginRegistry.addPluginType( HopUiPluginType.getInstance() );
 
     HopUiPluginType.getInstance().getPluginFolders().add( new PluginFolder( "plugins/repositories", false, true ) );
@@ -1036,7 +930,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public void loadPerspective( int pos ) {
     try {
       HopUiPerspectiveManager.getInstance().activatePerspective(
-          HopUiPerspectiveManager.getInstance().getPerspectives().get( pos ).getClass() );
+        HopUiPerspectiveManager.getInstance().getPerspectives().get( pos ).getClass() );
     } catch ( HopException e ) {
       log.logError( "Error loading perspective", e );
     }
@@ -1106,24 +1000,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       return true;
     }
 
-    boolean createPerms = !RepositorySecurityUI
-        .verifyOperations( shell, rep, false, RepositoryOperation.MODIFY_TRANSFORMATION,
-            RepositoryOperation.MODIFY_JOB );
-    boolean executePerms = !RepositorySecurityUI
-        .verifyOperations( shell, rep, false, RepositoryOperation.EXECUTE_TRANSFORMATION,
-            RepositoryOperation.EXECUTE_JOB );
-    boolean readPerms = !RepositorySecurityUI
-        .verifyOperations( shell, rep, false, RepositoryOperation.READ_TRANSFORMATION, RepositoryOperation.READ_JOB );
-
     // Check to see if display of warning dialog has been disabled
     String warningTitle = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllForce.Disconnect.Title" );
     String warningText = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllForce.Disconnect.Message" );
     int buttons = SWT.OK;
-    if ( readPerms && createPerms && executePerms ) {
-      warningTitle = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllOption.Disconnect.Title" );
-      warningText = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllOption.Disconnect.Message" );
-      buttons = SWT.YES | SWT.NO;
-    }
 
     MessageBox mb = new MessageBox( HopUi.getInstance().getShell(), buttons | SWT.ICON_WARNING );
     mb.setMessage( warningText );
@@ -1133,7 +1013,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( ( isCloseAllFiles == SWT.YES ) || ( isCloseAllFiles == SWT.OK ) ) {
       // Yes - User specified that they want to close all.
       return closeAllFiles( force );
-    } else if ( ( isCloseAllFiles == SWT.NO ) && ( executePerms ) ) {
+    } else if ( ( isCloseAllFiles == SWT.NO ) ) {
       // No - don't close tabs
       // if user has execute permissions mark tabs for save
       markTabsChanged( force );
@@ -1147,7 +1027,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * Search the transformation meta-data.
-   *
    */
   public void searchMetaData() {
     TransMeta[] transMetas = getLoadedTransformations();
@@ -1243,7 +1122,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     for ( int ii = 0; ii < arguments.length; ++ii ) {
       allArgs.addValue( new ValueMetaString(
-        Props.STRING_ARGUMENT_NAME_PREFIX + ( 1 + ii ) ), arguments[ii] );
+        Props.STRING_ARGUMENT_NAME_PREFIX + ( 1 + ii ) ), arguments[ ii ] );
     }
 
     // Now ask the use for more info on these!
@@ -1378,16 +1257,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @param stopped
-   *          True to stop this application.
+   * @param stopped True to stop this application.
    */
   public void setStopped( boolean stopped ) {
     this.stopped = stopped;
   }
 
   /**
-   * @param destroy
-   *          Whether or not to destroy the display.
+   * @param destroy Whether or not to destroy the display.
    */
   public void setDestroy( boolean destroy ) {
     this.destroy = destroy;
@@ -1401,8 +1278,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @param arguments
-   *          The arguments to set.
+   * @param arguments The arguments to set.
    */
   public void setArguments( String[] arguments ) {
     this.arguments = arguments;
@@ -1425,7 +1301,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         display.dispose();
       } catch ( SWTException e ) {
         // dispose errors
-      } catch ( NullPointerException  e ) {
+      } catch ( NullPointerException e ) {
         // fixes NPE on Mac OS
       }
     }
@@ -1464,11 +1340,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public void copyJobentries() {
     JobMeta jobMeta = getActiveJob();
     if ( jobMeta != null ) {
-      if ( RepositorySecurityUI.verifyOperations( shell, rep,
-          RepositoryOperation.MODIFY_JOB, RepositoryOperation.EXECUTE_JOB ) ) {
-        return;
-      }
-
       delegates.jobs.copyJobEntries( jobMeta.getSelectedEntries() );
     }
   }
@@ -1522,13 +1393,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       List<StepMeta> stepMetas = transMeta.getSelectedSteps();
       if ( stepMetas != null && stepMetas.size() > 0 ) {
         copySteps();
-        delSteps( transMeta, stepMetas.toArray( new StepMeta[stepMetas.size()] ) );
+        delSteps( transMeta, stepMetas.toArray( new StepMeta[ stepMetas.size() ] ) );
       }
     } else if ( jobActive ) {
       List<JobEntryCopy> jobEntryCopies = jobMeta.getSelectedEntries();
       if ( jobEntryCopies != null && jobEntryCopies.size() > 0 ) {
         copyJobentries();
-        deleteJobEntryCopies( jobMeta, jobEntryCopies.toArray( new JobEntryCopy[jobEntryCopies.size()] ) );
+        deleteJobEntryCopies( jobMeta, jobEntryCopies.toArray( new JobEntryCopy[ jobEntryCopies.size() ] ) );
       }
     }
   }
@@ -1551,7 +1422,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
             // the menu separators seem to not be modeled as individual objects in XUL
             try {
               Menu swtm = (Menu) menu.getManagedObject();
-              swtm.getItems()[swtm.getItemCount() - 1].dispose();
+              swtm.getItems()[ swtm.getItemCount() - 1 ].dispose();
             } catch ( Throwable t ) {
               LogChannel.GENERAL.logError( "Error removing XUL menu item", t );
             }
@@ -1607,7 +1478,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Throwable t ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_MAIN ), new Exception( t ) );
+        .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_MAIN ), new Exception( t ) );
     }
 
     addMenuLast();
@@ -1682,7 +1553,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public boolean editTransformationProperties() {
-    return TransGraph.editProperties( getActiveTransformation(), this, rep, true );
+    return TransGraph.editProperties( getActiveTransformation(), this, true );
   }
 
   public boolean editProperties() {
@@ -1864,41 +1735,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void lastFileSelect( final LastUsedFile lastUsedFile ) {
-
-    // If the file comes from a repository and it's not the same as
-    // the one we're connected to, ask for a username/password!
-    //
-    if ( lastUsedFile.isSourceRepository()
-      && ( rep == null || !rep.getName().equalsIgnoreCase( lastUsedFile.getRepositoryName() ) ) ) {
-      // Allow plugins to handle how we connect to a repository
-      try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.OpenRecent.id, lastUsedFile );
-      } catch ( HopException ke ) {
-        log.logError( "Failed to call extension point", ke );
-      }
-    } else if ( !lastUsedFile.isSourceRepository() ) {
-      // This file must have been on the file system.
-      openFile( lastUsedFile.getFilename(), false );
-    } else {
-      // read from a repository...
-      //
-      try {
-        loadLastUsedFile( lastUsedFile, rep == null ? null : rep.getName() );
-        addMenuLast();
-      } catch ( HopException ke ) {
-        // "Error loading transformation", "I was unable to load this
-        // transformation from the
-        // XML file because of an error"
-        new ErrorDialog( loginDialog.getShell(),
-          BaseMessages.getString( PKG, "Spoon.Dialog.LoadTransformationError.Title" ),
-          BaseMessages.getString( PKG, "Spoon.Dialog.LoadTransformationError.Message" ), ke );
-      }
-    }
+    openFile( lastUsedFile.getFilename(), false );
   }
 
   private void addViewTab( CTabFolder tabFolder ) {
     Composite viewComposite = new Composite( tabFolder, SWT.NONE );
-    viewComposite.setLayout( new FormLayout()  );
+    viewComposite.setLayout( new FormLayout() );
     viewComposite.setBackground( GUIResource.getInstance().getColorDemoGray() );
 
     viewTreeToolbar = new TreeToolbar( viewComposite, SWT.NONE );
@@ -1957,7 +1799,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private void addDesignTab( CTabFolder tabFolder ) {
     Composite designComposite = new Composite( tabFolder, SWT.NONE );
-    designComposite.setLayout( new FormLayout()  );
+    designComposite.setLayout( new FormLayout() );
     designComposite.setBackground( GUIResource.getInstance().getColorDemoGray() );
 
     designTreeToolbar = new TreeToolbar( designComposite, SWT.NONE );
@@ -2112,11 +1954,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           if ( selection.length == 1 ) {
             // expand if clicked on the the top level entry only...
             //
-            TreeItem top = selection[0];
+            TreeItem top = selection[ 0 ];
             while ( top.getParentItem() != null ) {
               top = top.getParentItem();
             }
-            if ( top == selection[0] ) {
+            if ( top == selection[ 0 ] ) {
               boolean expanded = top.getExpanded();
               for ( TreeItem item : coreObjectsTree.getItems() ) {
                 item.setExpanded( false );
@@ -2170,8 +2012,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
             PluginInterface plugin = PluginRegistry.getInstance().findPluginWithName( StepPluginType.class, name );
             if ( plugin != null ) {
               Image image =
-                  GUIResource.getInstance().getImagesSteps().get( plugin.getIds()[0] ).getAsBitmapForSize( display,
-                      ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
+                GUIResource.getInstance().getImagesSteps().get( plugin.getIds()[ 0 ] ).getAsBitmapForSize( display,
+                  ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
               if ( image == null ) {
                 toolTip.hide();
               }
@@ -2188,8 +2030,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
               PluginRegistry.getInstance().findPluginWithName( JobEntryPluginType.class, name );
             if ( plugin != null ) {
               Image image =
-                  GUIResource.getInstance().getImagesJobentries().get( plugin.getIds()[0] ).getAsBitmapForSize(
-                      display, ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
+                GUIResource.getInstance().getImagesJobentries().get( plugin.getIds()[ 0 ] ).getAsBitmapForSize(
+                  display, ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
               toolTip.setImage( image );
               toolTip.setText( name + Const.CR + Const.CR + tip );
               toolTip.setBackgroundColor( GUIResource.getInstance().getColor( 255, 254, 225 ) );
@@ -2253,7 +2095,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
   }
 
-  private void addLineToBuilder( final StringBuilder builder, final Object...strings ) {
+  private void addLineToBuilder( final StringBuilder builder, final Object... strings ) {
     if ( builder != null && strings.length > 0 ) {
       for ( final Object string : strings ) {
         builder.append( string );
@@ -2357,7 +2199,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           PluginRegistry.getInstance().findPluginWithId( StepPluginType.class, usage.getObjectName() );
         if ( stepPlugin != null ) {
           final Image stepImage =
-              GUIResource.getInstance().getImagesSteps().get( stepPlugin.getIds()[0] ).getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
+            GUIResource.getInstance().getImagesSteps().get( stepPlugin.getIds()[ 0 ] ).getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
           String pluginName = Const.NVL( stepPlugin.getName(), "" );
           String pluginDescription = Const.NVL( stepPlugin.getDescription(), "" );
 
@@ -2407,7 +2249,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           if ( !baseJobEntries.get( j ).getIds()[ 0 ].equals( JobMeta.STRING_SPECIAL ) ) {
             if ( baseJobEntries.get( j ).getCategory().equalsIgnoreCase( baseCategory ) ) {
               final Image jobEntryImage =
-                  GUIResource.getInstance().getImagesJobentriesSmall().get( baseJobEntries.get( j ).getIds()[0] );
+                GUIResource.getInstance().getImagesJobentriesSmall().get( baseJobEntries.get( j ).getIds()[ 0 ] );
               String pluginName = Const.NVL( baseJobEntries.get( j ).getName(), "" );
               String pluginDescription = Const.NVL( baseJobEntries.get( j ).getDescription(), "" );
 
@@ -2447,13 +2289,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       int pos = 0;
       for ( int i = 0; i < specialText.length; i++ ) {
-        if ( !filterMatch( specialText[i] ) && !filterMatch( specialTooltip[i] ) ) {
+        if ( !filterMatch( specialText[ i ] ) && !filterMatch( specialTooltip[ i ] ) ) {
           continue;
         }
 
         TreeItem specialItem = new TreeItem( generalItem, SWT.NONE, pos );
-        specialItem.setImage( specialImage[i] );
-        specialItem.setText( specialText[i] );
+        specialItem.setImage( specialImage[ i ] );
+        specialItem.setText( specialText[ i ] );
         specialItem.addListener( SWT.Selection, new Listener() {
 
           @Override
@@ -2463,7 +2305,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
         } );
 
-        coreJobToolTipMap.put( specialText[i], specialTooltip[i] );
+        coreJobToolTipMap.put( specialText[ i ], specialTooltip[ i ] );
         pos++;
       }
     }
@@ -2494,7 +2336,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
+        .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
     }
     refreshTree( selectionTreeManager.getNameByType( sharedObject.getClass() ) );
   }
@@ -2525,7 +2367,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       } catch ( Exception e ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Title" ), BaseMessages
-            .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
+          .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
       }
       refreshTree( selectionTreeManager.getNameByType( sharedObject.getClass() ) );
     }
@@ -2558,7 +2400,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // goes away
     }
 
-    TreeSelection object = objects[0];
+    TreeSelection object = objects[ 0 ];
 
     final Object selection = object.getSelection();
     final Object parent = object.getParent();
@@ -2648,7 +2490,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void editTransformationPropertiesPopup() {
-    TransGraph.editProperties( (TransMeta) selectionObject, this, rep, true );
+    TransGraph.editProperties( (TransMeta) selectionObject, this, true );
   }
 
   public void addTransLog() {
@@ -2668,15 +2510,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public boolean editJobProperties( String id ) {
     if ( "job-settings".equals( id ) ) {
-      return JobGraph.editProperties( getActiveJob(), this, rep, true );
+      return JobGraph.editProperties( getActiveJob(), this, true );
     } else if ( "job-inst-settings".equals( id ) ) {
-      return JobGraph.editProperties( (JobMeta) selectionObject, this, rep, true );
+      return JobGraph.editProperties( (JobMeta) selectionObject, this, true );
     }
     return false;
   }
 
   public void editJobPropertiesPopup() {
-    JobGraph.editProperties( (JobMeta) selectionObject, this, rep, true );
+    JobGraph.editProperties( (JobMeta) selectionObject, this, true );
   }
 
   public void addJobLog() {
@@ -2696,11 +2538,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void editConnection() {
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.MODIFY_DATABASE ) ) {
-      return;
-    }
-
     final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
     delegates.db.editConnection( databaseMeta );
   }
@@ -2711,16 +2548,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     delegates.db.dupeConnection( hasDatabasesInterface, databaseMeta );
   }
 
-  public void clipConnection() {
-    final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
-    delegates.db.clipConnection( databaseMeta );
-  }
-
   public void delConnection() {
-    if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.DELETE_DATABASE ) ) {
-      return;
-    }
-
     final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
     MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION );
     mb.setMessage( BaseMessages.getString(
@@ -2753,60 +2581,33 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public void exploreDatabase() {
 
-    if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.EXPLORE_DATABASE ) ) {
-      return;
-    }
-
-    // Show a minimal window to allow you to quickly select the database
-    // connection to explore
-    //
-    List<DatabaseMeta> databases = new ArrayList<>();
-
-    // First load the connections from the loaded file
-    //
-    HasDatabasesInterface databasesInterface = getActiveHasDatabasesInterface();
-    if ( databasesInterface != null ) {
-      databases.addAll( databasesInterface.getDatabases() );
-    }
-
-    // Overwrite the information with the connections from the repository
-    //
-    if ( rep != null ) {
-      try {
-        List<DatabaseMeta> list = rep.readDatabases();
-        for ( DatabaseMeta databaseMeta : list ) {
-          int index = databases.indexOf( databaseMeta );
-          if ( index < 0 ) {
-            databases.add( databaseMeta );
-          } else {
-            databases.set( index, databaseMeta );
-          }
-        }
-      } catch ( HopException e ) {
-        log.logError( "Unexpected repository error", e.getMessage() );
+    try {
+      // Show a minimal window to allow you to quickly select the database
+      // connection to explore
+      //
+      List<String> names = DatabaseMeta.createFactory( metaStore ).getElementNames();
+      if ( names.isEmpty() ) {
+        return;
       }
-    }
 
-    if ( databases.size() == 0 ) {
-      return;
-    }
+      Collections.sort( names );
 
-    // OK, get a list of all the database names...
-    //
-    String[] databaseNames = new String[databases.size()];
-    for ( int i = 0; i < databases.size(); i++ ) {
-      databaseNames[i] = databases.get( i ).getName();
-    }
+      // OK, get a list of all the database names...
+      //
+      String[] databaseNames = names.toArray( new String[ 0 ] );
 
-    // show the shell...
-    //
-    EnterSelectionDialog dialog = new EnterSelectionDialog( shell, databaseNames,
-      BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Title" ),
-      BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Message" ) );
-    String name = dialog.open();
-    if ( name != null ) {
-      selectionObject = DatabaseMeta.findDatabase( databases, name );
-      exploreDB();
+      // show the shell...
+      //
+      EnterSelectionDialog dialog = new EnterSelectionDialog( shell, databaseNames,
+        BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Title" ),
+        BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Message" ) );
+      String name = dialog.open();
+      if ( name != null ) {
+        selectionObject = DatabaseMeta.loadDatabase( metaStore, name );
+        exploreDB();
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error exploring database", e );
     }
   }
 
@@ -2842,14 +2643,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void shareObject( String id ) {
-    if ( "database-inst-share".equals( id ) ) {
-      final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
-      if ( databaseMeta.isShared() ) {
-        unShareObject( databaseMeta );
-      } else {
-        shareObject( databaseMeta );
-      }
-    }
+
     if ( "step-inst-share".equals( id ) ) {
       final StepMeta stepMeta = (StepMeta) selectionObject;
       shareObject( stepMeta );
@@ -2959,7 +2753,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // goes away
     }
 
-    TreeSelection object = objects[0];
+    TreeSelection object = objects[ 0 ];
 
     selectionObject = object.getSelection();
     Object selection = selectionObject;
@@ -3049,7 +2843,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * Reaction to double click
-   *
    */
   private void doubleClickedInTree( Tree tree ) {
     doubleClickedInTree( tree, false );
@@ -3057,7 +2850,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * Reaction to double click
-   *
    */
   private void doubleClickedInTree( Tree tree, boolean shift ) {
     TreeSelection[] objects = getTreeObjects( tree );
@@ -3066,7 +2858,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // goes away
     }
 
-    TreeSelection object = objects[0];
+    TreeSelection object = objects[ 0 ];
 
     final Object selection = object.getSelection();
     final Object parent = object.getParent();
@@ -3081,9 +2873,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       if ( selection.equals( TransHopMeta.class ) ) {
         newHop( (TransMeta) parent );
       }
-      if ( selection.equals( DatabaseMeta.class ) ) {
-        delegates.db.newConnection();
-      }
       if ( selection.equals( PartitionSchema.class ) ) {
         newPartitioningSchema( (TransMeta) parent );
       }
@@ -3095,10 +2884,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } else {
       if ( selection instanceof TransMeta ) {
-        TransGraph.editProperties( (TransMeta) selection, this, rep, true );
+        TransGraph.editProperties( (TransMeta) selection, this, true );
       }
       if ( selection instanceof JobMeta ) {
-        JobGraph.editProperties( (JobMeta) selection, this, rep, true );
+        JobGraph.editProperties( (JobMeta) selection, this, true );
       }
       if ( selection instanceof PluginInterface ) {
         PluginInterface plugin = (PluginInterface) selection;
@@ -3309,12 +3098,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public boolean tabClose( TabItem item, boolean force ) {
     try {
-      try {
-        return delegates.tabs.tabClose( item, force );
-      } catch ( HopRepositoryLostException e ) {
-        handleRepositoryLost( e );
-        return delegates.tabs.tabClose( item, force );
-      }
+      return delegates.tabs.tabClose( item, force );
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Unexpected error closing tab!", e );
     }
@@ -3330,28 +3114,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     sashform.setWeights( item.getSashWeights() );
     delegates.tabs.tabSelected( item );
     if ( ExpandedContentManager.isVisible() ) {
-      sashform.setWeights( new int[] {0, 1000} );
+      sashform.setWeights( new int[] { 0, 1000 } );
     }
     enableMenus();
   }
 
-  public String getRepositoryName() {
-    return repositoryName;
-  }
-
-  public String getUsername() {
-    if ( rep == null || rep.getUserInfo() == null ) {
-      return "";
-    }
-
-    return rep.getUserInfo().getLogin();
-  }
-
   public void pasteXML( TransMeta transMeta, String clipcontent, Point loc ) {
-    if ( RepositorySecurityUI.verifyOperations( shell, rep,
-        RepositoryOperation.MODIFY_TRANSFORMATION, RepositoryOperation.EXECUTE_TRANSFORMATION ) ) {
-      return;
-    }
+
     try {
       Document doc = XMLHandler.loadXMLString( clipcontent );
       Node transNode = XMLHandler.getSubNode( doc, HopUi.XML_TAG_TRANSFORMATION_STEPS );
@@ -3364,7 +3133,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // "I found "+nr+" steps to paste on location: "
         getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundSteps", "" + nr ) + loc );
       }
-      StepMeta[] steps = new StepMeta[nr];
+      StepMeta[] steps = new StepMeta[ nr ];
       ArrayList<String> stepOldNames = new ArrayList<>( nr );
 
       // Point min = new Point(loc.x, loc.y);
@@ -3373,10 +3142,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // Load the steps...
       for ( int i = 0; i < nr; i++ ) {
         Node stepNode = XMLHandler.getSubNodeByNr( stepsNode, "step", i );
-        steps[i] = new StepMeta( stepNode, transMeta.getDatabases(), metaStore );
+        steps[ i ] = new StepMeta( stepNode, metaStore );
 
         if ( loc != null ) {
-          Point p = steps[i].getLocation();
+          Point p = steps[ i ].getLocation();
 
           if ( min.x > p.x ) {
             min.x = p.x;
@@ -3394,32 +3163,32 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // "I found "+nr+" hops to paste."
         getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundHops", "" + nr ) );
       }
-      TransHopMeta[] hops = new TransHopMeta[nr];
+      TransHopMeta[] hops = new TransHopMeta[ nr ];
 
       for ( int i = 0; i < nr; i++ ) {
         Node hopNode = XMLHandler.getSubNodeByNr( hopsNode, "hop", i );
-        hops[i] = new TransHopMeta( hopNode,  Arrays.asList( steps ) );
+        hops[ i ] = new TransHopMeta( hopNode, Arrays.asList( steps ) );
       }
 
       // This is the offset:
       Point offset = new Point( loc.x - min.x, loc.y - min.y );
 
       // Undo/redo object positions...
-      int[] position = new int[steps.length];
+      int[] position = new int[ steps.length ];
 
       for ( int i = 0; i < steps.length; i++ ) {
-        Point p = steps[i].getLocation();
-        String name = steps[i].getName();
+        Point p = steps[ i ].getLocation();
+        String name = steps[ i ].getName();
 
-        steps[i].setLocation( p.x + offset.x, p.y + offset.y );
-        steps[i].setDraw( true );
+        steps[ i ].setLocation( p.x + offset.x, p.y + offset.y );
+        steps[ i ].setDraw( true );
 
         // Check the name, find alternative...
         stepOldNames.add( name );
-        steps[i].setName( transMeta.getAlternativeStepname( name ) );
-        transMeta.addStep( steps[i] );
-        position[i] = transMeta.indexOfStep( steps[i] );
-        steps[i].setSelected( true );
+        steps[ i ].setName( transMeta.getAlternativeStepname( name ) );
+        transMeta.addStep( steps[ i ] );
+        position[ i ] = transMeta.indexOfStep( steps[ i ] );
+        steps[ i ].setSelected( true );
       }
 
       // Add the hops too...
@@ -3434,15 +3203,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // "I found "+nr+" notepads to paste."
         getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundNotepads", "" + nr ) );
       }
-      NotePadMeta[] notes = new NotePadMeta[nr];
+      NotePadMeta[] notes = new NotePadMeta[ nr ];
 
       for ( int i = 0; i < notes.length; i++ ) {
         Node noteNode = XMLHandler.getSubNodeByNr( notesNode, "notepad", i );
-        notes[i] = new NotePadMeta( noteNode );
-        Point p = notes[i].getLocation();
-        notes[i].setLocation( p.x + offset.x, p.y + offset.y );
-        transMeta.addNote( notes[i] );
-        notes[i].setSelected( true );
+        notes[ i ] = new NotePadMeta( noteNode );
+        Point p = notes[ i ].getLocation();
+        notes[ i ].setLocation( p.x + offset.x, p.y + offset.y );
+        transMeta.addNote( notes[ i ] );
+        notes[ i ].setSelected( true );
       }
 
       // Set the source and target steps ...
@@ -3462,14 +3231,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // Handle pasting multiple times, need to update source and target step names
         int srcStepPos = stepOldNames.indexOf( stepErrorMeta.getSourceStep().getName() );
         int tgtStepPos = stepOldNames.indexOf( stepErrorMeta.getTargetStep().getName() );
-        StepMeta sourceStep = transMeta.findStep( steps[srcStepPos].getName() );
+        StepMeta sourceStep = transMeta.findStep( steps[ srcStepPos ].getName() );
         if ( sourceStep != null ) {
           sourceStep.setStepErrorMeta( stepErrorMeta );
         }
         sourceStep.setStepErrorMeta( null );
         if ( tgtStepPos >= 0 ) {
           sourceStep.setStepErrorMeta( stepErrorMeta );
-          StepMeta targetStep = transMeta.findStep( steps[tgtStepPos].getName() );
+          StepMeta targetStep = transMeta.findStep( steps[ tgtStepPos ].getName() );
           stepErrorMeta.setSourceStep( sourceStep );
           stepErrorMeta.setTargetStep( targetStep );
         }
@@ -3478,15 +3247,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // Save undo information too...
       addUndoNew( transMeta, steps, position, false );
 
-      int[] hopPos = new int[hops.length];
+      int[] hopPos = new int[ hops.length ];
       for ( int i = 0; i < hops.length; i++ ) {
-        hopPos[i] = transMeta.indexOfTransHop( hops[i] );
+        hopPos[ i ] = transMeta.indexOfTransHop( hops[ i ] );
       }
       addUndoNew( transMeta, hops, hopPos, true );
 
-      int[] notePos = new int[notes.length];
+      int[] notePos = new int[ notes.length ];
       for ( int i = 0; i < notes.length; i++ ) {
-        notePos[i] = transMeta.indexOfNote( notes[i] );
+        notePos[ i ] = transMeta.indexOfNote( notes[ i ] );
       }
       addUndoNew( transMeta, notes, notePos, true );
 
@@ -3504,11 +3273,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public void copySelected( TransMeta transMeta, List<StepMeta> steps, List<NotePadMeta> notes ) {
     if ( steps == null || steps.size() == 0 ) {
-      return;
-    }
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep,
-        RepositoryOperation.MODIFY_TRANSFORMATION, RepositoryOperation.EXECUTE_TRANSFORMATION ) ) {
       return;
     }
 
@@ -3663,7 +3427,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * @param transMeta transformation's meta
-   * @param newHop hop to be checked
+   * @param newHop    hop to be checked
    * @return true when the hop was added, false if there was an error
    */
   public boolean checkIfHopAlreadyExists( TransMeta transMeta, TransHopMeta newHop ) {
@@ -3681,7 +3445,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * @param transMeta transformation's meta
-   * @param newHop hop to be checked
+   * @param newHop    hop to be checked
    * @return true when the hop was added, false if there was an error
    */
   public boolean performNewTransHopChecks( TransMeta transMeta, TransHopMeta newHop ) {
@@ -3706,7 +3470,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // Show warning about mixing rows with conflicting layouts...
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "TransGraph.Dialog.HopCausesRowMixing.Title" ), BaseMessages
-            .getString( PKG, "TransGraph.Dialog.HopCausesRowMixing.Message" ), re );
+          .getString( PKG, "TransGraph.Dialog.HopCausesRowMixing.Message" ), re );
       }
 
       verifyCopyDistribute( transMeta, newHop.getFromStep() );
@@ -3730,9 +3494,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             shell, BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
-              PKG, "Spoon.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
+            PKG, "Spoon.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
             MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
-              PKG, "Spoon.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
+            PKG, "Spoon.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
         MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
@@ -3768,67 +3532,17 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class ).size() > 0 ) {
       labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.CustomRowDistribution" ) );
     }
-    return labels.toArray( new String[labels.size()] );
+    return labels.toArray( new String[ labels.size() ] );
   }
 
   public void newHop( TransMeta transMeta ) {
     newHop( transMeta, null, null );
   }
 
-  public void openRepository() {
-    // Check to tabs are dirty and warn user that they must save tabs prior to connecting.  Don't connect!
-    if ( HopUi.getInstance().isTabsChanged() ) {
-      MessageBox mb = new MessageBox( HopUi.getInstance().getShell(), SWT.OK );
-      mb.setMessage(  BaseMessages.getString( PKG, "Spoon.Dialog.WarnToSaveAllPriorToConnect.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllForce.Disconnect.Title" ) );
-      mb.open();
-
-      // Don't connect, user will need to save all their dirty tabs.
-      return;
-    }
-
-    loginDialog = new RepositoriesDialog( shell, null, new ILoginCallback() {
-
-      @Override
-      public void onSuccess( Repository repository ) {
-        // Close previous repository...
-        if ( rep != null ) {
-          rep.disconnect();
-          HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.REPOSITORY_DISCONNECTED );
-        }
-        setRepository( repository );
-
-        loadSessionInformation( repository, true );
-
-        refreshTree();
-        setShellText();
-        HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.REPOSITORY_CONNECTED );
-      }
-
-      @Override
-      public void onError( Throwable t ) {
-        closeRepository();
-        onLoginError( t );
-      }
-
-      @Override
-      public void onCancel() {
-
-      }
-    } );
-    loginDialog.show();
-  }
-
-  private void loadSessionInformation( Repository repository, boolean saveOldDatabases ) {
+  private void loadSessionInformation( boolean saveOldDatabases ) {
 
     JobMeta[] jobMetas = getLoadedJobs();
     for ( JobMeta jobMeta : jobMetas ) {
-      for ( int i = 0; i < jobMeta.nrDatabases(); i++ ) {
-        jobMeta.getDatabase( i ).setObjectId( null );
-      }
-
-      // Set for the existing job the ID at -1!
-      jobMeta.setObjectId( null );
 
       // Keep track of the old databases for now.
       List<DatabaseMeta> oldDatabases = jobMeta.getDatabases();
@@ -3839,13 +3553,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // cycles.
 
       // first clear the list of databases and slave servers
-      jobMeta.setDatabases( new ArrayList<DatabaseMeta>() );
       jobMeta.setSlaveServers( new ArrayList<SlaveServer>() );
 
       // Read them from the new repository.
       try {
-        SharedObjects sharedObjects =
-          repository != null ? repository.readJobMetaSharedObjects( jobMeta ) : jobMeta.readSharedObjects();
+        SharedObjects sharedObjects = jobMeta.readSharedObjects();
         sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
 
       } catch ( HopException e ) {
@@ -3869,50 +3581,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           // the new repository
           //
           oldDatabase.setDatabaseInterface( newDatabase.getDatabaseInterface() );
-        } else {
-          if ( saveOldDatabases ) {
-            //
-            // The old database is not present in the new
-            // repository: simply add it to the list.
-            // When the job gets saved, it will be added
-            // to the repository.
-            //
-            jobMeta.addDatabase( oldDatabase );
-          }
-        }
-      }
-
-      if ( repository != null ) {
-        try {
-          // For the existing job, change the directory too:
-          // Try to find the same directory in the new repository...
-          RepositoryDirectoryInterface rdi =
-            repository.findDirectory( jobMeta.getRepositoryDirectory().getPath() );
-          if ( rdi != null && !rdi.getPath().equals( "/" ) ) {
-            jobMeta.setRepositoryDirectory( rdi );
-          } else {
-            // the root is the default!
-            jobMeta.setRepositoryDirectory( repository.loadRepositoryDirectoryTree() );
-          }
-        } catch ( HopException ke ) {
-          rep = null;
-          new ErrorDialog(
-            shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorConnectingRepository.Title" ), BaseMessages
-            .getString( PKG, "Spoon.Dialog.ErrorConnectingRepository.Message", Const.CR ), ke
-          );
         }
       }
     }
 
     TransMeta[] transMetas = getLoadedTransformations();
     for ( TransMeta transMeta : transMetas ) {
-      for ( int i = 0; i < transMeta.nrDatabases(); i++ ) {
-        transMeta.getDatabase( i ).setObjectId( null );
-      }
-
-      // Set for the existing transformation the ID at -1!
-      transMeta.setObjectId( null );
-
       // Keep track of the old databases for now.
       List<DatabaseMeta> oldDatabases = transMeta.getDatabases();
 
@@ -3923,15 +3597,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       // first clear the list of databases, partition schemas, slave
       // servers, clusters
-      transMeta.setDatabases( new ArrayList<DatabaseMeta>() );
       transMeta.setPartitionSchemas( new ArrayList<PartitionSchema>() );
       transMeta.setSlaveServers( new ArrayList<SlaveServer>() );
       transMeta.setClusterSchemas( new ArrayList<ClusterSchema>() );
 
       // Read them from the new repository.
       try {
-        SharedObjects sharedObjects =
-          repository != null ? repository.readTransSharedObjects( transMeta ) : transMeta.readSharedObjects();
+        SharedObjects sharedObjects = transMeta.readSharedObjects();
         sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
       } catch ( HopException e ) {
         new ErrorDialog(
@@ -3954,290 +3626,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           // the new repository
           //
           oldDatabase.setDatabaseInterface( newDatabase.getDatabaseInterface() );
-        } else {
-          if ( saveOldDatabases ) {
-            //
-            // The old database is not present in the new
-            // repository: simply add it to the list.
-            // When the transformation gets saved, it will be added
-            // to the repository.
-            //
-            transMeta.addDatabase( oldDatabase );
-          }
-        }
-      }
-
-      if ( repository != null ) {
-        try {
-          // For the existing transformation, change the directory too:
-          // Try to find the same directory in the new repository...
-          RepositoryDirectoryInterface rdi =
-            repository.findDirectory( transMeta.getRepositoryDirectory().getPath() );
-          if ( rdi != null && !rdi.getPath().equals( "/" ) ) {
-            transMeta.setRepositoryDirectory( rdi );
-          } else {
-            // the root is the default!
-            transMeta.setRepositoryDirectory( repository.loadRepositoryDirectoryTree() );
-          }
-        } catch ( HopException ke ) {
-          rep = null;
-          new ErrorDialog(
-            shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorConnectingRepository.Title" ), BaseMessages
-            .getString( PKG, "Spoon.Dialog.ErrorConnectingRepository.Message", Const.CR ), ke
-          );
         }
       }
     }
   }
 
-  public void clearSharedObjectCache() throws HopException {
-    if ( rep != null ) {
-      rep.clearSharedObjectCache();
-      TransMeta transMeta = getActiveTransformation();
-      if ( transMeta != null ) {
-        rep.readTransSharedObjects( transMeta );
-      }
-      JobMeta jobMeta = getActiveJob();
-      if ( jobMeta != null ) {
-        rep.readJobMetaSharedObjects( jobMeta );
-      }
-    }
-  }
-
-  public void exploreRepository() {
-    if ( rep != null ) {
-      final RepositoryExplorerCallback cb = new RepositoryExplorerCallback() {
-
-        @Override
-        public boolean open( UIRepositoryContent element, String revision ) throws Exception {
-          String objName = element.getName();
-          if ( objName != null ) {
-            RepositoryObjectType objectType = element.getRepositoryElementType();
-            RepositoryDirectory repDir = element.getRepositoryDirectory();
-            if ( element.getObjectId() != null ) { // new way
-              loadObjectFromRepository( element.getObjectId(), objectType, revision );
-            } else { // old way
-              loadObjectFromRepository( objName, objectType, repDir, revision );
-            }
-          }
-          return false; // do not close explorer
-        }
-
-        @Override
-        public boolean error( String message ) throws Exception {
-          closeRepository();
-          return true;
-        }
-      };
-
-      try {
-        final HopWaitBox box = (HopWaitBox) this.mainSpoonContainer.getDocumentRoot().createElement( "iconwaitbox" );
-        box.setIndeterminate( true );
-        box.setCanCancel( false );
-        box.setIcon( "ui/images/kettle_logo_small.svg" );
-        box.setTitle( BaseMessages.getString(
-          RepositoryDialogInterface.class, "RepositoryExplorerDialog.Connection.Wait.Title" ) );
-        box.setMessage( BaseMessages.getString(
-          RepositoryDialogInterface.class, "RepositoryExplorerDialog.Explorer.Wait.Message" ) );
-        box.setDialogParent( shell );
-        box.setRunnable( new WaitBoxRunnable( box ) {
-          @Override
-          public void run() {
-
-            shell.getDisplay().syncExec( new Runnable() {
-              @Override
-              public void run() {
-                RepositoryExplorer explorer;
-                try {
-                  try {
-                    explorer =
-                        new RepositoryExplorer( shell, rep, cb, Variables.getADefaultVariableSpace(),
-                            sharedObjectSyncUtil );
-                  } catch ( final HopRepositoryLostException krle ) {
-                    handleRepositoryLost( krle );
-                    closeRepository();
-                    return;
-                  } finally {
-                    box.stop();
-                  }
-
-                  if ( explorer.isInitialized() ) {
-                    explorer.show();
-                  } else {
-                    return;
-                  }
-
-                  explorer.dispose();
-
-                } catch ( final Throwable e ) {
-                  shell.getDisplay().asyncExec( new Runnable() {
-                    @Override
-                    public void run() {
-                      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), e.getMessage(), e );
-                    }
-                  } );
-                }
-              }
-            } );
-          }
-
-          @Override
-          public void cancel() {
-          }
-
-        } );
-        box.start();
-      } catch ( Throwable e ) {
-        new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), e.getMessage(), e );
-      }
-
-    }
-  }
-
-  public void loadObjectFromRepository(
-      ObjectId objectId, RepositoryObjectType objectType, String revision ) throws Exception {
-    // Try to open the selected transformation.
-    if ( objectType.equals( RepositoryObjectType.TRANSFORMATION ) ) {
-      try {
-        TransLoadProgressDialog progressDialog = new TransLoadProgressDialog( shell, rep, objectId, revision );
-        TransMeta transMeta = progressDialog.open();
-        transMeta.clearChanged();
-        if ( transMeta != null ) {
-          if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString(
-              PKG, "Spoon.Log.LoadToTransformation", transMeta.getName(), transMeta
-                .getRepositoryDirectory().getName() ) );
-          }
-          props.addLastFile( LastUsedFile.FILE_TYPE_TRANSFORMATION, transMeta.getName(), transMeta
-            .getRepositoryDirectory().getPath(), true, rep.getName(), getUsername(), null );
-          addMenuLast();
-          addTransGraph( transMeta );
-        }
-        refreshTree();
-        refreshGraph();
-      } catch ( Exception e ) {
-        if ( HopRepositoryLostException.lookupStackStrace( e ) == null ) {
-          new ErrorDialog( ( (HopUi) HopUiFactory.getInstance() ).getShell(), BaseMessages.getString(
-            HopUi.class, "Spoon.Dialog.ErrorOpeningById.Message", objectId ), e.getMessage(), e );
-        } else {
-          throw e;
-        }
-      }
-    } else if ( objectType.equals( RepositoryObjectType.JOB ) ) {
-      try {
-        JobLoadProgressDialog progressDialog = new JobLoadProgressDialog( shell, rep, objectId, revision );
-        JobMeta jobMeta = progressDialog.open();
-        jobMeta.clearChanged();
-        if ( jobMeta != null ) {
-          props.addLastFile( LastUsedFile.FILE_TYPE_JOB, jobMeta.getName(), jobMeta
-            .getRepositoryDirectory().getPath(), true, rep.getName(), getUsername(), null );
-          saveSettings();
-          addMenuLast();
-          addJobGraph( jobMeta );
-        }
-        refreshTree();
-        refreshGraph();
-      } catch ( Exception e ) {
-        if ( HopRepositoryLostException.lookupStackStrace( e ) == null ) {
-          new ErrorDialog( ( (HopUi) HopUiFactory.getInstance() ).getShell(), BaseMessages.getString(
-            HopUi.class, "Spoon.Dialog.ErrorOpeningById.Message", objectId ), e.getMessage(), e );
-        } else {
-          throw e;
-        }
-      }
-    }
-  }
-
-  public void loadObjectFromRepository( String objName, RepositoryObjectType objectType,
-    RepositoryDirectoryInterface repDir, String versionLabel ) throws Exception {
-    // Try to open the selected transformation.
-    if ( objectType.equals( RepositoryObjectType.TRANSFORMATION ) ) {
-      try {
-        TransLoadProgressDialog progressDialog =
-          new TransLoadProgressDialog( shell, rep, objName, repDir, versionLabel );
-        TransMeta transMeta = progressDialog.open();
-        transMeta.clearChanged();
-        if ( transMeta != null ) {
-          if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.LoadToTransformation", objName, repDir
-              .getName() ) );
-          }
-          props.addLastFile( LastUsedFile.FILE_TYPE_TRANSFORMATION, objName, repDir.getPath(), true, rep.getName(),
-            getUsername(), null );
-          addMenuLast();
-          addTransGraph( transMeta );
-        }
-        refreshTree();
-        refreshGraph();
-      } catch ( Exception e ) {
-        if ( HopRepositoryLostException.lookupStackStrace( e ) == null ) {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
-            + objName + Const.CR + e.getMessage() ); // "Error opening : "
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Title" ) );
-          mb.open();
-        } else {
-          throw e;
-        }
-      }
-    } else if ( objectType.equals( RepositoryObjectType.JOB ) ) {
-      // Try to open the selected job.
-      try {
-        JobLoadProgressDialog progressDialog =
-          new JobLoadProgressDialog( shell, rep, objName, repDir, versionLabel );
-        JobMeta jobMeta = progressDialog.open();
-        jobMeta.clearChanged();
-        if ( jobMeta != null ) {
-          props.addLastFile( LastUsedFile.FILE_TYPE_JOB, objName, repDir.getPath(), true, rep.getName(), getUsername(),
-            null );
-          saveSettings();
-          addMenuLast();
-          addJobGraph( jobMeta );
-        }
-        refreshTree();
-        refreshGraph();
-      } catch ( Exception e ) {
-        if ( HopRepositoryLostException.lookupStackStrace( e ) == null ) {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
-            + objName + Const.CR + e.getMessage() ); // "Error opening : "
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Title" ) );
-          mb.open();
-        } else {
-          throw e;
-        }
-      }
-    }
-  }
-
-  public void closeRepository() {
-    if ( rep != null ) {
-
-      // Prompt and close all tabs as user disconnected from the repo
-      boolean shouldDisconnect = HopUi.getInstance().closeAllJobsAndTransformations( true );
-      if ( shouldDisconnect ) {
-        loadSessionInformation( null, false );
-
-        if ( rep != null ) {
-          rep.disconnect();
-        }
-        if ( metaStore.getMetaStoreList().size() > 1 ) {
-          try {
-            metaStore.getMetaStoreList().remove( 0 );
-            metaStore.setActiveMetaStoreName( metaStore.getMetaStoreList().get( 0 ).getName() );
-          } catch ( MetaStoreException e ) {
-            new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.ErrorRemovingMetaStore.Title" ),
-                BaseMessages.getString( PKG, "Spoon.ErrorRemovingMetaStore.Message" ), e );
-          }
-        }
-
-        setRepository( null );
-        setShellText();
-        HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.REPOSITORY_DISCONNECTED );
-        enableMenus();
-      }
-    }
-  }
 
   public void openFile() {
     openFile( false );
@@ -4260,69 +3653,54 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         }
       }
 
-      if ( rep == null || importfile ) { // Load from XML
 
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
+      FileDialog dialog = new FileDialog( shell, SWT.OPEN );
 
-        LinkedHashSet<String> extensions = new LinkedHashSet<>();
-        LinkedHashSet<String> extensionNames = new LinkedHashSet<>();
-        StringBuilder allExtensions = new StringBuilder();
-        for ( FileListener l : fileListeners ) {
-          for ( String ext : l.getSupportedExtensions() ) {
-            extensions.add( "*." + ext );
-            allExtensions.append( "*." ).append( ext ).append( ";" );
-          }
-          Collections.addAll( extensionNames, l.getFileTypeDisplayNames( Locale.getDefault() ) );
+      LinkedHashSet<String> extensions = new LinkedHashSet<>();
+      LinkedHashSet<String> extensionNames = new LinkedHashSet<>();
+      StringBuilder allExtensions = new StringBuilder();
+      for ( FileListener l : fileListeners ) {
+        for ( String ext : l.getSupportedExtensions() ) {
+          extensions.add( "*." + ext );
+          allExtensions.append( "*." ).append( ext ).append( ";" );
         }
-        extensions.add( "*" );
-        extensionNames.add( BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllFiles" ) );
-
-        String[] exts = new String[extensions.size() + 1];
-        exts[0] = allExtensions.toString();
-        System.arraycopy( extensions.toArray( new String[extensions.size()] ), 0, exts, 1, extensions.size() );
-
-        String[] extNames = new String[extensionNames.size() + 1];
-        extNames[0] = BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllTypes" );
-        System.arraycopy( extensionNames.toArray( new String[extensionNames.size()] ), 0, extNames, 1, extensionNames
-            .size() );
-
-        dialog.setFilterExtensions( exts );
-
-        setFilterPath( dialog );
-        String filename = dialog.open();
-        if ( filename != null ) {
-
-          if ( importfile ) {
-            if ( activePerspective instanceof HopUiPerspectiveOpenSaveInterface ) {
-              ( (HopUiPerspectiveOpenSaveInterface) activePerspective ).importFile( filename );
-              return;
-            }
-          }
-
-          lastDirOpened = dialog.getFilterPath();
-          openFile( filename, importfile );
-        }
-      } else {
-        try {
-          FileDialogOperation fileDialogOperation =
-            new FileDialogOperation( FileDialogOperation.OPEN, FileDialogOperation.ORIGIN_SPOON );
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiOpenSaveRepository.id,
-            fileDialogOperation );
-          if ( fileDialogOperation.getRepositoryObject() != null ) {
-            RepositoryObject repositoryObject = (RepositoryObject) fileDialogOperation.getRepositoryObject();
-            loadObjectFromRepository( repositoryObject.getObjectId(), repositoryObject.getObjectType(), null );
-          }
-        } catch ( Exception e ) {
-         // Ignore
-        }
+        Collections.addAll( extensionNames, l.getFileTypeDisplayNames( Locale.getDefault() ) );
       }
-    } catch ( HopRepositoryLostException krle ) {
+      extensions.add( "*" );
+      extensionNames.add( BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllFiles" ) );
+
+      String[] exts = new String[ extensions.size() + 1 ];
+      exts[ 0 ] = allExtensions.toString();
+      System.arraycopy( extensions.toArray( new String[ extensions.size() ] ), 0, exts, 1, extensions.size() );
+
+      String[] extNames = new String[ extensionNames.size() + 1 ];
+      extNames[ 0 ] = BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllTypes" );
+      System.arraycopy( extensionNames.toArray( new String[ extensionNames.size() ] ), 0, extNames, 1, extensionNames
+        .size() );
+
+      dialog.setFilterExtensions( exts );
+
+      setFilterPath( dialog );
+      String filename = dialog.open();
+      if ( filename != null ) {
+
+        if ( importfile ) {
+          if ( activePerspective instanceof HopUiPerspectiveOpenSaveInterface ) {
+            ( (HopUiPerspectiveOpenSaveInterface) activePerspective ).importFile( filename );
+            return;
+          }
+        }
+
+        lastDirOpened = dialog.getFilterPath();
+        openFile( filename, importfile );
+      }
+
+    } catch ( Exception krle ) {
       new ErrorDialog(
-          getShell(),
-          BaseMessages.getString( PKG, "Spoon.Error" ),
-          krle.getPrefaceMessage(),
-          krle );
-      this.closeRepository();
+        getShell(),
+        BaseMessages.getString( PKG, "Spoon.Error" ),
+        krle.getMessage(),
+        krle );
     }
   }
 
@@ -4347,175 +3725,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     lastFileOpened = inLastFileOpened;
   }
 
-  public void displayCmdLine() {
-    String cmdFile = getCmdLine();
-
-    if ( Utils.isEmpty( cmdFile ) ) {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "ExportCmdLine.JobOrTransformationMissing.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "ExportCmdLine.JobOrTransformationMissing.Title" ) );
-      mb.open();
-    } else {
-      ShowBrowserDialog sbd =
-        new ShowBrowserDialog( shell, BaseMessages.getString( PKG, "ExportCmdLine.CommandLine.Title" ), cmdFile );
-      sbd.open();
-    }
-  }
-
-  public void createCmdLineFile() {
-    String cmdFile = getCmdLine();
-
-    if ( Utils.isEmpty( cmdFile ) ) {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "ExportCmdLine.JobOrTransformationMissing.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "ExportCmdLine.JobOrTransformationMissing.Title" ) );
-      mb.open();
-    } else {
-      boolean export = true;
-
-      FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-      dialog.setFilterExtensions( new String[] { "*.bat", ".sh", "*.*" } );
-      dialog.setFilterNames( new String[] {
-        BaseMessages.getString( PKG, "ExportCmdLine.BatFiles" ),
-        BaseMessages.getString( PKG, "ExportCmdLineShFiles" ),
-        BaseMessages.getString( PKG, "ExportCmdLine.AllFiles" ) } );
-      String filename = dialog.open();
-
-      if ( filename != null ) {
-        // See if the file already exists...
-        int id = SWT.YES;
-        try {
-          FileObject f = HopVFS.getFileObject( filename );
-          if ( f.exists() ) {
-            MessageBox mb = new MessageBox( shell, SWT.NO | SWT.YES | SWT.ICON_WARNING );
-            mb.setMessage( BaseMessages.getString( PKG, "ExportCmdLineShFiles.FileExistsReplace", filename ) );
-            mb.setText( BaseMessages.getString( PKG, "ExportCmdLineShFiles.ConfirmOverwrite" ) );
-            id = mb.open();
-          }
-        } catch ( Exception e ) {
-          // Ignore errors
-        }
-        if ( id == SWT.NO ) {
-          export = false;
-        }
-
-        if ( export ) {
-          java.io.FileWriter out = null;
-          try {
-            out = new java.io.FileWriter( filename );
-            out.write( cmdFile );
-            out.flush();
-          } catch ( Exception e ) {
-            new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "ExportCmdLineShFiles.ErrorWritingFile.Title" ), BaseMessages
-                .getString( PKG, "ExportCmdLineShFiles.ErrorWritingFile.Message", filename ), e );
-          } finally {
-            if ( out != null ) {
-              try {
-                out.close();
-              } catch ( Exception e ) {
-                // Ignore errors
-              }
-            }
-          }
-
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "ExportCmdLineShFiles.CmdExported.Message", filename ) );
-          mb.setText( BaseMessages.getString( PKG, "ExportCmdLineShFiles.CmdExported.Title" ) );
-          mb.open();
-        }
-      }
-    }
-  }
-
-  private String getCmdLine() {
-    TransMeta transMeta = getActiveTransformation();
-    JobMeta jobMeta = getActiveJob();
-    String cmdFile = "";
-
-    if ( rep != null && ( jobMeta != null || transMeta != null ) ) {
-      if ( jobMeta != null ) {
-        if ( jobMeta.getName() != null ) {
-          if ( Const.isWindows() ) {
-            cmdFile =
-              "kitchen "
-                + "/rep:\"" + rep.getName() + "\"" + " /user:\""
-                + ( rep.getUserInfo() != null ? rep.getUserInfo().getLogin() : "" ) + "\"" + " /pass:\""
-                + Encr.encryptPasswordIfNotUsingVariables( rep.getUserInfo().getPassword() ) + "\""
-                + " /job:\"" + jobMeta.getName() + '"' + " /dir:\""
-                + jobMeta.getRepositoryDirectory().getPath() + "\"" + " /level:Basic";
-          } else {
-            cmdFile =
-              "sh kitchen.sh "
-                + "-rep='"
-                + rep.getName()
-                + "'"
-                + " -user='"
-                + ( rep.getUserInfo() != null ? rep.getUserInfo().getLogin() : "" )
-                + "'"
-                + " -pass='"
-                + Encr.encryptPasswordIfNotUsingVariables( rep.getUserInfo() != null ? rep
-                  .getUserInfo().getPassword() : "" ) + "'" + " -job='" + jobMeta.getName() + "'"
-                + " -dir='" + jobMeta.getRepositoryDirectory().getPath() + "'" + " -level=Basic";
-          }
-        }
-      } else {
-        if ( transMeta.getName() != null ) {
-          if ( Const.isWindows() ) {
-            cmdFile =
-              "pan "
-                + "/rep:\""
-                + rep.getName()
-                + "\""
-                + " /user:\""
-                + ( rep.getUserInfo() != null ? rep.getUserInfo().getLogin() : "" )
-                + "\""
-                + " /pass:\""
-                + Encr.encryptPasswordIfNotUsingVariables( rep.getUserInfo() != null ? rep
-                  .getUserInfo().getPassword() : "" ) + "\"" + " /trans:\"" + transMeta.getName() + "\""
-                + " /dir:\"" + transMeta.getRepositoryDirectory().getPath() + "\"" + " /level:Basic";
-          } else {
-            cmdFile =
-              "sh pan.sh "
-                + "-rep='"
-                + rep.getName()
-                + "'"
-                + " -user='"
-                + ( rep.getUserInfo() != null ? rep.getUserInfo().getLogin() : "" )
-                + "'"
-                + " -pass='"
-                + Encr.encryptPasswordIfNotUsingVariables( rep.getUserInfo() != null ? rep
-                  .getUserInfo().getPassword() : "" ) + "'" + " -trans='" + transMeta.getName() + "'"
-                + " -dir='" + transMeta.getRepositoryDirectory().getPath() + "'" + " -level=Basic";
-          }
-        }
-      }
-    } else if ( rep == null && ( jobMeta != null || transMeta != null ) ) {
-      if ( jobMeta != null ) {
-        if ( jobMeta.getFilename() != null ) {
-          if ( Const.isWindows() ) {
-            cmdFile = "kitchen " + "/file:\"" + jobMeta.getFilename() + "\"" + " /level:Basic";
-          } else {
-            cmdFile = "sh kitchen.sh " + "-file='" + jobMeta.getFilename() + "'" + " -level=Basic";
-          }
-        }
-      } else {
-        if ( transMeta.getFilename() != null ) {
-          if ( Const.isWindows() ) {
-            cmdFile = "pan " + "/file:\"" + transMeta.getFilename() + "\"" + " /level:Basic";
-          } else {
-            cmdFile = "sh pan.sh " + "-file:'" + transMeta.getFilename() + "'" + " -level=Basic";
-          }
-        }
-      }
-    }
-    return cmdFile;
-
-  }
-
-  // private String lastVfsUsername="";
-  // private String lastVfsPassword="";
-
   public void openFileVFSFile() {
     FileObject initialFile;
     FileObject rootFile;
@@ -4535,7 +3744,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
     if ( selectedFile != null ) {
       setLastFileOpened( selectedFile.getName().getFriendlyURI() );
-      openFile( selectedFile.getName().getFriendlyURI(), rep != null );
+      openFile( selectedFile.getName().getFriendlyURI(), false );
     }
   }
 
@@ -4664,15 +3873,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Exception ex ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.ErrorShowingMarketplaceDialog.Title" ), BaseMessages
-          .getString( PKG, "Spoon.ErrorShowingMarketplaceDialog.Message" ), ex );
+        .getString( PKG, "Spoon.ErrorShowingMarketplaceDialog.Message" ), ex );
     }
   }
 
   /**
    * Shows a dialog listing the missing plugins, asking if you want to go into the marketplace
    *
-   * @param missingPluginsException
-   *          The missing plugins exception
+   * @param missingPluginsException The missing plugins exception
    */
   public void handleMissingPluginsExceptionWithMarketplace( HopMissingPluginsException missingPluginsException ) {
     hideSplash();
@@ -4723,26 +3931,18 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     // Pass repository information
     //
-    transMeta.setRepository( rep );
     transMeta.setMetaStore( metaStore );
 
     try {
-      SharedObjects sharedObjects =
-        rep != null ? rep.readTransSharedObjects( transMeta ) : transMeta.readSharedObjects();
+      SharedObjects sharedObjects = transMeta.readSharedObjects();
       sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      if ( rep == null ) {
-        transMeta.setSharedObjects( sharedObjects );
-      }
-      transMeta.importFromMetaStore();
+      transMeta.setSharedObjects( sharedObjects );
       transMeta.clearChanged();
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingSharedObjects.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Exception.ErrorReadingSharedObjects.Message" ), e );
+        .getString( PKG, "Spoon.Exception.ErrorReadingSharedObjects.Message" ), e );
     }
-
-    // Set the location of the new transMeta to that of the default location or the last saved location
-    transMeta.setRepositoryDirectory( getDefaultSaveLocation( transMeta ) );
 
     int nr = 1;
     transMeta.setName( STRING_TRANSFORMATION + " " + nr );
@@ -4781,27 +3981,19 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       // Pass repository information
       //
-      jobMeta.setRepository( rep );
       jobMeta.setMetaStore( metaStore );
 
       try {
         // TODO: MAKE LIKE TRANS
-        SharedObjects sharedObjects =
-          rep != null ? rep.readJobMetaSharedObjects( jobMeta ) : jobMeta.readSharedObjects();
+        SharedObjects sharedObjects = jobMeta.readSharedObjects();
         sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-        if ( rep == null ) {
-          jobMeta.setSharedObjects( sharedObjects );
-        }
-        jobMeta.importFromMetaStore();
+        jobMeta.setSharedObjects( sharedObjects );
       } catch ( Exception e ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ), BaseMessages
-            .getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", delegates.tabs.makeTabName(
-              jobMeta, true ) ), e );
+          .getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", delegates.tabs.makeTabName(
+            jobMeta, true ) ), e );
       }
-
-      // Set the location of the new jobMeta to that of the default location or the last saved location
-      jobMeta.setRepositoryDirectory( getDefaultSaveLocation( jobMeta ) );
 
       int nr = 1;
       jobMeta.setName( STRING_JOB + " " + nr );
@@ -4826,7 +4018,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorCreatingNewJob.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Exception.ErrorCreatingNewJob.Message" ), e );
+        .getString( PKG, "Spoon.Exception.ErrorCreatingNewJob.Message" ), e );
     }
   }
 
@@ -4876,25 +4068,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     setParametersAsVariablesInUI( jobMeta, jobMeta );
   }
 
-  /**
-   * @deprecated is this ever used?
-   * functionality seems covered in loadSessionInformation
-   */
-  public void loadRepositoryObjects( TransMeta transMeta ) {
-    // Load common database info from active repository...
-    if ( rep != null ) {
-      try {
-        SharedObjects sharedObjects = rep.readTransSharedObjects( transMeta );
-        sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      } catch ( Exception e ) {
-        new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Error.UnableToLoadSharedObjects.Title" ), BaseMessages
-            .getString( PKG, "Spoon.Error.UnableToLoadSharedObjects.Message" ), e );
-      }
-
-    }
-  }
-
   public boolean promptForSave() throws HopException {
     List<TabMapEntry> list = delegates.tabs.getTabs();
 
@@ -4936,11 +4109,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           null,
           BaseMessages.getString( PKG, "Spoon.Message.Warning.PromptExit" ),
           MessageDialog.WARNING, new String[] {
-            // "Yes",
-            BaseMessages.getString( PKG, "Spoon.Message.Warning.Yes" ),
-            // "No"
-            BaseMessages.getString( PKG, "Spoon.Message.Warning.No" )
-          }, 1,
+          // "Yes",
+          BaseMessages.getString( PKG, "Spoon.Message.Warning.Yes" ),
+          // "No"
+          BaseMessages.getString( PKG, "Spoon.Message.Warning.No" )
+        }, 1,
           // "Please, don't show this warning anymore."
           BaseMessages.getString( PKG, "Spoon.Message.Warning.NotShowWarning" ),
           !props.showExitWarning() );
@@ -5045,18 +4218,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         }
       }
     } catch ( Exception e ) {
-      HopRepositoryLostException krle = HopRepositoryLostException.lookupStackStrace( e );
-      if ( krle != null ) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ),
-            krle.getPrefaceMessage(),
-            krle );
-        closeRepository();
-      } else {
-        new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ), BaseMessages.getString(
-            PKG, "Spoon.File.Save.Fail.Message" ), e );
-      }
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ), BaseMessages.getString(
+        PKG, "Spoon.File.Save.Fail.Message" ), e );
     }
     return false;
   }
@@ -5068,7 +4231,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     boolean saved = false;
 
-    ( (AbstractMeta) meta ).setRepository( rep );
     ( (AbstractMeta) meta ).setMetaStore( metaStore );
 
     if ( getLog().isDetailed() ) {
@@ -5085,19 +4247,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
 
     String activePerspectiveId = activePerspective.getId();
-    boolean etlPerspective = activePerspectiveId.equals( MainHopUiPerspective.ID );
-    if ( rep != null && etlPerspective ) {
-      if ( meta.getObjectId() == null ) {
-        meta.setFilename( null );
-      }
-      saved = saveToRepository( meta );
+    if ( meta.getFilename() != null ) {
+      saved = save( meta, meta.getFilename(), false );
     } else {
-      if ( meta.getFilename() != null ) {
-        saved = save( meta, meta.getFilename(), false );
-      } else {
-        if ( meta.canSave() ) {
-          saved = saveFileAs( meta );
-        }
+      if ( meta.canSave() ) {
+        saved = saveFileAs( meta );
       }
     }
 
@@ -5126,221 +4280,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return saved;
   }
 
-  public boolean saveToRepository( EngineMetaInterface meta ) throws HopException {
-    return saveToRepository( meta, meta.getObjectId() == null );
-  }
-
   @VisibleForTesting
-  FileDialogOperation getFileDialogOperation(  String command, String origin ) {
+  FileDialogOperation getFileDialogOperation( String command, String origin ) {
     return new FileDialogOperation( command, origin );
   }
 
-  public boolean saveToRepository( EngineMetaInterface meta, boolean ask_name ) throws HopException {
-    if ( getLog().isDetailed() ) {
-      // "Save to repository..."
-      //
-      getLog().logDetailed( BaseMessages.getString( PKG, "Spoon.Log.SaveToRepository" ) );
-    }
-    if ( rep != null ) {
-
-      // If the repository directory is root then get the default save directory
-      if ( meta.getRepositoryDirectory() == null || meta.getRepositoryDirectory().isRoot() ) {
-        meta.setRepositoryDirectory( rep.getDefaultSaveDirectory( meta ) );
-      }
-
-      if ( ask_name ) {
-        try {
-          String fileType = meta.getFileType().equals( LastUsedFile.FILE_TYPE_TRANSFORMATION )
-            ? FileDialogOperation.TRANSFORMATION : FileDialogOperation.JOB;
-          FileDialogOperation fileDialogOperation = getFileDialogOperation( FileDialogOperation.SAVE,
-            FileDialogOperation.ORIGIN_SPOON );
-          fileDialogOperation.setFileType( fileType );
-          fileDialogOperation.setStartDir( meta.getRepositoryDirectory().getPath() );
-          //Set the filename so it can be used as the default filename in the save dialog
-          fileDialogOperation.setFilename( meta.getFilename() );
-          ExtensionPointHandler.callExtensionPoint( getLog(), HopExtensionPoint.HopUiOpenSaveRepository.id,
-            fileDialogOperation );
-          if ( fileDialogOperation.getRepositoryObject() != null ) {
-            RepositoryObject repositoryObject = (RepositoryObject) fileDialogOperation.getRepositoryObject();
-            final RepositoryDirectoryInterface oldDir = meta.getRepositoryDirectory();
-            final String oldName = meta.getName();
-            meta.setRepositoryDirectory( repositoryObject.getRepositoryDirectory() );
-            meta.setName( repositoryObject.getName() );
-            final boolean saved = saveToRepositoryConfirmed( meta );
-            // rename the tab only if the meta object was successfully saved
-            if ( saved ) {
-              delegates.tabs.renameTabs();
-            } else {
-              // if the object wasn't successfully saved, set the name and directory back to their original values
-              meta.setRepositoryDirectory( oldDir );
-              meta.setName( oldName );
-            }
-            return saved;
-          }
-        } catch ( HopException ke ) {
-          //Ignore
-        }
-      } else {
-        return saveToRepositoryConfirmed( meta );
-      }
-
-    } else {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      // "There is no repository connection available."
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRepositoryConnection.Message" ) );
-      // "No repository available."
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRepositoryConnection.Title" ) );
-      mb.open();
-    }
-    return false;
-  }
-
-  public boolean saveToRepositoryCheckSecurity( EngineMetaInterface meta ) {
-    // Verify repository security first...
-    //
-    if ( meta.getFileType().equals( LastUsedFile.FILE_TYPE_TRANSFORMATION ) ) {
-      if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.MODIFY_TRANSFORMATION ) ) {
-        return false;
-      }
-    }
-    if ( meta.getFileType().equals( LastUsedFile.FILE_TYPE_JOB ) ) {
-      if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.MODIFY_JOB ) ) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public boolean saveToRepositoryConfirmed( EngineMetaInterface meta ) throws HopException {
-    if ( !Utils.isEmpty( meta.getName() ) && rep != null ) {
-
-      ObjectId existingId = null;
-      if ( meta instanceof TransMeta ) {
-        existingId = rep.getTransformationID( meta.getName(), meta.getRepositoryDirectory() );
-      }
-      if ( meta instanceof JobMeta ) {
-        existingId = rep.getJobId( meta.getName(), meta.getRepositoryDirectory() );
-      }
-
-      boolean saved = false;
-
-      if ( meta.getObjectId() == null ) {
-        meta.setObjectId( existingId );
-      }
-
-      try {
-        shell.setCursor( cursor_hourglass );
-
-        // Keep info on who & when this transformation was
-        // created and or modified...
-        if ( meta.getCreatedDate() == null ) {
-          meta.setCreatedDate( new Date() );
-          if ( capabilities.supportsUsers() ) {
-            meta.setCreatedUser( rep.getUserInfo().getLogin() );
-          }
-        }
-
-        // Keep info on who & when this transformation was
-        // changed...
-        meta.setModifiedDate( new Date() );
-        if ( capabilities.supportsUsers() ) {
-          meta.setModifiedUser( rep.getUserInfo().getLogin() );
-        }
-
-        boolean versioningEnabled = true;
-        boolean versionCommentsEnabled = true;
-        String fullPath = getJobTransfFullPath( meta );
-        RepositorySecurityProvider repositorySecurityProvider =
-          rep != null && rep.getSecurityProvider() != null ? rep.getSecurityProvider() : null;
-        if ( repositorySecurityProvider != null && fullPath != null ) {
-          versioningEnabled = repositorySecurityProvider.isVersioningEnabled( fullPath );
-          versionCommentsEnabled = repositorySecurityProvider.allowsVersionComments( fullPath );
-        }
-
-        // Finally before saving, ask for a version comment (if
-        // applicable)
-        //
-        String versionComment = null;
-        boolean versionOk;
-        if ( !versioningEnabled || !versionCommentsEnabled ) {
-          versionOk = true;
-          versionComment = "";
-        } else {
-          versionOk = false;
-        }
-        while ( !versionOk ) {
-          versionComment = RepositorySecurityUI.getVersionComment( shell, rep, meta.getName(), fullPath, false );
-
-          // if the version comment is null, the user hit cancel, exit.
-          if ( rep != null && rep.getSecurityProvider() != null
-            && rep.getSecurityProvider().allowsVersionComments( fullPath ) && versionComment == null ) {
-            return false;
-          }
-
-          if ( Utils.isEmpty( versionComment ) && rep.getSecurityProvider().isVersioningEnabled( fullPath )
-            && rep.getSecurityProvider().isVersionCommentMandatory() ) {
-            if ( !RepositorySecurityUI.showVersionCommentMandatoryDialog( shell ) ) {
-              return false; // no, I don't want to enter a
-              // version comment and yes,
-              // it's mandatory.
-            }
-          } else {
-            versionOk = true;
-          }
-        }
-
-        if ( versionOk ) {
-          SaveProgressDialog spd = new SaveProgressDialog( shell, rep, meta, versionComment );
-          if ( spd.open() ) {
-            saved = true;
-            if ( !props.getSaveConfirmation() ) {
-              MessageDialogWithToggle md =
-                new MessageDialogWithToggle(
-                  shell, BaseMessages.getString( PKG, "Spoon.Message.Warning.SaveOK" ), null, BaseMessages
-                  .getString( PKG, "Spoon.Message.Warning.TransformationWasStored" ),
-                  MessageDialog.QUESTION, new String[] {
-                  BaseMessages.getString( PKG, "Spoon.Message.Warning.OK" ) },
-                  0,
-                  BaseMessages.getString( PKG, "Spoon.Message.Warning.NotShowThisMessage" ),
-                  props.getSaveConfirmation() );
-              MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
-              md.open();
-              props.setSaveConfirmation( md.getToggleState() );
-            }
-
-            // Handle last opened files...
-            props.addLastFile(
-              meta.getFileType(), meta.getName(), meta.getRepositoryDirectory().getPath(), true,
-              getRepositoryName(), getUsername(), null );
-            saveSettings();
-            addMenuLast();
-
-            setShellText();
-          }
-        }
-      } finally {
-        shell.setCursor( null );
-      }
-
-      return saved;
-    } else {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      // "There is no repository connection available."
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRepositoryConnection.Message" ) );
-      // "No repository available."
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRepositoryConnection.Title" ) );
-      mb.open();
-    }
-    return false;
-  }
-
-  public boolean saveJobRepository( JobMeta jobMeta ) throws HopException {
-    return saveToRepository( jobMeta, false );
-  }
-
-  public boolean saveJobRepository( JobMeta jobMeta, boolean ask_name ) throws HopException {
-    return saveToRepository( jobMeta, ask_name );
-  }
 
   public boolean saveFileAs() throws HopException {
     try {
@@ -5360,18 +4304,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         }
       }
     } catch ( Exception e ) {
-      HopRepositoryLostException krle = HopRepositoryLostException.lookupStackStrace( e );
-      if ( krle != null ) {
-        new ErrorDialog( shell,
-            BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ),
-            krle.getPrefaceMessage(),
-            krle );
-        closeRepository();
-      } else {
-        new ErrorDialog( shell,
-            BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ),
-            BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Message" ), e );
-      }
+      new ErrorDialog( shell,
+        BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ),
+        BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Message" ), e );
     }
 
     return false;
@@ -5384,19 +4319,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       getLog().logBasic( BaseMessages.getString( PKG, "Spoon.Log.SaveAs" ) ); // "Save as..."
     }
 
-    ( (AbstractMeta) meta ).setRepository( rep );
     ( (AbstractMeta) meta ).setMetaStore( metaStore );
 
     String activePerspectiveId = HopUiPerspectiveManager.getInstance().getActivePerspective().getId();
-    boolean etlPerspective = activePerspectiveId.equals( MainHopUiPerspective.ID );
-    if ( rep != null && etlPerspective ) {
-      meta.setObjectId( null );
-      meta.setFilename( null );
-      saved = saveToRepository( meta, true );
-
-    } else {
-      saved = saveXMLFile( meta, false );
-    }
+    saved = saveXMLFile( meta, false );
 
     // rename the tab only if the meta was successfully saved
     if ( saved ) {
@@ -5476,7 +4402,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       //
       TopLevelResource topLevelResource =
         ResourceUtil.serializeResourceExportInterface(
-          zipFilename, resourceExportInterface, (VariableSpace) resourceExportInterface, rep, metaStore );
+          zipFilename, resourceExportInterface, (VariableSpace) resourceExportInterface, metaStore );
       String message =
         ResourceUtil.getExplanation( zipFilename, topLevelResource.getResourceName(), resourceExportInterface );
 
@@ -5499,7 +4425,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       EnterTextDialog enterTextDialog =
         new EnterTextDialog(
           shell, BaseMessages.getString( PKG, "Spoon.Dialog.ResourceSerialized" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
+          PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
       enterTextDialog.setReadOnly();
       enterTextDialog.open();
     } catch ( Exception e ) {
@@ -5561,7 +4487,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       //
       TopLevelResource topLevelResource =
         ResourceUtil.serializeResourceExportInterface(
-          zipFilename, resourceExportInterface, (VariableSpace) resourceExportInterface, rep, metaStore );
+          zipFilename, resourceExportInterface, (VariableSpace) resourceExportInterface, metaStore );
       String message =
         ResourceUtil.getExplanation( zipFilename, topLevelResource.getResourceName(), resourceExportInterface );
 
@@ -5584,151 +4510,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       EnterTextDialog enterTextDialog =
         new EnterTextDialog(
           shell, BaseMessages.getString( PKG, "Spoon.Dialog.ResourceSerialized" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
+          PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
       enterTextDialog.setReadOnly();
       enterTextDialog.open();
     } catch ( Exception e ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), BaseMessages.getString(
         PKG, "Spoon.ErrorExportingFile" ), e );
-    }
-  }
-
-  public void exportRepositoryAll() {
-    exportRepositoryDirectory( null );
-  }
-
-  /**
-   * @param directoryToExport
-   *          set to null to export the complete repository
-   * @return false if we want to stop processing. true if we need to continue.
-   */
-  public boolean exportRepositoryDirectory( RepositoryDirectory directoryToExport ) {
-
-    FileDialog dialog = this.getExportFileDialog();
-    if ( dialog.open() == null ) {
-      return false;
-    }
-
-    String filename = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
-    log.logBasic( BaseMessages.getString( PKG, "Spoon.Log.Exporting" ), BaseMessages.getString(
-      PKG, "Spoon.Log.ExportObjectsToFile", filename ) );
-
-    // check if file is exists
-    MessageBox box = RepositoryExportProgressDialog.checkIsFileIsAcceptable( shell, log, filename );
-    int answer = ( box == null ) ? SWT.OK : box.open();
-    if ( answer != SWT.OK ) {
-      // seems user don't want to overwrite file...
-      return false;
-    }
-
-    //ok, let's show one more modal dialog, users like modal dialogs.
-    //They feel that their opinion are important to us.
-    box =
-      new MessageBox( shell, SWT.ICON_QUESTION
-        | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.YES | SWT.NO | SWT.CANCEL );
-    box.setText( BaseMessages.getString( PKG, "Spoon.QuestionApplyImportRulesToExport.Title" ) );
-    box.setMessage( BaseMessages.getString( PKG, "Spoon.QuestionApplyImportRulesToExport.Message" ) );
-    answer = box.open();
-    if ( answer == SWT.CANCEL ) {
-      return false;
-    }
-
-    // Get the import rules
-    //
-    ImportRules importRules = new ImportRules();
-    if ( answer == SWT.YES ) {
-      ImportRulesDialog importRulesDialog = new ImportRulesDialog( shell, importRules );
-      if ( !importRulesDialog.open() ) {
-        return false;
-      }
-    }
-
-    RepositoryExportProgressDialog repd =
-      new RepositoryExportProgressDialog( shell, rep, directoryToExport, filename, importRules );
-    repd.open();
-
-    return true;
-  }
-
-  /**
-   * local method to be able to use Spoon localization messages.
-   * @return
-   */
-  public FileDialog getExportFileDialog() {
-    FileDialog dialog = new FileDialog( shell, SWT.SAVE | SWT.SINGLE );
-    dialog.setText( BaseMessages.getString( PKG, "Spoon.SelectAnXMLFileToExportTo.Message" ) );
-    return dialog;
-  }
-
-
-  public void importDirectoryToRepository() {
-    FileDialog dialog = new FileDialog( shell, SWT.OPEN | SWT.MULTI );
-    dialog.setText( BaseMessages.getString( PKG, "Spoon.SelectAnXMLFileToImportFrom.Message" ) );
-    if ( dialog.open() == null ) {
-      return;
-    }
-
-    // Ask for a set of import rules
-    //
-    MessageBox box =
-      new MessageBox( shell, SWT.ICON_QUESTION
-        | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.YES | SWT.NO | SWT.CANCEL );
-    box.setText( BaseMessages.getString( PKG, "Spoon.QuestionApplyImportRules.Title" ) );
-    box.setMessage( BaseMessages.getString( PKG, "Spoon.QuestionApplyImportRules.Message" ) );
-    int answer = box.open();
-    if ( answer == SWT.CANCEL ) {
-      return;
-    }
-
-    // Get the import rules
-    //
-    ImportRules importRules = new ImportRules();
-    if ( answer == SWT.YES ) {
-      ImportRulesDialog importRulesDialog = new ImportRulesDialog( shell, importRules );
-      if ( !importRulesDialog.open() ) {
-        return;
-      }
-    }
-
-    // Ask for a destination in the repository...
-    //
-    SelectDirectoryDialog sdd = new SelectDirectoryDialog( shell, SWT.NONE, rep );
-    RepositoryDirectoryInterface baseDirectory = sdd.open();
-    if ( baseDirectory == null ) {
-      return;
-    }
-
-    // Finally before importing, ask for a version comment (if applicable)
-    //
-    String fullPath = baseDirectory.getPath() + "/foo.ktr";
-    String versionComment = null;
-    boolean versionOk = false;
-    while ( !versionOk ) {
-      versionComment =
-        RepositorySecurityUI.getVersionComment( shell, rep, "Import of files into ["
-          + baseDirectory.getPath() + "]", fullPath, true );
-      // if the version comment is null, the user hit cancel, exit.
-      if ( versionComment == null ) {
-        return;
-      }
-
-      if ( Utils.isEmpty( versionComment ) && rep.getSecurityProvider().isVersionCommentMandatory( ) ) {
-        if ( !RepositorySecurityUI.showVersionCommentMandatoryDialog( shell ) ) {
-          versionOk = true;
-        }
-      } else {
-        versionOk = true;
-      }
-    }
-
-    String[] filenames = dialog.getFileNames();
-    if ( filenames.length > 0 ) {
-      RepositoryImportProgressDialog ripd =
-        new RepositoryImportProgressDialog(
-          shell, SWT.NONE, rep, dialog.getFilterPath(), filenames, baseDirectory, versionComment, importRules );
-      ripd.open();
-
-      refreshTree();
     }
   }
 
@@ -5803,7 +4590,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // Is the filename ending on .ktr, .xml?
       boolean ending = false;
       for ( int i = 0; i < extensions.length - 1; i++ ) {
-        String[] parts = extensions[i].split( ";" );
+        String[] parts = extensions[ i ].split( ";" );
         for ( String part : parts ) {
           if ( filename.toLowerCase().endsWith( part.substring( 1 ).toLowerCase() ) ) {
             ending = true;
@@ -5896,8 +4683,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     String filename = null;
     FileObject selectedFile =
       getVfsFileChooserDialog( rootFile, initialFile ).open(
-          shell, "Untitled", Const.STRING_TRANS_AND_JOB_FILTER_EXT, Const.getTransformationAndJobFilterNames(),
-          VfsFileChooserDialog.VFS_DIALOG_SAVEAS );
+        shell, "Untitled", Const.STRING_TRANS_AND_JOB_FILTER_EXT, Const.getTransformationAndJobFilterNames(),
+        VfsFileChooserDialog.VFS_DIALOG_SAVEAS );
     if ( selectedFile != null ) {
       filename = selectedFile.getName().getFriendlyURI();
     }
@@ -5907,7 +4694,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // Is the filename ending on .ktr, .xml?
       boolean ending = false;
       for ( int i = 0; i < extensions.length - 1; i++ ) {
-        if ( filename.endsWith( extensions[i].substring( 1 ) ) ) {
+        if ( filename.endsWith( extensions[ i ].substring( 1 ) ) ) {
           ending = true;
         }
       }
@@ -6010,7 +4797,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       saved = true;
 
       // Handle last opened files...
-      props.addLastFile( meta.getFileType(), filename, null, false, null );
+      props.addLastFile( meta.getFileType(), filename, new Date() );
       saveSettings();
       addMenuLast();
 
@@ -6167,10 +4954,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     selectionTree = new Tree( viewTreeComposite, SWT.SINGLE );
     selectionTreeManager = new TreeManager( selectionTree );
     selectionTreeManager.addRoot( STRING_TRANSFORMATIONS, Arrays.asList( new DBConnectionFolderProvider(), new
-            StepsFolderProvider(), new HopsFolderProvider(), new PartitionsFolderProvider(), new SlavesFolderProvider(), new
-            ClustersFolderProvider() ) );
+      StepsFolderProvider(), new HopsFolderProvider(), new PartitionsFolderProvider(), new SlavesFolderProvider(), new
+      ClustersFolderProvider() ) );
     selectionTreeManager.addRoot( STRING_JOBS, Arrays.asList( new DBConnectionFolderProvider(), new
-            JobEntriesFolderProvider(), new SlavesFolderProvider() ) );
+      JobEntriesFolderProvider(), new SlavesFolderProvider() ) );
 
     props.setLook( selectionTree );
     selectionTree.setLayout( new FillLayout() );
@@ -6218,9 +5005,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     JobMeta activeJobMeta = getActiveJob();
     boolean showAll = activeTransMeta == null && activeJobMeta == null;
     boolean showTrans = !props.isOnlyActiveFileShownInTree() || showAll || ( props.isOnlyActiveFileShownInTree()
-            && activeTransMeta != null );
+      && activeTransMeta != null );
     boolean showJobs = !props.isOnlyActiveFileShownInTree() || showAll || ( props.isOnlyActiveFileShownInTree()
-            && activeJobMeta != null );
+      && activeJobMeta != null );
 
     selectionTreeManager.showRoot( STRING_TRANSFORMATIONS, showTrans || showAll );
     selectionTreeManager.showRoot( STRING_JOBS, showJobs || showAll );
@@ -6279,27 +5066,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return item;
   }
 
-  public void handleRepositoryLost( HopRepositoryLostException e ) {
-    setRepository( null );
-    warnRepositoryLost( e );
-    HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.REPOSITORY_DISCONNECTED );
-    setShellText();
-    enableMenus();
-  }
-
-  private void warnRepositoryLost( HopRepositoryLostException e ) {
-    MessageBox box = new MessageBox( shell, SWT.OK | SWT.ICON_WARNING );
-    box.setText( BaseMessages.getString( PKG, "System.Warning" ) );
-    box.setMessage( e.getPrefaceMessage() );
-    box.open();
-  }
-
   @Override public List<String> getPartitionSchemasNames( TransMeta transMeta ) throws HopException {
     return Arrays.asList( pickupPartitionSchemaNames( transMeta ) );
   }
 
   private String[] pickupPartitionSchemaNames( TransMeta transMeta ) throws HopException {
-    return ( rep == null ) ? transMeta.getPartitionSchemasNames() : rep.getPartitionSchemaNames( false );
+    return transMeta.getPartitionSchemasNames();
   }
 
 
@@ -6308,23 +5080,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   private List<PartitionSchema> pickupPartitionSchemas( TransMeta transMeta ) throws HopException {
-    if ( rep != null ) {
-      ObjectId[] ids = rep.getPartitionSchemaIDs( false );
-      List<PartitionSchema> result = new ArrayList<>( ids.length );
-      for ( ObjectId id : ids ) {
-        PartitionSchema schema = rep.loadPartitionSchema( id, null );
-        result.add( schema );
-      }
-      return result;
-    }
-
     return transMeta.getPartitionSchemas();
   }
 
   @VisibleForTesting void refreshSelectionTreeExtension( TreeItem tiRootName, AbstractMeta meta, GUIResource guiResource ) {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiViewTreeExtension.id,
-          new SelectionTreeExtension( tiRootName, meta, guiResource, REFRESH_SELECTION_EXTENSION ) );
+        new SelectionTreeExtension( tiRootName, meta, guiResource, REFRESH_SELECTION_EXTENSION ) );
     } catch ( Exception e ) {
       log.logError( "Error handling menu right click on job entry through extension point", e );
     }
@@ -6333,7 +5095,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   @VisibleForTesting void editSelectionTreeExtension( Object selection ) {
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiViewTreeExtension.id,
-          new SelectionTreeExtension( selection, EDIT_SELECTION_EXTENSION ) );
+        new SelectionTreeExtension( selection, EDIT_SELECTION_EXTENSION ) );
     } catch ( Exception e ) {
       log.logError( "Error handling menu right click on job entry through extension point", e );
     }
@@ -6392,7 +5154,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     StepMeta inf = null;
 
     if ( ti.length == 1 ) {
-      String stepType = ti[0].getText();
+      String stepType = ti[ 0 ].getText();
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.NewStep" ) + stepType ); // "New step: "
       }
@@ -6406,39 +5168,26 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * Allocate new step, optionally open and rename it.
    *
-   * @param name
-   *          Name of the new step
-   * @param description
-   *          Description of the type of step
-   * @param openit
-   *          Open the dialog for this step?
-   * @param rename
-   *          Rename this step?
-   *
+   * @param name        Name of the new step
+   * @param description Description of the type of step
+   * @param openit      Open the dialog for this step?
+   * @param rename      Rename this step?
    * @return The newly created StepMeta object.
-   *
    */
   public StepMeta newStep( TransMeta transMeta, String name, String description, boolean openit, boolean rename ) {
     return newStep( transMeta, null, name, description, openit, rename );
   }
 
-    /**
-     * Allocate new step, optionally open and rename it.
-     *
-     * @param id
-     *          Id of the new step
-     * @param name
-     *          Name of the new step
-     * @param description
-     *          Description of the type of step
-     * @param openit
-     *          Open the dialog for this step?
-     * @param rename
-     *          Rename this step?
-     *
-     * @return The newly created StepMeta object.
-     *
-     */
+  /**
+   * Allocate new step, optionally open and rename it.
+   *
+   * @param id          Id of the new step
+   * @param name        Name of the new step
+   * @param description Description of the type of step
+   * @param openit      Open the dialog for this step?
+   * @param rename      Rename this step?
+   * @return The newly created StepMeta object.
+   */
   public StepMeta newStep( TransMeta transMeta, String id, String name, String description, boolean openit, boolean rename ) {
     StepMeta inf = null;
 
@@ -6464,12 +5213,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         info.setDefault();
 
         if ( openit ) {
-          StepDialogInterface dialog = this.getStepEntryDialog( info, transMeta, name );
+          StepDialogInterface dialog = this.getStepDialog( info, transMeta, name );
           if ( dialog != null ) {
             name = dialog.open();
           }
         }
-        inf = new StepMeta( stepPlugin.getIds()[0], name, info );
+        inf = new StepMeta( stepPlugin.getIds()[ 0 ], name, info );
 
         if ( name != null ) {
           // OK pressed in the dialog: we have a step-name
@@ -6494,7 +5243,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           addUndoNew( transMeta, new StepMeta[] { inf }, new int[] { transMeta.indexOfStep( inf ) } );
 
           // Also store it in the pluginHistory list...
-          props.increasePluginHistory( stepPlugin.getIds()[0] );
+          props.increasePluginHistory( stepPlugin.getIds()[ 0 ] );
 
           // stepHistoryChanged = true;
 
@@ -6529,7 +5278,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           new ErrorDialog( shell,
             // "Error showing help text"
             BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ), BaseMessages.getString(
-              PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
+            PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
         } finally {
           if ( fis != null ) {
             try {
@@ -6544,7 +5293,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           // "Error creating step"
           // "I was unable to create a new step"
           BaseMessages.getString( PKG, "Spoon.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
       }
       return null;
     } catch ( Throwable e ) {
@@ -6552,46 +5301,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         new ErrorDialog( shell,
           // "Error creating step"
           BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
       }
       return null;
     }
 
     return inf;
-  }
-
-  private static String getJobTransfFullPath( EngineMetaInterface jobTransMeta ) {
-    String fullPath = null;
-    if ( jobTransMeta != null ) {
-      fullPath =
-          jobTransMeta.getRepositoryDirectory() + "/" + jobTransMeta.getName() + jobTransMeta.getRepositoryElementType()
-              .getExtension();
-    }
-    return fullPath;
-  }
-
-  static boolean isVersionEnabled( Repository rep, EngineMetaInterface jobTransMeta ) {
-    //It is not necessary to check VersioningEnabled on the server every time (see PDI-16684)
-    if ( jobTransMeta.getVersioningEnabled() == null ) {
-      boolean versioningEnabled = checkIsVersioningEnabledOnServer( rep, jobTransMeta );
-      jobTransMeta.setVersioningEnabled( versioningEnabled );
-      return versioningEnabled;
-    }
-    return jobTransMeta.getVersioningEnabled();
-  }
-
-  private static boolean checkIsVersioningEnabledOnServer( Repository rep, EngineMetaInterface jobTransMeta ) {
-    boolean versioningEnabled = true;
-
-    String fullPath = getJobTransfFullPath( jobTransMeta );
-    RepositorySecurityProvider
-      repositorySecurityProvider =
-      rep != null && rep.getSecurityProvider() != null ? rep.getSecurityProvider() : null;
-    if ( repositorySecurityProvider != null && fullPath != null ) {
-      versioningEnabled = repositorySecurityProvider.isVersioningEnabled( fullPath );
-    }
-
-    return versioningEnabled;
   }
 
   public void setShellText() {
@@ -6601,30 +5316,19 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     String filename = null;
     String name = null;
-    String version = null;
     ChangedFlagInterface changed = null;
-    boolean versioningEnabled = true;
 
     AbstractMeta meta = getActiveJob() != null ? getActiveJob() : getActiveTransformation();
     if ( meta != null ) {
       changed = meta;
       filename = meta.getFilename();
       name = meta.getName();
-      version = meta.getObjectRevision() == null ? null : meta.getObjectRevision().getName();
-      try {
-        versioningEnabled = isVersionEnabled( rep, meta );
-      } catch ( HopRepositoryLostException krle ) {
-        handleRepositoryLost( krle );
-      }
+
     }
 
     String text = "";
 
-    if ( rep != null ) {
-      text += APP_TITLE + " - [" + getRepositoryName() + "] ";
-    } else {
-      text += APP_TITLE + " - ";
-    }
+    text += APP_TITLE + " - ";
 
     if ( Utils.isEmpty( name ) ) {
       if ( !Utils.isEmpty( filename ) ) {
@@ -6641,10 +5345,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       text += name;
     }
 
-    if ( versioningEnabled && !Utils.isEmpty( version ) ) {
-      text += " v" + version;
-    }
-
     if ( changed != null && changed.hasChanged() ) {
       text += " " + BaseMessages.getString( PKG, "Spoon.Various.Changed" );
     }
@@ -6658,7 +5358,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     boolean disableTransMenu = getActiveTransformation() == null;
     boolean disableJobMenu = getActiveJob() == null;
     boolean disableMetaMenu = getActiveMeta() == null;
-    boolean isRepositoryRunning = rep != null;
     boolean disablePreviewButton = true;
     String activePerspectiveId = null;
     HopUiPerspectiveManager manager = HopUiPerspectiveManager.getInstance();
@@ -6746,20 +5445,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         disableMenuItem( doc, "trans-last-impact", disableTransMenu );
 
         // Tools
-        disableMenuItem( doc, "repository-explore", !isRepositoryRunning );
-        disableMenuItem( doc, "tools-dabase-explore", !isRepositoryRunning && disableDatabaseExplore );
-        disableMenuItem( doc, "repository-clear-shared-object-cache", !isRepositoryRunning );
-        disableMenuItem( doc, "toolbar-expore-repository", !isRepositoryRunning );
-        disableMenuItem( doc, "repository-export-all", !isRepositoryRunning );
-        disableMenuItem( doc, "repository-import-directory", !isRepositoryRunning );
-        disableMenuItem( doc, "trans-last-preview", !isRepositoryRunning || disableTransMenu );
-
-        // Wizard
-        disableMenuItem( doc, "wizard-connection", disableTransMenu && disableJobMenu );
-        disableMenuItem( doc, "wizard-copy-table", disableTransMenu && disableJobMenu );
-        disableMenuItem( doc, "wizard-copy-tables", isRepositoryRunning && disableTransMenu && disableJobMenu );
-
-        disableMenuItem( doc, "database-inst-dependancy", !isRepositoryRunning );
+        disableMenuItem( doc, "tools-dabase-explore", disableDatabaseExplore );
+        disableMenuItem( doc, "trans-last-preview", disableTransMenu );
 
         HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.MENUS_REFRESHED );
 
@@ -6780,7 +5467,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * @param disableTransMenu
    */
   private void updateSettingsMenu( org.pentaho.ui.xul.dom.Document doc, boolean disableTransMenu,
-    boolean disableJobMenu ) {
+                                   boolean disableJobMenu ) {
     XulMenuitem settingsItem = (XulMenuitem) doc.getElementById( "edit-settings" );
     if ( settingsItem != null ) {
       if ( disableTransMenu && !disableJobMenu ) {
@@ -6871,6 +5558,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * Check to see if any jobs or transformations are dirty
+   *
    * @return true if any of the open jobs or trans are marked dirty
    */
   public boolean isTabsChanged() {
@@ -6976,6 +5664,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return null;
   }
 
+  public VariableSpace getActiveVariableSpace() {
+    TransMeta transMeta = getActiveTransformation();
+    if (transMeta!=null) {
+      return transMeta;
+    }
+    return getActiveJob();
+  }
+
   public TabItemInterface getActiveTabitem() {
 
     if ( tabfolder == null ) {
@@ -6998,7 +5694,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * @return The active TransMeta object by looking at the selected TransGraph, TransLog, TransHist If nothing valueable
-   *         is selected, we return null
+   * is selected, we return null
    */
   public TransMeta getActiveTransformation() {
     EngineMetaInterface meta = getActiveMeta();
@@ -7010,7 +5706,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * @return The active JobMeta object by looking at the selected JobGraph, JobLog, JobHist If nothing valueable is
-   *         selected, we return null
+   * selected, we return null
    */
   public JobMeta getActiveJob() {
     EngineMetaInterface meta = getActiveMeta();
@@ -7044,7 +5740,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public TransMeta[] getLoadedTransformations() {
     if ( delegates != null && delegates.trans != null ) {
       List<TransMeta> list = delegates.trans.getTransformationList();
-      return list.toArray( new TransMeta[list.size()] );
+      return list.toArray( new TransMeta[ list.size() ] );
     } else {
       return null;
     }
@@ -7053,7 +5749,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public JobMeta[] getLoadedJobs() {
     if ( delegates != null && delegates.jobs != null ) {
       List<JobMeta> list = delegates.jobs.getJobList();
-      return list.toArray( new JobMeta[list.size()] );
+      return list.toArray( new JobMeta[ list.size() ] );
     } else {
       return null;
     }
@@ -7069,7 +5765,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     props.setScreen( windowProperty );
 
     props.setLogLevel( DefaultLogLevel.getLogLevel().getCode() );
-    if ( sashform.getWeights()[0] != 0 ) {
+    if ( sashform.getWeights()[ 0 ] != 0 ) {
       props.setSashWeights( sashform.getWeights() );
     }
 
@@ -7082,27 +5778,23 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     for ( TabMapEntry entry : delegates.tabs.getTabs() ) {
       String fileType = null;
       String filename = null;
-      String directory = null;
       int openType = 0;
       if ( entry.getObjectType() == ObjectType.TRANSFORMATION_GRAPH ) {
         fileType = LastUsedFile.FILE_TYPE_TRANSFORMATION;
         TransMeta transMeta = (TransMeta) entry.getObject().getManagedObject();
-        filename = rep != null ? transMeta.getName() : transMeta.getFilename();
-        directory = transMeta.getRepositoryDirectory().toString();
+        filename = transMeta.getFilename();
         openType = LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH;
         entry.setObjectName( transMeta.getName() );
       } else if ( entry.getObjectType() == ObjectType.JOB_GRAPH ) {
         fileType = LastUsedFile.FILE_TYPE_JOB;
         JobMeta jobMeta = (JobMeta) entry.getObject().getManagedObject();
-        filename = rep != null ? jobMeta.getName() : jobMeta.getFilename();
-        directory = jobMeta.getRepositoryDirectory().toString();
+        filename = jobMeta.getFilename();
         openType = LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH;
         entry.setObjectName( jobMeta.getName() );
       }
 
       if ( fileType != null ) {
-        props.addOpenTabFile(
-          fileType, filename, directory, rep != null, rep != null ? rep.getName() : null, openType );
+        props.addOpenTabFile( fileType, filename, openType );
       }
     }
 
@@ -7228,8 +5920,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * Sets the text and enabled settings for the undo and redo menu items
    *
-   * @param undoInterface
-   *          the object which holds the undo/redo information
+   * @param undoInterface the object which holds the undo/redo information
    */
   public void setUndoMenu( UndoInterface undoInterface ) {
     if ( shell.isDisposed() ) {
@@ -7306,8 +5997,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * Check the steps in a transformation
    *
-   * @param only_selected
-   *          True: Check only the selected steps...
+   * @param only_selected True: Check only the selected steps...
    */
   public void checkTrans( TransMeta transMeta, boolean only_selected ) {
     if ( transMeta == null ) {
@@ -7414,7 +6104,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Throwable e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Message" ), e );
+        .getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Message" ), e );
     }
   }
 
@@ -7424,21 +6114,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Throwable e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+        .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
       return null;
     }
   }
 
   /**
    * Paste transformation from the clipboard...
-   *
    */
   public void pasteTransformation() {
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep,
-        RepositoryOperation.MODIFY_TRANSFORMATION, RepositoryOperation.EXECUTE_TRANSFORMATION ) ) {
-      return;
-    }
 
     if ( log.isDetailed() ) {
       // "Paste transformation from the clipboard!"
@@ -7448,7 +6132,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     try {
       Document doc = XMLHandler.loadXMLString( xml );
 
-      TransMeta transMeta = new TransMeta( XMLHandler.getSubNode( doc, TransMeta.XML_TAG ), rep );
+      TransMeta transMeta = new TransMeta( XMLHandler.getSubNode( doc, TransMeta.XML_TAG ) );
       setTransMetaVariables( transMeta );
       addTransGraph( transMeta ); // create a new tab
       sharedObjectsFileMap.put( transMeta.getSharedObjects().getFilename(), transMeta.getSharedObjects() );
@@ -7457,25 +6141,19 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorPastingTransformation.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorPastingTransformation.Message" ), e );
+        .getString( PKG, "Spoon.Dialog.ErrorPastingTransformation.Message" ), e );
     }
   }
 
   /**
    * Paste job from the clipboard...
-   *
    */
   public void pasteJob() {
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep,
-        RepositoryOperation.MODIFY_JOB, RepositoryOperation.EXECUTE_JOB ) ) {
-      return;
-    }
 
     String xml = fromClipboard();
     try {
       Document doc = XMLHandler.loadXMLString( xml );
-      JobMeta jobMeta = new JobMeta( XMLHandler.getSubNode( doc, JobMeta.XML_TAG ), rep, this );
+      JobMeta jobMeta = new JobMeta( XMLHandler.getSubNode( doc, JobMeta.XML_TAG ) );
       addJobGraph( jobMeta ); // create a new tab
       refreshGraph();
       refreshTree();
@@ -7484,7 +6162,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         // Error pasting transformation
         // "An error occurred pasting a transformation from the clipboard"
         BaseMessages.getString( PKG, "Spoon.Dialog.ErrorPastingJob.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.ErrorPastingJob.Message" ), e );
+        PKG, "Spoon.Dialog.ErrorPastingJob.Message" ), e );
     }
   }
 
@@ -7493,11 +6171,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       return;
     }
     try {
-      if ( RepositorySecurityUI.verifyOperations(
-          shell, rep, RepositoryOperation.MODIFY_TRANSFORMATION, RepositoryOperation.EXECUTE_TRANSFORMATION ) ) {
-        return;
-      }
-
       toClipboard( XMLHandler.getXMLHeader() + transMeta.getXML() );
     } catch ( Exception ex ) {
       new ErrorDialog( getShell(), "Error", "Error encoding to XML", ex );
@@ -7506,10 +6179,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public void copyJob( JobMeta jobMeta ) {
     if ( jobMeta == null ) {
-      return;
-    }
-    if ( RepositorySecurityUI.verifyOperations(
-        shell, rep, RepositoryOperation.MODIFY_JOB, RepositoryOperation.EXECUTE_JOB ) ) {
       return;
     }
 
@@ -7530,185 +6199,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       new Object[] { image.getImageData() }, new Transfer[] { ImageTransfer.getInstance() } );
   }
 
-  /**
-   * @return Either a TransMeta or JobMeta object
-   */
-  public HasDatabasesInterface getActiveHasDatabasesInterface() {
-    TransMeta transMeta = getActiveTransformation();
-    if ( transMeta != null ) {
-      return transMeta;
-    }
-    return getActiveJob();
-  }
-
-  public List<DatabaseMeta> getActiveDatabases() {
-    Map<String, DatabaseMeta> map = new Hashtable<>();
-
-    HasDatabasesInterface hasDatabasesInterface = getActiveHasDatabasesInterface();
-    if ( hasDatabasesInterface != null ) {
-      for ( int i = 0; i < hasDatabasesInterface.nrDatabases(); i++ ) {
-        map.put( hasDatabasesInterface.getDatabase( i ).getName(), hasDatabasesInterface.getDatabase( i ) );
-      }
-    }
-    if ( rep != null ) {
-      try {
-        List<DatabaseMeta> repDBs = rep.readDatabases();
-        for ( DatabaseMeta databaseMeta : repDBs ) {
-          map.put( databaseMeta.getName(), databaseMeta );
-        }
-      } catch ( Exception e ) {
-        log.logError( "Unexpected error reading databases from the repository: " + e.toString() );
-        log.logError( Const.getStackTracker( e ) );
-      }
-    }
-
-    List<DatabaseMeta> databases = new ArrayList<>();
-    databases.addAll( map.values() );
-
-    return databases;
-  }
-
-  /**
-   * Create a transformation that extracts tables & data from a database.
-   * <p>
-   * <p>
-   *
-   * 0) Select the database to rip
-   * <p>
-   * 1) Select the table in the database to copy
-   * <p>
-   * 2) Select the database to dump to
-   * <p>
-   * 3) Select the repository directory in which it will end up
-   * <p>
-   * 4) Select a name for the new transformation
-   * <p>
-   * 6) Create 1 transformation for the selected table
-   * <p>
-   */
-  public void copyTableWizard() {
-    List<DatabaseMeta> databases = getActiveDatabases();
-    if ( databases.size() == 0 ) {
-      return; // Nothing to do here
-    }
-
-    final CopyTableWizardPage1 page1 = new CopyTableWizardPage1( "1", databases );
-    final CopyTableWizardPage2 page2 = new CopyTableWizardPage2( "2" );
-
-    Wizard wizard = new Wizard() {
-      @Override
-      public boolean performFinish() {
-        return delegates.db.copyTable( page1.getSourceDatabase(), page1.getTargetDatabase(), page2.getSelection() );
-      }
-
-      /**
-       * @see org.eclipse.jface.wizard.Wizard#canFinish()
-       */
-      @Override
-      public boolean canFinish() {
-        return page2.canFinish();
-      }
-    };
-
-    wizard.addPage( page1 );
-    wizard.addPage( page2 );
-
-    WizardDialog wd = new WizardDialog( shell, wizard );
-    WizardDialog.setDefaultImage( GUIResource.getInstance().getImageWizard() );
-    wd.setMinimumPageSize( 700, 400 );
-    wd.updateSize();
-    wd.open();
-  }
-
   @Override
   public String toString() {
     return APP_NAME;
-  }
-
-  public void handleStartOptions( CommandLineOption[] options ) {
-
-    // note that at this point the rep object is populated by previous calls
-
-    StringBuilder optionRepname = getCommandLineOption( options, "rep" ).getArgument();
-    StringBuilder optionFilename = getCommandLineOption( options, "file" ).getArgument();
-    StringBuilder optionDirname = getCommandLineOption( options, "dir" ).getArgument();
-    StringBuilder optionTransname = getCommandLineOption( options, "trans" ).getArgument();
-    StringBuilder optionJobname = getCommandLineOption( options, "job" ).getArgument();
-    // StringBuilder optionUsername = getCommandLineOption(options,
-    // "user").getArgument();
-    // StringBuilder optionPassword = getCommandLineOption(options,
-    // "pass").getArgument();
-
-    try {
-      // Read kettle transformation specified on command-line?
-      if ( !Utils.isEmpty( optionRepname ) || !Utils.isEmpty( optionFilename ) ) {
-        if ( !Utils.isEmpty( optionRepname ) ) {
-          if ( rep != null ) {
-
-            if ( Utils.isEmpty( optionDirname ) ) {
-              optionDirname = new StringBuilder( RepositoryDirectory.DIRECTORY_SEPARATOR );
-            }
-
-            // Options /file, /job and /trans are mutually
-            // exclusive
-            int t =
-              ( Utils.isEmpty( optionFilename ) ? 0 : 1 )
-                + ( Utils.isEmpty( optionJobname ) ? 0 : 1 ) + ( Utils.isEmpty( optionTransname ) ? 0 : 1 );
-            if ( t > 1 ) {
-              // "More then one mutually exclusive options /file, /job and /trans are specified."
-              log.logError( BaseMessages.getString( PKG, "Spoon.Log.MutuallyExcusive" ) );
-            } else if ( t == 1 ) {
-              if ( !Utils.isEmpty( optionFilename ) ) {
-                openFile( optionFilename.toString(), false );
-              } else {
-                // OK, if we have a specified job or
-                // transformation, try to load it...
-                // If not, keep the repository logged
-                // in.
-                RepositoryDirectoryInterface rdi = rep.findDirectory( optionDirname.toString() );
-                if ( rdi == null ) {
-                  log.logError( BaseMessages.getString( PKG, "Spoon.Log.UnableFindDirectory", optionDirname
-                    .toString() ) ); // "Can't find directory ["+dirname+"] in the repository."
-                } else {
-                  if ( !Utils.isEmpty( optionTransname ) ) {
-                    TransMeta transMeta =
-                      rep.loadTransformation( optionTransname.toString(), rdi, null, true, null ); // reads
-                    // last
-                    // version
-                    transMeta.clearChanged();
-                    transMeta.setInternalHopVariables();
-                    addTransGraph( transMeta );
-                  } else {
-                    // Try to load a specified job
-                    // if any
-                    JobMeta jobMeta = rep.loadJob( optionJobname.toString(), rdi, null, null ); // reads
-                    // last
-                    // version
-                    jobMeta.clearChanged();
-                    jobMeta.setInternalHopVariables();
-                    addJobGraph( jobMeta );
-                  }
-                }
-              }
-            }
-          } else {
-            // "No repositories defined on this system."
-            log.logError( BaseMessages.getString( PKG, "Spoon.Log.NoRepositoriesDefined" ) );
-          }
-        } else if ( !Utils.isEmpty( optionFilename ) ) {
-          openFile( optionFilename.toString(), false );
-        }
-      }
-    } catch ( HopException ke ) {
-      hideSplash();
-      log.logError( BaseMessages.getString( PKG, "Spoon.Log.ErrorOccurred" ) + Const.CR + ke.getMessage() );
-      log.logError( Const.getStackTracker( ke ) );
-      // do not just eat the exception
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Log.ErrorOccurred" ), BaseMessages.getString(
-        PKG, "Spoon.Log.ErrorOccurred" )
-        + Const.CR + ke.getMessage(), ke );
-      rep = null;
-    }
   }
 
   private void loadLastUsedFiles() {
@@ -7721,26 +6214,19 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       List<LastUsedFile> lastUsedFiles = props.getOpenTabFiles();
       for ( LastUsedFile lastUsedFile : lastUsedFiles ) {
         try {
-          if ( !lastUsedFile.isSourceRepository()
-            || lastUsedFile.isSourceRepository() && rep != null
-            && rep.getName().equals( lastUsedFile.getRepositoryName() ) ) {
-            loadLastUsedFileAtStartup( lastUsedFile, rep == null ? null : rep.getName() );
-          }
+          loadLastUsedFileAtStartup( lastUsedFile );
         } catch ( Exception e ) {
           hideSplash();
           new ErrorDialog(
             shell, BaseMessages.getString( PKG, "Spoon.LoadLastUsedFile.Exception.Title" ), BaseMessages
-              .getString( PKG, "Spoon.LoadLastUsedFile.Exception.Message", lastUsedFile.toString() ), e );
+            .getString( PKG, "Spoon.LoadLastUsedFile.Exception.Message", lastUsedFile.toString() ), e );
         }
       }
     }
   }
 
-  public void start( CommandLineOption[] options ) throws HopException {
-
-    // Read the start option parameters
-    //
-    handleStartOptions( options );
+  /*
+  public void start( ) throws HopException {
 
     // Enable menus based on whether user was able to login or not
     //
@@ -7766,6 +6252,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       dialog.open();
     }
   }
+   */
 
   private void waitForDispose() {
 
@@ -7825,219 +6312,38 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   // public CommandLineOption options[];
 
-  public static CommandLineOption getCommandLineOption( CommandLineOption[] options, String opt ) {
-    for ( CommandLineOption option : options ) {
-      if ( option.getOption().equals( opt ) ) {
-        return option;
-      }
-    }
-    return null;
-  }
-
-  public static CommandLineOption[] getCommandLineArgs( List<String> args ) {
-
-    CommandLineOption[] clOptions =
-      new CommandLineOption[] {
-        new CommandLineOption( "rep", "Repository name", new StringBuilder() ),
-        new CommandLineOption( "user", "Repository username", new StringBuilder() ),
-        new CommandLineOption( "pass", "Repository password", new StringBuilder() ),
-        new CommandLineOption( "job", "The name of the job to launch", new StringBuilder() ),
-        new CommandLineOption( "trans", "The name of the transformation to launch", new StringBuilder() ),
-        new CommandLineOption( "dir", "The directory (don't forget the leading /)", new StringBuilder() ),
-        new CommandLineOption( "file", "The filename (Transformation in XML) to launch", new StringBuilder() ),
-        new CommandLineOption(
-          "level", "The logging level (Basic, Detailed, Debug, Rowlevel, Error, Nothing)",
-          new StringBuilder() ),
-        new CommandLineOption( "logfile", "The logging file to write to", new StringBuilder() ),
-        new CommandLineOption(
-          "log", "The logging file to write to (deprecated)", new StringBuilder(), false, true ),
-        new CommandLineOption( "perspective", "The perspective to start in", new StringBuilder(), false, true ) };
-
-    // start with the default logger until we find out otherwise
-    //
-    log = new LogChannel( APP_NAME );
-
-    // Parse the options...
-    if ( !CommandLineOption.parseArguments( args, clOptions, log ) ) {
-      log.logError( "Command line option not understood" );
-      System.exit( 8 );
-    }
-
-    String kettleRepname = Const.getEnvironmentVariable( "HOP_REPOSITORY", null );
-    String kettleUsername = Const.getEnvironmentVariable( "HOP_USER", null );
-    String kettlePassword = Const.getEnvironmentVariable( "HOP_PASSWORD", null );
-
-    if ( !Utils.isEmpty( kettleRepname ) ) {
-      clOptions[0].setArgument( new StringBuilder( kettleRepname ) );
-    }
-    if ( !Utils.isEmpty( kettleUsername ) ) {
-      clOptions[1].setArgument( new StringBuilder( kettleUsername ) );
-    }
-    if ( !Utils.isEmpty( kettlePassword ) ) {
-      clOptions[2].setArgument( new StringBuilder( kettlePassword ) );
-    }
-
-    return clOptions;
-  }
-
   /**
-   * Loads the {@link LastUsedFile} residing the the {@link Repository} with {@code repoName} without "tracking it" -
+   * Loads the {@link LastUsedFile} without "tracking it" -
    * meaning that it is not explicitly added to the "recent" file collection, since it is expected to already exist
    * in this collections.
    *
-   * @param lastUsedFile   the {@link LastUsedFile} being loaded
-   * @param repositoryName the name of the {@link Repository} containing the {@link LastUsedFile}
+   * @param lastUsedFile the {@link LastUsedFile} being loaded
    * @throws HopException
    */
-  public void loadLastUsedFileAtStartup( LastUsedFile lastUsedFile, String repositoryName ) throws HopException {
+  public void loadLastUsedFileAtStartup( LastUsedFile lastUsedFile ) throws HopException {
     // when loading tabs at startup, we do not need to track it, as it should already be added to the appropriate
     // lastUsedFile collections
-    loadLastUsedFile( lastUsedFile, repositoryName, false, true );
+    loadLastUsedFile( lastUsedFile, false, true );
   }
 
   /**
-   * Loads the {@link LastUsedFile} residing the the {@link Repository} with {@code repoName}, and "tracks" it by
+   * Loads the {@link LastUsedFile} and "tracks" it by
    * adding it to the "recent" files collection.
    *
-   * @param lastUsedFile   the {@link LastUsedFile} being loaded
-   * @param repositoryName the name of the {@link Repository} containing the {@link LastUsedFile}
+   * @param lastUsedFile the {@link LastUsedFile} being loaded
    * @throws HopException
    */
-  public void loadLastUsedFile( LastUsedFile lastUsedFile, String repositoryName ) throws HopException {
-    loadLastUsedFile( lastUsedFile, repositoryName, true, false );
+  public void loadLastUsedFile( LastUsedFile lastUsedFile ) throws HopException {
+    loadLastUsedFile( lastUsedFile, true, false );
   }
 
-  /**
-   * Returns true if the {@link LastUsedFile} at the given {@code index} within the {@link
-   * PropsUI#getLastUsedRepoFiles()} collection exists within the given {@code repo} {@link Repository},
-   * and false otherwise.
-   *
-   * @param repo     the {@link Repository} containing the file
-   * @param indexStr the String index of the file within the last used repo file collection
-   * @return true if the {@link LastUsedFile} at the given {@code index} within the {@link
-   * PropsUI#getLastUsedRepoFiles()} collection exists within the given {@code repo} {@link Repository},
-   * and false otherwise
-   * @throws HopException
-   */
-  public boolean recentRepoFileExists( String repo, String indexStr ) {
-    final LastUsedFile lastUsedFile = getLastUsedRepoFile( repo, indexStr );
-    // this should never happen when used on a repo file, but we check just to be safe
-    if ( lastUsedFile == null ) {
-      return false;
-    }
-    // again, should never happen, since the file being selected is a valid repo file in this repo
-    if ( !lastUsedFile.isSourceRepository() || !rep.getName().equalsIgnoreCase( lastUsedFile.getRepositoryName() ) ) {
-      return false;
-    }
-    try {
-      final RepositoryDirectoryInterface rdi = rep.findDirectory( lastUsedFile.getDirectory() );
-      if ( rdi == null ) {
-        return false;
-      }
-      final RepositoryObjectType fileType = lastUsedFile.isJob() ? RepositoryObjectType.JOB
-        : RepositoryObjectType.TRANSFORMATION;
-      return rep.exists( lastUsedFile.getFilename(), rdi, fileType );
-    } catch ( final HopException ke ) {
-      // log
-      return false;
-    }
-  }
+  private void loadLastUsedFile( LastUsedFile lastUsedFile, boolean trackIt, boolean isStartup ) throws HopException {
 
-
-  public LastUsedFile getLastUsedRepoFile( String repo, String indexStr ) {
-    // this should never happen when used on a repo file, but we check just to be safe
-    if ( rep == null ) {
-      return null;
-    }
-    final int idx = Integer.parseInt( indexStr );
-    final List<LastUsedFile> lastUsedFiles = props.getLastUsedRepoFiles().getOrDefault( repo, Collections.emptyList() );
-    return lastUsedFiles.get( idx );
-  }
-
-  private void loadLastUsedFile(
-      LastUsedFile lastUsedFile, String repositoryName, boolean trackIt, boolean isStartup ) throws HopException {
-    boolean useRepository = repositoryName != null;
-    // Perhaps we need to connect to the repository?
+    // open files stored locally
     //
-    if ( lastUsedFile.isSourceRepository() ) {
-      if ( !Utils.isEmpty( lastUsedFile.getRepositoryName() ) ) {
-        if ( useRepository && !lastUsedFile.getRepositoryName().equalsIgnoreCase( repositoryName ) ) {
-          // We just asked...
-          useRepository = false;
-        }
-      }
-    }
-
-    if ( useRepository && lastUsedFile.isSourceRepository() ) {
-      if ( rep != null ) { // load from this repository...
-        if ( rep.getName().equalsIgnoreCase( lastUsedFile.getRepositoryName() ) ) {
-          RepositoryDirectoryInterface rdi = rep.findDirectory( lastUsedFile.getDirectory() );
-          if ( rdi != null ) {
-            // does the file exist in the repo?
-            final RepositoryObjectType fileType = lastUsedFile.isJob() ? RepositoryObjectType.JOB
-              : RepositoryObjectType.TRANSFORMATION;
-            if ( !rep.exists( lastUsedFile.getFilename(), rdi, fileType ) ) {
-              // open an warning dialog only if this file was explicitly selected to be opened; on startup, simply skip
-              // opening this file
-              if ( isStartup ) {
-                if ( log.isDetailed() ) {
-                  log.logDetailed( BaseMessages.getString( PKG, "Spoon.log.openingMissingFile" ) );
-                }
-              } else {
-                final Dialog dlg = new SimpleMessageDialog( shell,
-                  BaseMessages.getString( PKG, "Spoon.Dialog.MissingRecentFile.Title" ),
-                  BaseMessages.getString( PKG, "Spoon.Dialog.MissingRecentFile.Message",
-                    lastUsedFile.getLongFileType().toLowerCase() ), MessageDialog.ERROR,
-                  BaseMessages.getString( PKG, "System.Button.Close" ),
-                  MISSING_RECENT_DLG_WIDTH, SimpleMessageDialog.BUTTON_WIDTH );
-                dlg.open();
-              }
-            } else {
-              // Are we loading a transformation or a job?
-              if ( lastUsedFile.isTransformation() ) {
-                if ( log.isDetailed() ) {
-                  // "Auto loading transformation ["+lastfiles[0]+"] from repository directory ["+lastdirs[0]+"]"
-                  log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.AutoLoadingTransformation", lastUsedFile
-                    .getFilename(), lastUsedFile.getDirectory() ) );
-                }
-                TransLoadProgressDialog tlpd =
-                  new TransLoadProgressDialog( shell, rep, lastUsedFile.getFilename(), rdi, null );
-                TransMeta transMeta = tlpd.open();
-                if ( transMeta != null ) {
-                  if ( trackIt ) {
-                    props.addLastFile( LastUsedFile.FILE_TYPE_TRANSFORMATION, lastUsedFile.getFilename(), rdi
-                      .getPath(), true, rep.getName(), getUsername(), null );
-                  }
-                  // transMeta.setFilename(lastUsedFile.getFilename());
-                  transMeta.clearChanged();
-                  addTransGraph( transMeta );
-                  refreshTree();
-                }
-              } else if ( lastUsedFile.isJob() ) {
-                JobLoadProgressDialog progressDialog =
-                  new JobLoadProgressDialog( shell, rep, lastUsedFile.getFilename(), rdi, null );
-                JobMeta jobMeta = progressDialog.open();
-                if ( jobMeta != null ) {
-                  if ( trackIt ) {
-                    props.addLastFile(
-                      LastUsedFile.FILE_TYPE_JOB, lastUsedFile.getFilename(), rdi.getPath(), true, rep
-                        .getName(), getUsername(), null );
-                  }
-                  jobMeta.clearChanged();
-                  addJobGraph( jobMeta );
-                }
-              }
-              refreshTree();
-            }
-          }
-        }
-      }
-    }
-
-    // open files stored locally, not in the repository
-    if ( !lastUsedFile.isSourceRepository() && !Utils.isEmpty( lastUsedFile.getFilename() ) ) {
+    if ( StringUtils.isNotEmpty( lastUsedFile.getFilename() ) ) {
       if ( lastUsedFile.isTransformation() ) {
-        openFile( lastUsedFile.getFilename(), rep != null );
+        openFile( lastUsedFile.getFilename(), false );
       }
       if ( lastUsedFile.isJob() ) {
         openFile( lastUsedFile.getFilename(), false );
@@ -8050,8 +6356,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * Create a new SelectValues step in between this step and the previous. If the previous fields are not there, no
    * mapping can be made, same with the required fields.
    *
-   * @param stepMeta
-   *          The target step to map against.
+   * @param stepMeta The target step to map against.
    */
   // retry of required fields acquisition
   public void generateFieldMapping( TransMeta transMeta, StepMeta stepMeta ) {
@@ -8065,7 +6370,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         String[] source = sourceFields.getFieldNames();
         for ( int i = 0; i < source.length; i++ ) {
           ValueMetaInterface v = sourceFields.getValueMeta( i );
-          source[i] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
+          source[ i ] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
         }
         String[] target = targetFields.getFieldNames();
 
@@ -8081,10 +6386,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           //CHECKSTYLE:Indentation:OFF
           for ( int i = 0; i < mappings.size(); i++ ) {
             SourceToTargetMapping mapping = mappings.get( i );
-            svm.getSelectFields()[i].setName( sourceFields.getValueMeta( mapping.getSourcePosition() ).getName() );
-            svm.getSelectFields()[i].setRename( target[mapping.getTargetPosition()] );
-            svm.getSelectFields()[i].setLength( -1 );
-            svm.getSelectFields()[i].setPrecision( -1 );
+            svm.getSelectFields()[ i ].setName( sourceFields.getValueMeta( mapping.getSourcePosition() ).getName() );
+            svm.getSelectFields()[ i ].setRename( target[ mapping.getTargetPosition() ] );
+            svm.getSelectFields()[ i ].setLength( -1 );
+            svm.getSelectFields()[ i ].setPrecision( -1 );
           }
           // a new comment. Sincerely yours CO ;)
           // Now that we have the meta-data, create a new step info object
@@ -8180,8 +6485,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * Select a clustering schema for this step.
    *
-   * @param stepMeta
-   *          The step to set the clustering schema for.
+   * @param stepMeta The step to set the clustering schema for.
    */
   public void editClustering( TransMeta transMeta, StepMeta stepMeta ) {
     editClustering( transMeta, Collections.singletonList( stepMeta ) );
@@ -8251,7 +6555,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * This creates a slave server, edits it and adds it to the transformation metadata
-   *
    */
   public void newSlaveServer( HasSlaveServersInterface hasSlaveServersInterface ) {
     delegates.slaves.newSlaveServer( hasSlaveServersInterface );
@@ -8267,7 +6570,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   protected void editSlaveServer( SlaveServer slaveServer ) {
-     List<SlaveServer> existingServers = getActiveAbstractMeta().getSlaveServers();
+    List<SlaveServer> existingServers = getActiveAbstractMeta().getSlaveServers();
     // List<SlaveServer> existingServers = pickupSlaveServers( getActiveAbstractMeta() );
     delegates.slaves.edit( slaveServer, existingServers );
   }
@@ -8278,9 +6581,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * @param executionConfiguration
    */
   public void sendTransformationXMLToSlaveServer( TransMeta transMeta,
-    TransExecutionConfiguration executionConfiguration ) {
+                                                  TransExecutionConfiguration executionConfiguration ) {
     try {
-      Trans.sendToSlaveServer( transMeta, executionConfiguration, rep, metaStore );
+      Trans.sendToSlaveServer( transMeta, executionConfiguration, metaStore );
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error sending transformation to server", e );
     }
@@ -8310,13 +6613,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void executeFile( boolean local, boolean remote, boolean cluster, boolean preview, boolean debug,
-      Date replayDate, boolean safe, boolean show ) {
+                           Date replayDate, boolean safe, boolean show ) {
 
     TransMeta transMeta = getActiveTransformation();
     if ( transMeta != null ) {
       transMeta.setShowDialog( show || transMeta.isAlwaysShowRunOptions() );
       executeTransformation( transMeta, local, remote, cluster, preview, debug, replayDate, safe,
-          transExecutionConfiguration.getLogLevel() );
+        transExecutionConfiguration.getLogLevel() );
     }
 
     JobMeta jobMeta = getActiveJob();
@@ -8328,12 +6631,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void executeTransformation( final TransMeta transMeta, final boolean local, final boolean remote,
-    final boolean cluster, final boolean preview, final boolean debug, final Date replayDate,
-    final boolean safe, final LogLevel logLevel ) {
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.EXECUTE_TRANSFORMATION ) ) {
-      return;
-    }
+                                     final boolean cluster, final boolean preview, final boolean debug, final Date replayDate,
+                                     final boolean safe, final LogLevel logLevel ) {
 
     Thread thread = new Thread() {
       @Override
@@ -8356,11 +6655,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void executeJob( JobMeta jobMeta, boolean local, boolean remote, Date replayDate, boolean safe,
-    String startCopyName, int startCopyNr ) {
-
-    if ( RepositorySecurityUI.verifyOperations( shell, rep, RepositoryOperation.EXECUTE_JOB ) ) {
-      return;
-    }
+                          String startCopyName, int startCopyNr ) {
 
     try {
       delegates.jobs.executeJob( jobMeta, local, remote, replayDate, safe, startCopyName, startCopyNr );
@@ -8428,11 +6723,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return delegates.jobs.getJobEntryDialog( jei, jobMeta );
   }
 
-  public StepDialogInterface getStepEntryDialog( StepMetaInterface stepMeta, TransMeta transMeta, String stepName ) {
+  public StepDialogInterface getStepDialog( StepMetaInterface stepMeta, TransMeta transMeta, String stepName ) {
     try {
       return delegates.steps.getStepDialog( stepMeta, transMeta, stepName );
     } catch ( Throwable t ) {
-      log.logError( "Could not create dialog for " + stepMeta.getDialogClassName(), t );
+      log.logError( "Could not create dialog", t );
     }
     return null;
   }
@@ -8450,48 +6745,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void pasteXML( JobMeta jobMeta, String clipContent, Point loc ) {
-    if ( RepositorySecurityUI.verifyOperations( shell, rep,
-        RepositoryOperation.MODIFY_JOB, RepositoryOperation.EXECUTE_JOB ) ) {
-      return;
-    }
     delegates.jobs.pasteXML( jobMeta, clipContent, loc );
   }
 
   public void newJobHop( JobMeta jobMeta, JobEntryCopy fr, JobEntryCopy to ) {
     delegates.jobs.newJobHop( jobMeta, fr, to );
-  }
-
-  /**
-   * Create a job that extracts tables & data from a database.
-   * <p>
-   * <p>
-   *
-   * 0) Select the database to rip
-   * <p>
-   * 1) Select the tables in the database to rip
-   * <p>
-   * 2) Select the database to dump to
-   * <p>
-   * 3) Select the repository directory in which it will end up
-   * <p>
-   * 4) Select a name for the new job
-   * <p>
-   * 5) Create an empty job with the selected name.
-   * <p>
-   * 6) Create 1 transformation for every selected table
-   * <p>
-   * 7) add every created transformation to the job & evaluate
-   * <p>
-   *
-   */
-  public void ripDBWizard() {
-    delegates.jobs.ripDBWizard();
-  }
-
-  public JobMeta ripDB( final List<DatabaseMeta> databases, final String jobName,
-    final RepositoryDirectory repdir, final String directory, final DatabaseMeta sourceDbInfo,
-    final DatabaseMeta targetDbInfo, final String[] tables ) {
-    return delegates.jobs.ripDB( databases, jobName, repdir, directory, sourceDbInfo, targetDbInfo, tables );
   }
 
   /**
@@ -8514,60 +6772,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public LogChannelInterface getLog() {
     return log;
-  }
-
-  public Repository getRepository() {
-    return rep;
-  }
-
-  public void setRepository( Repository rep ) {
-    this.rep = rep;
-    this.repositoryName = rep != null ? rep.getName() : null;
-    try {
-
-      // Keep one metastore here...
-      //
-      if ( metaStore.getMetaStoreList().size() > 1 ) {
-        metaStore.getMetaStoreList().remove( 0 );
-        metaStore.setActiveMetaStoreName( metaStore.getMetaStoreList().get( 0 ).getName() );
-      }
-
-      if ( rep != null ) {
-        this.capabilities = rep.getRepositoryMeta().getRepositoryCapabilities();
-
-        // add a wrapper metastore to the delegation
-        //
-        IMetaStore repositoryMetaStore = rep.getMetaStore();
-        if ( repositoryMetaStore != null ) {
-          metaStore.addMetaStore( 0, repositoryMetaStore ); // first priority for explicitly connected repositories.
-          metaStore.setActiveMetaStoreName( repositoryMetaStore.getName() );
-          log.logBasic( "Connected to metastore : "
-            + repositoryMetaStore.getName() + ", added to delegating metastore" );
-        } else {
-          log.logBasic( "No metastore found in the repository : "
-            + rep.getName() + ", connected? " + rep.isConnected() );
-        }
-      }
-    } catch ( MetaStoreException e ) {
-      new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorAddingRepositoryMetaStore.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message" ), e );
-    }
-
-    // Registering the UI Support classes
-    UISupportRegistery.getInstance().registerUISupport(
-      RepositorySecurityProvider.class, BaseRepositoryExplorerUISupport.class );
-    UISupportRegistery
-      .getInstance().registerUISupport( RepositorySecurityManager.class, ManageUserUISupport.class );
-    if ( rep != null ) {
-      HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.REPOSITORY_CHANGED );
-    }
-    delegates.update( this );
-    enableMenus();
-  }
-
-  public void setRepositoryName( String repoName ) {
-    this.repositoryName = repoName;
   }
 
   public void addMenuListener( String id, Object listener, String methodName ) {
@@ -8635,25 +6839,16 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return delegates.tabs.makeTabName( transMeta, showingLocation );
   }
 
-  public void newConnection() {
-    delegates.db.newConnection();
-  }
-
   public void getSQL() {
     delegates.db.getSQL();
   }
 
   @Override
-  public boolean overwritePrompt( String message, String rememberText, String rememberPropertyName ) {
-    return new PopupOverwritePrompter( shell, props ).overwritePrompt( message, rememberText, rememberPropertyName );
-  }
-
-  @Override
   public Object[] messageDialogWithToggle( String dialogTitle, Object image, String message, int dialogImageType,
-      String[] buttonLabels, int defaultIndex, String toggleMessage, boolean toggleState ) {
+                                           String[] buttonLabels, int defaultIndex, String toggleMessage, boolean toggleState ) {
     return GUIResource.getInstance().messageDialogWithToggle(
-        shell, dialogTitle, (Image) image, message, dialogImageType, buttonLabels, defaultIndex, toggleMessage,
-        toggleState );
+      shell, dialogTitle, (Image) image, message, dialogImageType, buttonLabels, defaultIndex, toggleMessage,
+      toggleState );
   }
 
   @Override
@@ -8707,8 +6902,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @param previewExecutionConfiguration
-   *          the previewExecutionConfiguration to set
+   * @param previewExecutionConfiguration the previewExecutionConfiguration to set
    */
   public void setTransPreviewExecutionConfiguration( TransExecutionConfiguration previewExecutionConfiguration ) {
     this.transPreviewExecutionConfiguration = previewExecutionConfiguration;
@@ -8722,16 +6916,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @param debugExecutionConfiguration
-   *          the debugExecutionConfiguration to set
+   * @param debugExecutionConfiguration the debugExecutionConfiguration to set
    */
   public void setTransDebugExecutionConfiguration( TransExecutionConfiguration debugExecutionConfiguration ) {
     this.transDebugExecutionConfiguration = debugExecutionConfiguration;
   }
 
   /**
-   * @param executionConfiguration
-   *          the executionConfiguration to set
+   * @param executionConfiguration the executionConfiguration to set
    */
   public void setTransExecutionConfiguration( TransExecutionConfiguration executionConfiguration ) {
     this.transExecutionConfiguration = executionConfiguration;
@@ -8745,8 +6937,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @param jobExecutionConfiguration
-   *          the jobExecutionConfiguration to set
+   * @param jobExecutionConfiguration the jobExecutionConfiguration to set
    */
   public void setJobExecutionConfiguration( JobExecutionConfiguration jobExecutionConfiguration ) {
     this.jobExecutionConfiguration = jobExecutionConfiguration;
@@ -8846,22 +7037,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
   }
 
-  public void browseVersionHistory() {
-    if ( rep == null ) {
-      return;
-    }
-    TransGraph transGraph = getActiveTransGraph();
-    if ( transGraph != null ) {
-      transGraph.browseVersionHistory();
-    }
-
-    JobGraph jobGraph = getActiveJobGraph();
-    if ( jobGraph != null ) {
-      jobGraph.browseVersionHistory();
-    }
-
-  }
-
   public Trans findActiveTrans( Job job, JobEntryCopy jobEntryCopy ) {
     JobEntryTrans jobEntryTrans = job.getActiveJobEntryTransformations().get( jobEntryCopy );
     if ( jobEntryTrans == null ) {
@@ -8880,29 +7055,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public Object getSelectionObject() {
     return selectionObject;
-  }
-
-  public RepositoryDirectoryInterface getDefaultSaveLocation( RepositoryElementInterface repositoryElement ) {
-    try {
-      if ( getRepository() != defaultSaveLocationRepository ) {
-        // The repository has changed, reset the defaultSaveLocation
-        defaultSaveLocation = null;
-        defaultSaveLocationRepository = null;
-      }
-
-      if ( defaultSaveLocation == null ) {
-        if ( getRepository() != null ) {
-          defaultSaveLocation = getRepository().getDefaultSaveDirectory( repositoryElement );
-          defaultSaveLocationRepository = getRepository();
-        } else {
-          defaultSaveLocation = new RepositoryDirectory();
-        }
-      }
-    } catch ( Exception e ) {
-      throw new RuntimeException( e );
-    }
-
-    return defaultSaveLocation;
   }
 
   /* ========================= XulEventSource Methods ========================== */
@@ -8965,58 +7117,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public void setXulDomContainer( XulDomContainer arg0 ) {
   }
 
-  public RepositorySecurityManager getSecurityManager() {
-    return rep.getSecurityManager();
-  }
-
-  public void displayDbDependancies() {
-    TreeItem[] selection = selectionTree.getSelection();
-    if ( selection == null || selection.length != 1 ) {
-      return;
-    }
-    // Clear all dependencies for select connection
-    TreeItem parent = selection[0];
-    if ( parent != null ) {
-      int nrChilds = parent.getItemCount();
-      if ( nrChilds > 0 ) {
-        for ( int i = 0; i < nrChilds; i++ ) {
-          parent.getItem( i ).dispose();
-        }
-      }
-    }
-    if ( rep == null ) {
-      return;
-    }
-
-    try {
-
-      final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
-      String[] jobList = rep.getJobsUsingDatabase( databaseMeta.getObjectId() );
-      String[] transList = rep.getTransformationsUsingDatabase( databaseMeta.getObjectId() );
-      if ( jobList.length == 0 && transList.length == 0 ) {
-        MessageBox box = new MessageBox( shell, SWT.ICON_INFORMATION | SWT.OK );
-        box.setText( "Connection dependencies" );
-        box.setMessage( "This connection is not used by a job nor a transformation." );
-        box.open();
-      } else {
-        for ( String aJobList : jobList ) {
-          if ( aJobList != null ) {
-            createTreeItem( parent, aJobList, GUIResource.getInstance().getImageJobGraph() );
-          }
-        }
-
-        for ( String aTransList : transList ) {
-          if ( aTransList != null ) {
-            createTreeItem( parent, aTransList, GUIResource.getInstance().getImageTransGraph() );
-          }
-        }
-        parent.setExpanded( true );
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, "Error", "Error getting dependencies! :", e );
-    }
-  }
-
   public void fireMenuControlers() {
     if ( !Display.getDefault().getThread().equals( Thread.currentThread() ) ) {
       display.syncExec( new Runnable() {
@@ -9054,16 +7154,16 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     availableBrowser = EnvironmentUtils.getInstance().getBrowserName();
     if ( webkitUnavailable ) {
       ( new BrowserEnvironmentWarningDialog( shell ) ).showWarningDialog(
-          BrowserEnvironmentWarningDialog.EnvironmentCase.UBUNTU );
+        BrowserEnvironmentWarningDialog.EnvironmentCase.UBUNTU );
       return;
     }
     if ( unsupportedBrowserEnvironment ) {
       if ( availableBrowser.contains( EnvironmentUtils.WINDOWS_BROWSER ) ) {
         ( new BrowserEnvironmentWarningDialog( shell ) ).showWarningDialog(
-            BrowserEnvironmentWarningDialog.EnvironmentCase.WINDOWS );
+          BrowserEnvironmentWarningDialog.EnvironmentCase.WINDOWS );
       } else if ( availableBrowser.contains( EnvironmentUtils.MAC_BROWSER ) ) {
         ( new BrowserEnvironmentWarningDialog( shell ) ).showWarningDialog(
-            BrowserEnvironmentWarningDialog.EnvironmentCase.MAC_OS_X );
+          BrowserEnvironmentWarningDialog.EnvironmentCase.MAC_OS_X );
       }
     }
   }
@@ -9110,13 +7210,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       box.open();
     }
 
-    try {
-      start( commandLineOptions );
-    } catch ( HopException e ) {
-      MessageBox box = new MessageBox( shell, SWT.ICON_ERROR | SWT.OK );
-      box.setMessage( e.getMessage() );
-      box.open();
-    }
+    start();
     getMenuBarManager().updateAll( true );
 
     return parent;
@@ -9128,7 +7222,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     try {
       open();
       checkEnvironment();
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiStart.id, commandLineOptions );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiStart.id, this );
       // Load the last loaded files
       loadLastUsedFiles();
       waitForDispose();
@@ -9151,19 +7245,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     this.metaStore = metaStore;
   }
 
-  private void onLoginError( Throwable t ) {
-    if ( t instanceof HopAuthException ) {
-      ShowMessageDialog dialog =
-        new ShowMessageDialog( loginDialog.getShell(), SWT.OK | SWT.ICON_ERROR, BaseMessages.getString(
-          PKG, "Spoon.Dialog.LoginFailed.Title" ), t.getLocalizedMessage() );
-      dialog.open();
-    } else {
-      new ErrorDialog(
-        loginDialog.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.LoginFailed.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.LoginFailed.Message", t ), t );
-    }
-  }
-
   @Override
   protected void handleShellCloseEvent() {
     try {
@@ -9171,8 +7252,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         HopUiPluginManager.getInstance().notifyLifecycleListeners( SpoonLifeCycleEvent.SHUTDOWN );
         super.handleShellCloseEvent();
       }
-    } catch ( HopRepositoryLostException e ) {
-      handleRepositoryLost( e );
     } catch ( Exception e ) {
       LogChannel.GENERAL.logError( "Error closing Spoon", e );
     }

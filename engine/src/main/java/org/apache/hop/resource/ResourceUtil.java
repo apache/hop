@@ -34,7 +34,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 
@@ -52,8 +51,6 @@ public class ResourceUtil {
    *          the interface to serialize
    * @param space
    *          the space to use for variable replacement
-   * @param repository
-   *          the repository to load objects from (or null if not used)
    * @param metaStore
    *          the metaStore to load from
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
@@ -61,10 +58,10 @@ public class ResourceUtil {
    *           in case anything goes wrong during serialization
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
-    ResourceExportInterface resourceExportInterface, VariableSpace space, Repository repository,
+    ResourceExportInterface resourceExportInterface, VariableSpace space,
     IMetaStore metaStore ) throws HopException {
     return serializeResourceExportInterface(
-      zipFilename, resourceExportInterface, space, repository, metaStore, null, null );
+      zipFilename, resourceExportInterface, space, metaStore, null, null );
   }
 
   /**
@@ -77,8 +74,6 @@ public class ResourceUtil {
    *          the interface to serialize
    * @param space
    *          the space to use for variable replacement
-   * @param repository
-   *          the repository to load objects from (or null if not used)
    * @param injectXML
    *          The XML to inject into the resulting ZIP archive (optional, can be null)
    * @param injectFilename
@@ -88,7 +83,7 @@ public class ResourceUtil {
    *           in case anything goes wrong during serialization
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
-    ResourceExportInterface resourceExportInterface, VariableSpace space, Repository repository,
+    ResourceExportInterface resourceExportInterface, VariableSpace space,
     IMetaStore metaStore, String injectXML, String injectFilename ) throws HopException {
 
     ZipOutputStream out = null;
@@ -106,7 +101,7 @@ public class ResourceUtil {
       ResourceNamingInterface namingInterface = new SequenceResourceNaming();
 
       String topLevelResource =
-        resourceExportInterface.exportResources( space, definitions, namingInterface, repository, metaStore );
+        resourceExportInterface.exportResources( space, definitions, namingInterface, metaStore );
 
       if ( topLevelResource != null && !definitions.isEmpty() ) {
 

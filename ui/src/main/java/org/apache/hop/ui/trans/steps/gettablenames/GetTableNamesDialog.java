@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.trans.steps.gettablenames;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -65,7 +67,7 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 public class GetTableNamesDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlTablenameField;
   private Text wTablenameField;
@@ -187,11 +189,7 @@ public class GetTableNamesDialog extends BaseStepDialog implements StepDialogInt
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabase() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabase(), lsMod );
 
     // schemaname fieldname ...
     wlschemaname = new Label( shell, SWT.RIGHT );
@@ -668,8 +666,6 @@ public class GetTableNamesDialog extends BaseStepDialog implements StepDialogInt
 
     if ( input.getDatabase() != null ) {
       wConnection.setText( input.getDatabase().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getSchemaName() != null ) {
       wschemaname.setText( input.getSchemaName() );

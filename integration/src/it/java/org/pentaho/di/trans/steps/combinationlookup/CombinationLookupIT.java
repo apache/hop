@@ -44,7 +44,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;

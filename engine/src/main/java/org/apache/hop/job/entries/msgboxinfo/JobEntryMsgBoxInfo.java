@@ -41,8 +41,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -82,38 +81,14 @@ public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, JobEn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       bodymessage = XMLHandler.getTagValue( entrynode, "bodymessage" );
       titremessage = XMLHandler.getTagValue( entrynode, "titremessage" );
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load job entry of type 'Msgbox Info' from XML node", e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      bodymessage = rep.getJobEntryAttributeString( id_jobentry, "bodymessage" );
-      titremessage = rep.getJobEntryAttributeString( id_jobentry, "titremessage" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'Msgbox Info' from the repository with id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "bodymessage", bodymessage );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "titremessage", titremessage );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'Msgbox Info' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -207,7 +182,7 @@ public class JobEntryMsgBoxInfo extends JobEntryBase implements Cloneable, JobEn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "bodyMessage", remarks );
     JobEntryValidatorUtils.addOkRemark( this, "titleMessage", remarks );
   }

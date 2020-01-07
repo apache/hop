@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -61,8 +60,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -159,20 +157,15 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
 
   protected Display display;
 
-  protected Text wByReference;
-
   protected FormData fdgExecution;
-
-  protected ObjectId referenceObjectId;
-  protected ObjectLocationSpecificationMethod specificationMethod;
 
   protected LogChannel log;
   protected ComboVar wRunConfiguration;
 
   public JobEntryBaseDialog( Shell parent,
                                JobEntryInterface jobEntryInt,
-                               Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+                               JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     log = new LogChannel( jobMeta );
   }
 

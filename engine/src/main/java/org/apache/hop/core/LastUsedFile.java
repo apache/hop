@@ -23,7 +23,6 @@
 package org.apache.hop.core;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.RepositoryDirectory;
 import org.apache.hop.core.util.Utils;
 
 import java.util.Date;
@@ -44,11 +43,7 @@ public class LastUsedFile {
 
   private String fileType;
   private String filename;
-  private String directory;
-  private boolean sourceRepository;
-  private String repositoryName;
   private Date lastOpened;
-  private String username;
 
   private boolean opened;
   private int openItemTypes;
@@ -57,57 +52,20 @@ public class LastUsedFile {
    * @param fileType
    *          The type of file to use (FILE_TYPE_TRANSFORMATION, FILE_TYPE_JOB, ...)
    * @param filename
-   * @param directory
-   * @param sourceRepository
-   * @param repositoryName
    * @param opened
    * @param openItemTypes
+   * @param lastOpened
    */
-  public LastUsedFile( String fileType, String filename, String directory, boolean sourceRepository,
-    String repositoryName, boolean opened, int openItemTypes ) {
-    this( fileType, filename, directory, sourceRepository, repositoryName, null, opened, openItemTypes, null );
-  }
-
-  /**
-   * @param fileType
-   *          The type of file to use (FILE_TYPE_TRANSFORMATION, FILE_TYPE_JOB, ...)
-   * @param filename
-   * @param directory
-   * @param sourceRepository
-   * @param repositoryName
-   * @param username
-   * @param opened
-   * @param openItemTypes
-   */
-  public LastUsedFile( String fileType, String filename, String directory, boolean sourceRepository,
-    String repositoryName, String username, boolean opened, int openItemTypes, Date lastOpened ) {
+  public LastUsedFile( String fileType, String filename, boolean opened, int openItemTypes, Date lastOpened ) {
     this.fileType = fileType;
     this.filename = filename;
-    this.directory = directory;
-    this.sourceRepository = sourceRepository;
-    this.repositoryName = repositoryName;
-    this.username = username;
     this.opened = opened;
     this.openItemTypes = openItemTypes;
     this.lastOpened = lastOpened == null ? new Date() : lastOpened;
   }
 
   public String toString() {
-    String string = "";
-
-    if ( sourceRepository && !Utils.isEmpty( directory ) && !Utils.isEmpty( repositoryName ) ) {
-      string += "[" + repositoryName + "] ";
-
-      if ( directory.endsWith( RepositoryDirectory.DIRECTORY_SEPARATOR ) ) {
-        string += ": " + directory + filename;
-      } else {
-        string += ": " + directory + RepositoryDirectory.DIRECTORY_SEPARATOR + filename;
-      }
-    } else {
-      string += filename;
-    }
-
-    return string;
+    return filename;
   }
 
   public int hashCode() {
@@ -117,21 +75,6 @@ public class LastUsedFile {
   public boolean equals( Object obj ) {
     LastUsedFile file = (LastUsedFile) obj;
     return getFileType().equals( file.getFileType() ) && toString().equals( file.toString() );
-  }
-
-  /**
-   * @return the directory
-   */
-  public String getDirectory() {
-    return directory;
-  }
-
-  /**
-   * @param directory
-   *          the directory to set
-   */
-  public void setDirectory( String directory ) {
-    this.directory = directory;
   }
 
   /**
@@ -147,36 +90,6 @@ public class LastUsedFile {
    */
   public void setFilename( String filename ) {
     this.filename = filename;
-  }
-
-  /**
-   * @return the repositoryName
-   */
-  public String getRepositoryName() {
-    return repositoryName;
-  }
-
-  /**
-   * @param repositoryName
-   *          the repositoryName to set
-   */
-  public void setRepositoryName( String repositoryName ) {
-    this.repositoryName = repositoryName;
-  }
-
-  /**
-   * @return the sourceRepository
-   */
-  public boolean isSourceRepository() {
-    return sourceRepository;
-  }
-
-  /**
-   * @param sourceRepository
-   *          the sourceRepository to set
-   */
-  public void setSourceRepository( boolean sourceRepository ) {
-    this.sourceRepository = sourceRepository;
   }
 
   /**
@@ -240,14 +153,6 @@ public class LastUsedFile {
     return openItemTypes;
   }
 
-  /**
-   * @param openItemTypes
-   *          the openItemTypes to set
-   */
-  public void setOpenItemTypes( int openItemTypes ) {
-    this.openItemTypes = openItemTypes;
-  }
-
   public Date getLastOpened() {
     return lastOpened;
   }
@@ -256,11 +161,4 @@ public class LastUsedFile {
     this.lastOpened = lastOpened;
   }
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername( String username ) {
-    this.username = username;
-  }
 }

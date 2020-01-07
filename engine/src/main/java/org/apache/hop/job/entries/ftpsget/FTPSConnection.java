@@ -122,7 +122,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the proxy host
    *
-   * @param type
+   * @param proxyhost
    *          true: proxy host
    */
   public void setProxyHost( String proxyhost ) {
@@ -133,7 +133,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the proxy port
    *
-   * @param type
+   * @param proxyport
    *          true: proxy port
    */
   public void setProxyPort( int proxyport ) {
@@ -144,7 +144,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the proxy username
    *
-   * @param type
+   * @param username
    *          true: proxy username
    */
   public void setProxyUser( String username ) {
@@ -155,7 +155,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the proxy password
    *
-   * @param type
+   * @param password
    *          true: proxy password
    */
   public void setProxyPassword( String password ) {
@@ -307,7 +307,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the mode to passive
    *
-   * @param type
+   * @param passivemode
    *          true: passive mode
    */
   public void setPassiveMode( boolean passivemode ) {
@@ -363,7 +363,7 @@ public class FTPSConnection implements FTPListener {
    *
    * this method is used to set the connection type
    *
-   * @param type
+   * @param connectiontype
    *          true: connection type
    */
   public void setConnectionType( int connectiontype ) {

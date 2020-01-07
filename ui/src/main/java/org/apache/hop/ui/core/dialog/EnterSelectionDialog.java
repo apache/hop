@@ -698,19 +698,23 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   protected void addDataSource() {
-    HopUi theHopUi = HopUi.getInstance();
-    HopUiDBDelegate theDelegate = new HopUiDBDelegate( theHopUi );
-    theDelegate.newConnection( this.databasesInterface );
+    try {
+      HopUi theHopUi = HopUi.getInstance();
+      HopUiDBDelegate theDelegate = new HopUiDBDelegate( theHopUi );
+      theDelegate.newConnection( theHopUi.getActiveVariableSpace() );
 
-    ArrayList<DatabaseMeta> theDatabases = new ArrayList<DatabaseMeta>();
-    theDatabases.addAll( this.databasesInterface.getDatabases() );
+      ArrayList<DatabaseMeta> theDatabases = new ArrayList<DatabaseMeta>();
+      theDatabases.addAll( this.databasesInterface.getDatabases() );
 
-    String[] theNames = new String[theDatabases.size()];
-    for ( int i = 0; i < theDatabases.size(); i++ ) {
-      theNames[i] = theDatabases.get( i ).getName();
+      String[] theNames = new String[ theDatabases.size() ];
+      for ( int i = 0; i < theDatabases.size(); i++ ) {
+        theNames[ i ] = theDatabases.get( i ).getName();
+      }
+      this.choices = theNames;
+      refresh();
+    } catch(Exception e) {
+      new ErrorDialog( shell, "Error", "Error adding datasource", e );
     }
-    this.choices = theNames;
-    refresh();
   }
 
   private void refresh() {

@@ -92,7 +92,7 @@ public class SystemDataMetaTest implements InitializerInterface<StepMetaInterfac
     Document document = documentBuilder.parse( new InputSource( new StringReader( expectedXML ) ) );
     Node node = document;
     IMetaStore store = null;
-    systemDataMeta.loadXML( node, null, store );
+    systemDataMeta.loadXML( node, store );
     assertEquals( expectedSystemDataMeta, systemDataMeta );
   }
 

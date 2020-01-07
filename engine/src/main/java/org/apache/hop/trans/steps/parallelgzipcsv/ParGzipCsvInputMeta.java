@@ -44,8 +44,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -105,7 +104,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -215,83 +214,8 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      filename = rep.getStepAttributeString( id_step, "filename" );
-      filenameField = rep.getStepAttributeString( id_step, "filename_field" );
-      rowNumField = rep.getStepAttributeString( id_step, "rownum_field" );
-      includingFilename = rep.getStepAttributeBoolean( id_step, "include_filename" );
-      delimiter = rep.getStepAttributeString( id_step, "separator" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-      headerPresent = rep.getStepAttributeBoolean( id_step, "header" );
-      bufferSize = rep.getStepAttributeString( id_step, "buffer_size" );
-      lazyConversionActive = rep.getStepAttributeBoolean( id_step, "lazy_conversion" );
-      isaddresult = rep.getStepAttributeBoolean( id_step, "add_filename_result" );
-      runningInParallel = rep.getStepAttributeBoolean( id_step, "parallel" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        inputFields[i] = new TextFileInputField();
-
-        inputFields[i].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        inputFields[i].setType( ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-        inputFields[i].setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        inputFields[i].setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        inputFields[i].setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        inputFields[i].setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        inputFields[i].setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        inputFields[i].setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        inputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString(
-          id_step, i, "field_trim_type" ) ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "filename", filename );
-      rep.saveStepAttribute( id_transformation, id_step, "filename_field", filenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumField );
-      rep.saveStepAttribute( id_transformation, id_step, "include_filename", includingFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "separator", delimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-      rep.saveStepAttribute( id_transformation, id_step, "buffer_size", bufferSize );
-      rep.saveStepAttribute( id_transformation, id_step, "header", headerPresent );
-      rep.saveStepAttribute( id_transformation, id_step, "lazy_conversion", lazyConversionActive );
-      rep.saveStepAttribute( id_transformation, id_step, "add_filename_result", isaddresult );
-      rep.saveStepAttribute( id_transformation, id_step, "parallel", runningInParallel );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-
-      for ( int i = 0; i < inputFields.length; i++ ) {
-        TextFileInputField field = inputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-          ValueMetaFactory.getValueMetaName( field.getType() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type",
-          ValueMetaString.getTrimTypeCode( field.getTrimType() ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
@@ -353,7 +277,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -687,8 +611,6 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -696,7 +618,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

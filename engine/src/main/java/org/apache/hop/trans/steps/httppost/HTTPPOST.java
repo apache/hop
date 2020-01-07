@@ -366,7 +366,7 @@ public class HTTPPOST extends BaseStep implements StepInterface {
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       if ( meta.isUrlInField() ) {
         if ( Utils.isEmpty( meta.getUrlField() ) ) {

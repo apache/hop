@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
 import org.apache.hop.core.variables.Variables;
 
@@ -39,7 +38,6 @@ import com.google.common.base.Objects;
 public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryChangedListener {
 
   public interface PathReference {
-    ObjectLocationSpecificationMethod getSpecification();
     String getPath();
     void setPath( String path );
   }
@@ -51,15 +49,9 @@ public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryCha
   }
 
   public EntryCurrentDirectoryChangedListener(
-      Supplier<ObjectLocationSpecificationMethod> specMethodGetter,
       Supplier<String> pathGetter,
       Consumer<String> pathSetter ) {
     this( new PathReference() {
-
-      @Override
-      public ObjectLocationSpecificationMethod getSpecification() {
-        return specMethodGetter.get();
-      }
 
       @Override
       public String getPath() {
@@ -76,11 +68,8 @@ public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryCha
   @Override
   public void directoryChanged( Object origin, String oldCurrentDir, String newCurrentDir ) {
     for ( PathReference ref : references ) {
-      ObjectLocationSpecificationMethod specMethod = ref.getSpecification();
       String path = ref.getPath();
-      if ( ( specMethod == ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME
-          || specMethod == ObjectLocationSpecificationMethod.FILENAME )
-        && StringUtils.contains( path, Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )
+      if ( StringUtils.contains( path, Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )
         && !Objects.equal( oldCurrentDir, newCurrentDir ) ) {
         path = reapplyCurrentDir( oldCurrentDir, newCurrentDir, path );
         ref.setPath( path );

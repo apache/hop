@@ -42,7 +42,6 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -80,6 +79,6 @@ public class PDI_6976_Test {
 
     spy.check( validationResults, mock( TransMeta.class ), mock( StepMeta.class ), mock( RowMetaInterface.class ),
       new String[] {}, new String[] { "File content", "File size" }, mock( RowMetaInterface.class ),
-      mock( VariableSpace.class ), mock( Repository.class ), mock( IMetaStore.class ) );
+      mock( VariableSpace.class ), mock( IMetaStore.class ) );
   }
 }

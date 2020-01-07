@@ -42,8 +42,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -140,7 +139,7 @@ public class MappingInputMeta extends BaseStepMeta implements StepMetaInterface 
     this.fieldType = fieldType;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -233,7 +232,7 @@ public class MappingInputMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Row should normally be empty when we get here.
     // That is because there is no previous step to this mapping input step from the viewpoint of this single
     // sub-transformation.
@@ -340,51 +339,9 @@ public class MappingInputMeta extends BaseStepMeta implements StepMetaInterface 
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[ i ] = rep.getStepAttributeString( id_step, i, "field_name" );
-        fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        fieldLength[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "field_length" );
-        fieldPrecision[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "field_precision" );
-      }
-
-      selectingAndSortingUnspecifiedFields = rep.getStepAttributeBoolean( id_step, "select_unspecified" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MappingInputMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[ i ] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-            ValueMetaFactory.getValueMetaName( fieldType[ i ] ) );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_length", fieldLength[ i ] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", fieldPrecision[ i ] );
-        }
-      }
-
-      rep.saveStepAttribute(
-        id_transformation, id_step, "select_unspecified", selectingAndSortingUnspecifiedFields );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MappingInputMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

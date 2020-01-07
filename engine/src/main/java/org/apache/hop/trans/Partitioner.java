@@ -25,8 +25,7 @@ package org.apache.hop.trans;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.w3c.dom.Node;
 
@@ -187,31 +186,5 @@ public interface Partitioner {
    *           the kettle xml exception
    */
   public void loadXML( Node partitioningMethodNode ) throws HopXMLException;
-
-  /**
-   * Saves partitioning properties in the repository for the given step.
-   *
-   * @param rep
-   *          the repository to save in
-   * @param id_transformation
-   *          the ID of the transformation
-   * @param id_step
-   *          the ID of the step
-   * @throws HopException
-   *           In case anything goes wrong
-   */
-  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws HopException;
-
-  /**
-   * Load rep.
-   *
-   * @param rep
-   *          the rep
-   * @param id_step
-   *          the id_step
-   * @throws HopException
-   *           the kettle exception
-   */
-  public void loadRep( Repository rep, ObjectId id_step ) throws HopException;
 
 }

@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.RepositoryAttributeInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.StepMeta;
@@ -86,8 +86,8 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
 
   private List<StepMeta> steps;
 
-  public TransLogTable( VariableSpace space, HasDatabasesInterface databasesInterface, List<StepMeta> steps ) {
-    super( space, databasesInterface, null, null, null );
+  public TransLogTable( VariableSpace space, IMetaStore metaStore, List<StepMeta> steps ) {
+    super( space, metaStore, null, null, null );
     this.steps = steps;
   }
 
@@ -121,7 +121,7 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<DatabaseMeta> databases, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<StepMeta> steps ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -145,43 +145,6 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
     }
   }
 
-  public void saveToRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.saveToRepository( attributeInterface );
-
-    // Also save the log interval and log size limit
-    //
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_INTERVAL, logInterval );
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_SIZE_LIMIT, logSizeLimit );
-  }
-
-  public void loadFromRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.loadFromRepository( attributeInterface );
-
-    logInterval = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_INTERVAL );
-    logSizeLimit = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_SIZE_LIMIT );
-
-    for ( int i = 0; i < getFields().size(); i++ ) {
-      String id = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_FIELD_ID + i );
-      // Only read further if the ID is available.
-      // For backward compatibility, this might not be provided yet!
-      //
-      if ( id != null ) {
-        LogTableField field = findField( id );
-        if ( field.isSubjectAllowed() ) {
-
-          // BaseLogTable.loadFromRepository sets subject as a String
-          //
-          String stepname = (String) field.getSubject();
-          if ( !Utils.isEmpty( stepname ) ) {
-            field.setSubject( StepMeta.findStep( steps, stepname ) );
-          } else {
-            field.setSubject( null );
-          }
-        }
-      }
-    }
-  }
-
   @Override
   public void replaceMeta( LogTableCoreInterface logTableInterface ) {
     if ( !( logTableInterface instanceof TransLogTable ) ) {
@@ -193,9 +156,9 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static TransLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface,
+  public static TransLogTable getDefault( VariableSpace space, IMetaStore metaStore,
     List<StepMeta> steps ) {
-    TransLogTable table = new TransLogTable( space, databasesInterface, steps );
+    TransLogTable table = new TransLogTable( space, metaStore, steps );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "TransLogTable.FieldName.BatchID" ), BaseMessages.getString( PKG, "TransLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "TransLogTable.FieldName.ChannelID" ), BaseMessages.getString( PKG, "TransLogTable.FieldDescription.ChannelID" ), ValueMetaInterface.TYPE_STRING, 255 ) );
@@ -321,8 +284,7 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
    * Get the logging interval in seconds. Disabled if the logging interval is <=0. A value higher than 0 means that the
    * log table is updated every 'logInterval' seconds.
    *
-   * @param logInterval
-   *          The log interval,
+   * @return The log interval,
    */
   public String getLogInterval() {
     return logInterval;
@@ -346,12 +308,11 @@ public class TransLogTable extends BaseLogTable implements Cloneable, LogTableIn
   /**
    * This method calculates all the values that are required
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
    * @param subject
    *          the subject to query, in this case a Trans object
+   * @param parent
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof Trans ) {

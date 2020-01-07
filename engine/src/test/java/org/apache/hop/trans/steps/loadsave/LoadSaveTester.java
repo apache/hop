@@ -36,7 +36,6 @@ import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.loadsave.getter.Getter;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
@@ -120,7 +119,6 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
         setter.set( metaToSave, testValue );
         if ( validator instanceof DatabaseMetaLoadSaveValidator ) {
           addDatabase( (DatabaseMeta) testValue );
-          validateStepUsesDatabaseMeta( metaToSave, (DatabaseMeta) testValue );
         }
       } catch ( Exception e ) {
         throw new RuntimeException( "Unable to invoke setter for " + attribute, e );
@@ -130,22 +128,9 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
     return validatorMap;
   }
 
-  private void validateStepUsesDatabaseMeta( T metaToSave, DatabaseMeta dbMeta )
-      throws HopException {
-    // If a step makes use of a DatabaseMeta for configuration, it needs to report the usage
-
-    DatabaseMeta[] usedConnections = metaToSave.getUsedDatabaseConnections();
-    if ( usedConnections == null || usedConnections.length <= 0
-        || !Arrays.asList( usedConnections ).contains( dbMeta ) ) {
-      throw new HopException( "The step did not report a DatabaseMeta in getUsedDatabaseConnections()" );
-    }
-  }
-
   public void testSerialization() throws HopException {
     testXmlRoundTrip();
-    testRepoRoundTrip();
     testClone();
-    testMixedXmlRepoRoundTrip();
   }
 
   @SuppressWarnings( { "deprecation", "unchecked" } )
@@ -182,54 +167,11 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
     String xml = "<step>" + metaToSave.getXML() + "</step>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
     metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ),
-      databases, (IMetaStore) null );
+      metaStore );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
 
     // TODO Remove after method visibility changed, it should be called in testSerialization
     testClone();
   }
 
-  /**
-   * @deprecated the {@link #testSerialization()} method should be used instead,
-   *             as additional tests may be added in the future to cover other
-   *             topics related to step serialization
-   * @throws HopException
-   */
-  @Deprecated
-  // TODO Change method visibility to protected
-  public void testRepoRoundTrip() throws HopException {
-    T metaToSave = createMeta();
-    if ( initializer != null ) {
-      initializer.modify( metaToSave );
-    }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
-      createValidatorMapAndInvokeSetters( repoAttributes, metaToSave );
-    T metaLoaded = createMeta();
-    Repository rep = new MemoryRepository();
-    metaToSave.saveRep( rep, null, null, null );
-    metaLoaded.readRep( rep, (IMetaStore) null, null, databases );
-    validateLoadedMeta( repoAttributes, validatorMap, metaToSave, metaLoaded );
-  }
-
-  @SuppressWarnings( "deprecation" )
-  protected void testMixedXmlRepoRoundTrip() throws HopException {
-    T metaToSave = createMeta();
-    if ( initializer != null ) {
-      initializer.modify( metaToSave );
-    }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
-      createValidatorMapAndInvokeSetters( repoAttributes, metaToSave );
-    T metaRepoLoaded = createMeta();
-    Repository rep = new MemoryRepository();
-    metaToSave.saveRep( rep, null, null, null );
-    metaRepoLoaded.readRep( rep, (IMetaStore) null, null, databases );
-
-    String xml = "<step>" + metaRepoLoaded.getXML() + "</step>";
-    InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    T metaXMLLoaded = createMeta();
-    metaXMLLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ),
-      databases, (IMetaStore) null );
-
-    validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaXMLLoaded );
-  }
 }

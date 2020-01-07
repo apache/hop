@@ -32,7 +32,6 @@ import org.apache.hop.core.logging.TransLogTable;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.SlaveStepCopyPartitionDistribution;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
@@ -124,19 +123,9 @@ public class TransSplitter {
     //
     String transXML = transMeta.getXML();
     this.originalTransformation =
-        transMetaFactory
-            .create( XMLHandler.getSubNode( XMLHandler.loadXMLString( transXML ), TransMeta.XML_TAG ), null );
+        transMetaFactory.create( XMLHandler.getSubNode( XMLHandler.loadXMLString( transXML ), TransMeta.XML_TAG ) );
     this.originalTransformation.shareVariablesWith( transMeta );
     this.originalTransformation.copyParametersFrom( transMeta );
-
-    // Retain repository information
-    this.originalTransformation.setRepository( transMeta.getRepository() );
-    this.originalTransformation.setRepositoryDirectory( transMeta.getRepositoryDirectory() );
-
-    Repository rep = transMeta.getRepository();
-    if ( rep != null ) {
-      rep.readTransSharedObjects( this.originalTransformation );
-    }
 
     checkClusterConfiguration();
 
@@ -337,8 +326,6 @@ public class TransSplitter {
       transMeta.getClusterSchemas().add( schema.clone() );
     }
 
-    transMeta.setDatabases( originalTransformation.getDatabases() );
-
     // Feedback
     transMeta.setFeedbackShown( originalTransformation.isFeedbackShown() );
     transMeta.setFeedbackSize( originalTransformation.getFeedbackSize() );
@@ -348,10 +335,6 @@ public class TransSplitter {
 
     // Unique connections
     transMeta.setUsingUniqueConnections( originalTransformation.isUsingUniqueConnections() );
-
-    // Repository
-    transMeta.setRepository( originalTransformation.getRepository() );
-    transMeta.setRepositoryDirectory( originalTransformation.getRepositoryDirectory() );
 
     // Also set the logging details...
     transMeta.setTransLogTable( (TransLogTable) originalTransformation.getTransLogTable().clone() );

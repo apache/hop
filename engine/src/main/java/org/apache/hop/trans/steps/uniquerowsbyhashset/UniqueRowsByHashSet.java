@@ -68,7 +68,7 @@ public class UniqueRowsByHashSet extends BaseStep implements StepInterface {
 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.storeValues = meta.getStoreValues();
 

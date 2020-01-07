@@ -34,8 +34,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -119,7 +118,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
     return errorDescription;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -170,7 +169,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
   }
 
   public String getXML() {
@@ -190,41 +189,9 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      storeValues = rep.getStepAttributeBoolean( id_step, "store_values" );
-      rejectDuplicateRow = rep.getStepAttributeBoolean( id_step, "reject_duplicate_row" );
-      errorDescription = rep.getStepAttributeString( id_step, "error_description" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        compareFields[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UniqueRowsByHashSetMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "store_values", storeValues );
-      rep.saveStepAttribute( id_transformation, id_step, "reject_duplicate_row", rejectDuplicateRow );
-      rep.saveStepAttribute( id_transformation, id_step, "error_description", errorDescription );
-      for ( int i = 0; i < compareFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", compareFields[i] );
-      }
-    } catch ( HopException e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UniqueRowsByHashSetMeta.Exception.UnableToSaveStepInfo" ), e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

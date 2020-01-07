@@ -115,7 +115,7 @@ public class AddSequence extends BaseStep implements StepInterface {
     if ( first ) {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
     }
 
     if ( log.isRowLevel() ) {
@@ -154,7 +154,7 @@ public class AddSequence extends BaseStep implements StepInterface {
       data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
       data.realSequenceName = environmentSubstitute( meta.getSequenceName() );
       if ( meta.isDatabaseUsed() ) {
-        Database db = new Database( this, meta.getDatabase() );
+        Database db = new Database( this, meta.getDatabaseMeta() );
         db.shareVariablesWith( this );
         data.setDb( db );
         try {

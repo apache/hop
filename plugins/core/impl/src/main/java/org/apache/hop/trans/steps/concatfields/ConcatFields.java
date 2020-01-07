@@ -69,13 +69,13 @@ public class ConcatFields extends TextFileOutput implements StepInterface {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // the field precisions and lengths are altered! see TextFileOutputMeta.getFields().
       // otherwise trim(), padding etc. will not work
       data.inputRowMetaModified = getInputRowMeta().clone();
       meta
-        .getFieldsModifyInput( data.inputRowMetaModified, getStepname(), null, null, this, repository, metaStore );
+        .getFieldsModifyInput( data.inputRowMetaModified, getStepname(), null, null, this, metaStore );
 
       data.posTargetField = data.outputRowMeta.indexOfValue( meta.getTargetFieldName() );
       if ( data.posTargetField < 0 ) {

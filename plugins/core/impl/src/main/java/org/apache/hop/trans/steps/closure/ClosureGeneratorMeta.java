@@ -37,8 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -70,8 +69,8 @@ public class ClosureGeneratorMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -80,7 +79,7 @@ public class ClosureGeneratorMeta extends BaseStepMeta implements StepMetaInterf
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       parentIdFieldName = XMLHandler.getTagValue( stepnode, "parent_id_field" );
       childIdFieldName = XMLHandler.getTagValue( stepnode, "child_id_field" );
@@ -97,7 +96,7 @@ public class ClosureGeneratorMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // The output for the closure table is:
     //
     // - parentId
@@ -138,35 +137,9 @@ public class ClosureGeneratorMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      parentIdFieldName = rep.getStepAttributeString( id_step, "parent_id_field" );
-      childIdFieldName = rep.getStepAttributeString( id_step, "child_id_field" );
-      distanceFieldName = rep.getStepAttributeString( id_step, "distance_field" );
-      rootIdZero = rep.getStepAttributeBoolean( id_step, "is_root_zero" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "parent_id_field", parentIdFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "child_id_field", childIdFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "distance_field", distanceFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "is_root_zero", rootIdZero );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     ValueMetaInterface parentValueMeta = prev.searchValueMeta( parentIdFieldName );

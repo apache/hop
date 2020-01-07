@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -74,7 +73,7 @@ public class SasInputMeta extends BaseStepMeta implements StepMetaInterface {
     outputFields = new ArrayList<SasInputField>();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       acceptingField = XMLHandler.getTagValue( stepnode, "accept_field" );
       int nrFields = XMLHandler.countNodes( stepnode, XML_TAG_FIELD );
@@ -100,7 +99,7 @@ public class SasInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     for ( SasInputField field : outputFields ) {
       try {
@@ -132,36 +131,9 @@ public class SasInputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId stepId, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      acceptingField = rep.getStepAttributeString( stepId, "accept_field" );
-      outputFields = new ArrayList<SasInputField>();
-      int nrFields = rep.countNrStepAttributes( stepId, "field_name" );
-      for ( int i = 0; i < nrFields; i++ ) {
-        outputFields.add( new SasInputField( rep, stepId, i ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SASInputMeta.Exception.UnexpectedErrorReadingMetaDataFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "accept_field", acceptingField );
-      for ( int i = 0; i < outputFields.size(); i++ ) {
-        outputFields.get( i ).saveRep( rep, metaStore, id_transformation, id_step, i );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SASInputMeta.Exception.UnableToSaveMetaDataToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

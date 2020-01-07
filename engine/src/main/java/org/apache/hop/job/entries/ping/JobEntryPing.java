@@ -46,8 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -114,11 +113,11 @@ public class JobEntryPing extends JobEntryBase implements Cloneable, JobEntryInt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
       String nbrPaquets;
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       hostname = XMLHandler.getTagValue( entrynode, "hostname" );
       nbrPackets = XMLHandler.getTagValue( entrynode, "nbr_packets" );
 
@@ -142,59 +141,9 @@ public class JobEntryPing extends JobEntryBase implements Cloneable, JobEntryInt
         } else {
           ipingtype = iclassicPing;
         }
-
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'ping' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      hostname = rep.getJobEntryAttributeString( id_jobentry, "hostname" );
-      nbrPackets = rep.getJobEntryAttributeString( id_jobentry, "nbr_packets" );
-
-      // TODO: The following lines may be removed 3 versions after 2.5.0
-      String nbrPaquets = rep.getJobEntryAttributeString( id_jobentry, "nbrpaquets" );
-      if ( nbrPackets == null && nbrPaquets != null ) {
-        // if only nbrpaquets exists this means that the file was
-        // save by a version 2.5.0 ping job entry
-        nbrPackets = nbrPaquets;
-      }
-      timeout = rep.getJobEntryAttributeString( id_jobentry, "timeout" );
-
-      pingtype = rep.getJobEntryAttributeString( id_jobentry, "pingtype" );
-      if ( Utils.isEmpty( pingtype ) ) {
-        pingtype = classicPing;
-        ipingtype = iclassicPing;
-      } else {
-        if ( pingtype.equals( systemPing ) ) {
-          ipingtype = isystemPing;
-        } else if ( pingtype.equals( bothPings ) ) {
-          ipingtype = ibothPings;
-        } else {
-          ipingtype = iclassicPing;
-        }
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'ping' exists from the repository for id_jobentry=" + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "hostname", hostname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nbr_packets", nbrPackets );
-
-      // TODO: The following line may be removed 3 versions after 2.5.0
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nbrpaquets", nbrPackets );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "pingtype", pingtype );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'ping' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -376,7 +325,7 @@ public class JobEntryPing extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "hostname", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

@@ -25,32 +25,12 @@ package org.apache.hop.ui.util;
 import java.util.Collection;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementMetaInterface;
 import org.apache.hop.shared.SharedObjectInterface;
 
 /**
  * @author Andrey Khayrutdinov
  */
 public class DialogUtils {
-
-  public static String getPathOf( RepositoryElementMetaInterface object ) {
-    if ( object != null && !object.isDeleted() ) {
-      RepositoryDirectoryInterface directory = object.getRepositoryDirectory();
-      if ( directory != null ) {
-        String path = directory.getPath();
-        if ( path != null ) {
-          if ( !path.endsWith( "/" ) ) {
-            path += "/";
-          }
-          path += object.getName();
-
-          return path;
-        }
-      }
-    }
-    return null;
-  }
 
   public static boolean objectWithTheSameNameExists( SharedObjectInterface object,
       Collection<? extends SharedObjectInterface> scope ) {

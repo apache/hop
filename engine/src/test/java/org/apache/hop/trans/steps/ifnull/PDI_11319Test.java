@@ -54,7 +54,7 @@ public class PDI_11319Test {
   @Test
   public void testLoadXMLVersion4() throws Exception {
     Node nullIfStep = getNullIfStep( xmlVersion4 );
-    meta.loadXML( nullIfStep, null, (IMetaStore) null );
+    meta.loadXML( nullIfStep, null );
 
     Assert.assertFalse( "Set Empty String is true", meta.isSetEmptyStringAll() );
     boolean[] expected = { false };
@@ -72,7 +72,7 @@ public class PDI_11319Test {
   @Test
   public void testLoadXMLVersion5() throws Exception {
     Node nullIfStep = getNullIfStep( xmlVersion5 );
-    meta.loadXML( nullIfStep, null, (IMetaStore) null );
+    meta.loadXML( nullIfStep, null );
 
     Assert.assertFalse( "Set Empty String is true", meta.isSetEmptyStringAll() );
     boolean[] expected = { true, false, false };

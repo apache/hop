@@ -23,6 +23,7 @@
 package org.apache.hop.ui.trans.step;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -67,8 +68,6 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryElementMetaInterface;
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -181,11 +180,6 @@ public class BaseStepDialog extends Dialog {
    * The UI properties.
    */
   protected PropsUI props;
-
-  /**
-   * The associated repository.
-   */
-  protected Repository repository;
 
   /**
    * The MetaStore to use
@@ -607,249 +601,30 @@ public class BaseStepDialog extends Dialog {
   }
 
   /**
-   * Adds the databases to the Combo Box component.
+   * Adds the connection line for the given parent and previous control, and returns a meta selection manager control
    *
-   * @param wConnection the Combo Box component
+   * @param parent
+   *          the parent composite object
+   * @param previous
+   *          the previous control
+   * @param
+   * @return the combo box UI component
    */
-  public void addDatabases( CCombo wConnection ) {
-    addDatabases( wConnection, null );
-  }
+  public MetaSelectionManager<DatabaseMeta> addConnectionLine( Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod ) {
 
-  /**
-   * Adds the databases with the specified type to the Combo Box component.
-   *
-   * @param wConnection  the Combo Box component
-   * @param databaseType the database type
-   */
-  public void addDatabases( CCombo wConnection, Class<? extends DatabaseInterface> databaseType ) {
-    for ( int i = 0; i < transMeta.nrDatabases(); i++ ) {
-      DatabaseMeta ci = transMeta.getDatabase( i );
-      if ( databaseType == null || ci.getDatabaseInterface().getClass().equals( databaseType ) ) {
-        wConnection.add( ci.getName() );
-      }
-    }
-  }
-
-  /**
-   * Selects the database with the specified name in the Combo Box component.
-   *
-   * @param wConnection the Combo Box component
-   * @param name        the name of the database to select
-   */
-  public void selectDatabase( CCombo wConnection, String name ) {
-    int idx = wConnection.indexOf( name );
-    if ( idx >= 0 ) {
-      wConnection.select( idx );
-    }
-  }
-
-  /**
-   * Adds the connection line.
-   *
-   * @param parent   the parent UI component
-   * @param previous the previous UI component
-   * @param middle   the middle
-   * @param margin   the margin
-   * @return the the Combo Box component for the given parameters
-   */
-  public CCombo addConnectionLine( Composite parent, Control previous, int middle, int margin ) {
-    return addConnectionLine( parent, previous, middle, margin, null );
-  }
-
-  /**
-   * Adds the connection line.
-   *
-   * @param parent       the parent UI component
-   * @param previous     the previous UI component
-   * @param middle       the middle
-   * @param margin       the margin
-   * @param databaseType the database type
-   * @return the Combo Box component for the given parameters
-   */
-  public CCombo addConnectionLine( Composite parent, Control previous, int middle, int margin,
-                                   Class<? extends DatabaseInterface> databaseType ) {
-    return addConnectionLine( parent, previous, middle, margin, new Label( parent, SWT.RIGHT ), new Button(
-      parent, SWT.PUSH ), new Button( parent, SWT.PUSH ), new Button( parent, SWT.PUSH ), databaseType );
-  }
-
-  /**
-   * Adds the connection line.
-   *
-   * @param parent        the parent UI component
-   * @param previous      the previous UI component
-   * @param middle        the middle
-   * @param margin        the margin
-   * @param wlConnection  the connection label
-   * @param wbnConnection the "new connection" button
-   * @param wbeConnection the "edit connection" button
-   * @return the Combo Box component for the given parameters
-   */
-  public CCombo addConnectionLine( Composite parent, Control previous, int middle, int margin, final Label wlConnection,
-                                   final Button wbwConnection, final Button wbnConnection,
-                                   final Button wbeConnection ) {
-    return addConnectionLine(
-      parent, previous, middle, margin, wlConnection, wbwConnection, wbnConnection, wbeConnection, null );
-  }
-
-  /**
-   * Adds the connection line.
-   *
-   * @param parent        the parent UI component
-   * @param previous      the previous UI component
-   * @param middle        the middle
-   * @param margin        the margin
-   * @param wlConnection  the connection label
-   * @param wbnConnection the "new connection" button
-   * @param wbeConnection the "edit connection" button
-   * @param databaseType  the database type
-   * @return the Combo Box component for the given parameters
-   */
-  public CCombo addConnectionLine( Composite parent, Control previous, int middle, int margin,
-                                   final Label wlConnection, final Button wbwConnection, final Button wbnConnection,
-                                   final Button wbeConnection, final Class<? extends DatabaseInterface> databaseType ) {
-    final CCombo wConnection;
-    final FormData fdlConnection, fdbConnection, fdeConnection, fdConnection;
-
-    wConnection = new CCombo( parent, SWT.BORDER | SWT.READ_ONLY );
-    props.setLook( wConnection );
-
-    addDatabases( wConnection );
-
-    wlConnection.setText( BaseMessages.getString( PKG, "BaseStepDialog.Connection.Label" ) );
-    props.setLook( wlConnection );
-    fdlConnection = new FormData();
-    fdlConnection.left = new FormAttachment( 0, 0 );
-    fdlConnection.right = new FormAttachment( middle, -margin );
-    if ( previous != null ) {
-      fdlConnection.top = new FormAttachment( previous, margin );
-    } else {
-      fdlConnection.top = new FormAttachment( 0, 0 );
-    }
-    wlConnection.setLayoutData( fdlConnection );
-
-    //
-    // NEW button
-    //
-    wbnConnection.setText( BaseMessages.getString( PKG, "BaseStepDialog.NewConnectionButton.Label" ) );
-    wbnConnection.addSelectionListener( new AddConnectionListener( wConnection ) );
-    fdbConnection = new FormData();
-    fdbConnection.right = new FormAttachment( wbwConnection, -margin );
-    if ( previous != null ) {
-      fdbConnection.top = new FormAttachment( previous, margin );
-    } else {
-      fdbConnection.top = new FormAttachment( 0, 0 );
-    }
-    wbnConnection.setLayoutData( fdbConnection );
-
-    //
-    // Edit button
-    //
-    wbeConnection.setText( BaseMessages.getString( PKG, "BaseStepDialog.EditConnectionButton.Label" ) );
-    wbeConnection.addSelectionListener( new EditConnectionListener( wConnection ) );
-    fdeConnection = new FormData();
-    fdeConnection.right = new FormAttachment( wbnConnection, -margin );
-    if ( previous != null ) {
-      fdeConnection.top = new FormAttachment( previous, margin );
-    } else {
-      fdeConnection.top = new FormAttachment( 0, 0 );
-    }
-    wbeConnection.setLayoutData( fdeConnection );
-
-    //
-    // what's left of the line: combo box
-    //
-    fdConnection = new FormData();
-    fdConnection.left = new FormAttachment( middle, 0 );
-    if ( previous != null ) {
-      fdConnection.top = new FormAttachment( previous, margin );
-    } else {
-      fdConnection.top = new FormAttachment( 0, 0 );
-    }
-    fdConnection.right = new FormAttachment( wbeConnection, -margin );
-    wConnection.setLayoutData( fdConnection );
-
+    final MetaSelectionManager<DatabaseMeta> wConnection = new MetaSelectionManager<>(
+      transMeta,
+      metaStore,
+      DatabaseMeta.class, parent, SWT.NONE,
+      BaseMessages.getString( PKG, "BaseStepDialog.Connection.Label" ),
+      "Select the relational database connection to use" // TODO : i18n
+    );
+    wConnection.addToConnectionLine( parent, previous,selected, lsMod );
     return wConnection;
-  }
-
-  @VisibleForTesting
-  String showDbDialogUnlessCancelledOrValid( DatabaseMeta changing, DatabaseMeta origin ) {
-    changing.shareVariablesWith( transMeta );
-    DatabaseDialog cid = getDatabaseDialog( shell );
-    cid.setDatabaseMeta( changing );
-    cid.setModalDialog( true );
-
-    String name = null;
-    boolean repeat = true;
-    while ( repeat ) {
-      name = cid.open();
-      if ( name == null ) {
-        // Cancel was pressed
-        repeat = false;
-      } else {
-        name = name.trim();
-        DatabaseMeta same = transMeta.findDatabase( name );
-        if ( same == null || same == origin ) {
-          // OK was pressed and input is valid
-          repeat = false;
-        } else {
-          showDbExistsDialog( changing );
-        }
-      }
-    }
-    return name;
-  }
-
-  @VisibleForTesting
-  void showDbExistsDialog( DatabaseMeta changing ) {
-    DatabaseDialog.showDatabaseExistsDialog( shell, changing );
-  }
-
-  private void reinitConnectionDropDown( CCombo dropDown, String selected ) {
-    dropDown.removeAll();
-    addDatabases( dropDown );
-    selectDatabase( dropDown, selected );
-  }
-
-  /**
-   * Gets the database dialog.
-   *
-   * @param shell the shell
-   * @return the database dialog
-   */
-  protected DatabaseDialog getDatabaseDialog( Shell shell ) {
-    if ( databaseDialog == null ) {
-      databaseDialog = new DatabaseDialog( shell );
-    }
-    return databaseDialog;
-  }
-
-  /**
-   * Store screen size.
-   */
-  public void storeScreenSize() {
-    props.setScreen( new WindowProperty( shell ) );
   }
 
   public String toString() {
     return this.getClass().getName();
-  }
-
-  /**
-   * Gets the repository associated with this dialog.
-   *
-   * @return Returns the repository.
-   */
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * Sets the repository associated with this dialog.
-   *
-   * @param repository The repository to set.
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   /**
@@ -1443,83 +1218,8 @@ public class BaseStepDialog extends Dialog {
     this.metaStore = metaStore;
   }
 
-  protected String getPathOf( RepositoryElementMetaInterface object ) {
-    return DialogUtils.getPathOf( object );
-  }
-
-
-  @VisibleForTesting
-  class AddConnectionListener extends SelectionAdapter {
-
-    private final CCombo wConnection;
-
-    public AddConnectionListener( CCombo wConnection ) {
-      this.wConnection = wConnection;
-    }
-
-    @Override
-    public void widgetSelected( SelectionEvent e ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta();
-      String connectionName = showDbDialogUnlessCancelledOrValid( databaseMeta, null );
-      if ( connectionName != null ) {
-        transMeta.addDatabase( databaseMeta );
-        reinitConnectionDropDown( wConnection, databaseMeta.getName() );
-      }
-    }
-  }
 
   public interface FieldsChoiceDialogProvider {
     MessageDialog provide( Shell shell, int existingFields, int newFields );
-  }
-
-  @VisibleForTesting
-  class EditConnectionListener extends SelectionAdapter {
-
-    private final CCombo wConnection;
-
-    public EditConnectionListener( CCombo wConnection ) {
-      this.wConnection = wConnection;
-    }
-
-    public void widgetSelected( SelectionEvent e ) {
-      DatabaseMeta databaseMeta = transMeta.findDatabase( wConnection.getText() );
-      if ( databaseMeta != null ) {
-        // cloning to avoid spoiling data on cancel or incorrect input
-        DatabaseMeta clone = (DatabaseMeta) databaseMeta.clone();
-        // setting old Id, so a repository (if it used) could find and replace the existing connection
-        clone.setObjectId( databaseMeta.getObjectId() );
-        String connectionName = showDbDialogUnlessCancelledOrValid( clone, databaseMeta );
-        if ( connectionName != null ) {
-          // need to replace the old connection with a new one
-          if ( databaseMeta.isShared() ) {
-            if ( !replaceSharedConnection( databaseMeta, clone ) ) {
-              return;
-            }
-          }
-          transMeta.removeDatabase( transMeta.indexOfDatabase( databaseMeta ) );
-          transMeta.addDatabase( clone );
-          reinitConnectionDropDown( wConnection, connectionName );
-        }
-      }
-    }
-
-    boolean replaceSharedConnection( DatabaseMeta dbConnection, DatabaseMeta newDbConnection ) {
-      try {
-        SharedObjects sharedObjects = transMeta.getSharedObjects();
-        sharedObjects.removeObject( dbConnection );
-        sharedObjects.storeObject( newDbConnection );
-        sharedObjects.saveToFile();
-        return true;
-      } catch ( Exception e ) {
-        showErrorDialog( e );
-        return false;
-      }
-    }
-
-    void showErrorDialog( Exception e ) {
-      new ErrorDialog( wConnection.getShell(), BaseMessages.getString( PKG,
-          "BaseStep.Exception.UnexpectedErrorEditingConnection.DialogTitle" ), BaseMessages.getString( PKG,
-              "BaseStep.Exception.UnexpectedErrorEditingConnection.DialogMessage" ), e );
-    }
   }
 }

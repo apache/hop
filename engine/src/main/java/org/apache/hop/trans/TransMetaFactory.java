@@ -24,9 +24,8 @@ package org.apache.hop.trans;
 
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.repository.Repository;
 import org.w3c.dom.Node;
 
 public interface TransMetaFactory {
-  public TransMeta create( Node transnode, Repository rep ) throws HopXMLException, HopMissingPluginsException;
+  public TransMeta create( Node transnode  ) throws HopXMLException, HopMissingPluginsException;
 }

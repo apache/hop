@@ -25,11 +25,8 @@ package org.apache.hop.core;
 import java.util.Date;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
 
-public interface EngineMetaInterface extends RepositoryElementInterface {
+public interface EngineMetaInterface {
 
   /**
    * Sets the filename.
@@ -39,11 +36,17 @@ public interface EngineMetaInterface extends RepositoryElementInterface {
   void setFilename( String filename );
 
   /**
+   * Set the name of the engine metadata object
+   * @param name
+   */
+  public void setName(String name);
+
+  /**
    * Gets the name.
    *
    * @return name
    */
-  @Override String getName();
+  String getName();
 
   /**
    * Builds a name for this. If no name is yet set, create the name from the filename.
@@ -91,14 +94,6 @@ public interface EngineMetaInterface extends RepositoryElementInterface {
    * @return default extension
    */
   String getDefaultExtension();
-
-  /**
-   * Set the database ID for this in the repository.
-   *
-   * @param id
-   *          the database ID for this in the repository
-   */
-  @Override void setObjectId( ObjectId id );
 
   /**
    * Gets the date the transformation was created.
@@ -168,13 +163,6 @@ public interface EngineMetaInterface extends RepositoryElementInterface {
   String getModifiedUser();
 
   /**
-   * Gets the repository element type.
-   *
-   * @return the repository element type
-   */
-  @Override RepositoryDirectoryInterface getRepositoryDirectory();
-
-  /**
    * Get the filename (if any).
    *
    * @return the filename
@@ -191,24 +179,5 @@ public interface EngineMetaInterface extends RepositoryElementInterface {
    * Sets the internal kettle variables.
    */
   void setInternalHopVariables();
-
-  /**
-   * Set versioning enabled
-   *
-   * @param versioningEnabled
-   *          is versioning enabled
-   */
-  default void setVersioningEnabled( Boolean versioningEnabled ) {
-    // Default implementation does nothing
-  }
-
-  /**
-   * Is versioning enabled.
-   *
-   * @return is versioning enabled
-   */
-  default Boolean getVersioningEnabled() {
-    return null;
-  }
 
 }

@@ -56,7 +56,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.shell.JobEntryShell;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -191,8 +190,8 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
 
   private FormData fdScript, fdInsertScript, fdlInsertScript;
 
-  public JobEntryShellDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryShellDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryShell) jobEntryInt;
   }
 

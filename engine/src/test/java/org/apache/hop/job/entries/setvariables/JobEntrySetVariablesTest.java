@@ -50,7 +50,6 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -75,7 +74,7 @@ public class JobEntrySetVariablesTest {
 
   @Before
   public void setUp() throws Exception {
-    job = new Job( null, new JobMeta() );
+    job = new Job( new JobMeta() );
     entry = new JobEntrySetVariables();
     job.getJobMeta().addJobEntry( new JobEntryCopy( entry ) );
     entry.setParentJob( job );
@@ -184,9 +183,8 @@ public class JobEntrySetVariablesTest {
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
     List<DatabaseMeta> databases = mock( List.class );
     List<SlaveServer> slaveServers = mock( List.class );
-    Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "JVM" ), databases, slaveServers, repository, metaStore );
+    entry.loadXML( getEntryNode( "nullVariable", null, "JVM" ), slaveServers, metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( System.getProperty( "nullVariable" )  );
@@ -196,9 +194,8 @@ public class JobEntrySetVariablesTest {
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_JOB_NullVariable() throws Exception {
     List<DatabaseMeta> databases = mock( List.class );
     List<SlaveServer> slaveServers = mock( List.class );
-    Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "CURRENT_JOB" ), databases, slaveServers, repository, metaStore );
+    entry.loadXML( getEntryNode( "nullVariable", null, "CURRENT_JOB" ), slaveServers, metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( entry.getVariable( "nullVariable" )  );
@@ -208,9 +205,8 @@ public class JobEntrySetVariablesTest {
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     List<DatabaseMeta> databases = mock( List.class );
     List<SlaveServer> slaveServers = mock( List.class );
-    Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "JVM" ), databases, slaveServers, repository, metaStore );
+    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "JVM" ), slaveServers, metaStore );
     assertNull( System.getProperty( "variableNotNull" )  );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
@@ -221,9 +217,8 @@ public class JobEntrySetVariablesTest {
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_JOB_VariableNotNull() throws Exception {
     List<DatabaseMeta> databases = mock( List.class );
     List<SlaveServer> slaveServers = mock( List.class );
-    Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "CURRENT_JOB" ), databases, slaveServers, repository, metaStore );
+    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "CURRENT_JOB" ), slaveServers, metaStore );
     assertNull( System.getProperty( "variableNotNull" )  );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );

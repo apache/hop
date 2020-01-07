@@ -93,7 +93,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
 
           data.inputRowMeta = getInputRowMeta();
           data.outputRowMeta = data.inputRowMeta.clone();
-          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type after the processing.
@@ -473,7 +473,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
           handleMissingFiles();
           // Create the output row meta-data
           data.outputRowMeta = new RowMeta();
-          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore ); // get the
+          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
                                                                                                         // metadata
                                                                                                         // populated
 

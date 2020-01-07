@@ -54,8 +54,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -177,10 +176,9 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
@@ -214,89 +212,10 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
       addfiletoresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
       truncate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "truncate" ) );
 
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'MSsql bulk load' from XML node", e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      schemaname = rep.getJobEntryAttributeString( id_jobentry, "schemaname" );
-      tablename = rep.getJobEntryAttributeString( id_jobentry, "tablename" );
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-
-      datafiletype = rep.getJobEntryAttributeString( id_jobentry, "datafiletype" );
-      fieldterminator = rep.getJobEntryAttributeString( id_jobentry, "fieldterminator" );
-
-      lineterminated = rep.getJobEntryAttributeString( id_jobentry, "lineterminated" );
-      codepage = rep.getJobEntryAttributeString( id_jobentry, "codepage" );
-      specificcodepage = rep.getJobEntryAttributeString( id_jobentry, "specificcodepage" );
-      formatfilename = rep.getJobEntryAttributeString( id_jobentry, "formatfilename" );
-      firetriggers = rep.getJobEntryAttributeBoolean( id_jobentry, "firetriggers" );
-      checkconstraints = rep.getJobEntryAttributeBoolean( id_jobentry, "checkconstraints" );
-      keepnulls = rep.getJobEntryAttributeBoolean( id_jobentry, "keepnulls" );
-      keepidentity = rep.getJobEntryAttributeBoolean( id_jobentry, "keepidentity" );
-
-      tablock = rep.getJobEntryAttributeBoolean( id_jobentry, "tablock" );
-
-      startfile = (int) rep.getJobEntryAttributeInteger( id_jobentry, "startfile" );
-      endfile = (int) rep.getJobEntryAttributeInteger( id_jobentry, "endfile" );
-
-      orderby = rep.getJobEntryAttributeString( id_jobentry, "orderby" );
-      orderdirection = rep.getJobEntryAttributeString( id_jobentry, "orderdirection" );
-
-      errorfilename = rep.getJobEntryAttributeString( id_jobentry, "errorfilename" );
-      maxerrors = (int) rep.getJobEntryAttributeInteger( id_jobentry, "maxerrors" );
-      batchsize = (int) rep.getJobEntryAttributeInteger( id_jobentry, "batchsize" );
-      rowsperbatch = (int) rep.getJobEntryAttributeInteger( id_jobentry, "rowsperbatch" );
-      adddatetime = rep.getJobEntryAttributeBoolean( id_jobentry, "adddatetime" );
-
-      addfiletoresult = rep.getJobEntryAttributeBoolean( id_jobentry, "addfiletoresult" );
-      truncate = rep.getJobEntryAttributeBoolean( id_jobentry, "truncate" );
-
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'MSsql bulk load' from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schemaname", schemaname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablename", tablename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "datafiletype", datafiletype );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fieldterminator", fieldterminator );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "lineterminated", lineterminated );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "codepage", codepage );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "specificcodepage", specificcodepage );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "formatfilename", formatfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "firetriggers", firetriggers );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "checkconstraints", checkconstraints );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keepnulls", keepnulls );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keepidentity", keepidentity );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablock", tablock );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "startfile", startfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "endfile", endfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "orderby", orderby );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "orderdirection", orderdirection );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "errorfilename", errorfilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maxerrors", maxerrors );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "batchsize", batchsize );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "rowsperbatch", rowsperbatch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "adddatetime", adddatetime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addfiletoresult", addfiletoresult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "truncate", truncate );
-
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'MSsql Bulk Load' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -825,7 +744,7 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notBlankValidator(),

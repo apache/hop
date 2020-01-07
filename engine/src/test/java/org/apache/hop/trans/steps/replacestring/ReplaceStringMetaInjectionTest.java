@@ -35,7 +35,7 @@ public class ReplaceStringMetaInjectionTest extends BaseMetadataInjectionTest<Re
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new ReplaceStringMeta() );
   }
 

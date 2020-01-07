@@ -24,6 +24,11 @@ package org.apache.hop.base;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -33,7 +38,6 @@ import org.apache.hop.trans.steps.loadsave.setter.Setter;
 import org.apache.hop.trans.steps.loadsave.validator.DefaultFieldLoadSaveValidatorFactory;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidatorFactory;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 import org.apache.test.util.JavaBeanManipulator;
 
 import java.lang.reflect.Method;
@@ -55,8 +59,8 @@ public abstract class LoadSaveBase<T> {
   protected final List<String> repoAttributes;
   protected final JavaBeanManipulator<T> manipulator;
   protected final FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
-  protected final List<DatabaseMeta> databases;
   protected final InitializerInterface<T> initializer;
+  protected IMetaStore metaStore;
 
   public LoadSaveBase( Class<T> clazz,
                        List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
@@ -78,7 +82,7 @@ public abstract class LoadSaveBase<T> {
     }
     this.fieldLoadSaveValidatorFactory =
       new DefaultFieldLoadSaveValidatorFactory( fieldLoadSaveValidatorMethodMap, fieldLoadSaveValidatorTypeMap );
-    databases = new ArrayList<DatabaseMeta>();
+    metaStore = new MemoryMetaStore();
   }
 
   public LoadSaveBase( Class<T> clazz,
@@ -102,9 +106,7 @@ public abstract class LoadSaveBase<T> {
         StepMeta mockParentStepMeta = mock( StepMeta.class );
         ( (BaseStepMeta) meta ).setParentStepMeta( mockParentStepMeta );
         TransMeta mockTransMeta = mock( TransMeta.class );
-        NamedClusterEmbedManager embedManager = mock( NamedClusterEmbedManager.class );
         when( mockParentStepMeta.getParentTransMeta() ).thenReturn( mockTransMeta );
-        when( mockTransMeta.getNamedClusterEmbedManager() ).thenReturn( embedManager );
       }
       return meta;
     } catch ( Exception e ) {
@@ -116,7 +118,7 @@ public abstract class LoadSaveBase<T> {
   protected Map<String, FieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
                                                                              T metaToSave ) {
     Map<String, FieldLoadSaveValidator<?>> validatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
-    databases.clear();
+    metaStore = new MemoryMetaStore();
     for ( String attribute : attributes ) {
       Getter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )
@@ -184,8 +186,10 @@ public abstract class LoadSaveBase<T> {
   }
 
   protected void addDatabase( DatabaseMeta db ) {
-    if ( !databases.contains( db ) ) {
-      databases.add( db );
+    try {
+      DatabaseMeta.createFactory( metaStore ).saveElement( db );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Error adding database to the test metastore", e );
     }
   }
 

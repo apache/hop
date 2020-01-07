@@ -34,6 +34,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaDataCombi;
@@ -70,8 +71,8 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
     }
   }
 
-  private StepLogTable( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    super( space, databasesInterface, null, null, null );
+  private StepLogTable( VariableSpace space, IMetaStore metaStore ) {
+    super( space, metaStore, null, null, null );
   }
 
   @Override
@@ -102,7 +103,7 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<DatabaseMeta> databases, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<StepMeta> steps ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -122,8 +123,8 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static StepLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    StepLogTable table = new StepLogTable( space, databasesInterface );
+  public static StepLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
+    StepLogTable table = new StepLogTable( space, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "StepLogTable.FieldName.IdBatch" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "StepLogTable.FieldName.ChannelId" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
@@ -153,10 +154,10 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
   /**
    * This method calculates all the values that are required
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
+   * @param subject
+   * @param parent
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof StepMetaDataCombi ) {

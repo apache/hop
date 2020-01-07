@@ -22,17 +22,15 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.List;
-
 import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.cluster.dialog.ClusterSchemaDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.tree.provider.ClustersFolderProvider;
+
+import java.util.List;
 
 public class HopUiClustersDelegate extends HopUiSharedObjectDelegate {
 
@@ -45,7 +43,7 @@ public class HopUiClustersDelegate extends HopUiSharedObjectDelegate {
 
     ClusterSchemaDialog dialog =
       new ClusterSchemaDialog(
-          hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
+        hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
 
     if ( dialog.open() ) {
       List<ClusterSchema> clusterSchemas = transMeta.getClusterSchemas();
@@ -59,22 +57,6 @@ public class HopUiClustersDelegate extends HopUiSharedObjectDelegate {
 
       clusterSchemas.add( clusterSchema );
 
-      if ( hopUi.rep != null ) {
-        try {
-          if ( !hopUi.rep.getSecurityProvider().isReadOnly() ) {
-            hopUi.rep.save( clusterSchema, Const.VERSION_COMMENT_INITIAL_VERSION, null );
-            if ( sharedObjectSyncUtil != null ) {
-              sharedObjectSyncUtil.reloadTransformationRepositoryObjects( false );
-            }
-          } else {
-            throw new HopException( BaseMessages.getString(
-              PKG, "Spoon.Dialog.Exception.ReadOnlyRepositoryUser" ) );
-          }
-        } catch ( HopException e ) {
-          showSaveError( clusterSchema, e );
-        }
-      }
-
       refreshTree();
     }
   }
@@ -87,40 +69,18 @@ public class HopUiClustersDelegate extends HopUiSharedObjectDelegate {
 
   public void editClusterSchema( TransMeta transMeta, ClusterSchema clusterSchema ) {
     ClusterSchemaDialog dialog =
-        new ClusterSchemaDialog( hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
+      new ClusterSchemaDialog( hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
     if ( dialog.open() ) {
-      if ( hopUi.rep != null && clusterSchema.getObjectId() != null ) {
-        try {
-          saveSharedObjectToRepository( clusterSchema, null );
-        } catch ( HopException e ) {
-          showSaveError( clusterSchema, e );
-        }
-      }
       sharedObjectSyncUtil.synchronizeClusterSchemas( clusterSchema );
       refreshTree();
     }
   }
 
   public void delClusterSchema( TransMeta transMeta, ClusterSchema clusterSchema ) {
-    try {
+    int idx = transMeta.getClusterSchemas().indexOf( clusterSchema );
+    transMeta.getClusterSchemas().remove( idx );
 
-      int idx = transMeta.getClusterSchemas().indexOf( clusterSchema );
-      transMeta.getClusterSchemas().remove( idx );
-
-      if ( hopUi.rep != null && clusterSchema.getObjectId() != null ) {
-        // remove the partition schema from the repository too...
-        hopUi.rep.deleteClusterSchema( clusterSchema.getObjectId() );
-        if ( sharedObjectSyncUtil != null ) {
-          sharedObjectSyncUtil.deleteClusterSchema( clusterSchema );
-        }
-      }
-
-      refreshTree();
-    } catch ( HopException e ) {
-      new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingPartitionSchema.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorDeletingPartitionSchema.Message" ), e );
-    }
+    refreshTree();
   }
 
   private void refreshTree() {

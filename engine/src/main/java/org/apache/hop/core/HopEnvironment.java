@@ -31,7 +31,6 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.lifecycle.HopLifecycleSupport;
 import org.apache.hop.core.logging.LogTablePluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
-import org.apache.hop.core.plugins.ImportRulePluginType;
 import org.apache.hop.core.plugins.JobEntryDialogFragmentType;
 import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
@@ -39,12 +38,9 @@ import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.plugins.RepositoryPluginType;
 import org.apache.hop.core.plugins.StepDialogFragmentType;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.IUser;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.RowDistributionPluginType;
 
 import java.util.Arrays;
@@ -104,10 +100,8 @@ public class HopEnvironment {
       JobEntryPluginType.getInstance(),
       JobEntryDialogFragmentType.getInstance(),
       LogTablePluginType.getInstance(),
-      RepositoryPluginType.getInstance(),
       LifecyclePluginType.getInstance(),
       HopLifecyclePluginType.getInstance(),
-      ImportRulePluginType.getInstance(),
       HopServerPluginType.getInstance(),
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
@@ -224,15 +218,9 @@ public class HopEnvironment {
   /**
    * Sets the executor's user and Server information
    */
-  public static void setExecutionInformation( ExecutorInterface executor, Repository repository ) {
+  public static void setExecutionInformation( ExecutorInterface executor ) {
     // Capture the executing user and server name...
     executor.setExecutingUser( System.getProperty( "user.name" ) );
-    if ( repository != null ) {
-      IUser userInfo = repository.getUserInfo();
-      if ( userInfo != null ) {
-        executor.setExecutingUser( userInfo.getLogin() );
-      }
-    }
   }
 
   public static void reset() {

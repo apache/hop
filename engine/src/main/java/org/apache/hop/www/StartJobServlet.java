@@ -213,16 +213,6 @@ public class StartJobServlet extends BaseHttpServlet implements HopServerPluginI
         if ( job.isInitialized() && !job.isActive() ) {
           // Re-create the job from the jobMeta
           //
-          // We might need to re-connect to the repository
-          //
-          if ( job.getRep() != null && !job.getRep().isConnected() ) {
-            if ( job.getRep().getUserInfo() != null ) {
-              job.getRep().connect(
-                job.getRep().getUserInfo().getLogin(), job.getRep().getUserInfo().getPassword() );
-            } else {
-              job.getRep().connect( null, null );
-            }
-          }
 
           cache.remove( job.getLogChannelId() );
 
@@ -237,7 +227,7 @@ public class StartJobServlet extends BaseHttpServlet implements HopServerPluginI
               new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
             servletLoggingObject.setContainerObjectId( carteObjectId );
 
-            Job newJob = new Job( job.getRep(), job.getJobMeta(), servletLoggingObject );
+            Job newJob = new Job( job.getJobMeta(), servletLoggingObject );
             newJob.setLogLevel( job.getLogLevel() );
 
             // Discard old log lines from the old job

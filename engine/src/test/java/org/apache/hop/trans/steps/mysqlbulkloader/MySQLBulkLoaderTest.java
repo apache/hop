@@ -92,7 +92,6 @@ public class MySQLBulkLoaderTest {
     vars.put( "schema", "someschema" );
     transMeta.injectVariables( vars );
     MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
-    mysql.setName( "MySQL" );
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setDatabaseInterface( mysql );
     dbMeta.setQuoteAllFields( true );
@@ -119,7 +118,7 @@ public class MySQLBulkLoaderTest {
     Document document = XMLHandler.loadXMLFile( this.getClass().getResourceAsStream( "step.xml" ) );
     IMetaStore metastore = null;
     Node stepNode = (Node) document.getDocumentElement();
-    lm.loadXML( stepNode, Collections.EMPTY_LIST, metastore );
+    lm.loadXML( stepNode, metastore );
     int[] codes = lm.getFieldFormatType();
     assertEquals( 3, codes[0] );
     assertEquals( 4, codes[1] );

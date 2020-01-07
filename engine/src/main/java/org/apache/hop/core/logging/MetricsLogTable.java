@@ -35,6 +35,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
@@ -72,8 +73,8 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     }
   }
 
-  private MetricsLogTable( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    super( space, databasesInterface, null, null, null );
+  private MetricsLogTable( VariableSpace space, IMetaStore metaStore ) {
+    super( space, metaStore, null, null, null );
   }
 
   @Override
@@ -104,7 +105,7 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<DatabaseMeta> databases, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<StepMeta> steps ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -123,8 +124,8 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     super.replaceMeta( logTable );
   }
 
-  public static MetricsLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    MetricsLogTable table = new MetricsLogTable( space, databasesInterface );
+  public static MetricsLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
+    MetricsLogTable table = new MetricsLogTable( space, metaStore );
 
     //CHECKSTYLE:LineLength:OFF
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.IdBatch" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
@@ -146,11 +147,12 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
   /**
    * This method calculates all the values that are required
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
-   */
+   * @param subject
+   * @param parent
+   * *
+   * */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof LoggingMetric ) {
 

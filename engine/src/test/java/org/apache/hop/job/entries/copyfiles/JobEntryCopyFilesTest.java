@@ -28,12 +28,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -52,7 +50,6 @@ import static org.mockito.Mockito.when;
 
 public class JobEntryCopyFilesTest {
   private JobEntryCopyFiles entry;
-  private NamedClusterEmbedManager mockNamedClusterEmbedManager;
 
   private final String EMPTY = "";
 
@@ -67,8 +64,6 @@ public class JobEntryCopyFilesTest {
     Job parentJob = new Job();
     entry.setParentJob( parentJob );
     JobMeta mockJobMeta = mock( JobMeta.class );
-    mockNamedClusterEmbedManager = mock( NamedClusterEmbedManager.class );
-    when( mockJobMeta.getNamedClusterEmbedManager() ).thenReturn( mockNamedClusterEmbedManager );
     entry.setParentJobMeta( mockJobMeta );
     entry = spy( entry );
   }
@@ -101,7 +96,6 @@ public class JobEntryCopyFilesTest {
     verify( entry, atLeast( 1 ) ).preprocessfilefilder( any( String[].class ) );
     assertFalse( result.getResult() );
     assertEquals( 1, result.getNrErrors() );
-    verify( mockNamedClusterEmbedManager ).passEmbeddedMetastoreKey( anyObject(), anyString() );
   }
 
   @Test
@@ -141,12 +135,9 @@ public class JobEntryCopyFilesTest {
         false,
         false ),
       "entry" ),
-      new ArrayList<DatabaseMeta>(),
-      null,
       null,
       null );
     assertTrue( loadedentry.destination_filefolder[0].equals( destPath[0] ) );
     assertTrue( loadedentry.source_filefolder[0].equals( srcPath[0] ) );
-    verify( mockNamedClusterEmbedManager, times( 2 ) ).registerUrl( anyString() );
   }
 }

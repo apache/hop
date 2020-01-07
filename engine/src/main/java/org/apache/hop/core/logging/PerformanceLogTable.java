@@ -34,7 +34,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.RepositoryAttributeInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
 import org.apache.hop.trans.step.StepMeta;
@@ -73,8 +73,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
 
   private String logInterval;
 
-  private PerformanceLogTable( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    super( space, databasesInterface, null, null, null );
+  private PerformanceLogTable( VariableSpace space, IMetaStore metaStore ) {
+    super( space, metaStore, null, null, null );
   }
 
   @Override
@@ -106,7 +106,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<DatabaseMeta> databases, List<StepMeta> steps ) {
+  public void loadXML( Node node, List<StepMeta> steps ) {
     connectionName = XMLHandler.getTagValue( node, "connection" );
     schemaName = XMLHandler.getTagValue( node, "schema" );
     tableName = XMLHandler.getTagValue( node, "table" );
@@ -114,20 +114,6 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     timeoutInDays = XMLHandler.getTagValue( node, "timeout_days" );
 
     super.loadFieldsXML( node );
-  }
-
-  public void saveToRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.saveToRepository( attributeInterface );
-
-    // Also save the log interval and log size limit
-    //
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_INTERVAL, logInterval );
-  }
-
-  public void loadFromRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.loadFromRepository( attributeInterface );
-
-    logInterval = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_INTERVAL );
   }
 
   @Override
@@ -140,8 +126,8 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
     super.replaceMeta( logTable );
   }
 
-  public static PerformanceLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    PerformanceLogTable table = new PerformanceLogTable( space, databasesInterface );
+  public static PerformanceLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
+    PerformanceLogTable table = new PerformanceLogTable( space, metaStore );
 
     //CHECKSTYLE:LineLength:OFF
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "PerformanceLogTable.FieldName.BatchID" ), BaseMessages.getString( PKG, "PerformanceLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
@@ -182,8 +168,7 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
    * Get the logging interval in seconds. Disabled if the logging interval is <=0. A value higher than 0 means that the
    * log table is updated every 'logInterval' seconds.
    *
-   * @param logInterval
-   *          The log interval,
+   * @return  The log interval,
    */
   public String getLogInterval() {
     return logInterval;
@@ -192,10 +177,10 @@ public class PerformanceLogTable extends BaseLogTable implements Cloneable, LogT
   /**
    * This method calculates all the values that are required
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
+   * @param subject
+   * @param parent
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof StepPerformanceSnapShot ) {

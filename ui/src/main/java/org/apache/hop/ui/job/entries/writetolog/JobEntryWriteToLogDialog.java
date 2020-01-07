@@ -50,7 +50,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.writetolog.JobEntryWriteToLog;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -105,8 +104,8 @@ public class JobEntryWriteToLogDialog extends JobEntryDialog implements JobEntry
 
   private FormData fdlLoglevel, fdLoglevel;
 
-  public JobEntryWriteToLogDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryWriteToLogDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryWriteToLog) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "WriteToLog.Name.Default" ) );

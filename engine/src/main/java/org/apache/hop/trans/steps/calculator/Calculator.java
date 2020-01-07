@@ -82,7 +82,7 @@ public class Calculator extends BaseStep implements StepInterface {
     if ( first ) {
       first = false;
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      meta.getFields( data.getOutputRowMeta(), getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.getOutputRowMeta(), getStepname(), null, null, this, metaStore );
 
       // get all metadata, including source rows and temporary fields.
       data.setCalcRowMeta( meta.getAllFields( getInputRowMeta() ) );

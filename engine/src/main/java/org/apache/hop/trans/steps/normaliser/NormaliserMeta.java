@@ -43,8 +43,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -133,7 +132,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -198,7 +197,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Get a unique list of the occurrences of the type
     //
@@ -271,47 +270,8 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-
-    try {
-      typeField = rep.getStepAttributeString( id_step, "typefield" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        normaliserFields[i].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        normaliserFields[i].setValue( rep.getStepAttributeString( id_step, i, "field_value" ) );
-        normaliserFields[i].setNorm( rep.getStepAttributeString( id_step, i, "field_norm" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "NormaliserMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "typefield", typeField );
-
-      for ( int i = 0; i < normaliserFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", normaliserFields[i].getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_value", normaliserFields[i].getValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_norm", normaliserFields[i].getNorm() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "NormaliserMeta.Exception.UnableToSaveStepInfoToRepository" ) + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
 
     String error_message = "";

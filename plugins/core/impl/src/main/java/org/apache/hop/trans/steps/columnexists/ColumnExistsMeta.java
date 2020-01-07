@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -179,15 +178,15 @@ public class ColumnExistsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param istablenameInfieldin
-   *          the istablenameInfield to set
+   * @param isTablenameInField
+   *          the isTablenameInField to set
    */
-  public void setTablenameInField( boolean istablenameInfield ) {
-    this.istablenameInfield = istablenameInfield;
+  public void setTablenameInField( boolean isTablenameInField ) {
+    this.istablenameInfield = isTablenameInField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -205,7 +204,7 @@ public class ColumnExistsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore )
+      VariableSpace space, IMetaStore metaStore )
     throws HopStepException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
@@ -227,10 +226,10 @@ public class ColumnExistsMeta extends BaseStepMeta implements StepMetaInterface 
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      database = DatabaseMeta.findDatabase( databases, con );
+      database = DatabaseMeta.loadDatabase( metaStore, con );
       tablename = XMLHandler.getTagValue( stepnode, "tablename" );
       schemaname = XMLHandler.getTagValue( stepnode, "schemaname" );
       istablenameInfield = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "istablenameInfield" ) );
@@ -243,46 +242,8 @@ public class ColumnExistsMeta extends BaseStepMeta implements StepMetaInterface 
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      database = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      tablename = rep.getStepAttributeString( id_step, "tablename" );
-      schemaname = rep.getStepAttributeString( id_step, "schemaname" );
-      istablenameInfield = rep.getStepAttributeBoolean( id_step, "istablenameInfield" );
-      tablenamefield = rep.getStepAttributeString( id_step, "tablenamefield" );
-      columnnamefield = rep.getStepAttributeString( id_step, "columnnamefield" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-    } catch ( Exception e ) {
-      throw new HopException(
-          BaseMessages.getString( PKG, "ColumnExistsMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", database );
-      rep.saveStepAttribute( id_transformation, id_step, "tablename", tablename );
-      rep.saveStepAttribute( id_transformation, id_step, "schemaname", schemaname );
-      rep.saveStepAttribute( id_transformation, id_step, "istablenameInfield", istablenameInfield );
-      rep.saveStepAttribute( id_transformation, id_step, "tablenamefield", tablenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "columnnamefield", columnnamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-
-      // Also, save the step-database relationship!
-      if ( database != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, database.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException(
-          BaseMessages.getString( PKG, "ColumnExistsMeta.Exception.UnableToSaveStepInfo" ) + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
-      IMetaStore metaStore ) {
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

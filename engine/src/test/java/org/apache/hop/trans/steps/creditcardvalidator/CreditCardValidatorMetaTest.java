@@ -76,7 +76,7 @@ public class CreditCardValidatorMetaTest {
     meta.setNotValidMsg( "Is Card Valid" );
 
     RowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "this step", null, null, new Variables(), null, null );
+    meta.getFields( rowMeta, "this step", null, null, new Variables(), null );
     assertEquals( 3, rowMeta.size() );
     assertEquals( "The Result Field", rowMeta.getValueMeta( 0 ).getName() );
     assertEquals( ValueMetaInterface.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );

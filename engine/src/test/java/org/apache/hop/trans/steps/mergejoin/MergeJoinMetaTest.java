@@ -132,7 +132,7 @@ public class MergeJoinMetaTest {
     StepMeta stepMeta = new StepMeta( "Merge", meta );
 
     meta.getFields( outputRowMeta, "Merge Join",
-      new RowMetaInterface[]{ inputRow1, inputRow2 }, stepMeta, new Variables(), null, null );
+      new RowMetaInterface[]{ inputRow1, inputRow2 }, stepMeta, new Variables(), null );
 
     assertNotNull( outputRowMeta );
     assertFalse( outputRowMeta.isEmpty() );

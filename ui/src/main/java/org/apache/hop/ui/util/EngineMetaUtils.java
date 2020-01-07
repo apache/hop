@@ -23,7 +23,8 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.trans.TransMeta;
 
 public class EngineMetaUtils {
 
@@ -34,11 +35,8 @@ public class EngineMetaUtils {
    * @return true if engineMetaInterface instance is Job or Transformation, otherwise false.
    */
   public static boolean isJobOrTransformation( EngineMetaInterface engineMetaInterface ) {
-    if ( engineMetaInterface == null || engineMetaInterface.getRepositoryElementType() == null ) {
-      return false;
-    }
-    RepositoryObjectType objectType = engineMetaInterface.getRepositoryElementType();
-    return RepositoryObjectType.TRANSFORMATION.equals( objectType ) || RepositoryObjectType.JOB.equals( objectType );
+
+    return ( engineMetaInterface instanceof TransMeta ) || (engineMetaInterface instanceof JobMeta );
   }
 
 }

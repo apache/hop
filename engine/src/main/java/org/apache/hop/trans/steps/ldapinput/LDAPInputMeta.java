@@ -41,8 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -500,7 +499,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -726,7 +725,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
@@ -753,72 +752,6 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
       v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
-    }
-  }
-
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      usePaging = rep.getStepAttributeBoolean( id_step, "usepaging" );
-      pagesize = rep.getStepAttributeString( id_step, "pagesize" );
-      useAuthentication = rep.getStepAttributeBoolean( id_step, "useauthentication" );
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-      Host = rep.getStepAttributeString( id_step, "host" );
-      userName = rep.getStepAttributeString( id_step, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-      port = rep.getStepAttributeString( id_step, "port" );
-      filterString = rep.getStepAttributeString( id_step, "filterstring" );
-      searchBase = rep.getStepAttributeString( id_step, "searchbase" );
-
-      rowLimit = (int) rep.getStepAttributeInteger( id_step, "limit" );
-      timeLimit = (int) rep.getStepAttributeInteger( id_step, "timelimit" );
-      multiValuedSeparator = rep.getStepAttributeString( id_step, "multivaluedseparator" );
-      dynamicSearch = rep.getStepAttributeBoolean( id_step, "dynamicsearch" );
-      dynamicSeachFieldName = rep.getStepAttributeString( id_step, "dynamicseachfieldname" );
-      dynamicFilter = rep.getStepAttributeBoolean( id_step, "dynamicfilter" );
-      dynamicFilterFieldName = rep.getStepAttributeString( id_step, "dynamicfilterfieldname" );
-
-      protocol = rep.getStepAttributeString( id_step, "protocol" );
-      trustStorePath = rep.getStepAttributeString( id_step, "trustStorePath" );
-      trustStorePassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "trustStorePassword" ) );
-      trustAllCertificates = rep.getStepAttributeBoolean( id_step, "trustAllCertificates" );
-      useCertificate = rep.getStepAttributeBoolean( id_step, "useCertificate" );
-
-      int nrFields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrFields );
-
-      for ( int i = 0; i < nrFields; i++ ) {
-        LDAPInputField field = new LDAPInputField();
-
-        field.setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field.setAttribute( rep.getStepAttributeString( id_step, i, "field_attribute" ) );
-        field.setFetchAttributeAs( LDAPInputField.getFetchAttributeAsByCode( rep.getStepAttributeString(
-          id_step, i, "field_attribute_fetch_as" ) ) );
-        field.setSortedKey( rep.getStepAttributeBoolean( id_step, i, "sorted_key" ) );
-        field.setType( ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-        field.setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        field.setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        field.setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        field.setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        field.setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        field.setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        field.setTrimType( LDAPInputField.getTrimTypeByCode( rep.getStepAttributeString(
-          id_step, i, "field_trim_type" ) ) );
-        field.setRepeated( rep.getStepAttributeBoolean( id_step, i, "field_repeat" ) );
-
-        inputFields[i] = field;
-      }
-      searchScope =
-        getSearchScopeByCode( Const.NVL(
-          rep.getStepAttributeString( id_step, "searchScope" ),
-          getSearchScopeCode( LDAPConnection.SEARCH_SCOPE_SUBTREE_SCOPE ) ) );
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "LDAPInputMeta.Exception.ErrorReadingRepository" ), e );
     }
   }
 
@@ -852,66 +785,9 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "usepaging", usePaging );
-      rep.saveStepAttribute( id_transformation, id_step, "pagesize", pagesize );
-      rep.saveStepAttribute( id_transformation, id_step, "useauthentication", useAuthentication );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "host", Host );
-      rep.saveStepAttribute( id_transformation, id_step, "username", userName );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "port", port );
-      rep.saveStepAttribute( id_transformation, id_step, "filterstring", filterString );
-      rep.saveStepAttribute( id_transformation, id_step, "searchbase", searchBase );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "timelimit", timeLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "multivaluedseparator", multiValuedSeparator );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicsearch", dynamicSearch );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicseachfieldname", dynamicSeachFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicfilter", dynamicFilter );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicfilterfieldname", dynamicFilterFieldName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "protocol", protocol );
-      rep.saveStepAttribute( id_transformation, id_step, "trustStorePath", trustStorePath );
-      rep.saveStepAttribute( id_transformation, id_step, "trustStorePassword", Encr
-        .encryptPasswordIfNotUsingVariables( trustStorePassword ) );
-      rep.saveStepAttribute( id_transformation, id_step, "trustAllCertificates", trustAllCertificates );
-      rep.saveStepAttribute( id_transformation, id_step, "useCertificate", useCertificate );
-
-      for ( int i = 0; i < inputFields.length; i++ ) {
-        LDAPInputField field = inputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_attribute", field.getAttribute() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_attribute_fetch_as", field
-          .getFetchAttributeAsCode() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "sorted_key", field.isSortedKey() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field.getTrimTypeCode() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_repeat", field.isRepeated() );
-
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "searchScope", getSearchScopeCode( searchScope ) );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "LDAPInputMeta.Exception.ErrorSavingToRepository", "" + id_step ), e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

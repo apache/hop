@@ -116,7 +116,7 @@ public class OsHelper {
 
       @Override
       public void handleEvent( Event event ) {
-        HopUi.getInstance().openFile( event.text, HopUi.getInstance().getRepository() != null );
+        HopUi.getInstance().openFile( event.text, false );
       }
 
     } );

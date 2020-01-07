@@ -36,8 +36,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -110,7 +109,7 @@ public class WriteToLogMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -260,50 +259,9 @@ public class WriteToLogMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      loglevel = rep.getStepAttributeString( id_step, "loglevel" );
-      displayHeader = rep.getStepAttributeBoolean( id_step, "displayHeader" );
-
-      limitRows = rep.getStepAttributeBoolean( id_step, "limitRows" );
-      String limitRowsNumberString = rep.getStepAttributeString( id_step, "limitRowsNumber" );
-      limitRowsNumber = Const.toInt( limitRowsNumberString, 5 );
-
-      logmessage = rep.getStepAttributeString( id_step, "logmessage" );
-      limitRows = rep.getStepAttributeBoolean( id_step, "limitRows" );
-      limitRowsNumber = (int) rep.getStepAttributeInteger( id_step, "limitRowsNumber" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "loglevel", loglevel );
-      rep.saveStepAttribute( id_transformation, id_step, "displayHeader", displayHeader );
-      rep.saveStepAttribute( id_transformation, id_step, "limitRows", limitRows );
-      rep.saveStepAttribute( id_transformation, id_step, "limitRowsNumber", limitRowsNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "logmessage", logmessage );
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

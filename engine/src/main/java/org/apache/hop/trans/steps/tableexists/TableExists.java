@@ -74,7 +74,7 @@ public class TableExists extends BaseStep implements StepInterface {
       if ( first ) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
         // Check is tablename field is provided
         if ( Utils.isEmpty( meta.getDynamicTablenameField() ) ) {

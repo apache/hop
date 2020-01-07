@@ -39,7 +39,6 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogChannelInterfaceFactory;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMetaFactory;
 import org.apache.hop.trans.TransMetaFactoryImpl;
@@ -62,23 +61,6 @@ public class TransSplitterTest {
   @After
   public void tearDown() {
     HopLogStore.setLogChannelInterfaceFactory( oldLogChannelInterfaceFactory );
-  }
-
-  @Test
-  public void testTransSplitterReadsRep() throws HopException {
-    TransMeta meta = mock( TransMeta.class );
-    Repository rep = mock( Repository.class );
-    when( meta.getRepository() ).thenReturn( rep );
-    TransMeta meta2 = mock( TransMeta.class );
-    TransMetaFactory factory = mock( TransMetaFactory.class );
-    when( factory.create( any( Node.class ), any( Repository.class ) ) ).thenReturn( meta2 );
-    when( meta.getXML() ).thenReturn( "<transformation></transformation>" );
-    try {
-      new TransSplitter( meta, factory );
-    } catch ( Exception e ) {
-      // ignore
-    }
-    verify( rep, times( 1 ) ).readTransSharedObjects( meta2 );
   }
 
   @Test

@@ -86,7 +86,7 @@ public class TableOutput extends BaseStep implements StepInterface {
         truncateTable();
       }
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       if ( !meta.specifyFields() ) {
         // Just take the input row

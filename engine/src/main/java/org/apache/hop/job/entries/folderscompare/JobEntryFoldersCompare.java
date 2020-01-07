@@ -57,8 +57,7 @@ import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -122,17 +121,14 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
     retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename1", filename1 ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename2", filename2 ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename1 );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename2 );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       includesubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
       comparefilecontent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filecontent" ) );
       comparefilesize = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filesize" ) );
@@ -144,39 +140,6 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobFoldersCompare.Meta.UnableLoadXML", xe
         .getMessage() ) );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      includesubfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      comparefilecontent = rep.getJobEntryAttributeBoolean( id_jobentry, "compare_filecontent" );
-      comparefilesize = rep.getJobEntryAttributeBoolean( id_jobentry, "compare_filesize" );
-
-      compareonly = rep.getJobEntryAttributeString( id_jobentry, "compareonly" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      filename1 = rep.getJobEntryAttributeString( id_jobentry, "filename1" );
-      filename2 = rep.getJobEntryAttributeString( id_jobentry, "filename2" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobFoldersCompare.Meta.UnableLoadRep", ""
-        + id_jobentry, dbe.getMessage() ) );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", includesubfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compare_filecontent", comparefilecontent );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compare_filesize", comparefilesize );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "compareonly", compareonly );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename1", filename1 );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename2", filename2 );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobFoldersCompare.Meta.UnableSaveRep", "" + id_job, dbe.getMessage() ) );
     }
   }
 
@@ -290,11 +253,6 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
 
     try {
       if ( filename1 != null && filename2 != null ) {
-        //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-        if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-          parentJobMeta.getNamedClusterEmbedManager()
-            .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-        }
         // Get Folders/Files to compare
         folder1 = HopVFS.getFileObject( realFilename1, this );
         folder2 = HopVFS.getFileObject( realFilename2, this );
@@ -570,7 +528,6 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
   /**********************************************************
    *
    * @param selectedfile
-   * @param sourceWildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
   private boolean GetFileWildcard( String selectedfile ) {
@@ -618,7 +575,7 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileExistsValidator() );

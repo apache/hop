@@ -45,10 +45,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
@@ -88,9 +85,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
 
   /** database connection object to use for searching fields & checking steps */
   protected Database[] databases;
-
-  /** The repository that is being used for this step */
-  protected Repository repository;
 
   protected StepMeta parentStepMeta;
 
@@ -210,38 +204,13 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    *          the next step that is targeted
    * @param space
    *          the space The variable space to use to replace variables
-   * @throws HopStepException
-   *           the kettle step exception
-   * @deprecated use {@link #getFields(RowMetaInterface, String, RowMetaInterface[], StepMeta, VariableSpace, Repository, IMetaStore)}
-   */
-  @Deprecated
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space ) throws HopStepException {
-    // Default: no values are added to the row in the step
-  }
-
-  /**
-   * Gets the fields.
-   *
-   * @param inputRowMeta
-   *          the input row meta that is modified in this method to reflect the output row metadata of the step
-   * @param name
-   *          Name of the step to use as input for the origin field in the values
-   * @param info
-   *          Fields used as extra lookup information
-   * @param nextStep
-   *          the next step that is targeted
-   * @param space
-   *          the space The variable space to use to replace variables
-   * @param repository
-   *          the repository to use to load Hop metadata objects impacting the output fields
    * @param metaStore
    *          the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopStepException
    *           the kettle step exception
    */
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: no values are added to the row in the step
   }
 
@@ -262,61 +231,15 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    *          The output step names
    * @param info
    *          The fields used as information by this step
-   * @deprecated use {@link #analyseImpact(List, TransMeta, StepMeta, RowMetaInterface, String[], String[], RowMetaInterface, Repository, IMetaStore)}
-   */
-  @Deprecated
-  public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info ) throws HopStepException {
-
-  }
-
-  /**
-   * Each step must be able to report on the impact it has on a database, table field, etc.
-   *
-   * @param impact
-   *          The list of impacts @see org.apache.hop.transMeta.DatabaseImpact
-   * @param transMeta
-   *          The transformation information
-   * @param stepMeta
-   *          The step information
-   * @param prev
-   *          The fields entering this step
-   * @param input
-   *          The previous step names
-   * @param output
-   *          The output step names
-   * @param info
-   *          The fields used as information by this step
-   * @param repository
-   *          the repository to use to load Hop metadata objects impacting the output fields
    * @param metaStore
    *          the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output,
+                             RowMetaInterface info, IMetaStore metaStore ) throws HopStepException {
 
   }
 
-  /**
-   * Standard method to return one or more SQLStatement objects that the step needs in order to work correctly. This can
-   * mean "create table", "create index" statements but also "alter table ... add/drop/modify" statements.
-   *
-   * @return The SQL Statements for this step or null if an error occurred. If nothing has to be done, the
-   *         SQLStatement.getSQL() == null.
-   * @param transMeta
-   *          TransInfo object containing the complete transformation
-   * @param stepMeta
-   *          StepMeta object containing the complete step
-   * @param prev
-   *          Row containing meta-data for the input fields (no data)
-   * @deprecated use {@link #getSQLStatements(TransMeta, StepMeta, RowMetaInterface, Repository, IMetaStore)}
-   */
-  @Deprecated
-  public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev ) throws HopStepException {
-    // default: this doesn't require any SQL statements to be executed!
-    return new SQLStatement( stepMeta.getName(), null, null );
-  }
 
   /**
    * Standard method to return an SQLStatement object with SQL statements that the step needs in order to work
@@ -331,13 +254,11 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    *          StepMeta object containing the complete step
    * @param prev
    *          Row containing meta-data for the input fields (no data)
-   * @param repository
-   *          the repository to use to load Hop metadata objects impacting the output fields
    * @param metaStore
    *          the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) throws HopStepException {
+    IMetaStore metaStore ) throws HopStepException {
     // default: this doesn't require any SQL statements to be executed!
     return new SQLStatement( stepMeta.getName(), null, null );
   }
@@ -366,24 +287,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    */
   public Map<String, String> getUsedArguments() {
     return null;
-  }
-
-  /**
-   * The natural way of data flow in a transformation is source-to-target. However, this makes mapping to target tables
-   * difficult to do. To help out here, we supply information to the transformation meta-data model about which fields
-   * are required for a step. This allows us to automate certain tasks like the mapping to pre-defined tables. The Table
-   * Output step in this case will output the fields in the target table using this method.
-   *
-   * This default implementation returns an empty row meaning that no fields are required for this step to operate.
-   *
-   * @return the required fields for this steps meta data.
-   * @throws HopException
-   *           in case the required fields can't be determined
-   * @deprecated use {@link #getRequiredFields(VariableSpace)}
-   */
-  @Deprecated
-  public RowMetaInterface getRequiredFields() throws HopException {
-    return new RowMeta();
   }
 
   /**
@@ -456,21 +359,14 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    *          the definitions
    * @param resourceNamingInterface
    *          the resource naming interface
-   * @param repository
-   *          the repository
+   * @param metaStore
+   *          The place to load additional information
    * @return the string
    * @throws HopException
    *           the kettle exception
-   * @deprecated use {@link #exportResources(VariableSpace, Map, ResourceNamingInterface, Repository, IMetaStore)}
    */
-  @Deprecated
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository ) throws HopException {
-    return null;
-  }
-
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     return null;
   }
 
@@ -486,9 +382,7 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    *
    * @return full class name of the dialog
    *
-   * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
    */
-  @Deprecated
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
     className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
@@ -746,24 +640,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   }
 
   /**
-   * Gets the object id.
-   *
-   * @return the object id
-   */
-  public ObjectId getObjectId() {
-    return null;
-  }
-
-  /**
-   * Gets the object revision.
-   *
-   * @return the object revision
-   */
-  public ObjectRevision getObjectRevision() {
-    return null;
-  }
-
-  /**
    * Gets the object type.
    *
    * @return the object type
@@ -778,15 +654,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    * @return the parent
    */
   public LoggingObjectInterface getParent() {
-    return null;
-  }
-
-  /**
-   * Gets the repository directory.
-   *
-   * @return the repository directory
-   */
-  public RepositoryDirectory getRepositoryDirectory() {
     return null;
   }
 
@@ -1062,22 +929,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   }
 
   /**
-   * @return True if the job entry defines one or more references to a repository object.
-   */
-  public boolean hasRepositoryReferences() {
-    return false;
-  }
-
-  /**
-   * Look up the references after import
-   *
-   * @param repository
-   *          the repository to reference.
-   */
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-  }
-
-  /**
    * @return The objects referenced in the step, like a mapping, a transformation, a job, ...
    */
   public String[] getReferencedObjectDescriptions() {
@@ -1096,123 +947,39 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
     return null;
   }
 
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    // provided for API (compile & runtime) compatibility with v4
+  }
+
+
+  /**
+   * @param remarks
+   * @param transMeta
+   * @param stepMeta
+   * @param prev
+   * @param input
+   * @param output
+   * @param info
+   * @param metaStore
+   */
+  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+    IMetaStore metaStore ) {
+  }
+
   /**
    * Load the referenced object
    *
-   * @deprecated use {@link #loadReferencedObject(int, Repository, IMetaStore, VariableSpace)}
-   *
    * @param index
-   *          the object index to load
-   * @param rep
-   *          the repository
+   *          the referenced object index to load (in case there are multiple references)
+   * @param metaStore
+   *          the MetaStore to use
    * @param space
    *          the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  @Deprecated
-  public Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws HopException {
-    // Provided for v4 API compatibility
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
     return null;
   }
-
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    // Provided for v4 API compatibility
-    return null;
-  }
-
-  @Deprecated
-  public void readRep( Repository rep, ObjectId idStep, List<DatabaseMeta> databases ) throws HopException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  @Deprecated
-  public void readRep( Repository rep, ObjectId id_step, List<DatabaseMeta> databases,
-    Map<String, Counter> counters ) throws HopException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  /**
-   * @deprecated use {@link #loadXML(Node, List, IMetaStore)}
-   * @param stepnode
-   * @param databases
-   * @throws HopXMLException
-   */
-  @Deprecated
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases ) throws HopXMLException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  /**
-   * @deprecated use {@link #loadXML(Node, List, IMetaStore)}
-   * @param stepnode
-   * @param databases
-   * @throws HopXMLException
-   */
-  @Deprecated
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters ) throws HopXMLException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  /**
-   * @deprecated use {@link #saveRep(Repository, IMetaStore, ObjectId, ObjectId)
-   * @param stepnode
-   * @param databases
-   * @throws HopXMLException
-   */
-  @Deprecated
-  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    // provided for API (compile & runtime) compatibility with v4
-  }
-
-  /**
-   * @deprecated use {@link #check(List, TransMeta, StepMeta, RowMetaInterface, String[], String[], RowMetaInterface, VariableSpace, Repository, IMetaStore)}
-   * @param remarks
-   * @param transMeta
-   * @param stepMeta
-   * @param prev
-   * @param input
-   * @param output
-   * @param info
-   */
-  @Deprecated
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info ) {
-  }
-
-  /**
-   * @deprecated use {@link #check(List, TransMeta, StepMeta, RowMetaInterface, String[], String[], RowMetaInterface, VariableSpace, Repository, IMetaStore)}
-   * @param remarks
-   * @param transMeta
-   * @param stepMeta
-   * @param prev
-   * @param input
-   * @param output
-   * @param info
-   * @param repository
-   * @param metaStore
-   */
-  @Deprecated
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
-    IMetaStore metaStore ) {
-  }
-
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
-  }
-
 }

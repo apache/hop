@@ -50,7 +50,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.setvariables.JobEntrySetVariables;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -102,8 +101,8 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
   private Group gSettings, gFilename;
   private FormData fdgSettings, fdgFilename;
 
-  public JobEntrySetVariablesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySetVariablesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySetVariables) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

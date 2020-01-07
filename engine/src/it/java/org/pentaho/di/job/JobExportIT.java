@@ -29,9 +29,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.filerep.HopFileRepository;
-import org.apache.hop.repository.filerep.HopFileRepositoryMeta;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 

@@ -46,7 +46,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -121,12 +120,10 @@ public class TransExecutorUnitTest {
   @Test
   public void testCreateInternalTransSetsRepository() throws HopException {
     Trans transParentMock = mock( Trans.class );
-    Repository repositoryMock = mock( Repository.class );
     TransExecutorData transExecutorDataMock = mock( TransExecutorData.class );
     TransMeta transMetaMock = mock( TransMeta.class );
 
     executor.init( meta, data );
-    when( transParentMock.getRepository() ).thenReturn( repositoryMock );
     when( transParentMock.getLogLevel() ).thenReturn( LogLevel.DEBUG );
     doNothing().when( transParentMock ).initializeVariablesFrom( any( VariableSpace.class ) );
     when( executor.getLogLevel() ).thenReturn( LogLevel.DEBUG );
@@ -142,8 +139,6 @@ public class TransExecutorUnitTest {
 
     Trans parentTrans = internalTrans.getParentTrans();
     assertEquals( parentTrans, transParentMock );
-    assertEquals( parentTrans.getRepository(), repositoryMock );
-    assertEquals( internalTrans.getRepository(), repositoryMock );
   }
 
 

@@ -32,8 +32,6 @@ import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.changed.HopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
 import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
@@ -53,18 +51,9 @@ import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.IMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
-import org.apache.hop.metastore.util.HopDefaults;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,8 +86,6 @@ import static org.mockito.Mockito.when;
 
 public class AbstractMetaTest {
   AbstractMeta meta;
-  ObjectId objectId;
-  Repository repo;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -111,20 +98,11 @@ public class AbstractMetaTest {
   @Before
   public void setUp() throws Exception {
     meta = new AbstractMetaStub();
-    objectId = mock( ObjectId.class );
-    repo = mock( Repository.class );
   }
 
   @Test
   public void testGetParent() {
     assertNull( meta.getParent() );
-  }
-
-  @Test
-  public void testGetSetObjectId() throws Exception {
-    assertNull( meta.getObjectId() );
-    meta.setObjectId( objectId );
-    assertEquals( objectId, meta.getObjectId() );
   }
 
   @Test
@@ -171,105 +149,6 @@ public class AbstractMetaTest {
     assertNull( meta.getFilename() );
     meta.setFilename( "myfile" );
     assertEquals( "myfile", meta.getFilename() );
-  }
-
-  @Test
-  public void testGetSetRepositoryDirectory() throws Exception {
-    assertNull( meta.getRepositoryDirectory() );
-    RepositoryDirectoryInterface dir = mock( RepositoryDirectoryInterface.class );
-    meta.setRepositoryDirectory( dir );
-    assertEquals( dir, meta.getRepositoryDirectory() );
-  }
-
-  @Test
-  public void testGetSetRepository() throws Exception {
-    assertNull( meta.getRepository() );
-    meta.setRepository( repo );
-    assertEquals( repo, meta.getRepository() );
-  }
-
-  @Test
-  public void testGetSetDatabase() throws Exception {
-    assertEquals( 0, meta.nrDatabases() );
-    assertNull( meta.getDatabases() );
-    assertFalse( meta.haveConnectionsChanged() );
-    meta.clear();
-    assertTrue( meta.getDatabases().isEmpty() );
-    assertEquals( 0, meta.nrDatabases() );
-    assertFalse( meta.haveConnectionsChanged() );
-    DatabaseMeta db1 = mock( DatabaseMeta.class );
-    when( db1.getName() ).thenReturn( "db1" );
-    when( db1.getDisplayName() ).thenReturn( "db1" );
-    meta.addDatabase( db1 );
-    assertEquals( 1, meta.nrDatabases() );
-    assertFalse( meta.getDatabases().isEmpty() );
-    assertTrue( meta.haveConnectionsChanged() );
-    DatabaseMeta db2 = mock( DatabaseMeta.class );
-    when( db2.getName() ).thenReturn( "db2" );
-    when( db2.getDisplayName() ).thenReturn( "db2" );
-    meta.addDatabase( db2 );
-    assertEquals( 2, meta.nrDatabases() );
-    // Test replace
-    meta.addDatabase( db1, true );
-    assertEquals( 2, meta.nrDatabases() );
-    meta.addOrReplaceDatabase( db1 );
-    assertEquals( 2, meta.nrDatabases() );
-    // Test duplicate
-    meta.addDatabase( db2, false );
-    assertEquals( 2, meta.nrDatabases() );
-    DatabaseMeta db3 = mock( DatabaseMeta.class );
-    when( db3.getName() ).thenReturn( "db3" );
-    meta.addDatabase( db3, false );
-    assertEquals( 3, meta.nrDatabases() );
-    assertEquals( db1, meta.getDatabase( 0 ) );
-    assertEquals( 0, meta.indexOfDatabase( db1 ) );
-    assertEquals( db2, meta.getDatabase( 1 ) );
-    assertEquals( 1, meta.indexOfDatabase( db2 ) );
-    assertEquals( db3, meta.getDatabase( 2 ) );
-    assertEquals( 2, meta.indexOfDatabase( db3 ) );
-    DatabaseMeta db4 = mock( DatabaseMeta.class );
-    when( db4.getName() ).thenReturn( "db4" );
-    meta.addDatabase( 3, db4 );
-    assertEquals( 4, meta.nrDatabases() );
-    assertEquals( db4, meta.getDatabase( 3 ) );
-    assertEquals( 3, meta.indexOfDatabase( db4 ) );
-    meta.removeDatabase( 3 );
-    assertEquals( 3, meta.nrDatabases() );
-    assertTrue( meta.haveConnectionsChanged() );
-    meta.clearChangedDatabases();
-    assertFalse( meta.haveConnectionsChanged() );
-
-    List<DatabaseMeta> list = Arrays.asList( db2, db1 );
-    meta.setDatabases( list );
-    assertEquals( 2, meta.nrDatabases() );
-    assertEquals( "db1", meta.getDatabaseNames()[0] );
-    assertEquals( 0, meta.indexOfDatabase( db1 ) );
-    meta.removeDatabase( -1 );
-    assertEquals( 2, meta.nrDatabases() );
-    meta.removeDatabase( 2 );
-    assertEquals( 2, meta.nrDatabases() );
-    assertEquals( db1, meta.findDatabase( "db1" ) );
-    assertNull( meta.findDatabase( "" ) );
-  }
-
-  @Test( expected = HopPluginException.class )
-  public void testGetSetImportMetaStore() throws Exception {
-    assertNull( meta.getMetaStore() );
-    meta.importFromMetaStore();
-    IMetaStore metastore = mock( IMetaStore.class );
-    meta.setMetaStore( metastore );
-    assertEquals( metastore, meta.getMetaStore() );
-    meta.importFromMetaStore();
-    IMetaStoreElementType elementType = mock( IMetaStoreElementType.class );
-    when( metastore.getElementTypeByName(
-      HopDefaults.NAMESPACE, HopDefaults.DATABASE_CONNECTION_ELEMENT_TYPE_NAME ) ).thenReturn( elementType );
-    when( metastore.getElements( HopDefaults.NAMESPACE, elementType ) )
-      .thenReturn( new ArrayList<IMetaStoreElement>() );
-    meta.importFromMetaStore();
-    IMetaStoreElement element = mock( IMetaStoreElement.class );
-    when( metastore.getElements( HopDefaults.NAMESPACE, elementType ) )
-      .thenReturn( Arrays.asList( element ) );
-    meta.importFromMetaStore();
   }
 
   @Test
@@ -650,10 +529,6 @@ public class AbstractMetaTest {
     meta.setName( "x" );
     assertEquals( "x", meta.getObjectName() );
     assertNull( meta.getObjectCopy() );
-    assertNull( meta.getObjectRevision() );
-    ObjectRevision rev = mock( ObjectRevision.class );
-    meta.setObjectRevision( rev );
-    assertEquals( rev, meta.getObjectRevision() );
   }
 
   @Test
@@ -731,48 +606,11 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testShouldOverwrite() {
-    assertTrue( meta.shouldOverwrite( null, null, null, null ) );
-    Props.init( Props.TYPE_PROPERTIES_EMPTY );
-    assertTrue( meta.shouldOverwrite( null, Props.getInstance(), "message", "remember" ) );
-
-    Props.getInstance().setProperty( Props.STRING_ASK_ABOUT_REPLACING_DATABASES, "Y" );
-    OverwritePrompter prompter = mock( OverwritePrompter.class );
-    when( prompter.overwritePrompt( "message", "remember", Props.STRING_ASK_ABOUT_REPLACING_DATABASES ) )
-      .thenReturn( false );
-    assertFalse( meta.shouldOverwrite( prompter, Props.getInstance(), "message", "remember" ) );
-  }
-
-  @Test
   public void testGetSetNamedClusterServiceOsgi() throws Exception {
     assertNull( meta.getNamedClusterServiceOsgi() );
     NamedClusterServiceOsgi mockNamedClusterOsgi = mock( NamedClusterServiceOsgi.class );
     meta.setNamedClusterServiceOsgi( mockNamedClusterOsgi );
     assertEquals( mockNamedClusterOsgi, meta.getNamedClusterServiceOsgi() );
-  }
-
-  @Test
-  public void testGetNamedClusterEmbedManager() throws Exception {
-    assertNull( meta.getNamedClusterEmbedManager() );
-    NamedClusterEmbedManager mockNamedClusterEmbedManager = mock( NamedClusterEmbedManager.class );
-    meta.namedClusterEmbedManager = mockNamedClusterEmbedManager;
-    assertEquals( mockNamedClusterEmbedManager, meta.getNamedClusterEmbedManager() );
-  }
-
-  @Test
-  public void testGetSetEmbeddedMetastoreProviderKey() throws Exception {
-    assertNull( meta.getEmbeddedMetastoreProviderKey() );
-    String keyValue = "keyValue";
-    meta.setEmbeddedMetastoreProviderKey( keyValue );
-    assertEquals( keyValue, meta.getEmbeddedMetastoreProviderKey() );
-  }
-
-  @Test
-  public void testGetSetMetastoreLocatorOsgi() throws Exception {
-    assertNull( meta.getMetastoreLocatorOsgi() );
-    MetastoreLocatorOsgi mockMetastoreLocatorOsgi = mock( MetastoreLocatorOsgi.class );
-    meta.setMetastoreLocatorOsgi( mockMetastoreLocatorOsgi );
-    assertEquals( mockMetastoreLocatorOsgi, meta.getMetastoreLocatorOsgi() );
   }
 
   @Test
@@ -878,10 +716,6 @@ public class AbstractMetaTest {
       return false;
     }
 
-    @Override
-    public RepositoryObjectType getRepositoryElementType() {
-      return null;
-    }
   }
 
 

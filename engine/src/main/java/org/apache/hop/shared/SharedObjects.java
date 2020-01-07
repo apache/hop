@@ -112,7 +112,6 @@ public class SharedObjects {
         Node sharedObjectsNode = XMLHandler.getSubNode( document, XML_TAG );
         if ( sharedObjectsNode != null ) {
           List<SlaveServer> privateSlaveServers = new ArrayList<SlaveServer>();
-          List<DatabaseMeta> privateDatabases = new ArrayList<DatabaseMeta>();
 
           NodeList childNodes = sharedObjectsNode.getChildNodes();
           // First load databases & slaves
@@ -123,28 +122,7 @@ public class SharedObjects {
 
             SharedObjectInterface isShared = null;
 
-            if ( nodeName.equals( DatabaseMeta.XML_TAG ) ) {
-              try {
-                DatabaseMeta sharedDatabaseMeta = new DatabaseMeta( node );
-                isShared = sharedDatabaseMeta;
-                privateDatabases.add( sharedDatabaseMeta );
-              } catch ( HopXMLException kxe ) {
-                // If this is caused because we can't find the database plugin, just log and keep going.
-                // The HopDatabaseException is doubly-wrapped in HopXMLExceptions, so try to unravel
-                Throwable firstCause = kxe.getCause();
-                if ( firstCause != null ) {
-                  Throwable secondCause = firstCause.getCause();
-
-                  if ( secondCause == null || !( secondCause instanceof HopDatabaseException ) ) {
-                    throw kxe;
-                  } else {
-                    log.logBasic( kxe.getLocalizedMessage() );
-                  }
-                } else {
-                  throw kxe;
-                }
-              }
-            } else if ( nodeName.equals( SlaveServer.XML_TAG ) ) {
+           if ( nodeName.equals( SlaveServer.XML_TAG ) ) {
               SlaveServer sharedSlaveServer = new SlaveServer( node );
               isShared = sharedSlaveServer;
               privateSlaveServers.add( sharedSlaveServer );
@@ -165,7 +143,7 @@ public class SharedObjects {
             SharedObjectInterface isShared = null;
 
             if ( nodeName.equals( StepMeta.XML_TAG ) ) {
-              StepMeta stepMeta = new StepMeta( node, privateDatabases, (IMetaStore) null );
+              StepMeta stepMeta = new StepMeta( node, null );
               stepMeta.setDraw( false ); // don't draw it, keep it in the tree.
               isShared = stepMeta;
             } else if ( nodeName.equals( PartitionSchema.XML_TAG ) ) {

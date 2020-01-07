@@ -42,8 +42,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -200,8 +199,8 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
     this.dateMask = dateMask;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrvalues ) {
@@ -221,10 +220,10 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       tableName = XMLHandler.getTagValue( stepnode, "table" );
@@ -304,72 +303,14 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-      loadAction = rep.getStepAttributeString( id_step, "load_action" );
-      stopOnError = rep.getStepAttributeBoolean( id_step, "stop_on_error" );
-
-      dbNameOverride = rep.getStepAttributeString( id_step, "dbname_override" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-      delimiter = rep.getStepAttributeString( id_step, "delimiter" );
-
-      int nrvalues = rep.countNrStepAttributes( id_step, "stream_name" );
-
-      allocate( nrvalues );
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        fieldTable[i] = rep.getStepAttributeString( id_step, i, "stream_name" );
-        fieldStream[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        dateMask[i] = rep.getStepAttributeString( id_step, i, "date_mask" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "GPBulkLoaderMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "load_action", loadAction );
-
-      rep.saveStepAttribute( id_transformation, id_step, "dbname_override", dbNameOverride );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-      rep.saveStepAttribute( id_transformation, id_step, "delimiter", delimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "stop_on_error", stopOnError );
-
-      for ( int i = 0; i < fieldTable.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "stream_name", fieldTable[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "date_mask", dateMask[i] );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "GPBulkLoaderMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -502,7 +443,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) throws HopStepException {
+    IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -555,9 +496,10 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
     return retval;
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
-    IMetaStore metaStore ) throws HopStepException {
+  @Override
+  public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore )
+    throws HopStepException {
+
     if ( prev != null ) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write

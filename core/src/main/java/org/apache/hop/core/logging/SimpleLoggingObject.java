@@ -24,9 +24,6 @@ package org.apache.hop.core.logging;
 
 import java.util.Date;
 
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
 
 public class SimpleLoggingObject implements LoggingObjectInterface {
 
@@ -114,21 +111,6 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
 
   @Override
   public String getObjectCopy() {
-    return null;
-  }
-
-  @Override
-  public ObjectId getObjectId() {
-    return null;
-  }
-
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return null;
-  }
-
-  @Override
-  public RepositoryDirectory getRepositoryDirectory() {
     return null;
   }
 

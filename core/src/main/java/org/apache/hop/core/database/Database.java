@@ -75,9 +75,6 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -4882,16 +4879,6 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   @Override
-  public ObjectId getObjectId() {
-    return databaseMeta.getObjectId();
-  }
-
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return databaseMeta.getObjectRevision();
-  }
-
-  @Override
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.DATABASE;
   }
@@ -4899,11 +4886,6 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   @Override
   public LoggingObjectInterface getParent() {
     return parentLoggingObject;
-  }
-
-  @Override
-  public RepositoryDirectory getRepositoryDirectory() {
-    return null;
   }
 
   @Override

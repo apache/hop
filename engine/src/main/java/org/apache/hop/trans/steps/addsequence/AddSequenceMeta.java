@@ -39,9 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.shared.SharedObjectInterface;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -63,7 +61,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   private String valuename;
 
   private boolean useDatabase;
-  private DatabaseMeta database;
+  private DatabaseMeta databaseMeta;
   private String schemaName;
   private String sequenceName;
 
@@ -76,16 +74,16 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * @return Returns the connection.
    */
-  public DatabaseMeta getDatabase() {
-    return database;
+  public DatabaseMeta getDatabaseMeta() {
+    return databaseMeta;
   }
 
   /**
    * @param connection
    *          The connection to set.
    */
-  public void setDatabase( DatabaseMeta connection ) {
-    this.database = connection;
+  public void setDatabaseMeta( DatabaseMeta connection ) {
+    this.databaseMeta = connection;
   }
 
   /**
@@ -218,23 +216,19 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
-  }
-
-  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  @Override
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       valuename = XMLHandler.getTagValue( stepnode, "valuename" );
 
       useDatabase = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "use_database" ) );
       String conn = XMLHandler.getTagValue( stepnode, "connection" );
-      database = DatabaseMeta.findDatabase( databases, conn );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, conn );
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       sequenceName = XMLHandler.getTagValue( stepnode, "seqname" );
 
@@ -260,7 +254,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
     useDatabase = false;
     schemaName = "";
     sequenceName = "SEQ_";
-    database = null;
+    databaseMeta = null;
 
     useCounter = true;
     counterName = null;
@@ -271,7 +265,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v = new ValueMetaInteger( valuename );
     // v.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin( name );
@@ -285,7 +279,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "      " ).append( XMLHandler.addTagValue( "valuename", valuename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "use_database", useDatabase ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
+      .append( "      " ).append( XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "seqname", sequenceName ) );
 
@@ -299,81 +293,12 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      valuename = rep.getStepAttributeString( id_step, "valuename" );
-
-      useDatabase = rep.getStepAttributeBoolean( id_step, "use_database" );
-
-      database = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      sequenceName = rep.getStepAttributeString( id_step, "seqname" );
-
-      useCounter = rep.getStepAttributeBoolean( id_step, "use_counter" );
-      counterName = rep.getStepAttributeString( id_step, "counter_name" );
-
-      startAt = rep.getStepAttributeString( id_step, "start_at" );
-      incrementBy = rep.getStepAttributeString( id_step, "increment_by" );
-      maxValue = rep.getStepAttributeString( id_step, "max_value" );
-
-      // Fix for backwards compatibility, only to be used from previous versions (TO DO Sven Boden: remove in later
-      // versions)
-      if ( startAt == null ) {
-        long start = rep.getStepAttributeInteger( id_step, "start_at" );
-        startAt = Long.toString( start );
-      }
-
-      if ( incrementBy == null ) {
-        long increment = rep.getStepAttributeInteger( id_step, "increment_by" );
-        incrementBy = Long.toString( increment );
-      }
-
-      if ( maxValue == null ) {
-        long max = rep.getStepAttributeInteger( id_step, "max_value" );
-        maxValue = Long.toString( max );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "AddSequenceMeta.Exception.UnableToReadStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "valuename", valuename );
-
-      rep.saveStepAttribute( id_transformation, id_step, "use_database", useDatabase );
-
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", database );
-
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "seqname", sequenceName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "use_counter", useCounter );
-      rep.saveStepAttribute( id_transformation, id_step, "counter_name", counterName );
-      rep.saveStepAttribute( id_transformation, id_step, "start_at", startAt );
-      rep.saveStepAttribute( id_transformation, id_step, "increment_by", incrementBy );
-      rep.saveStepAttribute( id_transformation, id_step, "max_value", maxValue );
-
-      // Also, save the step-database relationship!
-      if ( database != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, database.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "AddSequenceMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( useDatabase ) {
-      Database db = new Database( loggingObject, database );
+      Database db = new Database( loggingObject, databaseMeta );
       db.shareVariablesWith( transMeta );
       try {
         db.connect();
@@ -413,13 +338,13 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) {
-    SQLStatement retval = new SQLStatement( stepMeta.getName(), database, null ); // default: nothing to do!
+    IMetaStore metaStore ) {
+    SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( useDatabase ) {
       // Otherwise, don't bother!
-      if ( database != null ) {
-        Database db = new Database( loggingObject, database );
+      if ( databaseMeta != null ) {
+        Database db = new Database( loggingObject, databaseMeta );
         db.shareVariablesWith( transMeta );
         try {
           db.connect();
@@ -456,8 +381,8 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    if ( database != null ) {
-      return new DatabaseMeta[] { database };
+    if ( databaseMeta != null ) {
+      return new DatabaseMeta[] { databaseMeta };
     } else {
       return super.getUsedDatabaseConnections();
     }

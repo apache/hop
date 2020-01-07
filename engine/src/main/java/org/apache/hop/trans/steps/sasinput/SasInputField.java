@@ -29,8 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -100,33 +99,7 @@ public class SasInputField implements XMLInterface, Cloneable {
     return retval.toString();
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId transformationId, ObjectId stepId,
-    int fieldNr ) throws HopException {
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_name", name );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_rename", rename );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_type", ValueMetaFactory.getValueMetaName( type ) );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_length", length );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_precision", precision );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_conversion_mask", conversionMask );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_decimal", decimalSymbol );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_grouping", groupingSymbol );
-    rep.saveStepAttribute( transformationId, stepId, fieldNr, "field_trim_type", ValueMetaString
-      .getTrimTypeCode( trimType ) );
-  }
-
-  public SasInputField( Repository rep, ObjectId stepId, int fieldNr ) throws HopException {
-    name = rep.getStepAttributeString( stepId, fieldNr, "field_name" );
-    rename = rep.getStepAttributeString( stepId, fieldNr, "field_rename" );
-    type = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( stepId, fieldNr, "field_type" ) );
-    length = (int) rep.getStepAttributeInteger( stepId, fieldNr, "field_length" );
-    precision = (int) rep.getStepAttributeInteger( stepId, fieldNr, "field_precision" );
-    conversionMask = rep.getStepAttributeString( stepId, fieldNr, "field_conversion_mask" );
-    decimalSymbol = rep.getStepAttributeString( stepId, fieldNr, "field_decimal" );
-    groupingSymbol = rep.getStepAttributeString( stepId, fieldNr, "field_grouping" );
-    trimType = ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString( stepId, fieldNr, "field_trim_type" ) );
-  }
-
-  public SasInputField( Node node ) throws HopXMLException {
+ public SasInputField( Node node ) throws HopXMLException {
     name = XMLHandler.getTagValue( node, "name" );
     rename = XMLHandler.getTagValue( node, "rename" );
     type = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( node, "type" ) );

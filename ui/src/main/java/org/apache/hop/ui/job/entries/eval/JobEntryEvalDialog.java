@@ -54,7 +54,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.eval.JobEntryEval;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -98,8 +97,8 @@ public class JobEntryEvalDialog extends JobEntryDialog implements JobEntryDialog
 
   private boolean changed;
 
-  public JobEntryEvalDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryEvalDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryEval) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEval.Name.Default" ) );

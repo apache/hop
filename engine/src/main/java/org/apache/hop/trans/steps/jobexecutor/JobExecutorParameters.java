@@ -25,8 +25,7 @@ package org.apache.hop.trans.steps.jobexecutor;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -109,30 +108,6 @@ public class JobExecutorParameters implements Cloneable {
     xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    for ( int i = 0; i < variable.length; i++ ) {
-      rep.saveStepAttribute( id_transformation, id_step, i, "parameter_variable", variable[i] );
-      rep.saveStepAttribute( id_transformation, id_step, i, "parameter_field", field[i] );
-      rep.saveStepAttribute( id_transformation, id_step, i, "parameter_input", input[i] );
-    }
-    rep.saveStepAttribute( id_transformation, id_step, "parameter_inherit_all_vars", inheritingAllVariables );
-  }
-
-  public JobExecutorParameters( Repository rep, ObjectId id_step ) throws HopException {
-    int nrVariables = rep.countNrStepAttributes( id_step, "parameter_variable" );
-
-    variable = new String[nrVariables];
-    field = new String[nrVariables];
-    input = new String[nrVariables];
-
-    for ( int i = 0; i < nrVariables; i++ ) {
-      variable[i] = rep.getStepAttributeString( id_step, i, "parameter_variable" );
-      field[i] = rep.getStepAttributeString( id_step, i, "parameter_field" );
-      input[i] = rep.getStepAttributeString( id_step, i, "parameter_input" );
-    }
-    inheritingAllVariables = rep.getStepAttributeBoolean( id_step, "parameter_inherit_all_vars" );
   }
 
   /**

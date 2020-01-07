@@ -56,8 +56,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -241,10 +240,10 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       servername = XMLHandler.getTagValue( entrynode, "servername" );
       username = XMLHandler.getTagValue( entrynode, "username" );
       password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
@@ -325,142 +324,6 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
 
   public void setValueImapList( int value ) {
     this.valueimaplist = value;
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      servername = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      username = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-      usessl = rep.getJobEntryAttributeBoolean( id_jobentry, "usessl" );
-      sslport = rep.getJobEntryAttributeString( id_jobentry, "sslport" ); // backward compatible.
-      outputdirectory = rep.getJobEntryAttributeString( id_jobentry, "outputdirectory" );
-      filenamepattern = rep.getJobEntryAttributeString( id_jobentry, "filenamepattern" );
-      if ( Utils.isEmpty( filenamepattern ) ) {
-        filenamepattern = DEFAULT_FILE_NAME_PATTERN;
-      }
-      retrievemails = (int) rep.getJobEntryAttributeInteger( id_jobentry, "retrievemails" );
-      firstmails = rep.getJobEntryAttributeString( id_jobentry, "firstmails" );
-      delete = rep.getJobEntryAttributeBoolean( id_jobentry, "delete" );
-
-      protocol =
-        Const.NVL(
-          rep.getJobEntryAttributeString( id_jobentry, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
-
-      String sv = rep.getJobEntryAttributeString( id_jobentry, "savemessage" );
-      if ( Utils.isEmpty( sv ) ) {
-        savemessage = true;
-      } else {
-        savemessage = rep.getJobEntryAttributeBoolean( id_jobentry, "savemessage" );
-      }
-
-      String sa = rep.getJobEntryAttributeString( id_jobentry, "saveattachment" );
-      if ( Utils.isEmpty( sa ) ) {
-        saveattachment = true;
-      } else {
-        saveattachment = rep.getJobEntryAttributeBoolean( id_jobentry, "saveattachment" );
-      }
-
-      usedifferentfolderforattachment =
-        rep.getJobEntryAttributeBoolean( id_jobentry, "usedifferentfolderforattachment" );
-      attachmentfolder = rep.getJobEntryAttributeString( id_jobentry, "attachmentfolder" );
-      attachmentwildcard = rep.getJobEntryAttributeString( id_jobentry, "attachmentwildcard" );
-      valueimaplist =
-        MailConnectionMeta.getValueListImapListByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "valueimaplist" ), "" ) );
-      imapfirstmails = rep.getJobEntryAttributeString( id_jobentry, "imapfirstmails" );
-      imapfolder = rep.getJobEntryAttributeString( id_jobentry, "imapfolder" );
-      // search term
-      senderSearch = rep.getJobEntryAttributeString( id_jobentry, "sendersearch" );
-      notTermSenderSearch = rep.getJobEntryAttributeBoolean( id_jobentry, "nottermsendersearch" );
-      receipientSearch = rep.getJobEntryAttributeString( id_jobentry, "receipientsearch" );
-      notTermReceipientSearch = rep.getJobEntryAttributeBoolean( id_jobentry, "nottermreceipientsearch" );
-      subjectSearch = rep.getJobEntryAttributeString( id_jobentry, "subjectsearch" );
-      notTermSubjectSearch = rep.getJobEntryAttributeBoolean( id_jobentry, "nottermsubjectsearch" );
-      bodySearch = rep.getJobEntryAttributeString( id_jobentry, "bodysearch" );
-      notTermBodySearch = rep.getJobEntryAttributeBoolean( id_jobentry, "nottermbodysearch" );
-      conditionReceivedDate =
-        MailConnectionMeta.getConditionByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "conditionreceiveddate" ), "" ) );
-      notTermReceivedDateSearch = rep.getJobEntryAttributeBoolean( id_jobentry, "nottermreceiveddatesearch" );
-      receivedDate1 = rep.getJobEntryAttributeString( id_jobentry, "receiveddate1" );
-      receivedDate2 = rep.getJobEntryAttributeString( id_jobentry, "receiveddate2" );
-      actiontype =
-        MailConnectionMeta.getActionTypeByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "actiontype" ), "" ) );
-      moveToIMAPFolder = rep.getJobEntryAttributeString( id_jobentry, "movetoimapfolder" );
-      createmovetofolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createmovetofolder" );
-      createlocalfolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createlocalfolder" );
-      aftergetimap =
-        MailConnectionMeta.getAfterGetIMAPByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "aftergetimap" ), "" ) );
-      includesubfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "includesubfolders" );
-      useproxy = rep.getJobEntryAttributeBoolean( id_jobentry, "useproxy" );
-      proxyusername = rep.getJobEntryAttributeString( id_jobentry, "proxyusername" );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'get pop' exists from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", servername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", username );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "usessl", usessl );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sslport", sslport );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "outputdirectory", outputdirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filenamepattern", filenamepattern );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "retrievemails", retrievemails );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "firstmails", firstmails );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "delete", delete );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "protocol", protocol );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "savemessage", savemessage );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "saveattachment", saveattachment );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "usedifferentfolderforattachment", usedifferentfolderforattachment );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "attachmentfolder", attachmentfolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "attachmentwildcard", attachmentwildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "valueimaplist", MailConnectionMeta
-        .getValueImapListCode( valueimaplist ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "imapfirstmails", imapfirstmails );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "imapfolder", imapfolder );
-      // search term
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "sendersearch", senderSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nottermsendersearch", notTermSenderSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "receipientsearch", receipientSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nottermreceipientsearch", notTermReceipientSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "subjectsearch", subjectSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nottermsubjectsearch", notTermSubjectSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "bodysearch", bodySearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nottermbodysearch", notTermBodySearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "conditionreceiveddate", MailConnectionMeta
-        .getConditionDateCode( conditionReceivedDate ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nottermreceiveddatesearch", notTermReceivedDateSearch );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "receiveddate1", receivedDate1 );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "receiveddate2", receivedDate2 );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "actiontype", MailConnectionMeta
-        .getActionTypeCode( actiontype ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "movetoimapfolder", moveToIMAPFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createmovetofolder", createmovetofolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createlocalfolder", createlocalfolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "aftergetimap", MailConnectionMeta
-        .getAfterGetIMAPCode( aftergetimap ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "includesubfolders", includesubfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "useproxy", useproxy );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxyusername", proxyusername );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'get pop' to the repository for id_job="
-        + id_job, dbe );
-    }
-
   }
 
   public String getPort() {
@@ -1288,7 +1151,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "userName", remarks,

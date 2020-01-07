@@ -34,8 +34,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.trans.steps.loadsave.MemoryRepository;
 import org.apache.hop.trans.steps.loadsave.initializer.JobEntryInitializer;
 import org.apache.hop.trans.steps.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
@@ -85,37 +83,10 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
   protected void validateLoadedMeta( List<String> attributes, Map<String, FieldLoadSaveValidator<?>> validatorMap,
       T metaSaved, T metaLoaded ) {
     super.validateLoadedMeta( attributes, validatorMap, metaSaved, metaLoaded );
-    boolean checkDatabases = false;
-    for ( FieldLoadSaveValidator<?> validator : validatorMap.values() ) {
-      if ( validator instanceof DatabaseMetaLoadSaveValidator ) {
-        checkDatabases = true;
-      }
-    }
-    if ( checkDatabases ) {
-      try {
-        validateJobEntryUsesDatabaseMeta( metaSaved );
-      } catch ( Exception e ) {
-        throw new RuntimeException( e );
-      }
-    }
-  }
-
-  private void validateJobEntryUsesDatabaseMeta( T metaSaved ) throws HopException {
-    DatabaseMeta[] declaredConnections = metaSaved.getUsedDatabaseConnections();
-    if ( declaredConnections == null || declaredConnections.length <= 0 ) {
-      throw new HopException( "The job entry did not report any used database connections." );
-    }
-    List<DatabaseMeta> declaredConnectionsList = Arrays.asList( declaredConnections );
-    for ( DatabaseMeta usedDatabase : databases ) {
-      if ( !declaredConnectionsList.contains( usedDatabase ) ) {
-        throw new HopException( "The job entry did not declare that a connection was used." );
-      }
-    }
   }
 
   public void testSerialization() throws HopException {
     testXmlRoundTrip();
-    testRepoRoundTrip();
     testClone();
   }
 
@@ -130,23 +101,8 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
     T metaLoaded = createMeta();
     String xml = "<step>" + metaToSave.getXML() + "</step>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ), databases, null, null, null );
+    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ), null, metaStore );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
-  }
-
-  @SuppressWarnings( "deprecation" )
-  public void testRepoRoundTrip() throws HopException {
-    T metaToSave = createMeta();
-    if ( initializer != null ) {
-      initializer.modify( metaToSave );
-    }
-    Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( repoAttributes, metaToSave );
-    T metaLoaded = createMeta();
-    Repository rep = new MemoryRepository();
-    metaToSave.saveRep( rep, null, null );
-    metaLoaded.loadRep( rep, null, null, databases, null );
-    validateLoadedMeta( repoAttributes, validatorMap, metaToSave, metaLoaded );
   }
 
   @SuppressWarnings( "deprecation" )

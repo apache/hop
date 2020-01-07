@@ -130,11 +130,6 @@ import org.apache.hop.job.entries.job.JobEntryJob;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.HopRepositoryLostException;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.RepositoryOperation;
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -147,9 +142,6 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.repository.RepositorySecurityUI;
-import org.apache.hop.ui.repository.dialog.RepositoryExplorerDialog;
-import org.apache.hop.ui.repository.dialog.RepositoryRevisionBrowserDialogInterface;
 import org.apache.hop.ui.hopui.AbstractGraph;
 import org.apache.hop.ui.hopui.SWTGC;
 import org.apache.hop.ui.hopui.SwtScrollBar;
@@ -591,13 +583,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     final Timer timer = new Timer( "JobGraph.setControlStates Timer: " + getMeta().getName() );
     TimerTask timerTask = new TimerTask() {
       public void run() {
-        try {
-          setControlStates();
-        } catch ( HopRepositoryLostException krle ) {
-          if ( log.isBasic() ) {
-            log.logBasic( krle.getLocalizedMessage() );
-          }
-        }
+      setControlStates();
       }
     };
     timer.schedule( timerTask, 2000, 1000 );
@@ -1507,10 +1493,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       }
     }
 
-    if ( e.keyCode == SWT.F1 ) {
-      hopUi.browseVersionHistory();
-    }
-
     // CTRL-UP : allignTop();
     if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.MOD1 ) != 0 ) {
       alligntop();
@@ -1824,10 +1806,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   public void copyEntry() {
-    if ( RepositorySecurityUI.verifyOperations(
-        shell, hopUi.rep, RepositoryOperation.MODIFY_JOB, RepositoryOperation.EXECUTE_JOB ) ) {
-      return;
-    }
     List<JobEntryCopy> entries = jobMeta.getSelectedEntries();
     Iterator<JobEntryCopy> iterator = entries.iterator();
     while ( iterator.hasNext() ) {
@@ -2049,7 +2027,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   public void editJobProperties() {
-    editProperties( jobMeta, hopUi, hopUi.getRepository(), true );
+    editProperties( jobMeta, hopUi, true );
   }
 
   public void pasteNote() {
@@ -2520,13 +2498,8 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   protected void loadReferencedObject( JobEntryCopy jobEntryCopy, int index ) {
     try {
-      Object referencedMeta =
-        jobEntryCopy.getEntry().loadReferencedObject( index, hopUi.rep, hopUi.metaStore, jobMeta );
-      if ( referencedMeta == null ) {
-        // Compatible re-try for older plugins.
-        referencedMeta =
-          compatibleJobEntryLoadReferencedObject( jobEntryCopy.getEntry(), index, hopUi.rep, jobMeta );
-      }
+      Object referencedMeta = jobEntryCopy.getEntry().loadReferencedObject( index, hopUi.metaStore, jobMeta );
+
       if ( referencedMeta != null && ( referencedMeta instanceof TransMeta ) ) {
         TransMeta launchTransMeta = (TransMeta) referencedMeta;
 
@@ -2585,75 +2558,27 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     }
   }
 
-  @SuppressWarnings( "deprecation" )
-  private Object compatibleJobEntryLoadReferencedObject( JobEntryInterface entry, int index, Repository rep,
-    JobMeta jobMeta2 ) throws HopException {
-    return entry.loadReferencedObject( index, hopUi.rep, jobMeta );
-  }
-
   protected void openTransformation( JobEntryTrans entry, JobEntryCopy jobEntryCopy ) {
 
     try {
 
       TransMeta launchTransMeta = null;
 
-      switch ( entry.getSpecificationMethod() ) {
-        case FILENAME:
-          // See if this file is already loaded...
-          //
-          String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
-          if ( Utils.isEmpty( exactFilename ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
-          }
+        // See if this file is already loaded...
+        //
+        String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
+        if ( Utils.isEmpty( exactFilename ) ) {
+          throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
+        }
 
-          // Open the file or create a new one!
-          //
-          if ( HopVFS.fileExists( exactFilename ) ) {
-            launchTransMeta = new TransMeta( exactFilename );
-          } else {
-            launchTransMeta = new TransMeta();
-          }
-          launchTransMeta.setFilename( exactFilename );
-          break;
-
-        case REPOSITORY_BY_NAME:
-          String exactTransname = jobMeta.environmentSubstitute( entry.getTransname() );
-          String exactDirectory = jobMeta.environmentSubstitute( entry.getDirectory() );
-          if ( Utils.isEmpty( exactTransname ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoTransNameSpecified" ) );
-          }
-          if ( Utils.isEmpty( exactDirectory ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoTransDirectorySpecified" ) );
-          }
-
-          // Open the transformation or create a new one...
-
-          // But first we look to see if the directory does exist
-          RepositoryDirectoryInterface repositoryDirectoryInterface =
-            hopUi.rep.findDirectory( jobMeta.environmentSubstitute( entry.getDirectory() ) );
-          if ( repositoryDirectoryInterface == null ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.DirectoryDoesNotExist", jobMeta
-              .environmentSubstitute( entry.getDirectory() ) ) );
-          }
-
-          boolean exists = hopUi.rep.getTransformationID( exactTransname, repositoryDirectoryInterface ) != null;
-          if ( !exists ) {
-            launchTransMeta = new TransMeta( null, exactTransname );
-          } else {
-            launchTransMeta =
-              hopUi.rep.loadTransformation( exactTransname, hopUi.rep.findDirectory( jobMeta
-                .environmentSubstitute( entry.getDirectory() ) ), null, true, null ); // reads last version
-          }
-          break;
-        case REPOSITORY_BY_REFERENCE:
-          if ( entry.getTransObjectId() == null ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoTransReferenceSpecified" ) );
-          }
-          launchTransMeta = hopUi.rep.loadTransformation( entry.getTransObjectId(), null );
-          break;
-        default:
-          break;
-      }
+        // Open the file or create a new one!
+        //
+        if ( HopVFS.fileExists( exactFilename ) ) {
+          launchTransMeta = new TransMeta( exactFilename );
+        } else {
+          launchTransMeta = new TransMeta();
+        }
+        launchTransMeta.setFilename( exactFilename );
 
       // If we didn't find a valid transformation, stop here...
       //
@@ -2661,7 +2586,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoValidTransSpecified" ) );
       }
 
-      launchTransMeta.setRepository( hopUi.getRepository() );
       launchTransMeta.setMetaStore( hopUi.getMetaStore() );
 
       // Try to see if this transformation is already loaded in another tab...
@@ -2700,8 +2624,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
       JobMeta launchJobMeta = null;
 
-      switch ( entry.getSpecificationMethod() ) {
-        case FILENAME:
           // See if this file is already loaded...
           //
           String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
@@ -2712,46 +2634,12 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
           // Open the file or create a new one!
           //
           if ( HopVFS.fileExists( exactFilename ) ) {
-            launchJobMeta = new JobMeta( jobMeta, exactFilename, hopUi.rep, hopUi.metaStore, null );
+            launchJobMeta = new JobMeta( jobMeta, exactFilename, hopUi.metaStore );
           } else {
             launchJobMeta = new JobMeta();
           }
           launchJobMeta.setFilename( exactFilename );
-          break;
 
-        case REPOSITORY_BY_NAME:
-          String exactJobname = jobMeta.environmentSubstitute( entry.getJobName() );
-          String exactDirectory = jobMeta.environmentSubstitute( entry.getDirectory() );
-          if ( Utils.isEmpty( exactJobname ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoJobNameSpecified" ) );
-          }
-          if ( Utils.isEmpty( exactDirectory ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoJobDirectorySpecified" ) );
-          }
-
-          // Open the job or create a new one...
-          //
-          RepositoryDirectoryInterface repDir = hopUi.rep.findDirectory( entry.getDirectory() );
-          boolean exists = hopUi.rep.exists( exactJobname, repDir, RepositoryObjectType.JOB );
-          if ( !exists ) {
-            launchJobMeta = new JobMeta();
-            launchJobMeta.setName( exactJobname );
-            launchJobMeta.setRepositoryDirectory( repDir );
-          } else {
-            // Always reads last revision
-            launchJobMeta = hopUi.rep.loadJob( exactJobname, repDir, null, null );
-          }
-          break;
-        case REPOSITORY_BY_REFERENCE:
-          if ( entry.getJobObjectId() == null ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoJobReferenceSpecified" ) );
-          }
-          // Always reads last revision
-          launchJobMeta = hopUi.rep.loadJob( entry.getJobObjectId(), null );
-          break;
-        default:
-          break;
-      }
 
       // If we didn't find a valid job, stop here...
       //
@@ -2759,7 +2647,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoValidJobSpecified" ) );
       }
 
-      launchJobMeta.setRepository( hopUi.getRepository() );
       launchJobMeta.setMetaStore( hopUi.getMetaStore() );
 
       // Try to see if this job is already loaded in another tab...
@@ -2809,10 +2696,11 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   /**
-   * Finds the last active job in the running job to the openened jobMeta
+   * Finds the last active job in the running job to the open jobMeta
    *
    * @param jobGraph
-   * @param newJob
+   * @param newJobMeta
+   * @param jobEntryCopy
    */
   private void attachActiveJob( JobGraph jobGraph, JobMeta newJobMeta, JobEntryCopy jobEntryCopy ) {
     if ( job != null && jobGraph != null ) {
@@ -3197,12 +3085,12 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     return mb.open();
   }
 
-  public static boolean editProperties( JobMeta jobMeta, HopUi hopUi, Repository rep, boolean allowDirectoryChange ) {
+  public static boolean editProperties( JobMeta jobMeta, HopUi hopUi, boolean allowDirectoryChange ) {
     if ( jobMeta == null ) {
       return false;
     }
 
-    JobDialog jd = new JobDialog( hopUi.getShell(), SWT.NONE, jobMeta, rep );
+    JobDialog jd = new JobDialog( hopUi.getShell(), SWT.NONE, jobMeta );
     jd.setDirectoryChangeAllowed( allowDirectoryChange );
     JobMeta ji = jd.open();
 
@@ -3210,8 +3098,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     //
     if ( jd.isSharedObjectsFileChanged() ) {
       try {
-        SharedObjects sharedObjects =
-          rep != null ? rep.readJobMetaSharedObjects( jobMeta ) : jobMeta.readSharedObjects();
+        SharedObjects sharedObjects = jobMeta.readSharedObjects();
         hopUi.sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
       } catch ( Exception e ) {
         new ErrorDialog( hopUi.getShell(),
@@ -3445,22 +3332,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     hopUi.exploreDatabase();
   }
 
-  public void browseVersionHistory() {
-    try {
-      RepositoryRevisionBrowserDialogInterface dialog =
-        RepositoryExplorerDialog.getVersionBrowserDialog( shell, hopUi.rep, jobMeta );
-      String versionLabel = dialog.open();
-      if ( versionLabel != null ) {
-        hopUi.loadObjectFromRepository( jobMeta.getName(), jobMeta.getRepositoryElementType(), jobMeta
-          .getRepositoryDirectory(), versionLabel );
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "JobGraph.VersionBrowserException.Title" ), BaseMessages.getString(
-          PKG, "JobGraph.VersionBrowserException.Message" ), e );
-    }
-  }
-
   public synchronized void startJob( JobExecutionConfiguration executionConfiguration ) throws HopException {
 
     // If the job is not running, start the transformation...
@@ -3473,10 +3344,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       // Is the repository available & name / id set?
       // Is there a filename set and no repository available?
       //
-      if ( ( ( jobMeta.getName() != null && jobMeta.getObjectId() != null && hopUi.rep != null ) || ( jobMeta
-        .getFilename() != null && hopUi.rep == null ) )
-        && !jobMeta.hasChanged() // Didn't change
-      ) {
+      if ( jobMeta.getFilename() != null && !jobMeta.hasChanged() ) { // Didn't change
         if ( job == null || ( job != null && !job.isActive() ) ) {
           try {
 
@@ -3495,18 +3363,15 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
             JobMeta runJobMeta;
 
-            if ( hopUi.rep != null ) {
-              runJobMeta = hopUi.rep.loadJob( jobMeta.getName(), jobMeta.getRepositoryDirectory(), null, null );
-            } else {
-              runJobMeta = new JobMeta( null, jobMeta.getFilename(), null, jobMeta.getMetaStore(), null );
-            }
+
+            runJobMeta = new JobMeta( null, jobMeta.getFilename(), jobMeta.getMetaStore() );
 
             String spoonObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject spoonLoggingObject =
               new SimpleLoggingObject( "SPOON", LoggingObjectType.SPOON, null );
             spoonLoggingObject.setContainerObjectId( spoonObjectId );
             spoonLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
-            job = new Job( hopUi.rep, runJobMeta, spoonLoggingObject );
+            job = new Job( runJobMeta, spoonLoggingObject );
 
             job.setLogLevel( executionConfiguration.getLogLevel() );
             job.shareVariablesWith( jobMeta );
@@ -3571,7 +3436,9 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       } else {
         if ( jobMeta.hasChanged() ) {
           showSaveFileMessage();
-        } else if ( hopUi.rep != null && jobMeta.getName() == null ) {
+        }
+
+        /*else if ( hopUi.rep != null && jobMeta.getName() == null ) {
           MessageBox m = new MessageBox( shell, SWT.OK | SWT.ICON_WARNING );
           m.setText( BaseMessages.getString( PKG, "JobLog.Dialog.PleaseGiveThisJobAName.Title" ) );
           m.setMessage( BaseMessages.getString( PKG, "JobLog.Dialog.PleaseGiveThisJobAName.Message" ) );
@@ -3582,6 +3449,8 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
           m.setMessage( BaseMessages.getString( PKG, "JobLog.Dialog.NoFilenameSaveYourJobFirst.Message" ) );
           m.open();
         }
+
+         */
       }
       setControlStates();
     }
@@ -3651,20 +3520,11 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     getDisplay().asyncExec( new Runnable() {
 
       public void run() {
-        boolean operationsNotAllowed = false;
-        try {
-          operationsNotAllowed = RepositorySecurityUI.verifyOperations( shell, hopUi.rep, false,
-              RepositoryOperation.EXECUTE_JOB  );
-        } catch ( HopRepositoryLostException krle ) {
-          log.logError( krle.getLocalizedMessage() );
-          hopUi.handleRepositoryLost( krle );
-        }
-
         // Start/Run button...
         //
         boolean running = job != null && job.isActive();
         XulToolbarbutton runButton = (XulToolbarbutton) toolbar.getElementById( "job-run" );
-        if ( runButton != null && !controlDisposed( runButton )  && !operationsNotAllowed ) {
+        if ( runButton != null && !controlDisposed( runButton ) ) {
           if ( runButton.isDisabled() ^ running ) {
             runButton.setDisabled( running );
           }
@@ -3682,21 +3542,9 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         // Replay button...
         //
         XulToolbarbutton replayButton = (XulToolbarbutton) toolbar.getElementById( "job-replay" );
-        if ( replayButton != null && !controlDisposed( replayButton ) && !operationsNotAllowed ) {
+        if ( replayButton != null && !controlDisposed( replayButton ) ) {
           if ( replayButton.isDisabled() ^ running ) {
             replayButton.setDisabled( running );
-          }
-        }
-
-        // version browser button...
-        //
-        XulToolbarbutton versionsButton = (XulToolbarbutton) toolbar.getElementById( "browse-versions" );
-        if ( versionsButton != null && !controlDisposed( versionsButton ) ) {
-          boolean hasRepository = hopUi.rep != null;
-          boolean enabled =
-            hasRepository && hopUi.rep.getRepositoryMeta().getRepositoryCapabilities().supportsRevisions();
-          if ( versionsButton.isDisabled() ^ !enabled ) {
-            versionsButton.setDisabled( !enabled );
           }
         }
       }

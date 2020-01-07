@@ -263,7 +263,7 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     meta.setValueField( valueFields );
 
     Variables vars = new Variables();
-    meta.getFields( rm, stepName, null, null, vars, null, null );
+    meta.getFields( rm, stepName, null, null, vars, null );
     assertNotNull( rm );
     assertEquals( 26, rm.size() );
     assertTrue( rm.indexOfValue( "myGroupField1" ) >= 0 );
@@ -323,7 +323,7 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     // Test Compatibility
     rm = getInputRowMeta();
     vars.setVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "Y" );
-    meta.getFields( rm, stepName, null, null, vars, null, null );
+    meta.getFields( rm, stepName, null, null, vars, null );
     assertNotNull( rm );
     assertEquals( 26, rm.size() );
     assertTrue( rm.indexOfValue( "Average(Integer)" ) >= 0 );

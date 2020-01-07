@@ -39,8 +39,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -104,10 +103,10 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       start = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "start" ) );
       dummy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "dummy" ) );
       repeat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "repeat" ) );
@@ -120,45 +119,6 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
       setDayOfMonth( Const.toInt( XMLHandler.getTagValue( entrynode, "dayOfMonth" ), 0 ) );
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'special' from XML node", e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      start = rep.getJobEntryAttributeBoolean( id_jobentry, "start" );
-      dummy = rep.getJobEntryAttributeBoolean( id_jobentry, "dummy" );
-      repeat = rep.getJobEntryAttributeBoolean( id_jobentry, "repeat" );
-      schedulerType = (int) rep.getJobEntryAttributeInteger( id_jobentry, "schedulerType" );
-      intervalSeconds = (int) rep.getJobEntryAttributeInteger( id_jobentry, "intervalSeconds" );
-      intervalMinutes = (int) rep.getJobEntryAttributeInteger( id_jobentry, "intervalMinutes" );
-      hour = (int) rep.getJobEntryAttributeInteger( id_jobentry, "hour" );
-      minutes = (int) rep.getJobEntryAttributeInteger( id_jobentry, "minutes" );
-      weekDay = (int) rep.getJobEntryAttributeInteger( id_jobentry, "weekDay" );
-      dayOfMonth = (int) rep.getJobEntryAttributeInteger( id_jobentry, "dayOfMonth" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'special' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "start", start );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "dummy", dummy );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "repeat", repeat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schedulerType", schedulerType );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "intervalSeconds", intervalSeconds );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "intervalMinutes", intervalMinutes );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "hour", hour );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "minutes", minutes );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "weekDay", weekDay );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "dayOfMonth", dayOfMonth );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'special' to the repository with id_job="
-        + id_job, dbe );
     }
   }
 
@@ -368,7 +328,7 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
   }
 

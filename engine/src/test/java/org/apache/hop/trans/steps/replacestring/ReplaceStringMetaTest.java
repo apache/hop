@@ -43,7 +43,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
@@ -76,9 +75,8 @@ public class ReplaceStringMetaTest {
 
     StepMeta nextStep = mock( StepMeta.class );
     VariableSpace space = mock( VariableSpace.class );
-    Repository repository = mock( Repository.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    meta.getFields( inputRowMeta, "test", null, nextStep, space, repository, metaStore );
+    meta.getFields( inputRowMeta, "test", null, nextStep, space, metaStore );
 
     ArgumentCaptor<ValueMetaInterface> argument = ArgumentCaptor.forClass( ValueMetaInterface.class );
     verify( inputRowMeta ).addValueMeta( argument.capture() );

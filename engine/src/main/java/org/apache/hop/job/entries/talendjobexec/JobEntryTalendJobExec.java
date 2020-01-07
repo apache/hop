@@ -53,8 +53,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -102,36 +101,15 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       className = XMLHandler.getTagValue( entrynode, "class_name" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryTalendJobExec.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      className = rep.getJobEntryAttributeString( id_jobentry, "class_name" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryTalendJobExec.ERROR_0002_Cannot_Load_Job_From_Repository", id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "class_name", className );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryTalendJobExec.ERROR_0003_Cannot_Save_Job_Entry", id_job ), dbe );
     }
   }
 
@@ -277,7 +255,7 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
@@ -298,8 +276,6 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
    *          The map containing the filenames and content
    * @param namingInterface
    *          The resource naming interface allows the object to be named appropriately
-   * @param repository
-   *          The repository to load resources from
    * @param metaStore
    *          the metaStore to load external metadata from
    *
@@ -308,7 +284,7 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
    *           in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the

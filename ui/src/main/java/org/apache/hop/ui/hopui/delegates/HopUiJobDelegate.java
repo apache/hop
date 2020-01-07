@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -59,8 +58,6 @@ import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -73,9 +70,6 @@ import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
 import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.job.JobGraph;
-import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage1;
-import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage2;
-import org.apache.hop.ui.hopui.wizards.RipDatabaseWizardPage3;
 import org.apache.xul.swt.tab.TabItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -191,8 +185,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
   }
 
   public JobEntryDialogInterface getJobEntryDialog( JobEntryInterface jobEntryInterface, JobMeta jobMeta ) {
-    Class<?>[] paramClasses = new Class<?>[] { Shell.class, JobEntryInterface.class, Repository.class, JobMeta.class };
-    Object[] paramArgs = new Object[] { hopUi.getShell(), jobEntryInterface, hopUi.getRepository(), jobMeta };
+    Class<?>[] paramClasses = new Class<?>[] { Shell.class, JobEntryInterface.class, JobMeta.class };
+    Object[] paramArgs = new Object[] { hopUi.getShell(), jobEntryInterface, jobMeta };
 
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginInterface plugin = registry.getPlugin( JobEntryPluginType.class, jobEntryInterface );
@@ -377,10 +371,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
       for ( int i = 0; i < nr; i++ ) {
         Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "entry", i );
-        JobEntryCopy copy =
-          new JobEntryCopy(
-            entrynode, jobMeta.getDatabases(), jobMeta.getSlaveServers(), hopUi.getRepository(), hopUi
-              .getMetaStore() );
+        JobEntryCopy copy = new JobEntryCopy( entrynode, jobMeta.getSlaveServers(), hopUi.getMetaStore() );
         if ( copy.isStart() && ( jobMeta.findStart() != null ) ) {
           JobGraph.showOnlyStartOnceMessage( hopUi.getShell() );
           continue;
@@ -443,336 +434,6 @@ public class HopUiJobDelegate extends HopUiDelegate {
     hopUi.addUndoNew( jobMeta, new JobHopMeta[] { hi }, new int[] { jobMeta.indexOfJobHop( hi ) } );
     hopUi.refreshGraph();
     hopUi.refreshTree();
-  }
-
-  /**
-   * Create a job that extracts tables & data from a database.
-   * <p>
-   * <p>
-   *
-   * 0) Select the database to rip
-   * <p>
-   * 1) Select the tables in the database to rip
-   * <p>
-   * 2) Select the database to dump to
-   * <p>
-   * 3) Select the repository directory in which it will end up
-   * <p>
-   * 4) Select a name for the new job
-   * <p>
-   * 5) Create an empty job with the selected name.
-   * <p>
-   * 6) Create 1 transformation for every selected table
-   * <p>
-   * 7) add every created transformation to the job & evaluate
-   * <p>
-   *
-   */
-  public void ripDBWizard() {
-    final List<DatabaseMeta> databases = hopUi.getActiveDatabases();
-    if ( databases.size() == 0 ) {
-      return; // Nothing to do here
-    }
-
-    final RipDatabaseWizardPage1 page1 = new RipDatabaseWizardPage1( "1", databases );
-    final RipDatabaseWizardPage2 page2 = new RipDatabaseWizardPage2( "2" );
-    final RipDatabaseWizardPage3 page3 = new RipDatabaseWizardPage3( "3", hopUi.getRepository() );
-
-    Wizard wizard = new Wizard() {
-      public boolean performFinish() {
-        try {
-          JobMeta jobMeta =
-            ripDB( databases, page3.getJobname(), page3.getRepositoryDirectory(), page3.getDirectory(), page1
-              .getSourceDatabase(), page1.getTargetDatabase(), page2.getSelection() );
-          if ( jobMeta == null ) {
-            return false;
-          }
-
-          if ( page3.getRepositoryDirectory() != null ) {
-            hopUi.saveToRepository( jobMeta, false );
-          } else {
-            hopUi.saveToFile( jobMeta );
-          }
-
-          addJobGraph( jobMeta );
-          return true;
-        } catch ( Exception e ) {
-          new ErrorDialog( hopUi.getShell(), "Error", "An unexpected error occurred!", e );
-          return false;
-        }
-      }
-
-      /**
-       * @see org.eclipse.jface.wizard.Wizard#canFinish()
-       */
-      public boolean canFinish() {
-        return page3.canFinish();
-      }
-    };
-
-    wizard.addPage( page1 );
-    wizard.addPage( page2 );
-    wizard.addPage( page3 );
-
-    WizardDialog wd = new WizardDialog( hopUi.getShell(), wizard );
-    WizardDialog.setDefaultImage( GUIResource.getInstance().getImageWizard() );
-    wd.setMinimumPageSize( 700, 400 );
-    wd.updateSize();
-    wd.open();
-  }
-
-  public JobMeta ripDB( final List<DatabaseMeta> databases, final String jobname,
-    final RepositoryDirectoryInterface repdir, final String directory, final DatabaseMeta sourceDbInfo,
-    final DatabaseMeta targetDbInfo, final String[] tables ) {
-    //
-    // Create a new job...
-    //
-
-    final JobMeta jobMeta = new JobMeta();
-    jobMeta.setDatabases( databases );
-    jobMeta.setFilename( null );
-    jobMeta.setName( jobname );
-
-    if ( hopUi.getRepository() != null ) {
-      jobMeta.setRepositoryDirectory( repdir );
-    } else {
-      jobMeta.setFilename( Const.createFilename( directory, jobname, "." + Const.STRING_JOB_DEFAULT_EXT ) );
-    }
-
-    hopUi.refreshTree();
-    hopUi.refreshGraph();
-
-    final Point location = new Point( 50, 50 );
-
-    // The start entry...
-    final JobEntryCopy start = JobMeta.createStartEntry();
-    start.setLocation( new Point( location.x, location.y ) );
-    start.setDrawn();
-    jobMeta.addJobEntry( start );
-
-    // final Thread parentThread = Thread.currentThread();
-
-    // Create a dialog with a progress indicator!
-    IRunnableWithProgress op = monitor -> {
-      try {
-        // This is running in a new process: copy some HopVariables
-        // info
-        // LocalVariables.getInstance().createHopVariables(Thread.currentThread().getName(),
-        // parentThread.getName(), true);
-
-        monitor.beginTask( BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.BuildingNewJob" ), tables.length );
-        monitor.worked( 0 );
-        JobEntryCopy previous = start;
-
-        // Loop over the table-names...
-        for ( int i = 0; i < tables.length && !monitor.isCanceled(); i++ ) {
-          monitor.setTaskName( BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.ProcessingTable" )
-            + tables[i] + "]..." );
-          //
-          // Create the new transformation...
-          //
-          String transname =
-            BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Transname1" )
-              + sourceDbInfo + "].[" + tables[i]
-              + BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Transname2" ) + targetDbInfo + "]";
-
-          TransMeta transMeta = new TransMeta();
-          if ( repdir != null ) {
-            transMeta.setRepositoryDirectory( repdir );
-          } else {
-            transMeta.setFilename( Const.createFilename( directory, transname, "."
-              + Const.STRING_TRANS_DEFAULT_EXT ) );
-          }
-
-          // Add the source & target db
-          transMeta.addDatabase( sourceDbInfo );
-          transMeta.addDatabase( targetDbInfo );
-
-          //
-          // Add a note
-          //
-          String note =
-            BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Note1" )
-              + tables[i] + BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Note2" ) + sourceDbInfo + "]"
-              + Const.CR;
-          note +=
-            BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Note3" )
-              + tables[i] + BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.Note4" ) + targetDbInfo + "]";
-          NotePadMeta ni = new NotePadMeta( note, 150, 10, -1, -1 );
-          transMeta.addNote( ni );
-
-          //
-          // Add the TableInputMeta step...
-          //
-          String fromstepname =
-            BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.FromStep.Name" ) + tables[i] + "]";
-          TableInputMeta tii = new TableInputMeta();
-          tii.setDefault();
-          tii.setDatabaseMeta( sourceDbInfo );
-          tii.setSQL( "SELECT * FROM " + tables[i] ); // It's already quoted!
-
-          String fromstepid = PluginRegistry.getInstance().getPluginId( StepPluginType.class, tii );
-          StepMeta fromstep = new StepMeta( fromstepid, fromstepname, tii );
-          fromstep.setLocation( 150, 100 );
-          fromstep.setDraw( true );
-          fromstep
-            .setDescription( BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.FromStep.Description" )
-              + tables[i] + BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.FromStep.Description2" )
-              + sourceDbInfo + "]" );
-          transMeta.addStep( fromstep );
-
-          //
-          // Add the TableOutputMeta step...
-          //
-          String tostepname = BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.ToStep.Name" ) + tables[i] + "]";
-          TableOutputMeta toi = new TableOutputMeta();
-          toi.setDatabaseMeta( targetDbInfo );
-          toi.setTableName( tables[i] );
-          toi.setCommitSize( 100 );
-          toi.setTruncateTable( true );
-
-          String tostepid = PluginRegistry.getInstance().getPluginId( StepPluginType.class, toi );
-          StepMeta tostep = new StepMeta( tostepid, tostepname, toi );
-          tostep.setLocation( 500, 100 );
-          tostep.setDraw( true );
-          tostep
-            .setDescription( BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.ToStep.Description1" )
-              + tables[i] + BaseMessages.getString( PKG, "Spoon.RipDB.Monitor.ToStep.Description2" )
-              + targetDbInfo + "]" );
-          transMeta.addStep( tostep );
-
-          //
-          // Add a hop between the two steps...
-          //
-          TransHopMeta hi = new TransHopMeta( fromstep, tostep );
-          transMeta.addTransHop( hi );
-
-          //
-          // Now we generate the SQL needed to run for this
-          // transformation.
-          //
-          // First set the limit to 1 to speed things up!
-          String tmpSql = tii.getSQL();
-          tii.setSQL( tii.getSQL() + sourceDbInfo.getLimitClause( 1 ) );
-          String sql;
-          try {
-            sql = transMeta.getSQLStatementsString();
-          } catch ( HopStepException kse ) {
-            throw new InvocationTargetException( kse, BaseMessages.getString(
-              PKG, "Spoon.RipDB.Exception.ErrorGettingSQLFromTransformation" )
-              + transMeta + "] : " + kse.getMessage() );
-          }
-          // remove the limit
-          tii.setSQL( tmpSql );
-
-          //
-          // Now, save the transformation...
-          //
-          boolean ok;
-          if ( hopUi.getRepository() != null ) {
-            ok = hopUi.saveToRepository( transMeta, false );
-          } else {
-            ok = hopUi.saveToFile( transMeta );
-          }
-          if ( !ok ) {
-            throw new InvocationTargetException( new Exception(
-              BaseMessages.getString( PKG, "Spoon.RipDB.Exception.UnableToSaveTransformationToRepository" ) ),
-              BaseMessages.getString( PKG, "Spoon.RipDB.Exception.UnableToSaveTransformationToRepository" ) );
-          }
-
-          // We can now continue with the population of the job...
-          // //////////////////////////////////////////////////////////////////////
-
-          location.x = 250;
-          if ( i > 0 ) {
-            location.y += 100;
-          }
-
-          //
-          // We can continue defining the job.
-          //
-          // First the SQL, but only if needed!
-          // If the table exists & has the correct format, nothing is
-          // done
-          //
-          if ( !Utils.isEmpty( sql ) ) {
-            String jesqlname = BaseMessages.getString( PKG, "Spoon.RipDB.JobEntrySQL.Name" ) + tables[i] + "]";
-            JobEntrySQL jesql = new JobEntrySQL( jesqlname );
-            jesql.setDatabase( targetDbInfo );
-            jesql.setSQL( sql );
-            jesql
-              .setDescription( BaseMessages.getString( PKG, "Spoon.RipDB.JobEntrySQL.Description" )
-                + targetDbInfo + "].[" + tables[i] + "]" );
-
-            JobEntryCopy jecsql = new JobEntryCopy();
-            jecsql.setEntry( jesql );
-            jecsql.setLocation( new Point( location.x, location.y ) );
-            jecsql.setDrawn();
-            jobMeta.addJobEntry( jecsql );
-
-            // Add the hop too...
-            JobHopMeta jhi = new JobHopMeta( previous, jecsql );
-            jobMeta.addJobHop( jhi );
-            previous = jecsql;
-          }
-
-          //
-          // Add the jobentry for the transformation too...
-          //
-          String jetransname = BaseMessages.getString( PKG, "Spoon.RipDB.JobEntryTrans.Name" ) + tables[i] + "]";
-          JobEntryTrans jetrans = new JobEntryTrans( jetransname );
-          jetrans.setTransname( transMeta.getName() );
-          if ( hopUi.getRepository() != null ) {
-            jetrans.setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-            jetrans.setDirectory( transMeta.getRepositoryDirectory().getPath() );
-          } else {
-            jetrans.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-            jetrans.setFileName( Const.createFilename( "${"
-              + Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY + "}", transMeta.getName(), "."
-              + Const.STRING_TRANS_DEFAULT_EXT ) );
-          }
-
-          JobEntryCopy jectrans = new JobEntryCopy( jetrans );
-          jectrans
-            .setDescription( BaseMessages.getString( PKG, "Spoon.RipDB.JobEntryTrans.Description1" )
-              + Const.CR + BaseMessages.getString( PKG, "Spoon.RipDB.JobEntryTrans.Description2" )
-              + sourceDbInfo + "].[" + tables[i] + "]" + Const.CR
-              + BaseMessages.getString( PKG, "Spoon.RipDB.JobEntryTrans.Description3" ) + targetDbInfo + "].["
-              + tables[i] + "]" );
-          jectrans.setDrawn();
-          location.x += 400;
-          jectrans.setLocation( new Point( location.x, location.y ) );
-          jobMeta.addJobEntry( jectrans );
-
-          // Add a hop between the last 2 job entries.
-          JobHopMeta jhi2 = new JobHopMeta( previous, jectrans );
-          jobMeta.addJobHop( jhi2 );
-          previous = jectrans;
-
-          monitor.worked( 1 );
-        }
-
-        monitor.worked( 100 );
-        monitor.done();
-      } catch ( Exception e ) {
-        new ErrorDialog( hopUi.getShell(), "Error", "An unexpected error occurred!", e );
-      }
-    };
-
-    try {
-      ProgressMonitorDialog pmd = new ProgressMonitorDialog( hopUi.getShell() );
-      pmd.run( false, true, op );
-    } catch ( InvocationTargetException | InterruptedException e ) {
-      new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.RipDB.ErrorRippingTheDatabase.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.RipDB.ErrorRippingTheDatabase.Message" ), e );
-      return null;
-    } finally {
-      hopUi.refreshGraph();
-      hopUi.refreshTree();
-    }
-
-    return jobMeta;
   }
 
   public boolean isDefaultJobName( String name ) {
@@ -920,12 +581,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
           jobGraph.extraViewTabFolder.setSelection( jobGraph.jobHistoryDelegate.getJobHistoryTab() );
         }
 
-        String versionLabel = jobMeta.getObjectRevision() == null ? null : jobMeta.getObjectRevision().getName();
-
         tabEntry =
-          new TabMapEntry(
-            tabItem, jobMeta.getFilename(), jobMeta.getName(), jobMeta.getRepositoryDirectory(), versionLabel,
-            jobGraph, ObjectType.JOB_GRAPH );
+          new TabMapEntry( tabItem, jobMeta.getFilename(), jobMeta.getName(), jobGraph, ObjectType.JOB_GRAPH );
         tabEntry.setShowingLocation( showLocation );
 
         hopUi.delegates.tabs.addTab( tabEntry );
@@ -1314,7 +971,6 @@ public class HopUiJobDelegate extends HopUiDelegate {
     executionConfiguration.setVariables( variableMap );
     executionConfiguration.getUsedVariables( jobMeta );
     executionConfiguration.setReplayDate( replayDate );
-    executionConfiguration.setRepository( hopUi.rep );
     executionConfiguration.setSafeModeEnabled( safe );
     executionConfiguration.setStartCopyName( startCopyName );
     executionConfiguration.setStartCopyNr( startCopyNr );
@@ -1368,8 +1024,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
-          executionConfiguration, jobMeta, jobMeta, hopUi.getRepository()
-        } );
+          executionConfiguration, jobMeta, jobMeta } );
       } catch ( HopException e ) {
         log.logError( e.getMessage(), jobMeta.getFilename() );
         return;
@@ -1395,7 +1050,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         jobMeta.activateParameters();
 
         if ( executionConfiguration.getRemoteServer() != null ) {
-          Job.sendToSlaveServer( jobMeta, executionConfiguration, hopUi.rep, hopUi.metaStore );
+          Job.sendToSlaveServer( jobMeta, executionConfiguration, hopUi.metaStore );
           hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
         } else {
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );

@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -107,7 +106,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -191,68 +190,14 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
     allocate();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      fieldname = rep.getStepAttributeString( id_step, "fieldname" );
-      isContains = rep.getStepAttributeBoolean( id_step, "use_contains" );
-      caseValueType = ValueMetaBase.getType( rep.getStepAttributeString( id_step, "case_value_type" ) );
-      caseValueFormat = rep.getStepAttributeString( id_step, "case_value_format" );
-      caseValueDecimal = rep.getStepAttributeString( id_step, "case_value_decimal" );
-      caseValueGroup = rep.getStepAttributeString( id_step, "case_value_group" );
-
-      defaultTargetStepname = rep.getStepAttributeString( id_step, "default_target_step" );
-
-      int nrCases = rep.countNrStepAttributes( id_step, "case_value" );
-      allocate();
-      for ( int i = 0; i < nrCases; i++ ) {
-        SwitchCaseTarget target = new SwitchCaseTarget();
-        target.caseValue = rep.getStepAttributeString( id_step, i, "case_value" );
-        target.caseTargetStepname = rep.getStepAttributeString( id_step, i, "case_target_step" );
-        caseTargets.add( target );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SwitchCaseMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "fieldname", fieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "use_contains", isContains );
-      rep.saveStepAttribute( id_transformation, id_step, "case_value_type", ValueMetaBase.getTypeDesc( caseValueType ) );
-      rep.saveStepAttribute( id_transformation, id_step, "case_value_format", caseValueFormat );
-      rep.saveStepAttribute( id_transformation, id_step, "case_value_decimal", caseValueDecimal );
-      rep.saveStepAttribute( id_transformation, id_step, "case_value_group", caseValueGroup );
-
-      rep.saveStepAttribute( id_transformation, id_step, "default_target_step",
-        defaultTargetStep != null ? defaultTargetStep.getName() : defaultTargetStepname
-      );
-
-      for ( int i = 0; i < caseTargets.size(); i++ ) {
-        SwitchCaseTarget target = caseTargets.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, "case_value",
-          target.caseValue != null ? target.caseValue : ""
-        );
-        rep.saveStepAttribute( id_transformation, id_step, i, "case_target_step",
-          target.caseTargetStep != null ? target.caseTargetStep.getName() : target.caseTargetStepname
-        );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SwitchCaseMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     StepIOMetaInterface ioMeta = getStepIOMeta();

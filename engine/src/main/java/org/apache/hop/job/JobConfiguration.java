@@ -62,7 +62,7 @@ public class JobConfiguration {
     Node jobNode = XMLHandler.getSubNode( configNode, JobMeta.XML_TAG );
     Node trecNode = XMLHandler.getSubNode( configNode, JobExecutionConfiguration.XML_TAG );
     jobExecutionConfiguration = new JobExecutionConfiguration( trecNode );
-    jobMeta = new JobMeta( jobNode, jobExecutionConfiguration.getRepository(), null );
+    jobMeta = new JobMeta( jobNode );
   }
 
   public static final JobConfiguration fromXML( String xml ) throws HopException {

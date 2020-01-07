@@ -25,8 +25,6 @@ package org.apache.hop.ui.hopui;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.repository.Repository;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,14 +36,12 @@ import java.util.Map;
  */
 public class DatabasesCollector {
   private final AbstractMeta meta;
-  private final Repository repository;
 
   private List<String> dbNames;
   private Map<String, DatabaseMeta> names2metas;
 
-  public DatabasesCollector( AbstractMeta meta, Repository repository ) {
+  public DatabasesCollector( AbstractMeta meta ) {
     this.meta = meta;
-    this.repository = repository;
   }
 
   public void collectDatabases() throws HopException {
@@ -53,15 +49,6 @@ public class DatabasesCollector {
     names2metas = new HashMap<String, DatabaseMeta>( dbsFromMeta.size() );
     for ( DatabaseMeta db : dbsFromMeta ) {
       names2metas.put( db.getName(), db );
-    }
-
-    if ( repository != null ) {
-      List<DatabaseMeta> dbsFromRepo = repository.readDatabases();
-      for ( DatabaseMeta db : dbsFromRepo ) {
-        if ( !names2metas.containsKey( db.getName() ) ) {
-          names2metas.put( db.getName(), db );
-        }
-      }
     }
 
     dbNames = new ArrayList<String>( names2metas.keySet() );

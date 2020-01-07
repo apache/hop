@@ -31,12 +31,7 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.resource.ResourceHolderInterface;
 import org.apache.hop.shared.SharedObjectInterface;
 import org.w3c.dom.Node;
@@ -48,22 +43,17 @@ import org.w3c.dom.Node;
  * @author Matt
  */
 public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObjectInterface,
-  ResourceHolderInterface, RepositoryElementInterface, XMLInterface {
+  ResourceHolderInterface, XMLInterface {
   public static final String XML_TAG = "partitionschema";
-
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.PARTITION_SCHEMA;
 
   private String name;
 
   private List<String> partitionIDs;
   private boolean shared;
 
-  private ObjectId id;
 
   private boolean dynamicallyDefined;
   private String numberOfPartitionsPerSlave;
-
-  private ObjectRevision objectRevision;
 
   private Date changedDate;
 
@@ -85,7 +75,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   public Object clone() {
     PartitionSchema partitionSchema = new PartitionSchema();
     partitionSchema.replaceMeta( this );
-    partitionSchema.setObjectId( null );
     return partitionSchema;
   }
 
@@ -97,8 +86,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
     this.dynamicallyDefined = partitionSchema.dynamicallyDefined;
     this.numberOfPartitionsPerSlave = partitionSchema.numberOfPartitionsPerSlave;
 
-    // this.shared = partitionSchema.shared;
-    this.setObjectId( partitionSchema.id );
     this.setChanged( true );
   }
 
@@ -197,13 +184,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
     this.shared = shared;
   }
 
-  /**
-   * @return the id
-   */
-  public ObjectId getObjectId() {
-    return id;
-  }
-
   public String getDescription() {
     return null;
   }
@@ -213,6 +193,10 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   public String getTypeId() {
+    return null;
+  }
+
+  public String getPluginId() {
     return null;
   }
 
@@ -287,32 +271,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
     }
     partitionIDs.clear();
     partitionIDs.addAll( ids );
-  }
-
-  /**
-   * Not supported for Partition schema, return the root.
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return new RepositoryDirectory();
-  }
-
-  public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
-  }
-
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
-  }
-
-  public ObjectRevision getObjectRevision() {
-    return objectRevision;
-  }
-
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    this.objectRevision = objectRevision;
   }
 
   public void setDescription( String description ) {

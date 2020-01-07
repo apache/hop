@@ -33,7 +33,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.steps.StepMockUtil;
 
 import java.util.ArrayList;
@@ -66,7 +65,7 @@ public class JobExecutorTest {
     meta = new JobExecutorMeta();
     data = new JobExecutorData();
     Job job = mock( Job.class );
-    doReturn( job ).when( executor ).createJob( any( Repository.class ), any( JobMeta.class ),
+    doReturn( job ).when( executor ).createJob( any( JobMeta.class ),
       any( LoggingObjectInterface.class ) );
     doReturn( ArrayUtils.EMPTY_STRING_ARRAY ).when( job ).listParameters();
 

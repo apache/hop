@@ -42,6 +42,7 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
@@ -77,8 +78,8 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
     }
   }
 
-  private JobEntryLogTable( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    super( space, databasesInterface, null, null, null );
+  private JobEntryLogTable( VariableSpace space, IMetaStore metaStore ) {
+    super( space, metaStore, null, null, null );
   }
 
   @Override
@@ -119,7 +120,7 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
     super.replaceMeta( logTable );
   }
 
-  public void loadXML( Node jobnode, List<DatabaseMeta> databases, List<StepMeta> steps ) {
+  public void loadXML( Node jobnode, List<StepMeta> steps ) {
     Node node = XMLHandler.getSubNode( jobnode, XML_TAG );
     if ( node == null ) {
       return;
@@ -134,8 +135,8 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static JobEntryLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    JobEntryLogTable table = new JobEntryLogTable( space, databasesInterface );
+  public static JobEntryLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
+    JobEntryLogTable table = new JobEntryLogTable( space, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.IdBatch" ), BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "JobEntryLogTable.FieldName.ChannelId" ), BaseMessages.getString( PKG, "JobEntryLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
@@ -168,8 +169,6 @@ public class JobEntryLogTable extends BaseLogTable implements Cloneable, LogTabl
   /**
    * This method calculates all the values that are required
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
    * @param subject

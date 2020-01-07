@@ -55,7 +55,6 @@ import org.apache.hop.job.entries.syslog.JobEntrySyslog;
 import org.apache.hop.job.entries.syslog.SyslogDefs;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelText;
@@ -152,8 +151,8 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
   private Button wAddHostName;
   private FormData fdAddHostName;
 
-  public JobEntrySyslogDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySyslogDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySyslog) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntrySyslog.Name.Default" ) );

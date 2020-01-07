@@ -57,8 +57,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -204,10 +203,6 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
           XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[i] ) );
         retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
         retval.append( "        </field>" ).append( Const.CR );
-        if ( parentJobMeta != null ) {
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( source_filefolder[i] );
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( destination_filefolder[i] );
-        }
       }
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -215,10 +210,10 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       move_empty_folders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "move_empty_folders" ) );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -269,97 +264,6 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
     }
   }
 
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      move_empty_folders = rep.getJobEntryAttributeBoolean( id_jobentry, "move_empty_folders" );
-      arg_from_previous = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      include_subfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      add_result_filesname = rep.getJobEntryAttributeBoolean( id_jobentry, "add_result_filesname" );
-      destination_is_a_file = rep.getJobEntryAttributeBoolean( id_jobentry, "destination_is_a_file" );
-      create_destination_folder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_destination_folder" );
-      nr_errors_less_than = rep.getJobEntryAttributeString( id_jobentry, "nr_errors_less_than" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      add_date = rep.getJobEntryAttributeBoolean( id_jobentry, "add_date" );
-      add_time = rep.getJobEntryAttributeBoolean( id_jobentry, "add_time" );
-      SpecifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      date_time_format = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      AddDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddDateBeforeExtension" );
-      DoNotKeepFolderStructure = rep.getJobEntryAttributeBoolean( id_jobentry, "DoNotKeepFolderStructure" );
-      iffileexists = rep.getJobEntryAttributeString( id_jobentry, "iffileexists" );
-      destinationFolder = rep.getJobEntryAttributeString( id_jobentry, "destinationFolder" );
-      ifmovedfileexists = rep.getJobEntryAttributeString( id_jobentry, "ifmovedfileexists" );
-      moved_date_time_format = rep.getJobEntryAttributeString( id_jobentry, "moved_date_time_format" );
-      AddMovedDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddMovedDateBeforeExtension" );
-      create_move_to_folder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_move_to_folder" );
-      add_moved_date = rep.getJobEntryAttributeBoolean( id_jobentry, "add_moved_date" );
-      add_moved_time = rep.getJobEntryAttributeBoolean( id_jobentry, "add_moved_time" );
-      SpecifyMoveFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyMoveFormat" );
-      simulate = rep.getJobEntryAttributeBoolean( id_jobentry, "simulate" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "source_filefolder" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        source_filefolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "source_filefolder" );
-        destination_filefolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "destination_filefolder" );
-        wildcard[a] = rep.getJobEntryAttributeString( id_jobentry, a, "wildcard" );
-      }
-    } catch ( HopException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobMoveFiles.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "move_empty_folders", move_empty_folders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", arg_from_previous );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", include_subfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_result_filesname", add_result_filesname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destination_is_a_file", destination_is_a_file );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_destination_folder", create_destination_folder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_errors_less_than", nr_errors_less_than );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_date", add_date );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_time", add_time );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", SpecifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "AddDateBeforeExtension", AddDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "DoNotKeepFolderStructure", DoNotKeepFolderStructure );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "iffileexists", iffileexists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destinationFolder", destinationFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ifmovedfileexists", ifmovedfileexists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "moved_date_time_format", moved_date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_moved_date", add_moved_date );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_moved_time", add_moved_time );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyMoveFormat", SpecifyMoveFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_move_to_folder", create_move_to_folder );
-      rep
-        .saveJobEntryAttribute(
-          id_job, getObjectId(), "AddMovedDateBeforeExtension", AddMovedDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "simulate", simulate );
-
-      // save the arguments...
-      if ( source_filefolder != null ) {
-        for ( int i = 0; i < source_filefolder.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "source_filefolder", source_filefolder[i] );
-          rep
-            .saveJobEntryAttribute(
-              id_job, getObjectId(), i, "destination_filefolder", destination_filefolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "wildcard", wildcard[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobMoveFiles.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
-    }
-  }
-
   public Result execute( Result previousResult, int nr ) throws HopException {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -387,12 +291,6 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
     String[] vsourcefilefolder = source_filefolder;
     String[] vdestinationfilefolder = destination_filefolder;
     String[] vwildcard = wildcard;
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     if ( iffileexists.equals( "move_file" ) ) {
       if ( Utils.isEmpty( MoveToFolder ) ) {
@@ -1364,7 +1262,7 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {

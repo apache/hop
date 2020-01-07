@@ -31,7 +31,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -39,8 +38,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -132,13 +130,13 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   private String[] NameSpacesTitle;
 
   /** which fields do we use for getChannelCustomTags Custom ? */
-  private String[] ChannelCustomTags;
+  private String[] channelCustomTags;
 
   /** which fields do we use for Item Custom Field? */
   private String[] ItemCustomFields;
 
   /** which fields do we use for Item Custom tag ? */
-  private String[] ItemCustomTags;
+  private String[] itemCustomTags;
 
   /** create custom RSS ? */
   private boolean customrss;
@@ -146,7 +144,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   /** display item tag in output ? */
   private boolean displayitem;
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -158,13 +156,13 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
     // Read custom channel fields
     System.arraycopy( ChannelCustomFields, 0, retval.ChannelCustomFields, 0, nrfields );
-    System.arraycopy( ChannelCustomTags, 0, retval.ChannelCustomTags, 0, nrfields );
+    System.arraycopy( channelCustomTags, 0, retval.channelCustomTags, 0, nrfields );
 
     // items
     int nritemfields = ItemCustomFields.length;
     retval.allocateitem( nritemfields );
     System.arraycopy( ItemCustomFields, 0, retval.ItemCustomFields, 0, nritemfields );
-    System.arraycopy( ItemCustomTags, 0, retval.ItemCustomTags, 0, nritemfields );
+    System.arraycopy( itemCustomTags, 0, retval.itemCustomTags, 0, nritemfields );
 
     // Namespaces
     int nrNameSpaces = NameSpaces.length;
@@ -178,12 +176,12 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void allocate( int nrfields ) {
     ChannelCustomFields = new String[nrfields];
-    ChannelCustomTags = new String[nrfields];
+    channelCustomTags = new String[nrfields];
   }
 
   public void allocateitem( int nrfields ) {
     ItemCustomFields = new String[nrfields];
-    ItemCustomTags = new String[nrfields];
+    itemCustomTags = new String[nrfields];
   }
 
   public void allocatenamespace( int nrnamespaces ) {
@@ -229,8 +227,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          The encoding to set.
+   * @param filenamefield
+   *          The filenamefield to set.
    */
   public void setFileNameField( String filenamefield ) {
     this.filenamefield = filenamefield;
@@ -465,30 +463,30 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
    * @return Returns the getChannelCustomTags (names in the stream).
    */
   public String[] getChannelCustomTags() {
-    return ChannelCustomTags;
+    return channelCustomTags;
   }
 
   /**
-   * @param getChannelCustomTags
-   *          The getChannelCustomTags to set.
+   * @param channelCustomTags
+   *          The channelCustomTags to set.
    */
-  public void setChannelCustomTags( String[] ChannelCustomTags ) {
-    this.ChannelCustomTags = ChannelCustomTags;
+  public void setChannelCustomTags( String[] channelCustomTags ) {
+    this.channelCustomTags = channelCustomTags;
   }
 
   /**
    * @return Returns the getChannelCustomTags (names in the stream).
    */
   public String[] getItemCustomTags() {
-    return ItemCustomTags;
+    return itemCustomTags;
   }
 
   /**
-   * @param getChannelCustomTags
+   * @param itemCustomTags
    *          The getChannelCustomTags to set.
    */
-  public void setItemCustomTags( String[] ItemCustomTags ) {
-    this.ItemCustomTags = ItemCustomTags;
+  public void setItemCustomTags( String[] itemCustomTags ) {
+    this.itemCustomTags = itemCustomTags;
   }
 
   /**
@@ -666,7 +664,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrchannelfields; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( keys, "channel_custom_fields", i );
-        ChannelCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
+        channelCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
         ChannelCustomFields[i] = XMLHandler.getTagValue( knode, "field" );
       }
       // Custom Item fields
@@ -675,7 +673,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nritemfields; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( keys, "item_custom_fields", i );
-        ItemCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
+        itemCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
         ItemCustomFields[i] = XMLHandler.getTagValue( knode, "field" );
       }
       // NameSpaces
@@ -727,7 +725,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     // channel custom fields
     for ( int i = 0; i < nrchannelfields; i++ ) {
       ChannelCustomFields[i] = "field" + i;
-      ChannelCustomTags[i] = "tag" + i;
+      channelCustomTags[i] = "tag" + i;
     }
 
     int nritemfields = 0;
@@ -735,7 +733,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     // Custom Item Fields
     for ( int i = 0; i < nritemfields; i++ ) {
       ItemCustomFields[i] = "field" + i;
-      ItemCustomTags[i] = "tag" + i;
+      itemCustomTags[i] = "tag" + i;
     }
     // Namespaces
     int nrnamespaces = 0;
@@ -798,13 +796,13 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < ChannelCustomFields.length; i++ ) {
       retval.append( "        <channel_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", ChannelCustomTags[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", channelCustomTags[i] ) );
       retval.append( "          " ).append( XMLHandler.addTagValue( "field", ChannelCustomFields[i] ) );
       retval.append( "        </channel_custom_fields>" ).append( Const.CR );
     }
     for ( int i = 0; i < ItemCustomFields.length; i++ ) {
       retval.append( "        <Item_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", ItemCustomTags[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", itemCustomTags[i] ) );
       retval.append( "          " ).append( XMLHandler.addTagValue( "field", ItemCustomFields[i] ) );
       retval.append( "        </Item_custom_fields>" ).append( Const.CR );
     }
@@ -822,149 +820,9 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      displayitem = rep.getStepAttributeBoolean( id_step, "displayitem" );
-      customrss = rep.getStepAttributeBoolean( id_step, "customrss" );
-      channeltitle = rep.getStepAttributeString( id_step, "channel_title" );
-      channeldescription = rep.getStepAttributeString( id_step, "channel_description" );
-      channellink = rep.getStepAttributeString( id_step, "channel_link" );
-      channelpubdate = rep.getStepAttributeString( id_step, "channel_pubdate" );
-      channelcopyright = rep.getStepAttributeString( id_step, "channel_copyright" );
-
-      channelimagetitle = rep.getStepAttributeString( id_step, "channel_image_title" );
-      channelimagelink = rep.getStepAttributeString( id_step, "channel_image_link" );
-      channelimageurl = rep.getStepAttributeString( id_step, "channel_image_url" );
-      channelimagedescription = rep.getStepAttributeString( id_step, "channel_image_description" );
-      channellanguage = rep.getStepAttributeString( id_step, "channel_language" );
-      channelauthor = rep.getStepAttributeString( id_step, "channel_author" );
-
-      version = rep.getStepAttributeString( id_step, "version" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-
-      addimage = rep.getStepAttributeBoolean( id_step, "addimage" );
-
-      // items ...
-
-      itemtitle = rep.getStepAttributeString( id_step, "item_title" );
-      itemdescription = rep.getStepAttributeString( id_step, "item_description" );
-      itemlink = rep.getStepAttributeString( id_step, "item_link" );
-      itempubdate = rep.getStepAttributeString( id_step, "item_pubdate" );
-      itemauthor = rep.getStepAttributeString( id_step, "item_author" );
-
-      addgeorss = rep.getStepAttributeBoolean( id_step, "addgeorss" );
-      usegeorssgml = rep.getStepAttributeBoolean( id_step, "usegeorssgml" );
-      geopointlat = rep.getStepAttributeString( id_step, "geopointlat" );
-      geopointlong = rep.getStepAttributeString( id_step, "geopointlong" );
-
-      filenamefield = rep.getStepAttributeString( id_step, "filename_field" );
-      fileName = rep.getStepAttributeString( id_step, "file_name" );
-      extension = rep.getStepAttributeString( id_step, "file_extention" );
-      stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
-      partNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_partnr" );
-      dateInFilename = rep.getStepAttributeBoolean( id_step, "file_add_date" );
-      timeInFilename = rep.getStepAttributeBoolean( id_step, "file_add_time" );
-
-      isfilenameinfield = rep.getStepAttributeBoolean( id_step, "is_filename_in_field" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "create_parent_folder" );
-      AddToResult = rep.getStepAttributeBoolean( id_step, "addtoresult" );
-      // Channel Custom
-      int nrchannel = rep.countNrStepAttributes( id_step, "channel_custom_field" );
-      allocate( nrchannel );
-      for ( int i = 0; i < nrchannel; i++ ) {
-        ChannelCustomTags[i] = rep.getStepAttributeString( id_step, i, "channel_custom_tag" );
-        ChannelCustomFields[i] = rep.getStepAttributeString( id_step, i, "channel_custom_field" );
-      }
-      // Item Custom
-      int nritem = rep.countNrStepAttributes( id_step, "item_custom_field" );
-      allocateitem( nritem );
-      for ( int i = 0; i < nritem; i++ ) {
-        ItemCustomTags[i] = rep.getStepAttributeString( id_step, i, "item_custom_tag" );
-        ItemCustomFields[i] = rep.getStepAttributeString( id_step, i, "item_custom_field" );
-      }
-
-      // Namespaces
-      int nrnamespaces = rep.countNrStepAttributes( id_step, "namespace_tag" );
-      allocatenamespace( nrnamespaces );
-
-      for ( int i = 0; i < nrnamespaces; i++ ) {
-        NameSpacesTitle[i] = rep.getStepAttributeString( id_step, i, "namespace_tag" );
-        NameSpaces[i] = rep.getStepAttributeString( id_step, i, "namespace_value" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      rep.saveStepAttribute( id_transformation, id_step, "displayitem", displayitem );
-      rep.saveStepAttribute( id_transformation, id_step, "customrss", customrss );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_title", channeltitle );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_description", channeldescription );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_link", channellink );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_pubdate", channelpubdate );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_copyright", channelcopyright );
-
-      rep.saveStepAttribute( id_transformation, id_step, "channel_image_title", channelimagetitle );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_image_link", channelimagelink );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_image_url", channelimageurl );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_image_description", channelimagedescription );
-
-      rep.saveStepAttribute( id_transformation, id_step, "channel_author", channelauthor );
-      rep.saveStepAttribute( id_transformation, id_step, "channel_language", channellanguage );
-      rep.saveStepAttribute( id_transformation, id_step, "version", version );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-
-      rep.saveStepAttribute( id_transformation, id_step, "addimage", addimage );
-      // items ...
-
-      rep.saveStepAttribute( id_transformation, id_step, "item_title", itemtitle );
-      rep.saveStepAttribute( id_transformation, id_step, "item_description", itemdescription );
-      rep.saveStepAttribute( id_transformation, id_step, "item_link", itemlink );
-      rep.saveStepAttribute( id_transformation, id_step, "item_pubdate", itempubdate );
-      rep.saveStepAttribute( id_transformation, id_step, "item_author", itemauthor );
-      rep.saveStepAttribute( id_transformation, id_step, "addgeorss", addgeorss );
-      rep.saveStepAttribute( id_transformation, id_step, "usegeorssgml", usegeorssgml );
-      rep.saveStepAttribute( id_transformation, id_step, "geopointlat", geopointlat );
-      rep.saveStepAttribute( id_transformation, id_step, "geopointlong", geopointlong );
-
-      rep.saveStepAttribute( id_transformation, id_step, "filename_field", filenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
-      rep.saveStepAttribute( id_transformation, id_step, "file_extention", extension );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_stepnr", stepNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_partnr", partNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_date", dateInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_time", timeInFilename );
-
-      rep.saveStepAttribute( id_transformation, id_step, "is_filename_in_field", isfilenameinfield );
-      rep.saveStepAttribute( id_transformation, id_step, "create_parent_folder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "addtoresult", AddToResult );
-
-      for ( int i = 0; i < ChannelCustomFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "channel_custom_field", ChannelCustomFields[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "channel_custom_tag", ChannelCustomTags[i] );
-      }
-      for ( int i = 0; i < ItemCustomFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "item_custom_field", ItemCustomFields[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "item_custom_tag", ItemCustomTags[i] );
-      }
-
-      for ( int i = 0; i < NameSpaces.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "namespace_tag", NameSpacesTitle[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "namespace_value", NameSpaces[i] );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

@@ -31,8 +31,8 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
+import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 import java.util.List;
 
@@ -80,7 +80,6 @@ public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryIn
 
   public JobEntryDummy( String n ) {
     super( n, "" );
-    setID( -1L );
   }
 
   public JobEntryDummy() {
@@ -107,44 +106,15 @@ public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers, Repository rep ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       sourceDirectory = XMLHandler.getTagValue( entrynode, SOURCEDIRECTORY );
       targetDirectory = XMLHandler.getTagValue( entrynode, TARGETDIRECTORY );
       wildcard = XMLHandler.getTagValue( entrynode, WILDCARD );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load file exists job entry from XML node",
           xe );
-    }
-  }
-
-  @Override
-  public void loadRep( Repository rep, ObjectId id_jobentry, List<DatabaseMeta> databases, List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      super.loadRep( rep, id_jobentry, databases, slaveServers );
-      sourceDirectory = rep.getJobEntryAttributeString( id_jobentry, SOURCEDIRECTORY );
-      targetDirectory = rep.getJobEntryAttributeString( id_jobentry, TARGETDIRECTORY );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, WILDCARD );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-          "Unable to load job entry for type file exists from the repository for id_jobentry="
-              + id_jobentry, dbe );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, ObjectId id_job ) throws HopException {
-    try {
-      super.saveRep( rep, id_job );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), SOURCEDIRECTORY, sourceDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), TARGETDIRECTORY, targetDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), WILDCARD, wildcard );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-          "unable to save jobentry of type 'file exists' to the repository for id_job="
-              + id_job, dbe );
     }
   }
 

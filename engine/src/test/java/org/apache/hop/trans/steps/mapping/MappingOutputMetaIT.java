@@ -37,14 +37,12 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutputMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 
 public class MappingOutputMetaIT {
 
-  private Repository repository = mock( Repository.class );
   private IMetaStore metaStore = mock( IMetaStore.class );
   private VariableSpace space = mock( VariableSpace.class );
   private StepMeta nextStep = mock( StepMeta.class );
@@ -64,7 +62,7 @@ public class MappingOutputMetaIT {
     outputValueRenames.add( new MappingValueRename( "valueMeta2", "valueMeta1" ) );
     MappingOutputMeta meta = new MappingOutputMeta();
     meta.setOutputValueRenames( outputValueRenames );
-    meta.getFields( rowMeta, null, info, nextStep, space, repository, metaStore );
+    meta.getFields( rowMeta, null, info, nextStep, space, metaStore );
 
     //we must not add additional field
     assertEquals( 2, rowMeta.getValueMetaList().size() );

@@ -85,7 +85,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
             getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
         JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration( node );
 
-        JobMeta jobMeta = new JobMeta( fileUrl, jobExecutionConfiguration.getRepository() );
+        JobMeta jobMeta = new JobMeta( fileUrl );
         JobConfiguration jobConfiguration = new JobConfiguration( jobMeta, jobExecutionConfiguration );
 
         Job job = createJob( jobConfiguration );
@@ -96,7 +96,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
                 TransExecutionConfiguration.XML_TAG );
         TransExecutionConfiguration transExecutionConfiguration = new TransExecutionConfiguration( node );
 
-        TransMeta transMeta = new TransMeta( fileUrl, transExecutionConfiguration.getRepository() );
+        TransMeta transMeta = new TransMeta( fileUrl );
         TransConfiguration transConfiguration = new TransConfiguration( transMeta, transExecutionConfiguration );
 
         Trans trans = createTrans( transConfiguration );

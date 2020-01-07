@@ -52,8 +52,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -147,10 +146,10 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       replaceVars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "replacevars" ) );
 
       filename = XMLHandler.getTagValue( entrynode, "filename" );
@@ -173,53 +172,6 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntrySetVariables.Meta.UnableLoadXML", xe
         .getMessage() ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      replaceVars = rep.getJobEntryAttributeBoolean( id_jobentry, "replacevars" );
-
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      fileVariableType = getVariableType( rep.getJobEntryAttributeString( id_jobentry, "file_variable_type" ) );
-
-      // How many variableName?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "variable_name" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        variableName[a] = rep.getJobEntryAttributeString( id_jobentry, a, "variable_name" );
-        variableValue[a] = rep.getJobEntryAttributeString( id_jobentry, a, "variable_value" );
-        variableType[a] = getVariableType( rep.getJobEntryAttributeString( id_jobentry, a, "variable_type" ) );
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntrySetVariables.Meta.UnableLoadRep", String
-        .valueOf( id_jobentry ), dbe.getMessage() ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "replacevars", replaceVars );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "file_variable_type", getVariableTypeCode( fileVariableType ) );
-
-      // save the variableName...
-      if ( variableName != null ) {
-        for ( int i = 0; i < variableName.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "variable_name", variableName[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "variable_value", variableValue[i] );
-          rep.saveJobEntryAttribute(
-            id_job, getObjectId(), i, "variable_type", getVariableTypeCode( variableType[i] ) );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntrySetVariables.Meta.UnableSaveRep", String
-        .valueOf( id_job ), dbe.getMessage() ), dbe );
     }
   }
 
@@ -452,7 +404,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "variableName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 

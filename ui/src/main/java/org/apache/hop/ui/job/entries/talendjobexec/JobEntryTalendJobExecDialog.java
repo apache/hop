@@ -51,7 +51,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.talendjobexec.JobEntryTalendJobExec;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -103,8 +102,8 @@ public class JobEntryTalendJobExecDialog extends JobEntryDialog implements JobEn
 
   private TextVar wClassName;
 
-  public JobEntryTalendJobExecDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryTalendJobExecDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryTalendJobExec) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryTalendJobExec.Name.Default" ) );

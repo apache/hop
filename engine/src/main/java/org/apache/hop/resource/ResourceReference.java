@@ -93,7 +93,7 @@ public class ResourceReference {
   public String toXml( ResourceXmlPropertyEmitterInterface injector, int indentLevel ) {
     StringBuilder buff = new StringBuilder();
     addXmlElementWithAttribute( buff, indentLevel, "ActionComponent", "type", resourceReferenceHolder
-      .getHolderType() );
+      .getPluginId() );
     indentLevel++;
     addXmlElement( buff, indentLevel, "ComponentName", resourceReferenceHolder.getName() );
     addXmlElement( buff, indentLevel, "ComponentId", resourceReferenceHolder.getTypeId() );

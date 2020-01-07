@@ -50,8 +50,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -99,48 +98,20 @@ public class JobEntryFolderIsEmpty extends JobEntryBase implements Cloneable, Jo
     retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubfolders ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "specify_wildcard", specifywildcard ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( foldername );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       includeSubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
       specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'create folder' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      foldername = rep.getJobEntryAttributeString( id_jobentry, "foldername" );
-      includeSubfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      specifywildcard = rep.getJobEntryAttributeBoolean( id_jobentry, "specify_wildcard" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'create Folder' from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "foldername", foldername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", includeSubfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "specify_wildcard", specifywildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'create Folder' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -202,11 +173,6 @@ public class JobEntryFolderIsEmpty extends JobEntryBase implements Cloneable, Jo
     }
 
     if ( foldername != null ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
@@ -343,7 +309,6 @@ public class JobEntryFolderIsEmpty extends JobEntryBase implements Cloneable, Jo
   /**********************************************************
    *
    * @param selectedfile
-   * @param sourceWildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
   private boolean GetFileWildcard( String selectedfile ) {
@@ -363,7 +328,7 @@ public class JobEntryFolderIsEmpty extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

@@ -27,8 +27,7 @@ import java.util.prefs.Preferences;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.FunctorException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -143,90 +142,6 @@ public final class PluginPropertyHandler {
     @Override
     protected void handle( final PluginProperty property ) {
       property.loadXml( this.node );
-    }
-
-  }
-
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
-   */
-  public static class SaveToRepository extends AbstractHandler {
-
-    private final Repository repository;
-
-    private final IMetaStore metaStore;
-
-    private final ObjectId transformationId;
-
-    private final ObjectId stepId;
-
-    /**
-     * Constructor.
-     *
-     * @param repository
-     *          repository to use.
-     * @param metaStore
-     *          the MetaStore
-     * @param transformationId
-     *          transformation ID to set.
-     * @param stepId
-     *          step ID to set.
-     * @throws IllegalArgumentException
-     *           if repository is null.
-     */
-    public SaveToRepository( final Repository repository, final IMetaStore metaStore,
-      final ObjectId transformationId, final ObjectId stepId ) throws IllegalArgumentException {
-      super();
-      Assert.assertNotNull( repository, "Repository cannot be null" );
-      this.repository = repository;
-      this.metaStore = metaStore;
-      this.transformationId = transformationId;
-      this.stepId = stepId;
-    }
-
-    @Override
-    protected void handle( final PluginProperty property ) throws HopException {
-      property.saveToRepositoryStep( this.repository, this.metaStore, this.transformationId, this.stepId );
-    }
-
-  }
-
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
-   */
-  public static class ReadFromRepository extends AbstractHandler {
-
-    private final Repository repository;
-
-    private final IMetaStore metaStore;
-
-    private final ObjectId stepId;
-
-    /**
-     * Constructor.
-     *
-     * @param repository
-     *          the repository.
-     * @param metaStore
-     *          the MetaStore
-     * @param stepId
-     *          the step ID.
-     * @throws IllegalArgumentException
-     *           if repository is null.
-     */
-    public ReadFromRepository( final Repository repository, final IMetaStore metaStore, final ObjectId stepId ) throws IllegalArgumentException {
-      super();
-      Assert.assertNotNull( repository, "Repository cannot be null" );
-      this.repository = repository;
-      this.metaStore = metaStore;
-      this.stepId = stepId;
-    }
-
-    @Override
-    protected void handle( final PluginProperty property ) throws HopException {
-      property.readFromRepositoryStep( this.repository, this.metaStore, this.stepId );
     }
 
   }

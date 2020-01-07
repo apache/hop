@@ -51,7 +51,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.folderscompare.JobEntryFoldersCompare;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -117,8 +116,8 @@ public class JobEntryFoldersCompareDialog extends JobEntryDialog implements JobE
   private Button wCompareFileSize;
   private FormData fdlCompareFileSize, fdCompareFileSize;
 
-  public JobEntryFoldersCompareDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFoldersCompareDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFoldersCompare) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFoldersCompare.Name.Default" ) );

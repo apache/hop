@@ -46,8 +46,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -124,13 +123,13 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      this.connection = DatabaseMeta.findDatabase( databases, dbname );
+      this.connection = DatabaseMeta.loadDatabase( metaStore, dbname );
       this.argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
@@ -147,46 +146,6 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
       }
     } catch ( HopException e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryTruncateTables.UnableLoadXML" ), e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-
-      this.argFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "name" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        this.arguments[a] = rep.getJobEntryAttributeString( id_jobentry, a, "name" );
-        this.schemaname[a] = rep.getJobEntryAttributeString( id_jobentry, a, "schemaname" );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryTruncateTables.UnableLoadRep", ""
-        + id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", this.argFromPrevious );
-      // save the arguments...
-      if ( this.arguments != null ) {
-        for ( int i = 0; i < this.arguments.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "name", this.arguments[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "schemaname", this.schemaname[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "JobEntryTruncateTables.UnableSaveRep", "" + id_job ), dbe );
     }
   }
 
@@ -337,7 +296,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 

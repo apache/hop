@@ -41,8 +41,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -64,7 +63,7 @@ import org.w3c.dom.Node;
 public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private List<? extends SharedObjectInterface> databasesList;
+  private IMetaStore metaStore;
 
   private DatabaseMeta databaseMeta;
 
@@ -100,7 +99,11 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( getDatabasesList(), connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch(Exception e) {
+      throw new RuntimeException( "Unable to load connection '"+connectionName+"'", e );
+    }
   }
 
   /**
@@ -156,7 +159,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sql
+   * @param sqlField
    *          The sqlField to sqlField.
    */
   public void setSqlFieldName( String sqlField ) {
@@ -230,14 +233,6 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     return updateField;
   }
 
-  public List<? extends SharedObjectInterface> getDatabasesList() {
-    return databasesList;
-  }
-
-  public void setDatabasesList( List<? extends SharedObjectInterface> dbList ) {
-    this.databasesList = dbList;
-  }
-
   /**
    * @param updateField
    *          The updateField to set.
@@ -246,8 +241,8 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     this.updateField = updateField;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -255,12 +250,12 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
-    this.databasesList = databases;
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       String csize;
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       csize = XMLHandler.getTagValue( stepnode, "commit" );
       commitSize = Const.toInt( csize, 0 );
       sqlField = XMLHandler.getTagValue( stepnode, "sql_field" );
@@ -288,7 +283,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -312,59 +307,9 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    this.databasesList = databases;
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      commitSize = (int) rep.getStepAttributeInteger( id_step, "commit" );
-      sqlField = rep.getStepAttributeString( id_step, "sql_field" );
-
-      insertField = rep.getStepAttributeString( id_step, "insert_field" );
-      updateField = rep.getStepAttributeString( id_step, "update_field" );
-      deleteField = rep.getStepAttributeString( id_step, "delete_field" );
-      readField = rep.getStepAttributeString( id_step, "read_field" );
-      sqlFromfile = rep.getStepAttributeBoolean( id_step, "sqlFromfile" );
-
-      String sendOneStatementString = rep.getStepAttributeString( id_step, "sendOneStatement" );
-      if ( Utils.isEmpty( sendOneStatementString ) ) {
-        sendOneStatement = true;
-      } else {
-        sendOneStatement = rep.getStepAttributeBoolean( id_step, "sendOneStatement" );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ExecSQLRowMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "sql_field", sqlField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "insert_field", insertField );
-      rep.saveStepAttribute( id_transformation, id_step, "update_field", updateField );
-      rep.saveStepAttribute( id_transformation, id_step, "delete_field", deleteField );
-      rep.saveStepAttribute( id_transformation, id_step, "read_field", readField );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "sqlFromfile", sqlFromfile );
-      rep.saveStepAttribute( id_transformation, id_step, "sendOneStatement", sendOneStatement );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ExecSQLRowMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -444,4 +389,19 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     return true;
   }
 
+  /**
+   * Gets metaStore
+   *
+   * @return value of metaStore
+   */
+  public IMetaStore getMetaStore() {
+    return metaStore;
+  }
+
+  /**
+   * @param metaStore The metaStore to set
+   */
+  public void setMetaStore( IMetaStore metaStore ) {
+    this.metaStore = metaStore;
+  }
 }

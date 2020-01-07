@@ -511,21 +511,6 @@ public class GetStatusServlet extends BaseHttpServlet implements HopServerPlugin
             + BaseMessages.getString( PKG, "GetStatusServlet.Parameter.MaxObjectsAge" ) + "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">" + maxObjAge
             + "</td> </tr>" );
 
-        // The name of the specified repository
-        //
-        String repositoryName;
-        try {
-          repositoryName = serverConfig.getRepository() != null ? serverConfig.getRepository().getName() : "";
-        } catch ( Exception e ) {
-          logError( BaseMessages.getString( PKG, "GetStatusServlet.Parameter.RepositoryName.UnableToConnect",
-              serverConfig.getRepositoryId() ), e );
-          repositoryName = BaseMessages.getString( PKG, "GetStatusServlet.Parameter.RepositoryName.UnableToConnect",
-              serverConfig.getRepositoryId() );
-        }
-        out.print( "<tr style=\"font-size: 12;\"> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableFirstColumn\">"
-            + BaseMessages.getString( PKG, "GetStatusServlet.Parameter.RepositoryName" ) + "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">"
-            + repositoryName + "</td> </tr>" );
-
         out.print( "</table>" );
 
         String filename = serverConfig.getFilename();

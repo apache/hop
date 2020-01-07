@@ -42,8 +42,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -68,7 +67,7 @@ import java.util.List;
 public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   /** The lookup table name */
   @Injection( name = "SCHEMA_NAME" )
@@ -127,7 +126,11 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( databases, connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch ( HopXMLException e ) {
+      throw new RuntimeException( "Error loading conneciton '"+connectionName+"'", e );
+    }
   }
 
   /**
@@ -342,9 +345,9 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    this.databases = databases;
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -374,13 +377,14 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       String csize;
       int nrkeys, nrvalues;
 
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       csize = XMLHandler.getTagValue( stepnode, "commit" );
       commitSize = ( csize == null ) ? "0" : csize;
       useBatchUpdate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "use_batch" ) );
@@ -488,100 +492,8 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    this.databases = databases;
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      skipLookup = rep.getStepAttributeBoolean( id_step, "skip_lookup" );
-      commitSize = rep.getStepAttributeString( id_step, "commit" );
-      if ( commitSize == null ) {
-        long comSz = -1;
-        try {
-          comSz = rep.getStepAttributeInteger( id_step, "commit" );
-        } catch ( Exception ex ) {
-          commitSize = "100";
-        }
-        if ( comSz >= 0 ) {
-          commitSize = Long.toString( comSz );
-        }
-      }
-      useBatchUpdate = rep.getStepAttributeBoolean( id_step, "use_batch" );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-
-      errorIgnored = rep.getStepAttributeBoolean( id_step, "error_ignored" );
-      ignoreFlagField = rep.getStepAttributeString( id_step, "ignore_flag_field" );
-
-      int nrKeyName = rep.countNrStepAttributes( id_step, "key_name" );
-      int nrKeyField = rep.countNrStepAttributes( id_step, "key_field" );
-      int nrKeyCondition = rep.countNrStepAttributes( id_step, "key_condition" );
-      int nrKeyName2 = rep.countNrStepAttributes( id_step, "key_name2" );
-
-      int nrkeys = Ints.max( nrKeyName, nrKeyCondition, nrKeyField, nrKeyName2 );
-
-      int nrValueName = rep.countNrStepAttributes( id_step, "value_name" );
-      int nrValueRename = rep.countNrStepAttributes( id_step, "value_rename" );
-
-      int nrvalues = Ints.max( nrValueName, nrValueRename );
-
-      allocate( nrkeys, nrvalues );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        keyStream[i] = rep.getStepAttributeString( id_step, i, "key_name" );
-        keyLookup[i] = rep.getStepAttributeString( id_step, i, "key_field" );
-        keyCondition[i] = rep.getStepAttributeString( id_step, i, "key_condition" );
-        keyStream2[i] = rep.getStepAttributeString( id_step, i, "key_name2" );
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        updateLookup[i] = rep.getStepAttributeString( id_step, i, "value_name" );
-        updateStream[i] = rep.getStepAttributeString( id_step, i, "value_rename" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UpdateMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "skip_lookup", skipLookup );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "use_batch", useBatchUpdate );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "error_ignored", errorIgnored );
-      rep.saveStepAttribute( id_transformation, id_step, "ignore_flag_field", ignoreFlagField );
-
-      for ( int i = 0; i < keyStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name", keyStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_field", keyLookup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_condition", keyCondition[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name2", keyStream2[i] );
-      }
-
-      for ( int i = 0; i < updateLookup.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_name", updateLookup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_rename", updateStream[i] );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "UpdateMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( ignoreFlagField != null && ignoreFlagField.length() > 0 ) {
       ValueMetaInterface v = new ValueMetaBoolean( ignoreFlagField );
       v.setOrigin( name );
@@ -593,7 +505,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -788,7 +700,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) throws HopStepException  {
+    IMetaStore metaStore ) throws HopStepException  {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -856,7 +768,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys

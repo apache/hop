@@ -37,8 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -118,8 +117,8 @@ public class WebServiceAvailableMeta extends BaseStepMeta implements StepMetaInt
     this.resultfieldname = resultfieldname;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -135,7 +134,7 @@ public class WebServiceAvailableMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v = new ValueMetaBoolean( resultfieldname );
@@ -155,7 +154,7 @@ public class WebServiceAvailableMeta extends BaseStepMeta implements StepMetaInt
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       urlField = XMLHandler.getTagValue( stepnode, "urlField" );
       connectTimeOut = XMLHandler.getTagValue( stepnode, "connectTimeOut" );
@@ -167,34 +166,9 @@ public class WebServiceAvailableMeta extends BaseStepMeta implements StepMetaInt
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      urlField = rep.getStepAttributeString( id_step, "urlField" );
-      connectTimeOut = rep.getStepAttributeString( id_step, "connectTimeOut" );
-      readTimeOut = rep.getStepAttributeString( id_step, "readTimeOut" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "WebServiceAvailableMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "urlField", urlField );
-      rep.saveStepAttribute( id_transformation, id_step, "connectTimeOut", connectTimeOut );
-      rep.saveStepAttribute( id_transformation, id_step, "readTimeOut", readTimeOut );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "WebServiceAvailableMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

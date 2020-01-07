@@ -23,6 +23,7 @@ package org.apache.hop.trans;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,12 +32,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -77,140 +75,8 @@ public class StepWithMappingMetaTest {
   }
 
   @Test
-  public void loadMappingMeta() throws Exception {
-    String variablePath = "Internal.Entry.Current.Directory";
-    String virtualDir = "/testFolder/CDA-91";
-    String fileName = "testTrans.ktr";
-
-    VariableSpace variables = new Variables();
-    StepMeta stepMeta = new StepMeta();
-    TransMeta parentTransMeta = new TransMeta();
-    stepMeta.setParentTransMeta( parentTransMeta );
-
-    RepositoryDirectoryInterface repositoryDirectory = Mockito.mock( RepositoryDirectoryInterface.class );
-    when( repositoryDirectory.toString() ).thenReturn( virtualDir );
-    stepMeta.getParentTransMeta().setRepositoryDirectory( repositoryDirectory );
-
-
-    StepWithMappingMeta mappingMetaMock = mock( StepWithMappingMeta.class );
-    when( mappingMetaMock.getSpecificationMethod() ).thenReturn( ObjectLocationSpecificationMethod.FILENAME );
-    when( mappingMetaMock.getFileName() ).thenReturn( "${" + variablePath + "}/" + fileName );
-    when( mappingMetaMock.getParentStepMeta() ).thenReturn( stepMeta );
-
-    // mock repo and answers
-    Repository rep = mock( Repository.class );
-
-    Mockito.doAnswer( new Answer<TransMeta>() {
-      @Override
-      public TransMeta answer( final InvocationOnMock invocation ) throws Throwable {
-        final String originalArgument = (String) ( invocation.getArguments() )[ 0 ];
-        // be sure that the variable was replaced by real path
-        assertEquals( virtualDir, originalArgument );
-        return null;
-      }
-    } ).when( rep ).findDirectory( anyString() );
-
-    Mockito.doAnswer( new Answer<TransMeta>() {
-      @Override
-      public TransMeta answer( final InvocationOnMock invocation ) throws Throwable {
-        final String originalArgument = (String) ( invocation.getArguments() )[ 0 ];
-        // be sure that transformation name was resolved correctly
-        assertEquals( fileName, originalArgument );
-        return mock( TransMeta.class );
-      }
-    } ).when( rep ).loadTransformation( anyString(), any( RepositoryDirectoryInterface.class ),
-      any( ProgressMonitorListener.class ), anyBoolean(), anyString() );
-
-    StepWithMappingMeta.loadMappingMeta( mappingMetaMock, rep, null, variables, true );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Test
   @PrepareForTest( StepWithMappingMeta.class )
-  public void testExportResources() throws Exception {
-    StepWithMappingMeta stepWithMappingMeta = spy( new StepWithMappingMeta() {
-
-      @Override
-      public void setDefault() {
-      }
-
-      @Override
-      public StepDataInterface getStepData() {
-        return null;
-      }
-
-      @Override
-      public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta, Trans trans ) {
-        return null;
-      }
-    } );
-    String testName = "test";
-    PowerMockito.mockStatic( StepWithMappingMeta.class );
-    when( StepWithMappingMeta.loadMappingMeta( any(), any(), any(), any() ) ).thenReturn( transMeta );
-    when( transMeta.exportResources( any(), anyMap(), any(), any(), any() ) ).thenReturn( testName );
-
-    stepWithMappingMeta.exportResources( null, null, null, null, null );
-    verify( transMeta ).setFilename( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + testName );
-    verify( stepWithMappingMeta ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-  }
-
-  @Test
-  @PrepareForTest( StepWithMappingMeta.class )
-  public void loadMappingMetaTest() throws Exception {
-
-    String childParam = "childParam";
-    String childValue = "childValue";
-    String paramOverwrite = "paramOverwrite";
-    String parentParam = "parentParam";
-    String parentValue = "parentValue";
-
-    String variablePath = "Internal.Entry.Current.Directory";
-    String virtualDir = "/testFolder/CDA-91";
-    String fileName = "testTrans.ktr";
-
-    VariableSpace variables = new Variables();
-    variables.setVariable( parentParam, parentValue );
-    variables.setVariable( paramOverwrite, parentValue );
-
-    StepMeta stepMeta = new StepMeta();
-    TransMeta parentTransMeta = new TransMeta();
-    stepMeta.setParentTransMeta( parentTransMeta );
-
-    RepositoryDirectoryInterface repositoryDirectory = Mockito.mock( RepositoryDirectoryInterface.class );
-    when( repositoryDirectory.toString() ).thenReturn( virtualDir );
-    stepMeta.getParentTransMeta().setRepositoryDirectory( repositoryDirectory );
-
-    StepWithMappingMeta mappingMetaMock = mock( StepWithMappingMeta.class );
-    when( mappingMetaMock.getSpecificationMethod() ).thenReturn( ObjectLocationSpecificationMethod.FILENAME );
-    when( mappingMetaMock.getFileName() ).thenReturn( "${" + variablePath + "}/" + fileName );
-    when( mappingMetaMock.getParentStepMeta() ).thenReturn( stepMeta );
-
-
-    Repository rep = mock( Repository.class );
-    Mockito.doReturn( Mockito.mock( RepositoryDirectoryInterface.class ) ).when( rep ).findDirectory( anyString() );
-
-    TransMeta child = new TransMeta();
-    child.setVariable( childParam, childValue );
-    child.setVariable( paramOverwrite, childValue );
-    Mockito.doReturn( child ).when( rep ).loadTransformation( anyString(), any(), any(), anyBoolean(), any() );
-
-    TransMeta transMeta = StepWithMappingMeta.loadMappingMeta( mappingMetaMock, rep, null, variables, true );
-
-    Assert.assertNotNull( transMeta );
-
-    //When the child parameter does exist in the parent parameters, overwrite the child parameter by the parent parameter.
-    Assert.assertEquals( parentValue, transMeta.getVariable( paramOverwrite ) );
-
-    //When the child parameter does not exist in the parent parameters, keep it.
-    Assert.assertEquals( childValue, transMeta.getVariable( childParam ) );
-
-    //All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
-    //variables from the transformation?' option is checked)
-    Assert.assertEquals( parentValue, transMeta.getVariable( parentParam ) );
-  }
-
-  @Test
-  @PrepareForTest( StepWithMappingMeta.class )
+  @Ignore // TODO: move database connections out of .ktrs and into a memory metastore if needed
   public void loadMappingMetaTest_PathShouldBeTakenFromParentTrans() throws Exception {
 
     String fileName = "subtrans-executor-sub.ktr";
@@ -227,12 +93,11 @@ public class StepWithMappingMetaTest {
 
     //attach the executor to step which was described above
     StepWithMappingMeta mappingMetaMock = mock( StepWithMappingMeta.class );
-    when( mappingMetaMock.getSpecificationMethod() ).thenReturn( ObjectLocationSpecificationMethod.FILENAME );
     when( mappingMetaMock.getFileName() ).thenReturn( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + fileName );
     when( mappingMetaMock.getParentStepMeta() ).thenReturn( stepMeta );
 
     //we will try to load the subtras which was linked at the step metas
-    TransMeta transMeta = StepWithMappingMeta.loadMappingMeta( mappingMetaMock, null, null, variables, true );
+    TransMeta transMeta = StepWithMappingMeta.loadMappingMeta( mappingMetaMock, null, variables, true );
 
     StringBuilder expected = new StringBuilder( parentFolder.toUri().toString() );
     /**
@@ -353,42 +218,6 @@ public class StepWithMappingMetaTest {
     Assert.assertEquals( parentValue, childVariableSpace.getParameterValue( newParam ) );
   }
 
-  @Test
-  @PrepareForTest( StepWithMappingMeta.class )
-  public void testFileNameAsVariable() throws Exception {
-
-    String transName = "test.ktr";
-    String transDirectory = "/admin";
-
-    String transNameVar = "transName";
-    String transDirectoryVar = "transDirectory";
-
-    VariableSpace parent = new Variables();
-    parent.setVariable( transNameVar, transName );
-    parent.setVariable( transDirectoryVar, transDirectory );
-
-    StepMeta stepMeta = new StepMeta();
-    TransMeta parentTransMeta = new TransMeta();
-    stepMeta.setParentTransMeta( parentTransMeta );
-
-    StepWithMappingMeta mappingMetaMock = mock( StepWithMappingMeta.class );
-    Mockito.when( mappingMetaMock.getSpecificationMethod() ).thenReturn( ObjectLocationSpecificationMethod.FILENAME );
-    Mockito.when( mappingMetaMock.getFileName() ).thenReturn( "${" + transDirectoryVar + "}/${" + transNameVar + "}" );
-    Mockito.when( mappingMetaMock.getParentStepMeta() ).thenReturn( stepMeta );
-
-    Repository rep = mock( Repository.class );
-    RepositoryDirectoryInterface directoryInterface = Mockito.mock( RepositoryDirectoryInterface.class );
-    Mockito.doReturn( directoryInterface ).when( rep ).findDirectory( anyString() );
-    Mockito.doReturn( new TransMeta() ).when( rep )
-      .loadTransformation( anyString(), any(), any(), anyBoolean(), any() );
-
-    TransMeta transMeta = StepWithMappingMeta.loadMappingMeta( mappingMetaMock, rep, null, parent, true );
-
-    Assert.assertNotNull( transMeta );
-    Mockito.verify( rep, Mockito.times( 1 ) ).findDirectory( Mockito.eq( transDirectory ) );
-    Mockito.verify( rep, Mockito.times( 1 ) ).loadTransformation( Mockito.eq( transName ),
-      Mockito.eq( directoryInterface ), Mockito.eq( null ), Mockito.eq( true ), Mockito.eq( null ) );
-  }
 
   @Test
   @PrepareForTest( StepWithMappingMeta.class )

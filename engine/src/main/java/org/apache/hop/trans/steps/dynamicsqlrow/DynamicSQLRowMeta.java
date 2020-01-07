@@ -39,8 +39,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -177,15 +176,15 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param sql
+   * @param sqlfieldname
    *          The sqlfieldname to set.
    */
   public void setSQLFieldName( String sqlfieldname ) {
     this.sqlfieldname = sqlfieldname;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -194,10 +193,10 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
     return retval;
   }
 
-  private void readData( Node stepnode, List<DatabaseMeta> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       sql = XMLHandler.getTagValue( stepnode, "sql" );
       outerJoin = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "outer_join" ) );
       replacevars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "replace_vars" ) );
@@ -223,7 +222,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( databaseMeta == null ) {
       return;
@@ -286,44 +285,9 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      rowLimit = (int) rep.getStepAttributeInteger( id_step, "rowlimit" );
-      sql = rep.getStepAttributeString( id_step, "sql" );
-      outerJoin = rep.getStepAttributeBoolean( id_step, "outer_join" );
-      replacevars = rep.getStepAttributeBoolean( id_step, "replace_vars" );
-      sqlfieldname = rep.getStepAttributeString( id_step, "sql_fieldname" );
-      queryonlyonchange = rep.getStepAttributeBoolean( id_step, "query_only_on_change" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DynamicSQLRowMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "rowlimit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "sql", sql );
-      rep.saveStepAttribute( id_transformation, id_step, "outer_join", outerJoin );
-      rep.saveStepAttribute( id_transformation, id_step, "replace_vars", replacevars );
-      rep.saveStepAttribute( id_transformation, id_step, "sql_fieldname", sqlfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "query_only_on_change", queryonlyonchange );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DynamicSQLRowMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -407,11 +371,11 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
 
     RowMetaInterface out = prev.clone();
-    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info, }, null, transMeta, repository, metaStore );
+    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info, }, null, transMeta, metaStore );
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {
         ValueMetaInterface outvalue = out.getValueMeta( i );

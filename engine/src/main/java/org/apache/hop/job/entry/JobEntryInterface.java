@@ -36,8 +36,6 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
@@ -182,14 +180,6 @@ public interface JobEntryInterface {
   LogChannelInterface getLogChannel();
 
   /**
-   * Sets the repository.
-   *
-   * @param repository
-   *          the new repository
-   */
-  void setRepository( Repository repository );
-
-  /**
    * Sets the MetaStore
    *
    * @param metaStore
@@ -201,21 +191,6 @@ public interface JobEntryInterface {
    * This method should clear out any variables, objects, etc. used by the job entry.
    */
   void clear();
-
-  /**
-   * Gets the object id.
-   *
-   * @return the object id
-   */
-  ObjectId getObjectId();
-
-  /**
-   * Sets the object id.
-   *
-   * @param id
-   *          the new object id
-   */
-  void setObjectId( ObjectId id );
 
   /**
    * Gets the name of this job entry.
@@ -231,16 +206,6 @@ public interface JobEntryInterface {
    *          the new name
    */
   void setName( String name );
-
-  /**
-   * Gets the plugin ID
-   *
-   * deprecated in favor of getPluginId()
-   *
-   * @see JobEntryInterface#getPluginId()
-   */
-  @Deprecated
-  String getTypeId();
 
   /**
    * Gets the plugin id.
@@ -297,42 +262,17 @@ public interface JobEntryInterface {
    * job entry's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
    * typically used to conveniently read the settings from the XML node.
    *
-   * @deprecated use {@link #loadXML(Node, List, List, Repository, IMetaStore)}
-   *
    * @param entrynode
    *          the top-level XML node
-   * @param databases
-   *          the list of databases
    * @param slaveServers
    *          the list of slave servers
-   * @param rep
-   *          the repository object
-   * @throws HopXMLException
-   *           if any errors occur during the loading of the XML
-   */
-  @Deprecated
-  void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers, Repository rep ) throws HopXMLException;
-
-  /**
-   * This method is called by PDI whenever a job entry needs to read its settings from XML. The XML node containing the
-   * job entry's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
-   * typically used to conveniently read the settings from the XML node.
-   *
-   * @param entrynode
-   *          the top-level XML node
-   * @param databases
-   *          the list of databases
-   * @param slaveServers
-   *          the list of slave servers
-   * @param rep
-   *          the repository object
    * @param metaStore
    *          The metaStore to optionally load from.
    * @throws HopXMLException
    *           if any errors occur during the loading of the XML
    */
-  void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException;
+  void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException;
 
   /**
    * This method is called by PDI whenever a job entry needs to serialize its settings to XML. It is called when saving
@@ -343,84 +283,6 @@ public interface JobEntryInterface {
    * @return the xml representation of the job entry
    */
   String getXML();
-
-  /**
-   * This method is called by PDI whenever a job entry needs to save its settings to a PDI repository. The repository
-   * object passed in as the first argument provides a convenient set of methods for serializing job entry settings.
-   * When calling repository serialization methods, job id and job entry id are required. The job id is passed in to
-   * saveRep() as an argument, and the job entry id can be obtained by a call to getObjectId() inherited from the base
-   * class.
-   *
-   * @deprecated use {@link #saveRep(Repository, IMetaStore, ObjectId)}
-   *
-   * @param rep
-   *          the repository object
-   * @param id_job
-   *          the id_job
-   * @throws HopException
-   *           if any errors occur during the save
-   */
-  @Deprecated
-  void saveRep( Repository rep, ObjectId id_job ) throws HopException;
-
-  /**
-   * This method is called by PDI whenever a job entry needs to save its settings to a PDI repository. The repository
-   * object passed in as the first argument provides a convenient set of methods for serializing job entry settings.
-   * When calling repository serialization methods, job id and job entry id are required. The job id is passed in to
-   * saveRep() as an argument, and the job entry id can be obtained by a call to getObjectId() inherited from the base
-   * class.
-   *
-   * @param rep
-   *          the repository
-   * @param metaStore
-   *          the MetaStore to use
-   * @param id_job
-   *          the id_job
-   * @throws HopException
-   *           if any errors occur during the save
-   */
-  void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException;
-
-  /**
-   * This method is called by PDI whenever a job entry needs to read its configuration from a PDI repository. The job
-   * entry id given in the arguments should be used as the identifier when using the repository's serialization methods.
-   *
-   * @deprecated use {@link #loadRep(Repository, IMetaStore, ObjectId, List, List)}
-   *
-   * @param rep
-   *          the repository object
-   * @param id_jobentry
-   *          the id of the job entry
-   * @param databases
-   *          the list of databases
-   * @param slaveServers
-   *          the list of slave servers
-   * @throws HopException
-   *           if any errors occur during the load
-   */
-  @Deprecated
-  void loadRep( Repository rep, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException;
-
-  /**
-   * This method is called by PDI whenever a job entry needs to read its configuration from a PDI repository. The job
-   * entry id given in the arguments should be used as the identifier when using the repository's serialization methods.
-   *
-   * @param rep
-   *          the repository object
-   * @param metaStore
-   *          the MetaStore to use
-   * @param id_jobentry
-   *          the id of the job entry
-   * @param databases
-   *          the list of databases
-   * @param slaveServers
-   *          the list of slave servers
-   * @throws HopException
-   *           if any errors occur during the load
-   */
-  void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException;
 
   /**
    * Checks if the job entry has started
@@ -511,40 +373,8 @@ public interface JobEntryInterface {
   boolean isSpecial();
 
   /**
-   * Gets the SQL statements needed by this job entry to execute successfully.
-   *
-   * @deprecated use {@link #getSQLStatements(Repository, IMetaStore, VariableSpace)}
-   *
-   * @param repository
-   *          the repository
-   * @return a list of SQL statements
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
-   */
-  @Deprecated
-  List<SQLStatement> getSQLStatements( Repository repository ) throws HopException;
-
-  /**
    * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables.
    *
-   * @deprecated use {@link #getSQLStatements(Repository, IMetaStore, VariableSpace)}
-   *
-   * @param repository
-   *          the repository object
-   * @param space
-   *          a variable space object containing variable bindings
-   * @return a list of SQL statements
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
-   */
-  @Deprecated
-  List<SQLStatement> getSQLStatements( Repository repository, VariableSpace space ) throws HopException;
-
-  /**
-   * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables.
-   *
-   * @param repository
-   *          the repository object
    * @param metaStore
    *          the MetaStore to use
    * @param space
@@ -553,7 +383,7 @@ public interface JobEntryInterface {
    * @throws HopException
    *           if any errors occur during the generation of SQL statements
    */
-  List<SQLStatement> getSQLStatements( Repository repository, IMetaStore metaStore, VariableSpace space ) throws HopException;
+  List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException;
 
   /**
    * Get the name of the class that implements the dialog for the job entry JobEntryBase provides a default
@@ -581,25 +411,6 @@ public interface JobEntryInterface {
   String getRealFilename();
 
   /**
-   * This method returns all the database connections that are used by the job entry.
-   *
-   * @return an array of database connections meta-data, which is empty if no connections are used.
-   */
-  DatabaseMeta[] getUsedDatabaseConnections();
-
-  /**
-   * Allows JobEntry objects to check themselves for consistency
-   *
-   * @param remarks
-   *          List of CheckResult objects indicating consistency status
-   * @param jobMeta
-   *          the metadata object for the job entry
-   * @deprecated use {@link #check(List, JobMeta, VariableSpace, Repository, IMetaStore)}
-   */
-  @Deprecated
-  void check( List<CheckResultInterface> remarks, JobMeta jobMeta );
-
-  /**
    * Allows JobEntry objects to check themselves for consistency
    *
    * @param remarks
@@ -608,13 +419,10 @@ public interface JobEntryInterface {
    *          the metadata object for the job entry
    * @param space
    *          the variable space to resolve string expressions with variables with
-   * @param repository
-   *          the repository to load Hop objects from
    * @param metaStore
    *          the MetaStore to load common elements from
    */
-  void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore );
+  void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore );
 
   /**
    * Get a list of all the resource dependencies that the step is depending on.
@@ -634,31 +442,6 @@ public interface JobEntryInterface {
    *          The map containing the filenames and content
    * @param namingInterface
    *          The resource naming interface allows the object to be named appropriately
-   * @param repository
-   *          The repository to load resources from
-   *
-   * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
-   * @deprecated use {@link #exportResources(VariableSpace, Map, ResourceNamingInterface, Repository, IMetaStore)}
-   */
-  @Deprecated
-  String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository ) throws HopException;
-
-  /**
-   * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. The supplied
-   * resource naming interface allows the object to name appropriately without worrying about those parts of the
-   * implementation specific details.
-   *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param repository
-   *          The repository to load resources from
    * @param metaStore
    *          the metaStore to load external metadata from
    *
@@ -667,7 +450,7 @@ public interface JobEntryInterface {
    *           in case something goes wrong during the export
    */
   String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException;
+    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 
   /**
    * Checks whether the job entry defines one or more references to a repository object
@@ -675,16 +458,6 @@ public interface JobEntryInterface {
    * @return true if the job entry defines one or more references to a repository object, false otherwise
    */
   boolean hasRepositoryReferences();
-
-  /**
-   * Look up the references after import
-   *
-   * @param repository
-   *          the repository to reference.
-   * @throws HopException
-   *           if any errors occur during the lookup
-   */
-  void lookupRepositoryReferences( Repository repository ) throws HopException;
 
   /**
    * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
@@ -701,24 +474,6 @@ public interface JobEntryInterface {
    *
    * @param index
    *          the referenced object index to load (in case there are multiple references)
-   * @param rep
-   *          the repository
-   * @param space
-   *          the variable space to use
-   * @return the referenced object once loaded
-   * @throws HopException
-   * @deprecated use {@link #loadReferencedObject(int, Repository, IMetaStore, VariableSpace)}
-   */
-  @Deprecated
-  Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws HopException;
-
-  /**
-   * Load the referenced object
-   *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param rep
-   *          the repository
    * @param metaStore
    *          the metaStore
    * @param space
@@ -726,7 +481,7 @@ public interface JobEntryInterface {
    * @return the referenced object once loaded
    * @throws HopException
    */
-  Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException;
+  Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException;
 
   /**
    * At save and run time, the system will attempt to set the jobMeta so that it can be accessed by the jobEntries

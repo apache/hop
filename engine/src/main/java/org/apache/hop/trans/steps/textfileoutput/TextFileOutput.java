@@ -453,7 +453,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
       if ( data.outputRowMeta != null ) {
         initFieldNumbers( data.outputRowMeta, meta.getOutputFields() );
         if ( row != null ) {
-          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+          meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
         }
       }
     }
@@ -820,12 +820,6 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (TextFileOutputMeta) smi;
     data = (TextFileOutputData) sdi;
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-      getTransMeta().getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( getTransMeta(), getTransMeta().getEmbeddedMetastoreProviderKey() );
-    }
 
     if ( super.init( smi, sdi ) ) {
       data.splitnr = 0;

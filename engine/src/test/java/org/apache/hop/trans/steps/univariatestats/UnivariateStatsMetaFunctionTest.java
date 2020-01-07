@@ -37,9 +37,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.StringObjectId;
-import org.apache.hop.trans.steps.loadsave.MemoryRepository;
 import org.apache.test.util.GetterSetterTester;
 import org.apache.test.util.ObjectTester;
 import org.apache.test.util.ObjectTesterBuilder;
@@ -93,39 +90,6 @@ public class UnivariateStatsMetaFunctionTest {
         IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
             "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml" ) );
     function = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
-    assertTrue( Utils.isEmpty( function.getSourceFieldName() ) );
-    assertFalse( function.getCalcN() );
-    assertFalse( function.getCalcMean() );
-    assertFalse( function.getCalcStdDev() );
-    assertFalse( function.getCalcMin() );
-    assertFalse( function.getCalcMax() );
-    assertFalse( function.getCalcMedian() );
-    assertEquals( -1.0, function.getCalcPercentile(), 0 );
-    assertFalse( function.getInterpolatePercentile() );
-  }
-
-  @Test
-  public void testRepoConstructor() throws ParseException, HopException, IOException {
-    String jsString =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.json" ) );
-    Repository repo = new MemoryRepository( jsString );
-    UnivariateStatsMetaFunction function = new UnivariateStatsMetaFunction( repo, new StringObjectId( "test" ), 0 );
-    assertEquals( "test", function.getSourceFieldName() );
-    assertTrue( function.getCalcN() );
-    assertTrue( function.getCalcMean() );
-    assertTrue( function.getCalcStdDev() );
-    assertTrue( function.getCalcMin() );
-    assertTrue( function.getCalcMax() );
-    assertTrue( function.getCalcMedian() );
-    assertEquals( 0.5, function.getCalcPercentile(), 0 );
-    assertTrue( function.getInterpolatePercentile() );
-
-    jsString =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.json" ) );
-    repo = new MemoryRepository( jsString );
-    function = new UnivariateStatsMetaFunction( repo, new StringObjectId( "test" ), 0 );
     assertTrue( Utils.isEmpty( function.getSourceFieldName() ) );
     assertFalse( function.getCalcN() );
     assertFalse( function.getCalcMean() );

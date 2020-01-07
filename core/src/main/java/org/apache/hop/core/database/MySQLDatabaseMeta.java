@@ -56,7 +56,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.MySQLStreamResults"
   )
   private boolean resultStreaming;

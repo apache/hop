@@ -33,7 +33,6 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
@@ -55,8 +54,6 @@ public class CheckTransProgressDialog {
 
   private VariableSpace space;
 
-  private Repository repository;
-
   private IMetaStore metaStore;
 
   /**
@@ -64,21 +61,19 @@ public class CheckTransProgressDialog {
    */
   public CheckTransProgressDialog( Shell shell, TransMeta transMeta, List<CheckResultInterface> remarks,
     boolean onlySelected ) {
-    this( shell, transMeta, remarks, onlySelected, transMeta, HopUi.getInstance().getRepository(), HopUi
-      .getInstance().getMetaStore() );
+    this( shell, transMeta, remarks, onlySelected, transMeta, HopUi.getInstance().getMetaStore() );
   }
 
   /**
    * Creates a new dialog that will handle the wait while checking a transformation...
    */
   public CheckTransProgressDialog( Shell shell, TransMeta transMeta, List<CheckResultInterface> remarks,
-    boolean onlySelected, VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    boolean onlySelected, VariableSpace space, IMetaStore metaStore ) {
     this.shell = shell;
     this.transMeta = transMeta;
     this.onlySelected = onlySelected;
     this.remarks = remarks;
     this.space = space;
-    this.repository = repository;
     this.metaStore = metaStore;
   }
 
@@ -89,7 +84,7 @@ public class CheckTransProgressDialog {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
           transMeta.checkSteps(
-            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), space, repository, metaStore );
+            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), space, metaStore );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "AnalyseImpactProgressDialog.RuntimeError.ErrorCheckingTransformation.Exception", e.toString() ) );

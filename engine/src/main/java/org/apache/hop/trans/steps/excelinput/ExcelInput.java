@@ -365,7 +365,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
       first = false;
 
       data.outputRowMeta = new RowMeta(); // start from scratch!
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       if ( meta.isAcceptingFilenames() ) {
         // Read the files from the specified input stream...

@@ -1112,4 +1112,22 @@ public class PluginRegistry {
       throw new HopPluginException( "Sorry, the plugin class you want to register '"+pluginClassName+"' can't be found in the classpath", e );
     }
   }
+
+  /**
+   * Try to find the plugin ID using the main class of the plugin.
+   *
+   * @param pluginTypeClass The plugin type
+   * @param className The main classname to search for
+   * @return The plugin ID or null if nothing was found.
+   */
+  public String findPluginIdWithMainClassName( Class<? extends PluginTypeInterface> pluginTypeClass, String className ) {
+    List<PluginInterface> plugins = getPlugins( pluginTypeClass );
+    for (PluginInterface plugin : plugins) {
+      String mainClassName = plugin.getClassMap().get( plugin.getMainType() );
+      if (mainClassName!=null && mainClassName.equals( className )) {
+        return plugin.getIds()[0];
+      }
+    }
+    return null;
+  }
 }

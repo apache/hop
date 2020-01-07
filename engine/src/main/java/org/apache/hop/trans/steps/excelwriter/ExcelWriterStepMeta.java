@@ -42,8 +42,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -549,7 +548,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -777,7 +776,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -861,147 +860,9 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      headerEnabled = rep.getStepAttributeBoolean( id_step, "header" );
-      footerEnabled = rep.getStepAttributeBoolean( id_step, "footer" );
-      makeSheetActive = rep.getStepAttributeBoolean( id_step, "makeSheetActive" );
-      appendOmitHeader = rep.getStepAttributeBoolean( id_step, "appendOmitHeader" );
-      startingCell = rep.getStepAttributeString( id_step, "startingCell" );
-      appendEmpty = (int) rep.getStepAttributeInteger( id_step, "appendEmpty" );
-      appendOffset = (int) rep.getStepAttributeInteger( id_step, "appendOffset" );
-      rowWritingMethod = rep.getStepAttributeString( id_step, "rowWritingMethod" );
-      appendLines = rep.getStepAttributeBoolean( id_step, "appendLines" );
-      forceFormulaRecalculation = rep.getStepAttributeBoolean( id_step, "forceFormulaRecalculation" );
-      leaveExistingStylesUnchanged = rep.getStepAttributeBoolean( id_step, "leaveExistingStylesUnchanged" );
-
-      String addToResult = rep.getStepAttributeString( id_step, "add_to_result_filenames" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        addToResultFilenames = true;
-      } else {
-        addToResultFilenames = rep.getStepAttributeBoolean( id_step, "add_to_result_filenames" );
-      }
-
-      fileName = rep.getStepAttributeString( id_step, "file_name" );
-      extension = rep.getStepAttributeString( id_step, "file_extention" );
-
-      doNotOpenNewFileInit = rep.getStepAttributeBoolean( id_step, "do_not_open_newfile_init" );
-
-      splitEvery = (int) rep.getStepAttributeInteger( id_step, "file_split" );
-      stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
-      dateInFilename = rep.getStepAttributeBoolean( id_step, "file_add_date" );
-      timeInFilename = rep.getStepAttributeBoolean( id_step, "file_add_time" );
-      SpecifyFormat = rep.getStepAttributeBoolean( id_step, "SpecifyFormat" );
-      date_time_format = rep.getStepAttributeString( id_step, "date_time_format" );
-
-      autosizecolums = rep.getStepAttributeBoolean( id_step, "autosizecolums" );
-      streamingData = rep.getStepAttributeBoolean( id_step, "stream_data" );
-      protectsheet = rep.getStepAttributeBoolean( id_step, "protect_sheet" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-      protectedBy = rep.getStepAttributeString( id_step, "protected_by" );
-
-      templateEnabled = rep.getStepAttributeBoolean( id_step, "template_enabled" );
-      templateFileName = rep.getStepAttributeString( id_step, "template_filename" );
-      templateSheetEnabled = rep.getStepAttributeBoolean( id_step, "template_sheet_enabled" );
-      templateSheetHidden = rep.getStepAttributeBoolean( id_step, "template_sheet_hidden" );
-      templateSheetName = rep.getStepAttributeString( id_step, "template_sheetname" );
-      sheetname = rep.getStepAttributeString( id_step, "sheetname" );
-      ifFileExists = rep.getStepAttributeString( id_step, "if_file_exists" );
-      ifSheetExists = rep.getStepAttributeString( id_step, "if_sheet_exists" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        outputFields[i] = new ExcelWriterStepField();
-
-        outputFields[i].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        outputFields[i].setType( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        outputFields[i].setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        outputFields[i].setTitle( rep.getStepAttributeString( id_step, i, "field_title" ) );
-        outputFields[i].setTitleStyleCell( rep.getStepAttributeString( id_step, i, "field_title_style_cell" ) );
-        outputFields[i].setStyleCell( rep.getStepAttributeString( id_step, i, "field_style_cell" ) );
-        outputFields[i].setCommentField( rep.getStepAttributeString( id_step, i, "field_comment_field" ) );
-        outputFields[i].setCommentAuthorField( rep.getStepAttributeString(
-          id_step, i, "field_comment_author_field" ) );
-        outputFields[i].setFormula( rep.getStepAttributeBoolean( id_step, i, "field_formula" ) );
-        outputFields[i].setHyperlinkField( rep.getStepAttributeString( id_step, i, "field_hyperlink_field" ) );
-
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "header", headerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "footer", footerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "makeSheetActive", makeSheetActive );
-      rep.saveStepAttribute( id_transformation, id_step, "startingCell", startingCell );
-      rep.saveStepAttribute( id_transformation, id_step, "appendOmitHeader", appendOmitHeader );
-      rep.saveStepAttribute( id_transformation, id_step, "appendEmpty", appendEmpty );
-      rep.saveStepAttribute( id_transformation, id_step, "appendOffset", appendOffset );
-      rep.saveStepAttribute( id_transformation, id_step, "rowWritingMethod", rowWritingMethod );
-      rep.saveStepAttribute( id_transformation, id_step, "appendLines", appendLines );
-      rep.saveStepAttribute( id_transformation, id_step, "add_to_result_filenames", addToResultFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
-      rep.saveStepAttribute( id_transformation, id_step, "do_not_open_newfile_init", doNotOpenNewFileInit );
-      rep.saveStepAttribute( id_transformation, id_step, "forceFormulaRecalculation", forceFormulaRecalculation );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "leaveExistingStylesUnchanged", leaveExistingStylesUnchanged );
-
-      rep.saveStepAttribute( id_transformation, id_step, "file_extention", extension );
-      rep.saveStepAttribute( id_transformation, id_step, "file_split", splitEvery );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_stepnr", stepNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_date", dateInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_time", timeInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "SpecifyFormat", SpecifyFormat );
-      rep.saveStepAttribute( id_transformation, id_step, "date_time_format", date_time_format );
-
-      rep.saveStepAttribute( id_transformation, id_step, "autosizecolums", autosizecolums );
-      rep.saveStepAttribute( id_transformation, id_step, "stream_data", streamingData );
-      rep.saveStepAttribute( id_transformation, id_step, "protect_sheet", protectsheet );
-      rep.saveStepAttribute( id_transformation, id_step, "protected_by", protectedBy );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveStepAttribute( id_transformation, id_step, "template_enabled", templateEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "template_filename", templateFileName );
-      rep.saveStepAttribute( id_transformation, id_step, "template_sheet_enabled", templateSheetEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "template_sheet_hidden", templateSheetHidden );
-      rep.saveStepAttribute( id_transformation, id_step, "template_sheetname", templateSheetName );
-      rep.saveStepAttribute( id_transformation, id_step, "sheetname", sheetname );
-      rep.saveStepAttribute( id_transformation, id_step, "if_file_exists", ifFileExists );
-      rep.saveStepAttribute( id_transformation, id_step, "if_sheet_exists", ifSheetExists );
-
-      for ( int i = 0; i < outputFields.length; i++ ) {
-        ExcelWriterStepField field = outputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_title", field.getTitle() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_title_style_cell", field.getTitleStyleCell() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_style_cell", field.getStyleCell() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_comment_field", field.getCommentField() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_comment_author_field", field
-          .getCommentAuthorField() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_formula", field.isFormula() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_hyperlink_field", field.getHyperlinkField() );
-
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
@@ -1059,8 +920,6 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -1068,7 +927,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

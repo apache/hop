@@ -81,7 +81,7 @@ public class TransExecutorMetaTest {
   public void setUp() throws Exception {
 
     List<String> attributes =
-      Arrays.asList( "fileName", "transName", "directoryPath", "groupSize", "groupField", "groupTime",
+      Arrays.asList( "fileName", "groupSize", "groupField", "groupTime",
         "executionTimeField", "executionFilesRetrievedField", "executionLogTextField",
         "executionLogChannelIdField", "executionResultField", "executionNrErrorsField", "executionLinesReadField",
         "executionLinesWrittenField", "executionLinesInputField", "executionLinesOutputField",
@@ -272,28 +272,28 @@ public class TransExecutorMetaTest {
     StepMeta nextStep = mock( StepMeta.class );
 
     // Test null
-    meta.getFields( null, null, null, nextStep, null, null, null );
+    meta.getFields( null, null, null, nextStep, null, null );
     verify( meta, never() ).addFieldToRow( any( RowMetaInterface.class ), anyString(), anyInt() );
 
     RowMetaInterface rowMeta = mock( RowMetaInterface.class );
-    meta.getFields( rowMeta, null, null, nextStep, null, null, null );
+    meta.getFields( rowMeta, null, null, nextStep, null, null );
     verify( rowMeta, never() ).clear();
 
     StepMeta executionResultTargetStepMeta = mock( StepMeta.class );
     meta.setExecutionResultTargetStepMeta( executionResultTargetStepMeta );
-    meta.getFields( rowMeta, null, null, nextStep, null, null, null );
+    meta.getFields( rowMeta, null, null, nextStep, null, null );
     verify( rowMeta, atMost( 1 ) ).clear();
     meta.setExecutionResultTargetStepMeta( null );
 
     StepMeta resultFilesTargetStepMeta = mock( StepMeta.class );
     meta.setResultFilesTargetStepMeta( resultFilesTargetStepMeta );
-    meta.getFields( rowMeta, null, null, nextStep, null, null, null );
+    meta.getFields( rowMeta, null, null, nextStep, null, null );
     verify( rowMeta, atMost( 1 ) ).clear();
     meta.setResultFilesTargetStepMeta( null );
 
     StepMeta outputRowsSourceStepMeta = mock( StepMeta.class );
     meta.setOutputRowsSourceStepMeta( outputRowsSourceStepMeta );
-    meta.getFields( rowMeta, null, null, nextStep, null, null, null );
+    meta.getFields( rowMeta, null, null, nextStep, null, null );
     verify( rowMeta, atMost( 1 ) ).clear();
     meta.setOutputRowsSourceStepMeta( null );
   }

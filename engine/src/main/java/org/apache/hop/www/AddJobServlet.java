@@ -33,8 +33,6 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.repository.Repository;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -196,10 +194,6 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       jobMeta.setLogLevel( jobExecutionConfiguration.getLogLevel() );
       jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
 
-      // If there was a repository, we know about it at this point in time.
-      //
-      final Repository repository = jobConfiguration.getJobExecutionConfiguration().getRepository();
-
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
         new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
@@ -208,7 +202,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
 
       // Create the transformation and store in the list...
       //
-      final Job job = new Job( repository, jobMeta, servletLoggingObject );
+      final Job job = new Job( jobMeta, servletLoggingObject );
 
       // Setting variables
       //
@@ -252,15 +246,7 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
 
       getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
 
-      // Make sure to disconnect from the repository when the job finishes.
-      //
-      if ( repository != null ) {
-        job.addJobListener( new JobAdapter() {
-          public void jobFinished( Job job ) {
-            repository.disconnect();
-          }
-        } );
-      }
+
 
       String message = "Job '" + job.getJobname() + "' was added to the list with id " + carteObjectId;
 

@@ -27,9 +27,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.RepositoriesMeta;
-import org.apache.hop.repository.Repository;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -37,9 +34,6 @@ import java.util.Map;
 public interface ExecutionConfiguration extends Cloneable {
 
   public Object clone();
-
-  public Repository connectRepository( RepositoriesMeta repositoriesMeta, String repositoryName, String username,
-      String password ) throws HopException;
 
   public Map<String, String> getArguments();
 
@@ -72,10 +66,6 @@ public interface ExecutionConfiguration extends Cloneable {
   public Date getReplayDate();
 
   public void setReplayDate( Date replayDate );
-
-  public Repository getRepository();
-
-  public void setRepository( Repository repository );
 
   public Map<String, String> getVariables();
 

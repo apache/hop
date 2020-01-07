@@ -115,7 +115,7 @@ public class GroupBy extends BaseStep implements StepInterface {
       }
 
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Do all the work we can beforehand
       // Calculate indexes, loop up fields, etc.

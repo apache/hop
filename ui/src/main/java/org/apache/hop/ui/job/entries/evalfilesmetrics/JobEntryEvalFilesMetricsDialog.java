@@ -57,7 +57,6 @@ import org.apache.hop.job.entries.evalfilesmetrics.JobEntryEvalFilesMetrics;
 import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -171,9 +170,9 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
 
   private FormData fdbeSourceFileFolder, fdbaSourceFileFolder, fdbdSourceFileFolder;
 
-  public JobEntryEvalFilesMetricsDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
+  public JobEntryEvalFilesMetricsDialog( Shell parent, JobEntryInterface jobEntryInt,
     JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryEvalFilesMetrics) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Name.Default" ) );

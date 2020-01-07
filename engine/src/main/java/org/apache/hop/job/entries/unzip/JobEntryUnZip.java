@@ -62,8 +62,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -201,20 +200,15 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     retval
       .append( "      " ).append( XMLHandler.addTagValue( "iffileexists", getIfFileExistsCode( iffileexist ) ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "create_move_to_directory", createMoveToDirectory ) );
-    retval.append( "      " ).append(
-      XMLHandler.addTagValue( "setOriginalModificationDate", setOriginalModificationDate ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( sourcedirectory );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( zipFilename );
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( movetodirectory );
-    }
+    retval.append( "      " ).append( XMLHandler.addTagValue( "setOriginalModificationDate", setOriginalModificationDate ) );
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       zipFilename = XMLHandler.getTagValue( entrynode, "zipfilename" );
       afterunzip = Const.toInt( XMLHandler.getTagValue( entrynode, "afterunzip" ), -1 );
 
@@ -247,70 +241,6 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     }
   }
 
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      zipFilename = rep.getJobEntryAttributeString( id_jobentry, "zipfilename" );
-      afterunzip = (int) rep.getJobEntryAttributeInteger( id_jobentry, "afterunzip" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      wildcardexclude = rep.getJobEntryAttributeString( id_jobentry, "wildcardexclude" );
-      sourcedirectory = rep.getJobEntryAttributeString( id_jobentry, "targetdirectory" );
-      movetodirectory = rep.getJobEntryAttributeString( id_jobentry, "movetodirectory" );
-      addfiletoresult = rep.getJobEntryAttributeBoolean( id_jobentry, "addfiletoresult" );
-      isfromprevious = rep.getJobEntryAttributeBoolean( id_jobentry, "isfromprevious" );
-      adddate = rep.getJobEntryAttributeBoolean( id_jobentry, "adddate" );
-      addtime = rep.getJobEntryAttributeBoolean( id_jobentry, "addtime" );
-      addOriginalTimestamp = rep.getJobEntryAttributeBoolean( id_jobentry, "addOriginalTimestamp" );
-      SpecifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      date_time_format = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      rootzip = rep.getJobEntryAttributeBoolean( id_jobentry, "rootzip" );
-      createfolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createfolder" );
-      nr_limit = rep.getJobEntryAttributeString( id_jobentry, "nr_limit" );
-      wildcardSource = rep.getJobEntryAttributeString( id_jobentry, "wildcardSource" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      if ( Utils.isEmpty( success_condition ) ) {
-        success_condition = SUCCESS_IF_NO_ERRORS;
-      }
-      iffileexist = getIfFileExistsInt( rep.getJobEntryAttributeString( id_jobentry, "iffileexists" ) );
-      createMoveToDirectory = rep.getJobEntryAttributeBoolean( id_jobentry, "create_move_to_directory" );
-      setOriginalModificationDate = rep.getJobEntryAttributeBoolean( id_jobentry, "setOriginalModificationDate" );
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'unzip' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "zipfilename", zipFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "afterunzip", afterunzip );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcardexclude", wildcardexclude );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targetdirectory", sourcedirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "movetodirectory", movetodirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addfiletoresult", addfiletoresult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "isfromprevious", isfromprevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addtime", addtime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "adddate", adddate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addOriginalTimestamp", addOriginalTimestamp );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", SpecifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "rootzip", rootzip );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createfolder", createfolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_limit", nr_limit );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcardSource", wildcardSource );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "iffileexists", getIfFileExistsCode( iffileexist ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_move_to_directory", createMoveToDirectory );
-      rep
-        .saveJobEntryAttribute(
-          id_job, getObjectId(), "setOriginalModificationDate", setOriginalModificationDate );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'unzip' to the repository for id_job=" + id_job, dbe );
-    }
-  }
-
   public Result execute( Result previousResult, int nr ) {
     Result result = previousResult;
     result.setResult( false );
@@ -325,12 +255,6 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     String realWildcardExclude = environmentSubstitute( wildcardexclude );
     String realTargetdirectory = environmentSubstitute( sourcedirectory );
     String realMovetodirectory = environmentSubstitute( movetodirectory );
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     limitFiles = Const.toInt( environmentSubstitute( getLimit() ), 10 );
     NrErrors = 0;
@@ -1301,7 +1225,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx1 = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx1, getVariables() );
     AndValidator.putValidators( ctx1, JobEntryValidatorUtils.notBlankValidator(),

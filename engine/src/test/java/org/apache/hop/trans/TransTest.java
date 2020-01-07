@@ -24,6 +24,7 @@ package org.apache.hop.trans;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -45,8 +46,6 @@ import org.apache.hop.core.logging.StepLogTable;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -125,24 +124,6 @@ public class TransTest {
     verify( transWithNoSteps ).fireTransFinishedListeners();
   }
 
-  @Test
-  public void testFindDatabaseWithEncodedConnectionName() {
-    DatabaseMeta dbMeta1 =
-      new DatabaseMeta( "encoded_DBConnection", "Oracle", "localhost", "access", "test", "111", "test", "test" );
-    dbMeta1.setDisplayName( "encoded.DBConnection" );
-    meta.addDatabase( dbMeta1 );
-
-    DatabaseMeta dbMeta2 =
-      new DatabaseMeta( "normalDBConnection", "Oracle", "localhost", "access", "test", "111", "test", "test" );
-    dbMeta2.setDisplayName( "normalDBConnection" );
-    meta.addDatabase( dbMeta2 );
-
-    DatabaseMeta databaseMeta = meta.findDatabase( dbMeta1.getDisplayName() );
-    assertNotNull( databaseMeta );
-    assertEquals( databaseMeta.getName(), "encoded_DBConnection" );
-    assertEquals( databaseMeta.getDisplayName(), "encoded.DBConnection" );
-  }
-
   /**
    * PDI-10762 - Trans and TransMeta leak
    */
@@ -153,23 +134,6 @@ public class TransTest {
     String actual = meta.log.getLogChannelId();
     assertEquals( "Use same logChannel for empty constructors, or assign General level for clear() calls",
       expected, actual );
-  }
-
-  /**
-   * PDI-10762 - Trans and TransMeta leak
-   */
-  @Test
-  public void testLoggingObjectIsNotLeakInTrans() throws HopException {
-    Repository rep = Mockito.mock( Repository.class );
-    RepositoryDirectoryInterface repInt = Mockito.mock( RepositoryDirectoryInterface.class );
-    Mockito.when(
-      rep.loadTransformation( Mockito.anyString(), Mockito.any( RepositoryDirectoryInterface.class ), Mockito
-        .any( ProgressMonitorListener.class ), Mockito.anyBoolean(), Mockito.anyString() ) ).thenReturn( meta );
-    Mockito.when( rep.findDirectory( Mockito.anyString() ) ).thenReturn( repInt );
-
-    Trans trans = new Trans( meta, rep, "junit", "junitDir", "fileName" );
-    assertEquals( "Log channel General assigned", LogChannel.GENERAL.getLogChannelId(), trans.log
-      .getLogChannelId() );
   }
 
   /**
@@ -232,7 +196,7 @@ public class TransTest {
       InputStream inputStream = new ByteArrayInputStream( "<transformation></transformation>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Trans trans = new Trans( mockTransMeta, null, null, null, ktr.getURL().toURI().toString() );
+    Trans trans = new Trans( mockTransMeta, null, null, ktr.getURL().toURI().toString() );
     assertEquals( testParamValue, trans.getParameterValue( testParam ) );
   }
 
@@ -242,7 +206,7 @@ public class TransTest {
     Trans trans = mock( Trans.class );
 
     StepLogTable stepLogTable =
-      StepLogTable.getDefault( mock( VariableSpace.class ), mock( HasDatabasesInterface.class ) );
+      StepLogTable.getDefault( mock( VariableSpace.class ), mock( IMetaStore.class ) );
     stepLogTable.setConnectionName( "connection" );
 
     TransMeta transMeta = new TransMeta();
@@ -575,37 +539,21 @@ public class TransTest {
     transTest.copyVariablesFrom( null );
     transTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    transTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
+    transTest.setInternalEntryCurrentDirectory( hasFilename );
 
     assertEquals( "file:///C:/SomeFilenameDirectory", transTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
 
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithRepository( ) {
-    Trans transTest = new Trans(  );
-    boolean hasFilename = false;
-    boolean hasRepoDir = true;
-    transTest.copyVariablesFrom( null );
-    transTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    transTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
-
-    assertEquals( "/SomeRepDirectory", transTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-  }
-
-  @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository( ) {
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename( ) {
     Trans transTest = new Trans(  );
     transTest.copyVariablesFrom( null );
     boolean hasFilename = false;
     boolean hasRepoDir = false;
     transTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    transTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
+    transTest.setInternalEntryCurrentDirectory( hasFilename );
 
     assertEquals( "Original value defined at run execution", transTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
   }

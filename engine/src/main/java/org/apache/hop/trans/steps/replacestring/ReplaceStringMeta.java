@@ -42,8 +42,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -232,8 +231,8 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     this.isUnicode = isUnicode;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys ) {
@@ -268,7 +267,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       int nrkeys;
 
@@ -359,60 +358,8 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     return isUnicodeCode[i];
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrkeys = rep.countNrStepAttributes( id_step, "in_stream_name" );
-
-      allocate( nrkeys );
-      for ( int i = 0; i < nrkeys; i++ ) {
-        fieldInStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "out_stream_name" ), "" );
-        useRegEx[i] =
-          getCaseSensitiveByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "use_regex" ), "" ) );
-        replaceString[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "replace_string" ), "" );
-        replaceByString[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "replace_by_string" ), "" );
-        setEmptyString[i] = rep.getStepAttributeBoolean( id_step, i, "set_empty_string", false );
-        replaceFieldByString[i] =
-          Const.NVL( rep.getStepAttributeString( id_step, i, "replace_field_by_string" ), "" );
-        wholeWord[i] =
-          getWholeWordByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "whole_world" ), "" ) );
-        caseSensitive[i] =
-          getCaseSensitiveByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "case_sensitive" ), "" ) );
-        isUnicode[i] =
-          getIsUniCodeByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "is_unicode" ), "" ) );
-
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ReplaceStringMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < fieldInStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "in_stream_name", fieldInStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "out_stream_name", fieldOutStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "use_regex", getUseRegExCode( useRegEx[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_string", replaceString[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_by_string", replaceByString[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "set_empty_string", setEmptyString[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_field_by_string", replaceFieldByString[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "whole_world", getWholeWordCode( wholeWord[i] ) );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, "case_sensitive", getCaseSensitiveCode( caseSensitive[i] ) );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, "is_unicode", getIsUniCodeCode( isUnicode[i] ) );
-
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ReplaceStringMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int nrFields = fieldInStream == null ? 0 : fieldInStream.length;
     for ( int i = 0; i < nrFields; i++ ) {
       String fieldName = space.environmentSubstitute( fieldOutStream[i] );
@@ -439,7 +386,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";

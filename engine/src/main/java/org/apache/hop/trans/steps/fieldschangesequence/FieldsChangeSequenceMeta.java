@@ -37,8 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -82,7 +81,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param resultName
+   * @param resultfieldName
    *          The resultfieldName to set.
    */
   public void setResultFieldName( String resultfieldName ) {
@@ -90,7 +89,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -190,40 +189,8 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      start = rep.getStepAttributeString( id_step, "start" );
-      increment = rep.getStepAttributeString( id_step, "increment" );
-      resultfieldName = rep.getStepAttributeString( id_step, "resultfieldName" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "start", start );
-      rep.saveStepAttribute( id_transformation, id_step, "increment", increment );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldName", resultfieldName );
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     if ( !Utils.isEmpty( resultfieldName ) ) {
       ValueMetaInterface v = new ValueMetaInteger( resultfieldName );
       v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
@@ -235,7 +202,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

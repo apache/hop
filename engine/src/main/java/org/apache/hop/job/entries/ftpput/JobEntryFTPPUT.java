@@ -52,8 +52,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.ftp.MVSFileParser;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -169,10 +168,10 @@ public class JobEntryFTPPUT extends JobEntryBase implements Cloneable, JobEntryI
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-                       Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -205,82 +204,6 @@ public class JobEntryFTPPUT extends JobEntryBase implements Cloneable, JobEntryI
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobFTPPUT.Log.UnableToLoadFromXml" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-                       List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      serverPort = rep.getJobEntryAttributeString( id_jobentry, "serverport" );
-      userName = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-      remoteDirectory = rep.getJobEntryAttributeString( id_jobentry, "remoteDirectory" );
-      localDirectory = rep.getJobEntryAttributeString( id_jobentry, "localDirectory" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      binaryMode = rep.getJobEntryAttributeBoolean( id_jobentry, "binary" );
-      timeout = (int) rep.getJobEntryAttributeInteger( id_jobentry, "timeout" );
-      remove = rep.getJobEntryAttributeBoolean( id_jobentry, "remove" );
-      onlyPuttingNewFiles = rep.getJobEntryAttributeBoolean( id_jobentry, "only_new" );
-      activeConnection = rep.getJobEntryAttributeBoolean( id_jobentry, "active" );
-      controlEncoding = rep.getJobEntryAttributeString( id_jobentry, "control_encoding" );
-      if ( controlEncoding == null ) {
-        // if we couldn't retrieve an encoding, assume it's an old instance and
-        // put in the the encoding used before v 2.4.0
-        controlEncoding = LEGACY_CONTROL_ENCODING;
-      }
-
-      proxyHost = rep.getJobEntryAttributeString( id_jobentry, "proxy_host" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxy_port" );
-      proxyUsername = rep.getJobEntryAttributeString( id_jobentry, "proxy_username" );
-      proxyPassword =
-        Encr
-          .decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "proxy_password" ) );
-      socksProxyHost = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_host" );
-      socksProxyPort = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_port" );
-      socksProxyUsername = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_username" );
-      socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString(
-          id_jobentry, "socksproxy_password" ) );
-
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobFTPPUT.UnableToLoadFromRepo", String
-        .valueOf( id_jobentry ) ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "serverport", serverPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", userName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "remoteDirectory", remoteDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "localDirectory", localDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "binary", binaryMode );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "remove", remove );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "only_new", onlyPuttingNewFiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "active", activeConnection );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "control_encoding", controlEncoding );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_host", proxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_port", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_username", proxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_host", socksProxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_port", socksProxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_username", socksProxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( socksProxyPassword ) );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobFTPPUT.UnableToSaveToRepo", String
-        .valueOf( id_job ) ), dbe );
     }
   }
 
@@ -834,7 +757,7 @@ public class JobEntryFTPPUT extends JobEntryBase implements Cloneable, JobEntryI
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(

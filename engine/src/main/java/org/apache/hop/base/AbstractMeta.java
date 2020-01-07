@@ -24,6 +24,7 @@ package org.apache.hop.base;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.Const;
@@ -35,10 +36,9 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.changed.HopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
 import org.apache.hop.core.listeners.ContentChangedListener;
@@ -63,23 +63,14 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.metastore.DatabaseMetaStoreUtil;
-import org.apache.hop.repository.HasRepositoryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.HasSlaveServersInterface;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.IMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.util.HopDefaults;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,8 +83,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterface, HasDatabasesInterface, VariableSpace,
-  EngineMetaInterface, NamedParams, HasSlaveServersInterface, AttributesInterface, HasRepositoryInterface,
+public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterface, VariableSpace,
+  EngineMetaInterface, NamedParams, HasSlaveServersInterface, AttributesInterface,
   LoggingObjectInterface {
 
   /**
@@ -116,10 +107,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    **/
   public static final int TYPE_UNDO_POSITION = 4;
 
-  protected ObjectId objectId;
-
-  protected ObjectRevision objectRevision;
-
   protected String containerObjectId;
 
   protected String name;
@@ -129,15 +116,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   protected String extendedDescription;
 
   protected String filename;
-
-  protected RepositoryDirectoryInterface directory;
-
-  /**
-   * The repository to reference in the one-off case that it is needed
-   */
-  protected Repository repository;
-
-  protected List<DatabaseMeta> databases;
 
   protected Set<NameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<NameChangedListener, Boolean>() );
 
@@ -153,7 +131,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected ChannelLogTable channelLogTable;
 
-  protected boolean changedNotes, changedDatabases;
+  protected boolean changedNotes;
 
   protected List<TransAction> undo;
 
@@ -174,13 +152,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   protected Date createdDate, modifiedDate;
 
   protected NamedClusterServiceOsgi namedClusterServiceOsgi;
-
-  protected MetastoreLocatorOsgi metastoreLocatorOsgi;
-
-  @VisibleForTesting
-  protected NamedClusterEmbedManager namedClusterEmbedManager;
-
-  protected String embeddedMetastoreProviderKey;
 
   /**
    * If this is null, we load from the default shared objects file : $HOP_HOME/.kettle/shared.xml
@@ -232,26 +203,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    **/
   protected Set<String> privateDatabases;
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.repository.RepositoryElementInterface#getObjectId()
-   */
-  @Override
-  public ObjectId getObjectId() {
-    return objectId;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.EngineMetaInterface#setObjectId(org.apache.hop.repository.ObjectId)
-   */
-  @Override
-  public void setObjectId( ObjectId objectId ) {
-    this.objectId = objectId;
-  }
-
   /**
    * Gets the container object id.
    *
@@ -286,7 +237,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param newName The new name
    */
-  @Override
   public void setName( String newName ) {
     fireNameChangedListeners( this.name, newName );
     this.name = newName;
@@ -298,7 +248,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @return The description of the job
    */
-  @Override
   public String getDescription() {
     return description;
   }
@@ -308,7 +257,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    *
    * @param description The new description of the job
    */
-  @Override
   public void setDescription( String description ) {
     this.description = description;
   }
@@ -365,47 +313,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * Gets the directory.
-   *
-   * @return Returns the directory.
-   */
-  @Override
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return directory;
-  }
-
-  /**
-   * Sets the directory.
-   *
-   * @param directory The directory to set.
-   */
-  @Override
-  public void setRepositoryDirectory( RepositoryDirectoryInterface directory ) {
-    this.directory = directory;
-    setInternalHopVariables();
-  }
-
-  /**
-   * Gets the repository.
-   *
-   * @return the repository
-   */
-  @Override
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * Sets the repository.
-   *
-   * @param repository the repository to set
-   */
-  @Override
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
-  }
-
-  /**
    * Calls setInternalHopVariables on the default object.
    */
   @Override
@@ -431,54 +338,22 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
    */
-  @Override
   public DatabaseMeta findDatabase( String name ) {
-    for ( int i = 0; i < nrDatabases(); i++ ) {
-      DatabaseMeta ci = getDatabase( i );
-      if ( ( ci != null ) && ( ci.getName().equalsIgnoreCase( name ) )
-        || ( ci.getDisplayName().equalsIgnoreCase( name ) ) ) {
-        return ci;
-      }
+    if (metaStore==null || StringUtils.isEmpty(name)) {
+      return null;
     }
-    return null;
+    try {
+      return DatabaseMeta.createFactory( metaStore ).loadElement( name );
+    } catch( MetaStoreException e) {
+      throw new RuntimeException( "Unable to load database with name '"+name+"' from the metastore", e );
+    }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#nrDatabases()
-   */
-  @Override
   public int nrDatabases() {
-    return ( databases == null ? 0 : databases.size() );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#getDatabase(int)
-   */
-  @Override
-  public DatabaseMeta getDatabase( int i ) {
-    return databases.get( i );
-  }
-
-  public void importFromMetaStore() throws MetaStoreException, HopPluginException {
-    // Read the databases...
-    //
-    if ( metaStore != null ) {
-      IMetaStoreElementType databaseType =
-        metaStore.getElementTypeByName(
-          HopDefaults.NAMESPACE, HopDefaults.DATABASE_CONNECTION_ELEMENT_TYPE_NAME );
-      if ( databaseType != null ) {
-        List<IMetaStoreElement> databaseElements = metaStore.getElements( HopDefaults.NAMESPACE, databaseType );
-        for ( IMetaStoreElement databaseElement : databaseElements ) {
-          addDatabase( DatabaseMetaStoreUtil.loadDatabaseMetaFromDatabaseElement(
-            metaStore, databaseElement ), false );
-        }
-      }
-
-      // TODO: do the same for slaves, clusters, partition schemas
+    try {
+      return DatabaseMeta.createFactory( metaStore ).getElementNames().size();
+    } catch( MetaStoreException e) {
+      throw new RuntimeException( "Unable to load database with name '"+name+"' from the metastore", e );
     }
   }
 
@@ -1078,10 +953,10 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return an array of the locations of an array of notes
    */
   public int[] getNoteIndexes( List<NotePadMeta> notes ) {
-    int[] retval = new int[notes.size()];
+    int[] retval = new int[ notes.size() ];
 
     for ( int i = 0; i < notes.size(); i++ ) {
-      retval[i] = indexOfNote( notes.get( i ) );
+      retval[ i ] = indexOfNote( notes.get( i ) );
     }
 
     return retval;
@@ -1096,59 +971,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     return channelLogTable;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabaseInterface#addOrReplaceDatabase(org.apache.hop.core.database.DatabaseMeta)
-   */
-  @Override
-  public void addOrReplaceDatabase( DatabaseMeta databaseMeta ) {
-    addDatabase( databaseMeta, true );
-  }
-
-  protected void addDatabase( DatabaseMeta databaseMeta, boolean replace ) {
-    int index = databases.indexOf( databaseMeta );
-    if ( index < 0 ) {
-      addDatabase( databaseMeta );
-    } else if ( replace ) {
-      DatabaseMeta previous = getDatabase( index );
-      previous.replaceMeta( databaseMeta );
-      previous.setShared( databaseMeta.isShared() );
-    }
-    changedDatabases = true;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#addDatabase(org.apache.hop.core.database.DatabaseMeta)
-   */
-  @Override
-  public void addDatabase( DatabaseMeta ci ) {
-    databases.add( ci );
-    Collections.sort( databases, DatabaseMeta.comparator );
-    changedDatabases = true;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#addDatabase(int, org.apache.hop.core.database.DatabaseMeta)
-   */
-  @Override
-  public void addDatabase( int p, DatabaseMeta ci ) {
-    databases.add( p, ci );
-    changedDatabases = true;
-  }
-
   /**
    * Returns a list of the databases.
    *
    * @return Returns the databases.
    */
-  @Override
   public List<DatabaseMeta> getDatabases() {
-    return databases;
+    try {
+      return DatabaseMeta.createFactory( metaStore ).getElements();
+    } catch( MetaStoreException e) {
+      throw new RuntimeException( "Unable to load databases from the metastore", e );
+    }
   }
 
   /**
@@ -1157,76 +990,12 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return the database names
    */
   public String[] getDatabaseNames() {
-    String[] names = new String[databases.size()];
-    for ( int i = 0; i < names.length; i++ ) {
-      names[i] = databases.get( i ).getName();
-    }
-    return names;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#indexOfDatabase(org.apache.hop.core.database.DatabaseMeta)
-   */
-  @Override
-  public int indexOfDatabase( DatabaseMeta di ) {
-    return databases.indexOf( di );
-  }
-
-  /**
-   * Sets the databases.
-   *
-   * @param databases The databases to set.
-   */
-  @Override
-  public void setDatabases( List<DatabaseMeta> databases ) {
-    Collections.sort( databases, DatabaseMeta.comparator );
-    this.databases = databases;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#haveConnectionsChanged()
-   */
-  @Override
-  public boolean haveConnectionsChanged() {
-    if ( changedDatabases ) {
-      return true;
-    }
-
-    for ( int i = 0; i < nrDatabases(); i++ ) {
-      DatabaseMeta ci = getDatabase( i );
-      if ( ci.hasChanged() ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.HasDatabasesInterface#removeDatabase(int)
-   */
-  @Override
-  public void removeDatabase( int i ) {
-    if ( i < 0 || i >= databases.size() ) {
-      return;
-    }
-    databases.remove( i );
-    changedDatabases = true;
-  }
-
-  /**
-   * Clears the flags for whether the transformation's databases have changed.
-   */
-  public void clearChangedDatabases() {
-    changedDatabases = false;
-
-    for ( int i = 0; i < nrDatabases(); i++ ) {
-      getDatabase( i ).setChanged( false );
+    try {
+      List<String> names = DatabaseMeta.createFactory( metaStore ).getElementNames();
+      Collections.sort(names);
+      return names.toArray( new String[0] );
+    } catch( MetaStoreException e) {
+      throw new RuntimeException( "Unable to get database names from the metastore", e );
     }
   }
 
@@ -1612,11 +1381,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   protected boolean loadSharedObject( SharedObjectInterface object ) {
-    if ( object instanceof DatabaseMeta ) {
-      DatabaseMeta databaseMeta = (DatabaseMeta) object;
-      databaseMeta.shareVariablesWith( this );
-      addOrReplaceDatabase( databaseMeta );
-    } else if ( object instanceof SlaveServer ) {
+   if ( object instanceof SlaveServer ) {
       SlaveServer slaveServer = (SlaveServer) object;
       slaveServer.shareVariablesWith( this );
       addOrReplaceSlaveServer( slaveServer );
@@ -1716,30 +1481,27 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   public void clear() {
     setName( null );
     setFilename( null );
-    notes = new ArrayList<NotePadMeta>();
-    databases = new ArrayList<DatabaseMeta>();
-    slaveServers = new ArrayList<SlaveServer>();
-    channelLogTable = ChannelLogTable.getDefault( this, this );
-    attributesMap = new HashMap<String, Map<String, String>>();
+    notes = new ArrayList<>();
+    slaveServers = new ArrayList<>();
+    channelLogTable = ChannelLogTable.getDefault( this, metaStore );
+    attributesMap = new HashMap<>();
     max_undo = Const.MAX_UNDO;
     clearUndo();
     clearChanged();
     setChanged( false );
-    channelLogTable = ChannelLogTable.getDefault( this, this );
+    channelLogTable = ChannelLogTable.getDefault( this, metaStore );
 
     createdUser = "-";
     createdDate = new Date();
 
     modifiedUser = "-";
     modifiedDate = new Date();
-    directory = new RepositoryDirectory();
     description = null;
     extendedDescription = null;
   }
 
   @Override
   public void clearChanged() {
-    clearChangedDatabases();
     changedNotes = false;
     for ( int i = 0; i < nrNotes(); i++ ) {
       getNote( i ).setChanged( false );
@@ -1755,10 +1517,10 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.hop.core.changed.ChangedFlag#setChanged(boolean)
-     */
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.changed.ChangedFlag#setChanged(boolean)
+   */
   @Override
   public final void setChanged( boolean ch ) {
     if ( ch ) {
@@ -1794,9 +1556,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   @Override
   public boolean hasChanged() {
     if ( changedFlag.hasChanged() ) {
-      return true;
-    }
-    if ( haveConnectionsChanged() ) {
       return true;
     }
     if ( haveNotesChanged() ) {
@@ -1846,27 +1605,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.repository.RepositoryElementInterface#getObjectRevision()
-   */
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return objectRevision;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.apache.hop.repository.RepositoryElementInterface#setObjectRevision(org.apache.hop.repository.ObjectRevision)
-   */
-  @Override
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    this.objectRevision = objectRevision;
-  }
-
   /**
    * Checks whether the specified name has changed (i.e. is different from the specified old name). If both names are
    * null, false is returned. If the old name is null and the new new name is non-null, true is returned. Otherwise, if
@@ -1884,17 +1622,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
       return true;
     }
     return !oldName.equals( newName );
-  }
-
-  protected boolean shouldOverwrite( OverwritePrompter prompter, Props props, String message, String rememberMessage ) {
-    boolean askOverwrite = Props.isInitialized() ? props.askAboutReplacingDatabaseConnections() : false;
-    boolean overwrite = Props.isInitialized() ? props.replaceExistingDatabaseConnections() : true;
-    if ( askOverwrite ) {
-      if ( prompter != null ) {
-        overwrite = prompter.overwritePrompt( message, rememberMessage, Props.STRING_ASK_ABOUT_REPLACING_DATABASES );
-      }
-    }
-    return overwrite;
   }
 
   public boolean hasMissingPlugins() {
@@ -1942,71 +1669,24 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected List<SharedObjectInterface> getAllSharedObjects() {
     List<SharedObjectInterface> shared = new ArrayList<>();
-    shared.addAll( databases );
     shared.addAll( slaveServers );
     return shared;
   }
 
-  /**
-   * This method needs to be called to store those objects which are used and referenced in the transformation metadata
-   * but not saved in the XML serialization. For example, the Hop data service definition is referenced by name but
-   * not stored when getXML() is called.<br>
-   * @deprecated This method is empty since 2013.
-   *
-   * @param metaStore
-   *          The store to save to
-   * @throws MetaStoreException
-   *           in case there is an error.
-   */
-  @Deprecated
-  public void saveMetaStoreObjects( Repository repository, IMetaStore metaStore ) throws MetaStoreException {
-
-  }
 
   protected int compare( AbstractMeta meta1, AbstractMeta meta2 ) {
-    // If we don't have a filename, it comes from a repository
-    if ( Utils.isEmpty( meta1.getFilename() ) ) {
-
-      if ( !Utils.isEmpty( meta2.getFilename() ) ) {
-        return -1;
-      }
-
-      // First compare names...
-      if ( Utils.isEmpty( meta1.getName() ) && !Utils.isEmpty( meta2.getName() ) ) {
-        return -1;
-      }
-      if ( !Utils.isEmpty( meta1.getName() ) && Utils.isEmpty( meta2.getName() ) ) {
-        return 1;
-      }
-      int cmpName = meta1.getName().compareTo( meta2.getName() );
-      if ( cmpName != 0 ) {
-        return cmpName;
-      }
-
-      // Same name, compare Repository directory...
-      int cmpDirectory = meta1.getRepositoryDirectory().getPath().compareTo( meta2.getRepositoryDirectory().getPath() );
-      if ( cmpDirectory != 0 ) {
-        return cmpDirectory;
-      }
-
-      // Same name, same directory, compare versions
-      if ( meta1.getObjectRevision() != null && meta2.getObjectRevision() == null ) {
-        return 1;
-      }
-      if ( meta1.getObjectRevision() == null && meta2.getObjectRevision() != null ) {
-        return -1;
-      }
-      if ( meta1.getObjectRevision() == null && meta2.getObjectRevision() == null ) {
-        return 0;
-      }
-      return meta1.getObjectRevision().getName().compareTo( meta2.getObjectRevision().getName() );
-
-    } else {
-      if ( Utils.isEmpty( meta2.getFilename() ) ) {
-        return 1;
-      }
-
-      // First compare names
+    // If we don't have a filename...
+    //
+    if ( StringUtils.isEmpty( meta1.getFilename()) && StringUtils.isNotEmpty( meta2.getFilename() ) ) {
+      return -1;
+    }
+    if ( StringUtils.isNotEmpty( meta1.getFilename()) && StringUtils.isEmpty( meta2.getFilename() ) ) {
+      return 1;
+    }
+    if ( (StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() )
+       || (meta1.getFilename().equals( meta2.getFilename() )) )
+    ) {
+      // Compare names...
       //
       if ( Utils.isEmpty( meta1.getName() ) && !Utils.isEmpty( meta2.getName() ) ) {
         return -1;
@@ -2015,19 +1695,15 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
         return 1;
       }
       int cmpName = meta1.getName().compareTo( meta2.getName() );
-      if ( cmpName != 0 ) {
-        return cmpName;
-      }
-
-      // Same name, compare filenames...
+      return cmpName;
+    } else {
       return meta1.getFilename().compareTo( meta2.getFilename() );
     }
   }
 
   @Override
   public int hashCode() {
-    boolean inRepo = Utils.isEmpty( getFilename() );
-    return Objects.hash( name, inRepo, inRepo ? filename : getRepositoryDirectory().getPath() );
+    return Objects.hash( filename, name );
   }
 
   public NamedClusterServiceOsgi getNamedClusterServiceOsgi() {
@@ -2036,44 +1712,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   public void setNamedClusterServiceOsgi( NamedClusterServiceOsgi namedClusterServiceOsgi ) {
     this.namedClusterServiceOsgi = namedClusterServiceOsgi;
-  }
-
-  public MetastoreLocatorOsgi getMetastoreLocatorOsgi() {
-    return metastoreLocatorOsgi;
-  }
-
-  public void setMetastoreLocatorOsgi( MetastoreLocatorOsgi metastoreLocatorOsgi ) {
-    this.metastoreLocatorOsgi = metastoreLocatorOsgi;
-  }
-
-  public NamedClusterEmbedManager getNamedClusterEmbedManager( ) {
-    return namedClusterEmbedManager;
-  }
-
-  public void disposeEmbeddedMetastoreProvider() {
-    HopVFS.closeEmbeddedFileSystem( embeddedMetastoreProviderKey );
-    if ( embeddedMetastoreProviderKey != null ) {
-      //Dispose of embedded metastore for this run
-      getMetastoreLocatorOsgi().disposeMetastoreProvider( embeddedMetastoreProviderKey );
-    }
-  }
-
-  public String getEmbeddedMetastoreProviderKey() {
-    return embeddedMetastoreProviderKey;
-  }
-
-  public void setEmbeddedMetastoreProviderKey( String embeddedMetastoreProviderKey ) {
-    this.embeddedMetastoreProviderKey = embeddedMetastoreProviderKey;
-  }
-
-  @Override
-  public void setVersioningEnabled( Boolean versioningEnabled ) {
-    this.versioningEnabled = versioningEnabled;
-  }
-
-  @Override
-  public Boolean getVersioningEnabled() {
-    return this.versioningEnabled;
   }
 
   private static class RunOptions {

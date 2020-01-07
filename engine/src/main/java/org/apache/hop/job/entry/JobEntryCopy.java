@@ -45,8 +45,6 @@ import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.missing.MissingEntry;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -84,8 +82,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
 
   private boolean draw;
 
-  private ObjectId id;
-
   private JobMeta parentJobMeta;
 
   private Map<String, Map<String, String>> attributesMap;
@@ -118,22 +114,8 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     return retval.toString();
   }
 
-  /**
-   *
-   * @param entrynode
-   * @param databases
-   * @param slaveServers
-   * @param rep
-   * @throws HopXMLException
-   * @deprecated
-   */
-  @Deprecated
-  public JobEntryCopy( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers, Repository rep ) throws HopXMLException {
-    this( entrynode, databases, slaveServers, rep, null );
-  }
 
-  public JobEntryCopy( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers, Repository rep,
-      IMetaStore metaStore ) throws HopXMLException {
+  public JobEntryCopy( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
       String stype = XMLHandler.getTagValue( entrynode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -150,8 +132,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
           entry.setPluginId( jobPlugin.getIds()[0] );
         }
         entry.setMetaStore( metaStore ); // inject metastore
-        entry.loadXML( entrynode, databases, slaveServers, rep, metaStore );
-        compatibleLoadXml( entrynode, databases, slaveServers, rep );
+        entry.loadXML( entrynode, slaveServers, metaStore );
 
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XMLHandler.getTagValue( entrynode, "nr" ), 0 ) );
@@ -181,35 +162,17 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     }
   }
 
-
-  /**
-   * Backward compatible loading of XML, using deprecated method.
-   *
-   * @param entrynode
-   * @param databases
-   * @param slaveServers
-   * @param rep
-   * @throws HopXMLException
-   */
-  @SuppressWarnings( "deprecation" )
-  protected void compatibleLoadXml( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep ) throws HopXMLException {
-    entry.loadXML( entrynode, databases, slaveServers, rep );
-  }
-
   public void clear() {
     location = null;
     entry = null;
     nr = 0;
     launchingInParallel = false;
     attributesMap = new HashMap<>();
-    setObjectId( null );
   }
 
   public Object clone() {
     JobEntryCopy ge = new JobEntryCopy();
     ge.replaceMeta( this );
-    ge.setObjectId( null );
 
     for ( final Map.Entry<String, Map<String, String>> attribute : attributesMap.entrySet() ) {
       ge.attributesMap.put( attribute.getKey(), attribute.getValue() );
@@ -229,7 +192,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     launchingInParallel = jobEntryCopy.launchingInParallel;
     draw = jobEntryCopy.draw;
 
-    id = jobEntryCopy.id;
     setChanged();
   }
 
@@ -240,10 +202,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     ge.entry = (JobEntryInterface) entry.clone();
 
     return ge;
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
   }
 
   public boolean equals( Object o ) {
@@ -257,10 +215,6 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
   @Override
   public int hashCode() {
     return entry.getName().hashCode() ^ Integer.valueOf( getNr() ).hashCode();
-  }
-
-  public ObjectId getObjectId() {
-    return id;
   }
 
   public void setEntry( JobEntryInterface je ) {

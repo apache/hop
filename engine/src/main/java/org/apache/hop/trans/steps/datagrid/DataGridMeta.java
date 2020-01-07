@@ -37,8 +37,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -214,7 +213,7 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -342,7 +341,7 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface rowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < fieldName.length; i++ ) {
       try {
         if ( !Utils.isEmpty( fieldName[i] ) ) {
@@ -400,76 +399,6 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    </data>" ).append( Const.CR );
 
     return retval.toString();
-  }
-
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId idStep, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      int nrfields = rep.countNrStepAttributes( idStep, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( idStep, i, "field_name" );
-        fieldType[i] = rep.getStepAttributeString( idStep, i, "field_type" );
-
-        fieldFormat[i] = rep.getStepAttributeString( idStep, i, "field_format" );
-        currency[i] = rep.getStepAttributeString( idStep, i, "field_currency" );
-        decimal[i] = rep.getStepAttributeString( idStep, i, "field_decimal" );
-        group[i] = rep.getStepAttributeString( idStep, i, "field_group" );
-        fieldLength[i] = (int) rep.getStepAttributeInteger( idStep, i, "field_length" );
-        fieldPrecision[i] = (int) rep.getStepAttributeInteger( idStep, i, "field_precision" );
-        setEmptyString[i] = rep.getStepAttributeBoolean( idStep, i, "set_empty_string", false );
-      }
-
-      int nrLines = (int) rep.getStepAttributeInteger( idStep, "nr_lines" );
-      dataLines = new ArrayList<List<String>>();
-      for ( int i = 0; i < nrLines; i++ ) {
-        List<String> line = new ArrayList<String>();
-
-        for ( int f = 0; f < nrfields; f++ ) {
-          String item = rep.getStepAttributeString( idStep, i, "item_" + f );
-          line.add( item );
-        }
-
-        dataLines.add( line );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId idTransformation, ObjectId idStep ) throws HopException {
-    try {
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( fieldName[i] != null && fieldName[i].length() != 0 ) {
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_name", fieldName[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_type", fieldType[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_format", fieldFormat[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_currency", currency[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_decimal", decimal[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_group", group[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_length", fieldLength[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "field_precision", fieldPrecision[i] );
-          rep.saveStepAttribute( idTransformation, idStep, i, "set_empty_string", setEmptyString[i] );
-        }
-      }
-
-      rep.saveStepAttribute( idTransformation, idStep, "nr_lines", dataLines.size() );
-
-      for ( int i = 0; i < dataLines.size(); i++ ) {
-        List<String> line = dataLines.get( i );
-        for ( int f = 0; f < line.size(); f++ ) {
-          String item = line.get( f );
-          rep.saveStepAttribute( idTransformation, idStep, i, "item_" + f, item );
-        }
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + idStep, e );
-    }
   }
 
   @Override

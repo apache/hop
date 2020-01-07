@@ -47,7 +47,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.success.JobEntrySuccess;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
@@ -80,8 +79,8 @@ public class JobEntrySuccessDialog extends JobEntryDialog implements JobEntryDia
 
   private boolean changed;
 
-  public JobEntrySuccessDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySuccessDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySuccess) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntrySuccessDialog.Name.Default" ) );

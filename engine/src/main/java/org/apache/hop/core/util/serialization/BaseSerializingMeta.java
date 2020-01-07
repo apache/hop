@@ -26,8 +26,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -42,7 +41,7 @@ import static org.apache.hop.core.util.serialization.StepMetaProps.from;
 /**
  * Handles serialization of meta by implementing getXML/loadXML, readRep/saveRep.
  * <p>
- * Uses {@link MetaXmlSerializer} amd {@link RepoSerializer} for generically
+ * Uses {@link MetaXmlSerializer} for generically
  * handling child classes meta.
  */
 public abstract class BaseSerializingMeta extends BaseStepMeta implements StepMetaInterface {
@@ -52,28 +51,8 @@ public abstract class BaseSerializingMeta extends BaseStepMeta implements StepMe
   }
 
   @Override public void loadXML(
-    Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+    Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     deserialize( stepnode ).to( this );
-  }
-
-  @Override public void readRep( Repository rep, IMetaStore metaStore, ObjectId
-    id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    RepoSerializer.builder()
-      .stepMeta( this )
-      .repo( rep )
-      .stepId( id_step )
-      .deserialize();
-  }
-
-  @Override public void saveRep( Repository rep, IMetaStore metaStore, ObjectId transId, ObjectId stepId )
-    throws HopException {
-    RepoSerializer.builder()
-      .stepMeta( this )
-      .repo( rep )
-      .stepId( stepId )
-      .transId( transId )
-      .serialize();
   }
 
   /**

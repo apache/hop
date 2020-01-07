@@ -106,7 +106,7 @@ public class TransExecutorMeta_GetFields_Test {
 
   private RowMetaInterface invokeGetFieldsWith( StepMeta stepMeta ) throws Exception {
     RowMetaInterface rowMeta = mock( RowMetaInterface.class );
-    meta.getFields( rowMeta, "", null, stepMeta, null, null, null );
+    meta.getFields( rowMeta, "", null, stepMeta, null, null );
     return rowMeta;
   }
 }

@@ -34,12 +34,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.repository.dialog.SelectObjectDialog;
 import org.apache.hop.ui.hopui.HopUi;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -54,20 +50,14 @@ public class VFSFileSelection extends Composite {
   private final String[] fileFilters;
   private final String[] fileFilterNames;
   private final TransMeta transMeta;
-  private final Repository repository;
   private final Supplier<Optional<String>> fileNameSupplier;
 
   public VFSFileSelection( Composite composite, int i, String[] fileFilters, String[] fileFilterNames, TransMeta transMeta ) {
-    this( composite, i, fileFilters, fileFilterNames, transMeta, null );
-  }
-
-  public VFSFileSelection( Composite composite, int i, String[] fileFilters, String[] fileFilterNames, TransMeta transMeta, Repository repository ) {
     super( composite, i );
     this.fileFilters = fileFilters;
     this.fileFilterNames = fileFilterNames;
     this.transMeta = transMeta;
-    this.repository = repository;
-    fileNameSupplier = repository == null ? this::promptForLocalFile : this::promptForRepositoryFile;
+    fileNameSupplier = this::promptForLocalFile;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -137,24 +127,5 @@ public class VFSFileSelection extends Composite {
       }
     }
     return filePath;
-  }
-
-  private Optional<String> promptForRepositoryFile() {
-    SelectObjectDialog sod = new SelectObjectDialog( getShell(), repository );
-    String fileName = sod.open();
-    RepositoryDirectoryInterface repdir = sod.getDirectory();
-    if ( fileName != null && repdir != null ) {
-      String path = getRepositoryRelativePath( repdir + RepositoryDirectory.DIRECTORY_SEPARATOR + fileName );
-      return Optional.ofNullable( path );
-    }
-    return Optional.empty();
-  }
-
-  private String getRepositoryRelativePath( String path ) {
-    String parentPath = this.transMeta.getRepositoryDirectory().getPath();
-    if ( path.startsWith( parentPath ) ) {
-      path = path.replace( parentPath, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
-    }
-    return path;
   }
 }

@@ -55,8 +55,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -656,7 +655,7 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -894,7 +893,7 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < field.length; i++ ) {
       int type = field[ i ].getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -1107,187 +1106,6 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      startsWithHeader = rep.getStepAttributeBoolean( id_step, "header" );
-      ignoreEmptyRows = rep.getStepAttributeBoolean( id_step, "noempty" );
-      stopOnEmpty = rep.getStepAttributeBoolean( id_step, "stoponempty" );
-      fileField = rep.getStepAttributeString( id_step, "filefield" );
-      sheetField = rep.getStepAttributeString( id_step, "sheetfield" );
-      sheetRowNumberField = rep.getStepAttributeString( id_step, "sheetrownumfield" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownumfield" );
-      rowLimit = (int) rep.getStepAttributeInteger( id_step, "limit" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      String addToResult = rep.getStepAttributeString( id_step, "add_to_result_filenames" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        isaddresult = true;
-      } else {
-        isaddresult = rep.getStepAttributeBoolean( id_step, "add_to_result_filenames" );
-      }
-
-      acceptingFilenames = rep.getStepAttributeBoolean( id_step, "accept_filenames" );
-      acceptingField = rep.getStepAttributeString( id_step, "accept_field" );
-      acceptingStepName = rep.getStepAttributeString( id_step, "accept_stepname" );
-
-      int nrfiles = rep.countNrStepAttributes( id_step, "file_name" );
-      int nrsheets = rep.countNrStepAttributes( id_step, "sheet_name" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfiles, nrsheets, nrfields );
-
-      // System.out.println("Counted "+nrfiles+" files to read and "+nrsheets+" sheets, "+nrfields+" fields.");
-      for ( int i = 0; i < nrfiles; i++ ) {
-        fileName[ i ] = rep.getStepAttributeString( id_step, i, "file_name" );
-        fileMask[ i ] = rep.getStepAttributeString( id_step, i, "file_mask" );
-        excludeFileMask[ i ] = rep.getStepAttributeString( id_step, i, "exclude_file_mask" );
-        fileRequired[ i ] = rep.getStepAttributeString( id_step, i, "file_required" );
-        if ( !YES.equalsIgnoreCase( fileRequired[ i ] ) ) {
-          fileRequired[ i ] = NO;
-        }
-        includeSubFolders[ i ] = rep.getStepAttributeString( id_step, i, "include_subfolders" );
-        if ( !YES.equalsIgnoreCase( includeSubFolders[ i ] ) ) {
-          includeSubFolders[ i ] = NO;
-        }
-      }
-
-      for ( int i = 0; i < nrsheets; i++ ) {
-        sheetName[ i ] = rep.getStepAttributeString( id_step, i, "sheet_name" );
-        startRow[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "sheet_startrow" );
-        startColumn[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "sheet_startcol" );
-      }
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        field[ i ] = new ExcelInputField();
-
-        field[ i ].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field[ i ]
-          .setType( ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-        field[ i ].setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        field[ i ].setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        field[ i ].setTrimType( getTrimTypeByCode( rep.getStepAttributeString( id_step, i, "field_trim_type" ) ) );
-        field[ i ].setRepeated( rep.getStepAttributeBoolean( id_step, i, "field_repeat" ) );
-
-        field[ i ].setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        field[ i ].setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        field[ i ].setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        field[ i ].setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-      }
-
-      strictTypes = rep.getStepAttributeBoolean( id_step, 0, "strict_types", false );
-      errorIgnored = rep.getStepAttributeBoolean( id_step, 0, "error_ignored", false );
-      errorLineSkipped = rep.getStepAttributeBoolean( id_step, 0, "error_line_skipped", false );
-
-      warningFilesDestinationDirectory = rep.getStepAttributeString( id_step, "bad_line_files_dest_dir" );
-      warningFilesExtension = rep.getStepAttributeString( id_step, "bad_line_files_ext" );
-      errorFilesDestinationDirectory = rep.getStepAttributeString( id_step, "error_line_files_dest_dir" );
-      errorFilesExtension = rep.getStepAttributeString( id_step, "error_line_files_ext" );
-      lineNumberFilesDestinationDirectory = rep.getStepAttributeString( id_step, "line_number_files_dest_dir" );
-      lineNumberFilesExtension = rep.getStepAttributeString( id_step, "line_number_files_ext" );
-
-      shortFileFieldName = rep.getStepAttributeString( id_step, "shortFileFieldName" );
-      pathFieldName = rep.getStepAttributeString( id_step, "pathFieldName" );
-      hiddenFieldName = rep.getStepAttributeString( id_step, "hiddenFieldName" );
-      lastModificationTimeFieldName = rep.getStepAttributeString( id_step, "lastModificationTimeFieldName" );
-      rootUriNameFieldName = rep.getStepAttributeString( id_step, "rootUriNameFieldName" );
-      uriNameFieldName = rep.getStepAttributeString( id_step, "uriNameFieldName" );
-      extensionFieldName = rep.getStepAttributeString( id_step, "extensionFieldName" );
-      sizeFieldName = rep.getStepAttributeString( id_step, "sizeFieldName" );
-
-      try {
-        spreadSheetType = SpreadSheetType.valueOf( rep.getStepAttributeString( id_step, "spreadsheet_type" ) );
-      } catch ( Exception e ) {
-        spreadSheetType = SpreadSheetType.JXL;
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      normilizeAllocation();
-      rep.saveStepAttribute( id_transformation, id_step, "header", startsWithHeader );
-      rep.saveStepAttribute( id_transformation, id_step, "noempty", ignoreEmptyRows );
-      rep.saveStepAttribute( id_transformation, id_step, "stoponempty", stopOnEmpty );
-      rep.saveStepAttribute( id_transformation, id_step, "filefield", fileField );
-      rep.saveStepAttribute( id_transformation, id_step, "sheetfield", sheetField );
-      rep.saveStepAttribute( id_transformation, id_step, "sheetrownumfield", sheetRowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "rownumfield", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "add_to_result_filenames", isaddresult );
-
-      rep.saveStepAttribute( id_transformation, id_step, "accept_filenames", acceptingFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "accept_field", acceptingField );
-      rep.saveStepAttribute( id_transformation, id_step, "accept_stepname", ( acceptingStep != null
-        ? acceptingStep.getName() : StringUtil.EMPTY_STRING ) );
-
-      for ( int i = 0; i < fileName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_name", getValueOrEmptyIfNull( fileName[ i ] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_mask", fileMask[ i ] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "exclude_file_mask", excludeFileMask[ i ] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", fileRequired[ i ] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "include_subfolders", includeSubFolders[ i ] );
-      }
-
-      for ( int i = 0; i < sheetName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "sheet_name", getValueOrEmptyIfNull( sheetName[ i ] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "sheet_startrow", startRow[ i ] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "sheet_startcol", startColumn[ i ] );
-      }
-
-      for ( int i = 0; i < field.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name",
-          getValueOrEmptyIfNull( field[ i ].getName() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field[ i ].getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field[ i ].getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field[ i ].getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field[ i ].getTrimTypeCode() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_repeat", field[ i ].isRepeated() );
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field[ i ].getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field[ i ].getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field[ i ].getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field[ i ].getGroupSymbol() );
-
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "strict_types", strictTypes );
-      rep.saveStepAttribute( id_transformation, id_step, "error_ignored", errorIgnored );
-      rep.saveStepAttribute( id_transformation, id_step, "error_line_skipped", errorLineSkipped );
-
-      rep.saveStepAttribute(
-        id_transformation, id_step, "bad_line_files_dest_dir", warningFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "bad_line_files_ext", warningFilesExtension );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "error_line_files_dest_dir", errorFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "error_line_files_ext", errorFilesExtension );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "line_number_files_dest_dir", lineNumberFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "line_number_files_ext", lineNumberFilesExtension );
-
-      rep.saveStepAttribute( id_transformation, id_step, "shortFileFieldName", shortFileFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "pathFieldName", pathFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "hiddenFieldName", hiddenFieldName );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "lastModificationTimeFieldName", lastModificationTimeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "uriNameFieldName", uriNameFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "rootUriNameFieldName", rootUriNameFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "extensionFieldName", extensionFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "sizeFieldName", sizeFieldName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "spreadsheet_type",
-        ( spreadSheetType != null ? spreadSheetType.toString() : StringUtil.EMPTY_STRING ) );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-
-  }
-
   private String getValueOrEmptyIfNull( String str ) {
     return str == null ? StringUtils.EMPTY : str;
   }
@@ -1369,7 +1187,7 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -1617,13 +1435,12 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
    * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository              The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, Repository repository,
+                                 ResourceNamingInterface resourceNamingInterface,
                                  IMetaStore metaStore ) throws HopException {
     try {
       normilizeAllocation();

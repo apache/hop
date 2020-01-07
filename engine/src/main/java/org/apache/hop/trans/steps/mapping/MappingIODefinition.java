@@ -28,8 +28,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -143,42 +142,7 @@ public class MappingIODefinition implements Cloneable {
     return xml.toString();
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step,
-    String prefix, int nr ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "input_step", inputStepname );
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "output_step", outputStepname );
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "main_path", mainDataPath );
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "rename_on_output", renamingOnOutput );
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "description", description );
-
-    rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "nr_renames", valueRenames.size() );
-    for ( int i = 0; i < valueRenames.size(); i++ ) {
-      rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "rename_parent_" + i, valueRenames
-        .get( i ).getSourceValueName() );
-      rep.saveStepAttribute( id_transformation, id_step, nr, prefix + "rename_child_" + i, valueRenames
-        .get( i ).getTargetValueName() );
-    }
-
-  }
-
-  public MappingIODefinition( Repository rep, ObjectId id_step, String prefix, int nr ) throws HopException {
-    this();
-
-    inputStepname = rep.getStepAttributeString( id_step, nr, prefix + "input_step" );
-    outputStepname = rep.getStepAttributeString( id_step, nr, prefix + "output_step" );
-    mainDataPath = rep.getStepAttributeBoolean( id_step, nr, prefix + "main_path" );
-    renamingOnOutput = rep.getStepAttributeBoolean( id_step, nr, prefix + "rename_on_output" );
-    description = rep.getStepAttributeString( id_step, nr, prefix + "description" );
-
-    int nrRenames = (int) rep.getStepAttributeInteger( id_step, nr, prefix + "nr_renames" );
-    for ( int i = 0; i < nrRenames; i++ ) {
-      String parent = rep.getStepAttributeString( id_step, nr, prefix + "rename_parent_" + i );
-      String child = rep.getStepAttributeString( id_step, nr, prefix + "rename_child_" + i );
-      valueRenames.add( new MappingValueRename( parent, child ) );
-    }
-  }
-
-  /**
+/**
    * @return the stepname, the name of the step to "connect" to. If no step name is given, detect the Mapping
    *         Input/Output step automatically.
    */

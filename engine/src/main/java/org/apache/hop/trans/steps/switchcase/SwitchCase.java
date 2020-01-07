@@ -154,7 +154,7 @@ public class SwitchCase extends BaseStep implements StepInterface {
    */
   void createOutputValueMapping() throws HopException {
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( getInputRowMeta(), getStepname(), null, null, this, repository, metaStore );
+    meta.getFields( getInputRowMeta(), getStepname(), null, null, this, metaStore );
 
     data.fieldIndex = getInputRowMeta().indexOfValue( meta.getFieldname() );
     if ( data.fieldIndex < 0 ) {

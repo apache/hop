@@ -28,25 +28,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.repository.RepositoryAttributeInterface;
-
 public interface LogTableCoreInterface {
-
-  /**
-   * Saves the log table to a repository.
-   *
-   * @param attributeInterface
-   *          The attribute interface used to store the attributes
-   */
-  public void saveToRepository( RepositoryAttributeInterface attributeInterface ) throws HopException;
-
-  /**
-   * Loads details of the log table from a repository.
-   *
-   * @param attributeInterface
-   *          The attribute interface used to load the attributes
-   */
-  public void loadFromRepository( RepositoryAttributeInterface attributeInterface ) throws HopException;
 
   public String getConnectionName();
 
@@ -88,7 +70,7 @@ public interface LogTableCoreInterface {
    * @param parent
    *          The parent object to log
    * @return The log record to write
-   * @throws in
+   * @throws HopException
    *           case there is a problem with the log record creation (incorrect settings, ...)
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) throws HopException;

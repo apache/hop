@@ -31,6 +31,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.junit.After;
 import org.junit.Ignore;
 import org.apache.hop.core.RowMetaAndData;
@@ -54,10 +57,13 @@ public abstract class BaseMetadataInjectionTest<T> {
   protected BeanInjector injector;
   protected T meta;
   protected Set<String> nonTestedProperties;
+  protected IMetaStore metaStore;
 
-  protected void setup( T meta ) {
-    HopLogStore.init();
+  protected void setup( T meta ) throws Exception {
+    HopClientEnvironment.init();
+
     this.meta = meta;
+    this.metaStore = new MemoryMetaStore();
     info = new BeanInjectionInfo( meta.getClass() );
     injector = new BeanInjector( info );
     nonTestedProperties = new HashSet<>( info.getProperties().keySet() );

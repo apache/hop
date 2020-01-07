@@ -58,8 +58,7 @@ import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -196,9 +195,6 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
         retval
           .append( "          " ).append( XMLHandler.addTagValue( "include_subFolders", sourceIncludeSubfolders[i] ) );
         retval.append( "        </field>" ).append( Const.CR );
-        if ( parentJobMeta != null ) {
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( sourceFileFolder[i] );
-        }
       }
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -237,10 +233,10 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
 
@@ -277,76 +273,6 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
   }
 
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "source_filefolder" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        sourceFileFolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "source_filefolder" );
-        sourceWildcard[a] = rep.getJobEntryAttributeString( id_jobentry, a, "wildcard" );
-        sourceIncludeSubfolders[a] = rep.getJobEntryAttributeString( id_jobentry, a, "include_subFolders" );
-      }
-
-      resultFilenamesWildcard = rep.getJobEntryAttributeString( id_jobentry, "result_filenames_wildcard" );
-      ResultFieldFile = rep.getJobEntryAttributeString( id_jobentry, "result_field_file" );
-      ResultFieldWildcard = rep.getJobEntryAttributeString( id_jobentry, "result_field_wild" );
-      ResultFieldIncludesubFolders =
-        rep.getJobEntryAttributeString( id_jobentry, "result_field_includesubfolders" );
-      comparevalue = rep.getJobEntryAttributeString( id_jobentry, "comparevalue" );
-      minvalue = rep.getJobEntryAttributeString( id_jobentry, "minvalue" );
-      maxvalue = rep.getJobEntryAttributeString( id_jobentry, "maxvalue" );
-      successConditionType =
-        JobEntrySimpleEval.getSuccessNumberConditionByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "successnumbercondition" ), "" ) );
-      sourceFiles =
-        getSourceFilesByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "source_files" ), "" ) );
-      evaluationType =
-        getEvaluationTypeByCode( Const
-          .NVL( rep.getJobEntryAttributeString( id_jobentry, "evaluation_type" ), "" ) );
-      scale = getScaleByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "scale" ), "" ) );
-    } catch ( HopException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-
-      // save the arguments...
-      if ( sourceFileFolder != null ) {
-        for ( int i = 0; i < sourceFileFolder.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "source_filefolder", sourceFileFolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "wildcard", sourceWildcard[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "include_subFolders", sourceIncludeSubfolders[i] );
-        }
-      }
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "result_filenames_wildcard", resultFilenamesWildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "result_field_file", ResultFieldFile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "result_field_wild", ResultFieldWildcard );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "result_field_includesubfolders", ResultFieldIncludesubFolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "comparevalue", comparevalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "minvalue", minvalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maxvalue", maxvalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "successnumbercondition", JobEntrySimpleEval
-        .getSuccessNumberConditionCode( successConditionType ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "scale", getScaleCode( scale ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "source_files", getSourceFilesCode( sourceFiles ) );
-      rep
-        .saveJobEntryAttribute( id_job, getObjectId(), "evaluation_type", getEvaluationTypeCode( evaluationType ) );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
-    }
-  }
-
   public Result execute( Result previousResult, int nr ) throws HopException {
     Result result = previousResult;
     result.setNrErrors( 1 );
@@ -355,11 +281,6 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow = null;
 
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     try {
       initMetrics();
@@ -1049,7 +970,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 

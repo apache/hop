@@ -30,15 +30,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -129,7 +127,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String sensitivity;
 
-  private String secureconnectiontype;
+  private String secureConnectionType;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
   private String encoding;
@@ -155,7 +153,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -299,7 +297,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " + XMLHandler.addTagValue( "priority", this.priority ) );
     retval.append( "    " + XMLHandler.addTagValue( "importance", this.importance ) );
     retval.append( "    " + XMLHandler.addTagValue( "sensitivity", this.sensitivity ) );
-    retval.append( "    " + XMLHandler.addTagValue( "secureconnectiontype", this.secureconnectiontype ) );
+    retval.append( "    " + XMLHandler.addTagValue( "secureconnectiontype", this.secureConnectionType ) );
 
     retval.append( "      <embeddedimages>" ).append( Const.CR );
     if ( embeddedimages != null ) {
@@ -624,8 +622,8 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
    * @param useHTML
    *          the useHTML to set
    */
-  public void setUseHTML( boolean UseHTML ) {
-    this.useHTML = UseHTML;
+  public void setUseHTML( boolean useHTML ) {
+    this.useHTML = useHTML;
   }
 
   /**
@@ -639,23 +637,23 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
    * @return the secure connection type
    */
   public String getSecureConnectionType() {
-    return this.secureconnectiontype;
+    return this.secureConnectionType;
   }
 
   /**
-   * @param secureconnectiontype
+   * @param secureConnectionType
    *          the secureconnectiontype to set
    */
-  public void setSecureConnectionType( String secureconnectiontypein ) {
-    this.secureconnectiontype = secureconnectiontypein;
+  public void setSecureConnectionType( String secureConnectionType ) {
+    this.secureConnectionType = secureConnectionType;
   }
 
   /**
    * @param replyToAddresses
    *          the replyToAddresses to set
    */
-  public void setReplyToAddresses( String replytoaddresses ) {
-    this.replyToAddresses = replytoaddresses;
+  public void setReplyToAddresses( String replyToAddresses ) {
+    this.replyToAddresses = replyToAddresses;
   }
 
   /**
@@ -707,8 +705,8 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
    * @param usePriority
    *          the usePriority to set
    */
-  public void setUsePriority( boolean usePriorityin ) {
-    this.usePriority = usePriorityin;
+  public void setUsePriority( boolean usePriority ) {
+    this.usePriority = usePriority;
   }
 
   /**
@@ -752,157 +750,14 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
    * @param priority
    *          the priority to set
    */
-  public void setPriority( String priorityin ) {
-    this.priority = priorityin;
-  }
-
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      // First load the common parts like name & description, then the attributes...
-      //
-
-      this.server = rep.getStepAttributeString( id_step, "server" );
-      this.port = rep.getStepAttributeString( id_step, "port" );
-      this.destination = rep.getStepAttributeString( id_step, "destination" );
-      this.destinationCc = rep.getStepAttributeString( id_step, "destinationCc" );
-      this.destinationBCc = rep.getStepAttributeString( id_step, "destinationBCc" );
-      this.replyToAddresses = rep.getStepAttributeString( id_step, "replyToAddresses" );
-      this.replyAddress = rep.getStepAttributeString( id_step, "replyto" );
-      this.replyName = rep.getStepAttributeString( id_step, "replytoname" );
-
-      this.subject = rep.getStepAttributeString( id_step, "subject" );
-      this.includeDate = rep.getStepAttributeBoolean( id_step, "include_date" );
-      this.includeSubFolders = rep.getStepAttributeBoolean( id_step, "include_subfolders" );
-      this.zipFilenameDynamic = rep.getStepAttributeBoolean( id_step, "zipFilenameDynamic" );
-
-      this.attachContentFromField = rep.getStepAttributeBoolean( id_step, "attachContentFromField" );
-      this.attachContentField = rep.getStepAttributeString( id_step, "attachContentField" );
-      this.attachContentFileNameField = rep.getStepAttributeString( id_step, "attachContentFileNameField" );
-
-      this.isFilenameDynamic = rep.getStepAttributeBoolean( id_step, "isFilenameDynamic" );
-      this.dynamicFieldname = rep.getStepAttributeString( id_step, "dynamicFieldname" );
-      this.dynamicWildcard = rep.getStepAttributeString( id_step, "dynamicWildcard" );
-      this.dynamicZipFilename = rep.getStepAttributeString( id_step, "dynamicZipFilename" );
-
-      this.sourcefilefoldername = rep.getStepAttributeString( id_step, "sourcefilefoldername" );
-      this.sourcewildcard = rep.getStepAttributeString( id_step, "sourcewildcard" );
-
-      this.contactPerson = rep.getStepAttributeString( id_step, "contact_person" );
-      this.contactPhone = rep.getStepAttributeString( id_step, "contact_phone" );
-      this.comment = rep.getStepAttributeString( id_step, "comment" );
-      this.encoding = rep.getStepAttributeString( id_step, "encoding" );
-      this.priority = rep.getStepAttributeString( id_step, "priority" );
-      this.importance = rep.getStepAttributeString( id_step, "importance" );
-      this.sensitivity = rep.getStepAttributeString( id_step, "sensitivity" );
-
-      this.includingFiles = rep.getStepAttributeBoolean( id_step, "include_files" );
-
-      this.usingAuthentication = rep.getStepAttributeBoolean( id_step, "use_auth" );
-      this.usingSecureAuthentication = rep.getStepAttributeBoolean( id_step, "use_secure_auth" );
-      this.authenticationUser = rep.getStepAttributeString( id_step, "auth_user" );
-      this.authenticationPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "auth_password" ) );
-
-      this.onlySendComment = rep.getStepAttributeBoolean( id_step, "only_comment" );
-      this.useHTML = rep.getStepAttributeBoolean( id_step, "use_HTML" );
-      this.usePriority = rep.getStepAttributeBoolean( id_step, "use_Priority" );
-      this.secureconnectiontype = rep.getStepAttributeString( id_step, "secureconnectiontype" );
-
-      this.zipFiles = rep.getStepAttributeBoolean( id_step, "zip_files" );
-      this.zipFilename = rep.getStepAttributeString( id_step, "zip_name" );
-      this.ziplimitsize = rep.getStepAttributeString( id_step, "zip_limit_size" );
-
-      // How many arguments?
-      int imagesnr = rep.countNrStepAttributes( id_step, "embeddedimage" );
-
-      allocate( imagesnr );
-
-      // Read them all...
-      for ( int a = 0; a < imagesnr; a++ ) {
-        embeddedimages[a] = rep.getStepAttributeString( id_step, a, "embeddedimage" );
-        contentids[a] = rep.getStepAttributeString( id_step, a, "contentid" );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load step type 'mail' from the repository with id_step=" + id_step, dbe );
-    }
-
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "server", this.server );
-      rep.saveStepAttribute( id_transformation, id_step, "port", this.port );
-      rep.saveStepAttribute( id_transformation, id_step, "destination", this.destination );
-      rep.saveStepAttribute( id_transformation, id_step, "destinationCc", this.destinationCc );
-      rep.saveStepAttribute( id_transformation, id_step, "destinationBCc", this.destinationBCc );
-      rep.saveStepAttribute( id_transformation, id_step, "replyToAddresses", this.replyToAddresses );
-      rep.saveStepAttribute( id_transformation, id_step, "replyto", this.replyAddress );
-      rep.saveStepAttribute( id_transformation, id_step, "replytoname", this.replyName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "subject", this.subject );
-      rep.saveStepAttribute( id_transformation, id_step, "include_date", this.includeDate );
-      rep.saveStepAttribute( id_transformation, id_step, "include_subfolders", this.includeSubFolders );
-      rep.saveStepAttribute( id_transformation, id_step, "zipFilenameDynamic", this.zipFilenameDynamic );
-
-      rep.saveStepAttribute( id_transformation, id_step, "attachContentFromField", attachContentFromField );
-      rep.saveStepAttribute( id_transformation, id_step, "attachContentField", this.attachContentField );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "attachContentFileNameField", this.attachContentFileNameField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "isFilenameDynamic", isFilenameDynamic );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicFieldname", dynamicFieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicWildcard", dynamicWildcard );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicZipFilename", dynamicZipFilename );
-
-      rep.saveStepAttribute( id_transformation, id_step, "sourcefilefoldername", sourcefilefoldername );
-      rep.saveStepAttribute( id_transformation, id_step, "sourcewildcard", sourcewildcard );
-
-      rep.saveStepAttribute( id_transformation, id_step, "contact_person", contactPerson );
-      rep.saveStepAttribute( id_transformation, id_step, "contact_phone", contactPhone );
-      rep.saveStepAttribute( id_transformation, id_step, "comment", comment );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "priority", priority );
-      rep.saveStepAttribute( id_transformation, id_step, "importance", importance );
-      rep.saveStepAttribute( id_transformation, id_step, "sensitivity", sensitivity );
-
-      rep.saveStepAttribute( id_transformation, id_step, "include_files", includingFiles );
-      rep.saveStepAttribute( id_transformation, id_step, "use_auth", usingAuthentication );
-      rep.saveStepAttribute( id_transformation, id_step, "use_secure_auth", usingSecureAuthentication );
-      rep.saveStepAttribute( id_transformation, id_step, "auth_user", authenticationUser );
-      rep.saveStepAttribute( id_transformation, id_step, "auth_password", Encr
-        .encryptPasswordIfNotUsingVariables( authenticationPassword ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "only_comment", onlySendComment );
-      rep.saveStepAttribute( id_transformation, id_step, "use_HTML", useHTML );
-      rep.saveStepAttribute( id_transformation, id_step, "use_Priority", usePriority );
-      rep.saveStepAttribute( id_transformation, id_step, "secureconnectiontype", secureconnectiontype );
-
-      rep.saveStepAttribute( id_transformation, id_step, "zip_files", zipFiles );
-      rep.saveStepAttribute( id_transformation, id_step, "zip_name", zipFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "zip_limit_size", ziplimitsize );
-
-      // save the arguments...
-      if ( embeddedimages != null ) {
-        for ( int i = 0; i < embeddedimages.length; i++ ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "embeddedimage", embeddedimages[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "contentid", contentids[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save step type 'mail' to the repository for id_step=" + id_step, dbe );
-    }
-
+  public void setPriority( String priority ) {
+    this.priority = priority;
   }
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

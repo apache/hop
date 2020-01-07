@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -69,7 +71,6 @@ import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.combinationlookup.CombinationLookupMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -84,7 +85,7 @@ import org.apache.hop.ui.trans.step.TableItemInsertListener;
 public class CombinationLookupDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = CombinationLookupDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -216,20 +217,14 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
     wConnection.addSelectionListener( lsSelection );
-    wConnection.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
+    wConnection.addModifyListener( e-> {
         // We have new content: change ci connection:
         ci = transMeta.findDatabase( wConnection.getText() );
         setAutoincUse();
         setSequence();
         input.setChanged();
-      }
     } );
 
     // Schema line...
@@ -847,8 +842,6 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
 
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getHashField() != null ) {
       wHashfield.setText( input.getHashField() );
@@ -973,17 +966,15 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
   }
 
   private void getTableName() {
-    DatabaseMeta inf = null;
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      inf = transMeta.getDatabase( connr );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
     }
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if ( databaseMeta != null ) {
+      logDebug( BaseMessages.getString( PKG, "CombinationLookupDialog.Log.LookingAtConnection", databaseMeta.toString() ) );
 
-    if ( inf != null ) {
-      logDebug( BaseMessages.getString( PKG, "CombinationLookupDialog.Log.LookingAtConnection", inf.toString() ) );
-
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1030,7 +1021,7 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
         new StepMeta( BaseMessages.getString( PKG, "CombinationLookupDialog.StepMeta.Title" ), name, info );
       RowMetaInterface prev = transMeta.getPrevStepFields( stepname );
 
-      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, repository, metaStore );
+      SQLStatement sql = info.getSQLStatements( transMeta, stepMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

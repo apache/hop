@@ -26,7 +26,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -43,9 +42,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.StringObjectId;
-import org.apache.hop.trans.steps.loadsave.MemoryRepository;
 import org.apache.hop.utils.TestUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -60,36 +56,6 @@ public class TableOutputMetaTest {
   public void setUp() {
     databases = mock( List.class );
     metaStore = mock( IMetaStore.class );
-  }
-
-  /**
-   * @see 
-   *     <a href=http://jira.pentaho.com/browse/BACKLOG-377>http://jira.pentaho.com/browse/BACKLOG-377</a>
-   * @throws HopException
-   */
-  @Test
-  public void testReadRep() throws HopException {
-
-    //check variable
-    String commitSize = "${test}";
-
-    Repository rep = new MemoryRepository();
-    rep.saveStepAttribute( null, null, "commit", commitSize );
-
-    TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.readRep( rep, metaStore, null, databases );
-
-    assertEquals( commitSize, tableOutputMeta.getCommitSize() );
-
-    //check integer size
-    int commitSizeInt = 1;
-    Repository rep2 = new MemoryRepository();
-    rep2.saveStepAttribute( null, null, "commit", commitSizeInt );
-
-    TableOutputMeta tableOutputMeta2 = new TableOutputMeta();
-    tableOutputMeta2.readRep( rep2, metaStore, null, databases );
-
-    assertEquals( String.valueOf( commitSizeInt ), tableOutputMeta2.getCommitSize() );
   }
 
   @Test
@@ -143,7 +109,7 @@ public class TableOutputMetaTest {
   public void testLoadXml() throws Exception {
 
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.loadXML( getTestNode(), databases, metaStore );
+    tableOutputMeta.loadXML( getTestNode(), metaStore );
     assertEquals( "1000", tableOutputMeta.getCommitSize() );
     assertEquals( null, tableOutputMeta.getGeneratedKeyField() );
     assertEquals( "public", tableOutputMeta.getSchemaName() );
@@ -191,47 +157,6 @@ public class TableOutputMetaTest {
       + "    </fields>\n";
     String actualXml = TestUtils.toUnixLineSeparators( tableOutputMeta.getXML() );
     assertEquals( expectedXml, actualXml );
-  }
-
-  @Test
-  public void testSaveRep() throws Exception {
-    TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.loadXML( getTestNode(), databases, metaStore );
-    StringObjectId id_step = new StringObjectId( "stepid" );
-    StringObjectId id_transformation = new StringObjectId( "transid" );
-    Repository rep = mock( Repository.class );
-    tableOutputMeta.saveRep( rep, metaStore, id_transformation, id_step );
-    verify( rep ).saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", null );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "schema", "public" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "table", "sales_csv" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "commit", "1000" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "truncate", true );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "ignore_errors", false );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "use_batch", true );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "specify_fields", true );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "partitioning_enabled", false );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "partitioning_field", null );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "partitioning_daily", false );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "partitioning_monthly", true );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "tablename_in_field", false );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "tablename_field", null );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "tablename_in_table", true );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "return_keys", false );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, "return_field", null );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 0, "column_name", "ORDERNUMBER" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 0, "stream_name", "ORDERNUMBER" );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 1, "column_name", "QUANTITYORDERED" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 1, "stream_name", "QUANTITYORDERED" );
-
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 2, "column_name", "PRICEEACH" );
-    verify( rep ).saveStepAttribute( id_transformation, id_step, 2, "stream_name", "PRICEEACH" );
-
-    verifyNoMoreInteractions( rep );
   }
 
   @Test

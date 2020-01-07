@@ -75,7 +75,7 @@ public class Normaliser extends BaseStep implements StepInterface {
 
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       int normFieldsLength = meta.getNormaliserFields().length;
       data.typeToFieldIndex = new HashMap<>();
       String typeValue;

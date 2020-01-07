@@ -62,7 +62,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.mail.JobEntryMail;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelText;
@@ -243,8 +242,8 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
   private TextVar wImageFilename, wContentID;
   private TableView wFields;
 
-  public JobEntryMailDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryMailDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryMail) jobEntryInt;
   }
 

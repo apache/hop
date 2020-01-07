@@ -43,8 +43,7 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -85,40 +84,18 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
 
     retval.append( super.getXML() );
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryFileExists.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryFileExists.ERROR_0002_Cannot_Load_Job_From_Repository", id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryFileExists.ERROR_0003_Cannot_Save_Job_Entry", id_job ), dbe );
     }
   }
 
@@ -140,11 +117,6 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
     result.setNrErrors( 0 );
 
     if ( filename != null ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
 
       String realFilename = getRealFilename();
       try {
@@ -184,7 +156,7 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
@@ -210,7 +182,7 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
    *           in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

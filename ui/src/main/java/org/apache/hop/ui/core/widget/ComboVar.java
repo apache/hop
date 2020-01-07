@@ -30,6 +30,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
@@ -206,7 +207,7 @@ public class ComboVar extends Composite {
     wCombo.addModifyListener( modifyListener );
   }
 
-  public void addSelectionListener( SelectionAdapter lsDef ) {
+  public void addSelectionListener( SelectionListener lsDef ) {
     wCombo.addSelectionListener( lsDef );
   }
 
@@ -260,6 +261,10 @@ public class ComboVar extends Composite {
 
   public int getItemCount() {
     return wCombo.getItemCount();
+  }
+
+  public int getSelectionIndex() {
+    return wCombo.getSelectionIndex();
   }
 
   public void removeAll() {

@@ -46,8 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -198,12 +197,12 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
     return successConditionsDesc[i];
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       successCondition =
@@ -220,29 +219,6 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
     }
   }
 
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-
-      schemaname = rep.getJobEntryAttributeString( id_jobentry, "schemaname" );
-      tablename = rep.getJobEntryAttributeString( id_jobentry, "tablename" );
-      successCondition =
-        getSuccessConditionByCode( Const.NVL(
-          rep.getJobEntryAttributeString( id_jobentry, "success_condition" ), "" ) );
-      limit = rep.getJobEntryAttributeString( id_jobentry, "limit" );
-      useCustomSQL = rep.getJobEntryAttributeBoolean( id_jobentry, "is_custom_sql" );
-      useVars = rep.getJobEntryAttributeBoolean( id_jobentry, "is_usevars" );
-      addRowsResult = rep.getJobEntryAttributeBoolean( id_jobentry, "add_rows_result" );
-      clearResultList = rep.getJobEntryAttributeBoolean( id_jobentry, "clear_result_rows" );
-
-      customSQL = rep.getJobEntryAttributeString( id_jobentry, "custom_sql" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryEvalTableContent.UnableLoadRep", ""
-        + id_jobentry ), dbe );
-    }
-  }
-
   private static int getSuccessConditionByCode( String tt ) {
     if ( tt == null ) {
       return 0;
@@ -254,26 +230,6 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
       }
     }
     return 0;
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schemaname", schemaname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablename", tablename );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "success_condition", getSuccessConditionCode( successCondition ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "limit", limit );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "custom_sql", customSQL );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "is_custom_sql", useCustomSQL );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "is_usevars", useVars );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_rows_result", addRowsResult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "clear_result_rows", clearResultList );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryEvalTableContent.UnableSaveRep", ""
-        + id_job ), dbe );
-    }
   }
 
   public void setDatabase( DatabaseMeta database ) {
@@ -459,7 +415,7 @@ public class JobEntryEvalTableContent extends JobEntryBase implements Cloneable,
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

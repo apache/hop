@@ -43,15 +43,11 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.RepositoryPluginType;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.RepositoriesMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
@@ -60,69 +56,6 @@ import org.w3c.dom.Node;
 public class JobExecutionConfigurationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Test
-  public void testConnectRepository() throws HopException {
-    JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration();
-    final RepositoriesMeta repositoriesMeta = mock( RepositoriesMeta.class );
-    final RepositoryMeta repositoryMeta = mock( RepositoryMeta.class );
-    final Repository repository = mock( Repository.class );
-    final String mockRepo = "mockRepo";
-    final boolean[] connectionSuccess = {false};
-
-    Repository initialRepo = mock( Repository.class );
-    jobExecutionConfiguration.setRepository( initialRepo );
-
-    HopLogStore.init();
-
-    //Create mock repository plugin
-    MockRepositoryPlugin mockRepositoryPlugin = mock( MockRepositoryPlugin.class );
-    when( mockRepositoryPlugin.getIds() ).thenReturn( new String[]{"mockRepo"} );
-    when( mockRepositoryPlugin.matches( "mockRepo" ) ).thenReturn( true );
-    when( mockRepositoryPlugin.getName() ).thenReturn( "mock-repository" );
-    when( mockRepositoryPlugin.getClassMap() ).thenAnswer( new Answer<Map<Class<?>, String>>() {
-      @Override
-      public Map<Class<?>, String> answer( InvocationOnMock invocation ) throws Throwable {
-        Map<Class<?>, String> dbMap = new HashMap<Class<?>, String>();
-        dbMap.put( Repository.class, repositoryMeta.getClass().getName() );
-        return dbMap;
-      }
-    } );
-    PluginRegistry.getInstance().registerPlugin( RepositoryPluginType.class, mockRepositoryPlugin );
-
-    // Define valid connection criteria
-    when( repositoriesMeta.findRepository( anyString() ) ).thenAnswer( new Answer<RepositoryMeta>() {
-      @Override
-      public RepositoryMeta answer( InvocationOnMock invocation ) throws Throwable {
-        return mockRepo.equals( invocation.getArguments()[0] ) ? repositoryMeta : null;
-      }
-    } );
-    when( mockRepositoryPlugin.loadClass( Repository.class ) ).thenReturn( repository );
-    doAnswer( new Answer() {
-      @Override
-      public Object answer( InvocationOnMock invocation ) throws Throwable {
-        if ( "username".equals( invocation.getArguments()[0] ) &&  "password".equals( invocation.getArguments()[1] ) ) {
-          connectionSuccess[0] = true;
-        } else {
-          connectionSuccess[0] = false;
-          throw new HopException( "Mock Repository connection failed" );
-        }
-        return null;
-      }
-    } ).when( repository ).connect( anyString(), anyString() );
-
-    //Ignore repository not found in RepositoriesMeta
-    jobExecutionConfiguration.connectRepository( repositoriesMeta, "notFound", "username", "password" );
-    assertEquals( "Repository Changed", initialRepo, jobExecutionConfiguration.getRepository() );
-
-    //Ignore failed attempt to connect
-    jobExecutionConfiguration.connectRepository( repositoriesMeta, mockRepo, "username", "" );
-    assertEquals( "Repository Changed", initialRepo, jobExecutionConfiguration.getRepository() );
-
-    //Save repository if connection passes
-    jobExecutionConfiguration.connectRepository( repositoriesMeta, mockRepo, "username", "password" );
-    assertEquals( "Repository didn't change", repository, jobExecutionConfiguration.getRepository() );
-    assertTrue( "Repository not connected", connectionSuccess[0] );
-  }
   public interface MockRepositoryPlugin extends PluginInterface, ClassLoadingPluginInterface { }
 
   @Test
@@ -225,7 +158,7 @@ public class JobExecutionConfigurationTest {
 
     JobEntryTrans jobEntryTrans1 = mock( JobEntryTrans.class );
     when( jobEntryTrans1.isTransformation() ).thenReturn( true );
-    when( jobEntryTrans1.getTransMeta( executionConfiguration.getRepository(), metaStore, jobMeta ) ).thenReturn( transMeta1 );
+    when( jobEntryTrans1.getTransMeta( metaStore, jobMeta ) ).thenReturn( transMeta1 );
 
     jobEntryCopy1.setEntry( jobEntryTrans1 );
     jobMeta.jobcopies.add( jobEntryCopy1 );
@@ -241,7 +174,7 @@ public class JobExecutionConfigurationTest {
 
     JobEntryTrans jobEntryTrans2 = mock( JobEntryTrans.class );
     when( jobEntryTrans2.isTransformation() ).thenReturn( true );
-    when( jobEntryTrans2.getTransMeta( executionConfiguration.getRepository(), metaStore, jobMeta ) ).thenReturn( transMeta2 );
+    when( jobEntryTrans2.getTransMeta( metaStore, jobMeta ) ).thenReturn( transMeta2 );
 
     jobEntryCopy2.setEntry( jobEntryTrans2 );
     jobMeta.jobcopies.add( jobEntryCopy2 );
@@ -268,7 +201,7 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 8 = 7 internalDummyValues + var1 from JobMeta with default value
-    assertEquals( 8, executionConfiguration.getVariables().size() );
+    assertEquals( 7, executionConfiguration.getVariables().size() );
     assertEquals( "", executionConfiguration.getVariables().get( "var1" ) );
 
   }
@@ -289,7 +222,7 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 8 = 7 internalDummyValues + var1 from JobMeta ( with variables0 value )
-    assertEquals( 8, executionConfiguration.getVariables().size() );
+    assertEquals( 7, executionConfiguration.getVariables().size() );
     assertEquals( "valueVar1", executionConfiguration.getVariables().get( "var1" ) );
 
   }
@@ -310,7 +243,7 @@ public class JobExecutionConfigurationTest {
     executionConfiguration.getUsedVariables( jobMeta0 );
 
     // 9 = 7 internalDummyValues + var1 from JobMeta ( with the default value ) + var2 from variables0
-    assertEquals( 9, executionConfiguration.getVariables().size() );
+    assertEquals( 8, executionConfiguration.getVariables().size() );
     assertEquals( "", executionConfiguration.getVariables().get( "var1" ) );
     assertEquals( "valueVar2", executionConfiguration.getVariables().get( "var2" ) );
 

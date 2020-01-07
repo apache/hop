@@ -38,8 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -321,7 +320,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -438,67 +437,8 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "in_stream_name" );
-
-      allocate( nrkeys );
-      for ( int i = 0; i < nrkeys; i++ ) {
-        fieldInStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "out_stream_name" ), "" );
-
-        trimType[i] = getTrimTypeByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "trim_type" ), "" ) );
-        lowerUpper[i] =
-          getLowerUpperByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "lower_upper" ), "" ) );
-        padding_type[i] =
-          getPaddingByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "padding_type" ), "" ) );
-        padChar[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "pad_char" ), "" );
-        padLen[i] = Const.NVL( rep.getStepAttributeString( id_step, i, "pad_len" ), "" );
-        initCap[i] = getInitCapByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "init_cap" ), "" ) );
-        maskXML[i] = getMaskXMLByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "mask_xml" ), "" ) );
-        digits[i] = getDigitsByCode( Const.NVL( rep.getStepAttributeString( id_step, i, "digits" ), "" ) );
-        remove_special_characters[i] =
-          getRemoveSpecialCharactersByCode( Const.NVL( rep.getStepAttributeString(
-            id_step, i, "remove_special_characters" ), "" ) );
-
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "StringOperationsMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      for ( int i = 0; i < fieldInStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "in_stream_name", fieldInStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "out_stream_name", fieldOutStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "trim_type", getTrimTypeCode( trimType[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lower_upper", getLowerUpperCode( lowerUpper[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "padding_type", getPaddingCode( padding_type[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "pad_char", padChar[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "pad_len", padLen[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "init_cap", getInitCapCode( initCap[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "mask_xml", getMaskXMLCode( maskXML[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "digits", getDigitsCode( digits[i] ) );
-        rep.saveStepAttribute(
-          id_transformation, id_step, i, "remove_special_characters",
-          getRemoveSpecialCharactersCode( remove_special_characters[i] ) );
-
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "StringOperationsMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Add new field?
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       ValueMetaInterface v;
@@ -530,7 +470,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";

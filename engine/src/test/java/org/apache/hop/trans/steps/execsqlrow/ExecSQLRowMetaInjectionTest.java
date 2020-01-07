@@ -22,6 +22,8 @@
 
 package org.apache.hop.trans.steps.execsqlrow;
 
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.junit.Before;
 import org.junit.Test;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLRowMeta> {
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new ExecSQLRowMeta() );
   }
 
@@ -96,11 +98,10 @@ public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
     skipPropertyTest( "CONNECTION_NAME" );
 
-    List<DatabaseMeta> databasesList = new ArrayList<>();
-    DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    when( dbMeta.getName() ).thenReturn( "testDBMeta" );
-    databasesList.add( dbMeta );
-    meta.setDatabasesList( databasesList );
+    DatabaseMeta dbMeta = new DatabaseMeta("testDBMeta", "MySQL", "Native", "localhost", "test", "3306", "user", "password");
+    DatabaseMeta.createFactory( metaStore ).saveElement( dbMeta );
+    meta.setMetaStore(metaStore);
+
     ValueMetaInterface valueMeta = new ValueMetaString( "DBMETA" );
     injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );
     assertEquals( "testDBMeta", meta.getDatabaseMeta().getName() );

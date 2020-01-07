@@ -35,8 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -82,13 +81,13 @@ public class AbortMeta extends BaseStepMeta implements StepMetaInterface {
   private AbortOption abortOption;
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: no values are added to the row in the step
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     if ( input.length == 0 ) {
       CheckResult cr =
@@ -107,7 +106,7 @@ public class AbortMeta extends BaseStepMeta implements StepMetaInterface {
     return new AbortData();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -148,40 +147,6 @@ public class AbortMeta extends BaseStepMeta implements StepMetaInterface {
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "AbortMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      rowThreshold = rep.getStepAttributeString( id_step, "row_threshold" );
-      message = rep.getStepAttributeString( id_step, "message" );
-      alwaysLogRows = rep.getStepAttributeBoolean( id_step, "always_log_rows" );
-
-      String abortOptionString = rep.getStepAttributeString( id_step, 0, "abort_option" );
-      if ( !isEmpty( abortOptionString ) ) {
-        abortOption = AbortOption.valueOf( abortOptionString );
-      } else {
-        // Backward compatibility
-        // existing transformations will have to maintain backward compatibility with yes
-        boolean abortWithError = rep.getStepAttributeBoolean( id_step, 0, "abort_with_error", true );
-        abortOption = abortWithError ? AbortOption.ABORT_WITH_ERROR : AbortOption.ABORT;
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AbortMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "row_threshold", rowThreshold );
-      rep.saveStepAttribute( id_transformation, id_step, "message", message );
-      rep.saveStepAttribute( id_transformation, id_step, "always_log_rows", alwaysLogRows );
-      rep.saveStepAttribute( id_transformation, id_step, "abort_option", abortOption.toString() );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AbortMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
     }
   }
 

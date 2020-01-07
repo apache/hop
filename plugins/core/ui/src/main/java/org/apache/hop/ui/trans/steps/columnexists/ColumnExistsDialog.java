@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.trans.steps.columnexists;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -55,7 +58,6 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.steps.columnexists.ColumnExistsMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -66,7 +68,7 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ColumnExistsDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlTableName;
   private CCombo wTableName;
@@ -151,11 +153,7 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabase() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -402,8 +400,6 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
 
     if ( input.getDatabase() != null ) {
       wConnection.setText( input.getDatabase().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getSchemaname() != null ) {
       wSchemaname.setText( input.getSchemaname() );
@@ -483,12 +479,13 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
   }
 
   private void getTableName() {
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      DatabaseMeta inf = transMeta.getDatabase( connr );
-
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
+    }
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if ( databaseMeta != null ) {
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablenameText.getText() );
       if ( std.open() ) {
         wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );

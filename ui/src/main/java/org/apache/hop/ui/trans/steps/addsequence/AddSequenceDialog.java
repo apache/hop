@@ -22,8 +22,9 @@
 
 package org.apache.hop.ui.trans.steps.addsequence;
 
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -71,9 +72,7 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
   private Button wbSequence;
   private FormData fdbSequence;
 
-  private Label wlConnection;
-  private CCombo wConnection;
-  private Button wbnConnection, wbeConnection, wbwConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -205,22 +204,8 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
       }
     } );
     // Connection line
-    wlConnection = new Label( gDatabase, SWT.RIGHT );
-    wbwConnection = new Button( gDatabase, SWT.PUSH );
-    wbnConnection = new Button( gDatabase, SWT.PUSH );
-    wbeConnection = new Button( gDatabase, SWT.PUSH );
-    wConnection =
-      addConnectionLine(
-        gDatabase, wUseDatabase, middle, margin, wlConnection, wbwConnection, wbnConnection, wbeConnection );
-    if ( input.getDatabase() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
-    wConnection.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        activeSequence();
-      }
-    } );
+    wConnection = addConnectionLine( gDatabase, wUseDatabase, input.getDatabaseMeta(), lsMod );
+    wConnection.addModifyListener( e-> activeSequence() );
 
     // Schema line...
     wlSchema = new Label( gDatabase, SWT.RIGHT );
@@ -463,11 +448,7 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
     boolean useCounter = wUseCounter.getSelection();
 
     wbSchema.setEnabled( useDatabase );
-    wlConnection.setEnabled( useDatabase );
     wConnection.setEnabled( useDatabase );
-    wbwConnection.setEnabled( useDatabase );
-    wbnConnection.setEnabled( useDatabase );
-    wbeConnection.setEnabled( useDatabase );
     wlSchema.setEnabled( useDatabase );
     wSchema.setEnabled( useDatabase );
     wlSeqname.setEnabled( useDatabase );
@@ -495,10 +476,8 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
     }
 
     wUseDatabase.setSelection( input.isDatabaseUsed() );
-    if ( input.getDatabase() != null ) {
-      wConnection.setText( input.getDatabase().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
+    if ( input.getDatabaseMeta() != null ) {
+      wConnection.setText( input.getDatabaseMeta().getName() );
     }
     if ( input.getSchemaName() != null ) {
       wSchema.setText( input.getSchemaName() );
@@ -536,7 +515,7 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
     input.setUseDatabase( wUseDatabase.getSelection() );
 
     String connection = wConnection.getText();
-    input.setDatabase( transMeta.findDatabase( connection ) );
+    input.setDatabaseMeta( transMeta.findDatabase( connection ) );
     input.setSchemaName( wSchema.getText() );
     input.setSequenceName( wSeqname.getText() );
     input.setValuename( wValuename.getText() );

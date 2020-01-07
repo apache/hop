@@ -45,8 +45,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -97,17 +96,14 @@ public class JobEntryWriteToFile extends JobEntryBase implements Cloneable, JobE
     retval.append( "      " ).append( XMLHandler.addTagValue( "appendFile", appendFile ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "content", content ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       createParentFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createParentFolder" ) );
       appendFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "appendFile" ) );
@@ -115,33 +111,6 @@ public class JobEntryWriteToFile extends JobEntryBase implements Cloneable, JobE
       encoding = XMLHandler.getTagValue( entrynode, "encoding" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'create file' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      createParentFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "createParentFolder" );
-      appendFile = rep.getJobEntryAttributeBoolean( id_jobentry, "appendFile" );
-      content = rep.getJobEntryAttributeString( id_jobentry, "content" );
-      encoding = rep.getJobEntryAttributeString( id_jobentry, "encoding" );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'create file' from the repository for id_jobentry=" + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "createParentFolder", createParentFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "appendFile", appendFile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "content", content );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "encoding", encoding );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'create file' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -180,12 +149,6 @@ public class JobEntryWriteToFile extends JobEntryBase implements Cloneable, JobE
 
     String realFilename = getRealFilename();
     if ( !Utils.isEmpty( realFilename ) ) {
-
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
 
       String content = environmentSubstitute( getContent() );
       String encoding = environmentSubstitute( getEncoding() );
@@ -308,7 +271,7 @@ public class JobEntryWriteToFile extends JobEntryBase implements Cloneable, JobE
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

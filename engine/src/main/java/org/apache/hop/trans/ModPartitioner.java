@@ -29,8 +29,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.w3c.dom.Node;
 
 public class ModPartitioner extends BasePartitioner {
@@ -114,15 +113,6 @@ public class ModPartitioner extends BasePartitioner {
 
   public void loadXML( Node partitioningMethodNode ) throws HopXMLException {
     fieldName = XMLHandler.getTagValue( partitioningMethodNode, "field_name" );
-  }
-
-  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "PARTITIONING_FIELDNAME", fieldName ); // The fieldname to
-                                                                                              // partition on
-  }
-
-  public void loadRep( Repository rep, ObjectId id_step ) throws HopException {
-    fieldName = rep.getStepAttributeString( id_step, "PARTITIONING_FIELDNAME" );
   }
 
   public String getFieldName() {

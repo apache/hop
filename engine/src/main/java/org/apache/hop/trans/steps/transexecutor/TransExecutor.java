@@ -277,7 +277,6 @@ public class TransExecutor extends BaseStep implements StepInterface {
     Trans executorTrans = new Trans( getData().getExecutorTransMeta(), this );
 
     executorTrans.setParentTrans( getTrans() );
-    executorTrans.setRepository( getTrans().getRepository() );
     executorTrans.setLogLevel( getLogLevel() );
     executorTrans.setArguments( getTrans().getArguments() );
 
@@ -464,9 +463,6 @@ public class TransExecutor extends BaseStep implements StepInterface {
     if ( super.init( smi, sdi ) ) {
       // First we need to load the mapping (transformation)
       try {
-        // Pass the repository down to the metadata object...
-        meta.setRepository( getTransMeta().getRepository() );
-
         transExecutorData.setExecutorTransMeta( loadExecutorTransMeta() );
 
         // Do we have a transformation at all?
@@ -507,7 +503,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
 
   @VisibleForTesting
   TransMeta loadExecutorTransMeta() throws HopException {
-    return TransExecutorMeta.loadMappingMeta( meta, meta.getRepository(), meta.getMetaStore(), this, meta.getParameters().isInheritingAllVariables() );
+    return TransExecutorMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getParameters().isInheritingAllVariables() );
   }
 
   public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {

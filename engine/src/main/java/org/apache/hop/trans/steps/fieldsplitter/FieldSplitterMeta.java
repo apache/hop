@@ -43,8 +43,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -305,7 +304,7 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
     this.fieldTrimType = fieldTrimType;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -409,7 +408,7 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Remove the field to split
     int idx = r.indexOfValue( getSplitField() );
     if ( idx < 0 ) { // not found
@@ -495,71 +494,9 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      splitField = rep.getStepAttributeString( id_step, "splitfield" );
-      delimiter = rep.getStepAttributeString( id_step, "delimiter" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        fieldID[i] = rep.getStepAttributeString( id_step, i, "field_id" );
-        fieldRemoveID[i] = rep.getStepAttributeBoolean( id_step, i, "field_idrem" );
-        fieldType[i] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        fieldFormat[i] = rep.getStepAttributeString( id_step, i, "field_format" );
-        fieldGroup[i] = rep.getStepAttributeString( id_step, i, "field_group" );
-        fieldDecimal[i] = rep.getStepAttributeString( id_step, i, "field_decimal" );
-        fieldCurrency[i] = rep.getStepAttributeString( id_step, i, "field_currency" );
-        fieldLength[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_length" );
-        fieldPrecision[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_precision" );
-        fieldNullIf[i] = rep.getStepAttributeString( id_step, i, "field_nullif" );
-        fieldIfNull[i] = rep.getStepAttributeString( id_step, i, "field_ifnull" );
-        fieldTrimType[i] =
-          ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString( id_step, i, "field_trimtype" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FieldSplitterMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "splitfield", splitField );
-      rep.saveStepAttribute( id_transformation, id_step, "delimiter", delimiter );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_id", fieldID[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_idrem", fieldRemoveID[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-          ValueMetaFactory.getValueMetaName( fieldType[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", fieldFormat[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", fieldGroup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", fieldDecimal[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", fieldCurrency[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", fieldLength[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", fieldPrecision[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_nullif", fieldNullIf[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_ifnull", fieldIfNull[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trimtype", ValueMetaString
-          .getTrimTypeCode( fieldTrimType[i] ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FieldSplitterMeta.Exception.UnalbeToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
 

@@ -41,8 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -340,7 +339,7 @@ public class RegexEvalMeta extends BaseStepMeta implements StepMetaInterface {
     this.fieldTrimType = fieldTrimType;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       script = XMLHandler.getTagValue( stepnode, "script" );
       matcher = XMLHandler.getTagValue( stepnode, "matcher" );
@@ -405,7 +404,7 @@ public class RegexEvalMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] infos, StepMeta nextSteps,
-    VariableSpace space, Repository repositorys, IMetaStore metaStores ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStores ) throws HopStepException {
     try {
       if ( !Utils.isEmpty( resultfieldname ) ) {
         if ( replacefields ) {
@@ -479,8 +478,8 @@ public class RegexEvalMeta extends BaseStepMeta implements StepMetaInterface {
     return v;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public String getXML() {
@@ -527,90 +526,9 @@ public class RegexEvalMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      script = rep.getStepAttributeString( id_step, "script" );
-      matcher = rep.getStepAttributeString( id_step, "matcher" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      usevar = rep.getStepAttributeBoolean( id_step, "usevar" );
-      allowcapturegroups = rep.getStepAttributeBoolean( id_step, "allowcapturegroups" );
-      replacefields = rep.getStepAttributeBoolean( id_step, "replacefields" );
-      canoneq = rep.getStepAttributeBoolean( id_step, "canoneq" );
-      caseinsensitive = rep.getStepAttributeBoolean( id_step, "caseinsensitive" );
-      comment = rep.getStepAttributeBoolean( id_step, "comment" );
-      multiline = rep.getStepAttributeBoolean( id_step, "multiline" );
-      dotall = rep.getStepAttributeBoolean( id_step, "dotall" );
-      unicode = rep.getStepAttributeBoolean( id_step, "unicode" );
-      unix = rep.getStepAttributeBoolean( id_step, "unix" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        fieldType[i] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) );
-
-        fieldFormat[i] = rep.getStepAttributeString( id_step, i, "field_format" );
-        fieldGroup[i] = rep.getStepAttributeString( id_step, i, "field_group" );
-        fieldDecimal[i] = rep.getStepAttributeString( id_step, i, "field_decimal" );
-        fieldLength[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_length" );
-        fieldPrecision[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_precision" );
-        fieldNullIf[i] = rep.getStepAttributeString( id_step, i, "field_nullif" );
-        fieldIfNull[i] = rep.getStepAttributeString( id_step, i, "field_ifnull" );
-        fieldCurrency[i] = rep.getStepAttributeString( id_step, i, "field_currency" );
-        fieldTrimType[i] =
-          ValueMetaString.getTrimTypeByCode( rep.getStepAttributeString( id_step, i, "field_trimtype" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "RegexEvalMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "script", script );
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( fieldName[i] != null && fieldName[i].length() != 0 ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-          rep
-            .saveStepAttribute( id_transformation, id_step, i, "field_type",
-              ValueMetaFactory.getValueMetaName( fieldType[i] ) );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_format", fieldFormat[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_group", fieldGroup[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", fieldDecimal[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_length", fieldLength[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", fieldPrecision[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_nullif", fieldNullIf[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_ifnull", fieldIfNull[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", fieldCurrency[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_trimtype", ValueMetaString
-            .getTrimTypeCode( fieldTrimType[i] ) );
-        }
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "usevar", usevar );
-      rep.saveStepAttribute( id_transformation, id_step, "allowcapturegroups", allowcapturegroups );
-      rep.saveStepAttribute( id_transformation, id_step, "replacefields", replacefields );
-      rep.saveStepAttribute( id_transformation, id_step, "canoneq", canoneq );
-      rep.saveStepAttribute( id_transformation, id_step, "caseinsensitive", caseinsensitive );
-      rep.saveStepAttribute( id_transformation, id_step, "comment", comment );
-      rep.saveStepAttribute( id_transformation, id_step, "dotall", dotall );
-      rep.saveStepAttribute( id_transformation, id_step, "multiline", multiline );
-      rep.saveStepAttribute( id_transformation, id_step, "unicode", unicode );
-      rep.saveStepAttribute( id_transformation, id_step, "unix", unix );
-      rep.saveStepAttribute( id_transformation, id_step, "matcher", matcher );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "RegexEvalMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

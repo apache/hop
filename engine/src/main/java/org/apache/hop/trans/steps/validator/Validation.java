@@ -33,8 +33,7 @@ import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -228,108 +227,6 @@ public class Validation implements Cloneable {
     for ( int i = 0; i < nrValues; i++ ) {
       Node allowedNode = XMLHandler.getSubNodeByNr( allowedValuesNode, "value", i );
       allowedValues[i] = XMLHandler.getNodeValue( allowedNode );
-    }
-  }
-
-  public Validation( Repository rep, ObjectId id_step, int i ) throws HopException {
-    fieldName = rep.getStepAttributeString( id_step, i, "validator_field_name" );
-    name = rep.getStepAttributeString( id_step, i, "validator_field_validation_name" );
-    if ( Utils.isEmpty( name ) ) {
-      name = fieldName; // remain backward compatible
-    }
-
-    maximumLength = rep.getStepAttributeString( id_step, i, "validator_field_max_length" );
-    minimumLength = rep.getStepAttributeString( id_step, i, "validator_field_min_length" );
-
-    nullAllowed = rep.getStepAttributeBoolean( id_step, i, "validator_field_null_allowed" );
-    onlyNullAllowed = rep.getStepAttributeBoolean( id_step, i, "validator_field_only_null_allowed" );
-    onlyNumericAllowed = rep.getStepAttributeBoolean( id_step, i, "validator_field_only_numeric_allowed" );
-
-    dataType = ValueMetaFactory.getIdForValueMeta(
-      rep.getStepAttributeString( id_step, i, "validator_field_data_type" ) );
-    dataTypeVerified = rep.getStepAttributeBoolean( id_step, i, "validator_field_data_type_verified" );
-    conversionMask = rep.getStepAttributeString( id_step, i, "validator_field_conversion_mask" );
-    decimalSymbol = rep.getStepAttributeString( id_step, i, "validator_field_decimal_symbol" );
-    groupingSymbol = rep.getStepAttributeString( id_step, i, "validator_field_grouping_symbol" );
-
-    minimumValue = rep.getStepAttributeString( id_step, i, "validator_field_min_value" );
-    maximumValue = rep.getStepAttributeString( id_step, i, "validator_field_max_value" );
-
-    startString = rep.getStepAttributeString( id_step, i, "validator_field_start_string" );
-    endString = rep.getStepAttributeString( id_step, i, "validator_field_end_string" );
-    startStringNotAllowed = rep.getStepAttributeString( id_step, i, "validator_field_start_string_not_allowed" );
-    endStringNotAllowed = rep.getStepAttributeString( id_step, i, "validator_field_end_string_not_allowed" );
-
-    regularExpression = rep.getStepAttributeString( id_step, i, "validator_field_regular_expression" );
-    regularExpressionNotAllowed =
-      rep.getStepAttributeString( id_step, i, "validator_field_regular_expression_not_allowed" );
-
-    errorCode = rep.getStepAttributeString( id_step, i, "validator_field_error_code" );
-    errorDescription = rep.getStepAttributeString( id_step, i, "validator_field_error_description" );
-
-    sourcingValues = rep.getStepAttributeBoolean( id_step, i, "validator_field_is_sourcing_values" );
-    sourcingStepName = rep.getStepAttributeString( id_step, i, "validator_field_sourcing_step" );
-    sourcingField = rep.getStepAttributeString( id_step, i, "validator_field_sourcing_field" );
-
-    List<String> allowed = new ArrayList<String>();
-
-    int nr = 1;
-    String value = rep.getStepAttributeString( id_step, i, "validator_field_value_" + nr );
-    while ( value != null ) {
-      allowed.add( value );
-      nr++;
-      value = rep.getStepAttributeString( id_step, i, "validator_field_value_" + nr );
-    }
-    allowedValues = allowed.toArray( new String[allowed.size()] );
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step, int i ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_name", fieldName );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_validation_name", name );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_max_length", maximumLength );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_min_length", minimumLength );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_null_allowed", nullAllowed );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_only_null_allowed", onlyNullAllowed );
-    rep.saveStepAttribute(
-      id_transformation, id_step, i, "validator_field_only_numeric_allowed", onlyNumericAllowed );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_data_type",
-      ValueMetaFactory.getValueMetaName( dataType ) );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_data_type_verified", dataTypeVerified );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_conversion_mask", conversionMask );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_decimal_symbol", decimalSymbol );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_grouping_symbol", groupingSymbol );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_max_value", maximumValue );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_min_value", minimumValue );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_start_string", startString );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_end_string", endString );
-    rep.saveStepAttribute(
-      id_transformation, id_step, i, "validator_field_start_string_not_allowed", startStringNotAllowed );
-    rep.saveStepAttribute(
-      id_transformation, id_step, i, "validator_field_end_string_not_allowed", endStringNotAllowed );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_regular_expression", regularExpression );
-    rep.saveStepAttribute(
-      id_transformation, id_step, i, "validator_field_regular_expression_not_allowed",
-      regularExpressionNotAllowed );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_error_code", errorCode );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_error_description", errorDescription );
-
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_is_sourcing_values", sourcingValues );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_sourcing_step", sourcingStepName );
-    rep.saveStepAttribute( id_transformation, id_step, i, "validator_field_sourcing_field", sourcingField );
-
-    if ( allowedValues != null ) {
-      for ( int nr = 1; nr <= allowedValues.length; nr++ ) {
-        rep
-          .saveStepAttribute(
-            id_transformation, id_step, i, "validator_field_value_" + nr, allowedValues[nr - 1] );
-      }
     }
   }
 

@@ -39,8 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -124,7 +123,7 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     this.fields = fields;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -179,7 +178,7 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) {
+      VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
       // Meta-data doesn't change here, only the value possibly turns to NULL
@@ -204,39 +203,8 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fields[i].setFieldName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        fields[i].setFieldValue( rep.getStepAttributeString( id_step, i, "field_value" ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "NullIfMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      for ( int i = 0; i < fields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fields[i].getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_value", fields[i].getFieldValue() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "NullIfMeta.Exception.UnableToSaveStepInfoToRepository" )
-          + id_step, e );
-    }
-
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {

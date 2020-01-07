@@ -50,13 +50,14 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.checkdbconnection.JobEntryCheckDbConnections;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.List;
 
 /**
  * This dialog allows you to edit the check database connection job entry settings.
@@ -98,9 +99,8 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
 
   private String[] connections;
 
-  public JobEntryCheckDbConnectionsDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
-    JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryCheckDbConnectionsDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCheckDbConnections) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
@@ -294,17 +294,14 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
   }
 
   public void addDatabases() {
-    connections = new String[jobMeta.nrDatabases()];
-    for ( int i = 0; i < jobMeta.nrDatabases(); i++ ) {
-      DatabaseMeta ci = jobMeta.getDatabase( i );
-      connections[i] = ci.getName();
-    }
+    connections = jobMeta.getDatabaseNames();
   }
 
   public void getDatabases() {
     wFields.removeAll();
-    for ( int i = 0; i < jobMeta.nrDatabases(); i++ ) {
-      DatabaseMeta ci = jobMeta.getDatabase( i );
+    List<DatabaseMeta> databases = jobMeta.getDatabases();
+    for ( int i = 0; i < databases.size(); i++ ) {
+      DatabaseMeta ci = databases.get( i );
       if ( ci != null ) {
         wFields.add( new String[] { ci.getName(), "0", JobEntryCheckDbConnections.unitTimeDesc[0] } );
       }

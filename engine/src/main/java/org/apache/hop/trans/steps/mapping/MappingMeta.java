@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.mapping;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -37,14 +37,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HasRepositoryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryImportLocation;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.StringObjectId;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -79,7 +71,7 @@ import java.util.List;
  *
  */
 
-public class MappingMeta extends StepWithMappingMeta implements StepMetaInterface, HasRepositoryInterface,
+public class MappingMeta extends StepWithMappingMeta implements StepMetaInterface,
   ISubTransAwareMeta {
 
   private static Class<?> PKG = MappingMeta.class;
@@ -89,12 +81,6 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
 
   private boolean allowingMultipleInputs;
   private boolean allowingMultipleOutputs;
-
-  /*
-   * This repository object is injected from the outside at runtime or at design time. It comes from either Spoon or
-   * Trans
-   */
-  private Repository repository;
 
   private IMetaStore metaStore;
 
@@ -106,38 +92,9 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
     mappingParameters = new MappingParameters();
   }
 
-  private void checkObjectLocationSpecificationMethod() {
-    if ( specificationMethod == null ) {
-      // Backward compatibility
-      //
-      // Default = Filename
-      //
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-
-      if ( !Utils.isEmpty( fileName ) ) {
-        specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-      } else if ( transObjectId != null ) {
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-      } else if ( !Utils.isEmpty( transName ) ) {
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-    }
-  }
-
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      String method = XMLHandler.getTagValue( stepnode, "specification_method" );
-      specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-      String transId = XMLHandler.getTagValue( stepnode, "trans_object_id" );
-      transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-
-      transName = XMLHandler.getTagValue( stepnode, "trans_name" );
       fileName = XMLHandler.getTagValue( stepnode, "filename" );
-      directoryPath = XMLHandler.getTagValue( stepnode, "directory_path" );
-
-      // Backward compatibility check for object specification
-      //
-      checkObjectLocationSpecificationMethod();
 
       Node mappingsNode = XMLHandler.getSubNode( stepnode, "mappings" );
       inputMappings.clear();
@@ -232,29 +189,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append(
-      XMLHandler.addTagValue( "specification_method", specificationMethod == null ? null : specificationMethod
-        .getCode() ) );
-    retval.append( "    " ).append(
-      XMLHandler.addTagValue( "trans_object_id", transObjectId == null ? null : transObjectId.toString() ) );
-    // Export a little bit of extra information regarding the reference since it doesn't really matter outside the same
-    // repository.
-    //
-    if ( repository != null && transObjectId != null ) {
-      try {
-        RepositoryObject objectInformation =
-          repository.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-        if ( objectInformation != null ) {
-          transName = objectInformation.getName();
-          directoryPath = objectInformation.getRepositoryDirectory().getPath();
-        }
-      } catch ( HopException e ) {
-        // Ignore object reference problems. It simply means that the reference is no longer valid.
-      }
-    }
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trans_name", transName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "directory_path", directoryPath ) );
 
     retval.append( "    " ).append( XMLHandler.openTag( "mappings" ) ).append( Const.CR );
 
@@ -282,102 +217,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    String method = rep.getStepAttributeString( id_step, "specification_method" );
-    specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-    String transId = rep.getStepAttributeString( id_step, "trans_object_id" );
-    transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-    transName = rep.getStepAttributeString( id_step, "trans_name" );
-    fileName = rep.getStepAttributeString( id_step, "filename" );
-    directoryPath = rep.getStepAttributeString( id_step, "directory_path" );
-
-    // Backward compatibility check for object specification
-    //
-    checkObjectLocationSpecificationMethod();
-    inputMappings.clear();
-    outputMappings.clear();
-
-    int nrInput = rep.countNrStepAttributes( id_step, "input_field" );
-    int nrOutput = rep.countNrStepAttributes( id_step, "output_field" );
-
-    // Backward compatibility...
-    //
-    if ( nrInput > 0 || nrOutput > 0 ) {
-      MappingIODefinition inputMappingDefinition = new MappingIODefinition();
-      inputMappingDefinition.setMainDataPath( true );
-
-      for ( int i = 0; i < nrInput; i++ ) {
-        String inputField = rep.getStepAttributeString( id_step, i, "input_field" );
-        String inputMapping = rep.getStepAttributeString( id_step, i, "input_mapping" );
-        inputMappingDefinition.getValueRenames().add( new MappingValueRename( inputField, inputMapping ) );
-      }
-
-      MappingIODefinition outputMappingDefinition = new MappingIODefinition();
-      outputMappingDefinition.setMainDataPath( true );
-
-      for ( int i = 0; i < nrOutput; i++ ) {
-        String outputField = rep.getStepAttributeString( id_step, i, "output_field" );
-        String outputMapping = rep.getStepAttributeString( id_step, i, "output_mapping" );
-        outputMappingDefinition.getValueRenames().add( new MappingValueRename( outputMapping, outputField ) );
-      }
-
-      // Don't forget to add these to the input and output mapping
-      // definitions...
-      //
-      inputMappings.add( inputMappingDefinition );
-      outputMappings.add( outputMappingDefinition );
-
-      // The default is to have no mapping parameters: the concept didn't exist
-      // before.
-      mappingParameters = new MappingParameters();
-    } else {
-      nrInput = rep.countNrStepAttributes( id_step, "input_main_path" );
-      nrOutput = rep.countNrStepAttributes( id_step, "output_main_path" );
-
-      for ( int i = 0; i < nrInput; i++ ) {
-        inputMappings.add( new MappingIODefinition( rep, id_step, "input_", i ) );
-      }
-
-      for ( int i = 0; i < nrOutput; i++ ) {
-        outputMappings.add( new MappingIODefinition( rep, id_step, "output_", i ) );
-      }
-
-      mappingParameters = new MappingParameters( rep, id_step );
-    }
-
-    allowingMultipleInputs =
-      rep.getStepAttributeBoolean( id_step, 0, "allow_multiple_input", inputMappings.size() > 1 );
-    allowingMultipleOutputs =
-      rep.getStepAttributeBoolean( id_step, 0, "allow_multiple_output", outputMappings.size() > 1 );
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "specification_method", specificationMethod == null
-      ? null : specificationMethod.getCode() );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_object_id", transObjectId == null
-      ? null : transObjectId.toString() );
-    rep.saveStepAttribute( id_transformation, id_step, "filename", fileName );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_name", transName );
-    rep.saveStepAttribute( id_transformation, id_step, "directory_path", directoryPath );
-
-    for ( int i = 0; i < inputMappings.size(); i++ ) {
-      inputMappings.get( i ).saveRep( rep, metaStore, id_transformation, id_step, "input_", i );
-    }
-
-    for ( int i = 0; i < outputMappings.size(); i++ ) {
-      outputMappings.get( i ).saveRep( rep, metaStore, id_transformation, id_step, "output_", i );
-    }
-
-    // save the mapping parameters too
-    //
-    mappingParameters.saveRep( rep, metaStore, id_transformation, id_step );
-
-    rep.saveStepAttribute( id_transformation, id_step, 0, "allow_multiple_input", allowingMultipleInputs );
-    rep.saveStepAttribute( id_transformation, id_step, 0, "allow_multiple_output", allowingMultipleOutputs );
-  }
-
   public void setDefault() {
-    specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
 
     MappingIODefinition inputDefinition = new MappingIODefinition( null, null );
     inputDefinition.setMainDataPath( true );
@@ -392,14 +232,14 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
     //
     TransMeta mappingTransMeta = null;
     try {
-      mappingTransMeta = loadMappingMeta( this, repository, metaStore, space );
+      mappingTransMeta = loadMappingMeta( this, metaStore, space );
     } catch ( HopException e ) {
       throw new HopStepException( BaseMessages.getString(
         PKG, "MappingMeta.Exception.UnableToLoadMappingTransformation" ), e );
@@ -607,14 +447,14 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
 
 
   @Deprecated
-  public static final synchronized TransMeta loadMappingMeta( MappingMeta mappingMeta, Repository rep,
+  public static final synchronized TransMeta loadMappingMeta( MappingMeta mappingMeta,
                                                               VariableSpace space ) throws HopException {
-    return loadMappingMeta( mappingMeta, rep, null, space );
+    return loadMappingMeta( mappingMeta, null, space );
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -747,53 +587,16 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   public List<ResourceReference> getResourceDependencies( TransMeta transMeta, StepMeta stepInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
     String realFilename = transMeta.environmentSubstitute( fileName );
-    String realTransname = transMeta.environmentSubstitute( transName );
     ResourceReference reference = new ResourceReference( stepInfo );
     references.add( reference );
 
-    if ( !Utils.isEmpty( realFilename ) ) {
+    if ( StringUtils.isNotEmpty( realFilename ) ) {
       // Add the filename to the references, including a reference to this step
       // meta data.
       //
       reference.getEntries().add( new ResourceEntry( realFilename, ResourceType.ACTIONFILE ) );
-    } else if ( !Utils.isEmpty( realTransname ) ) {
-      // Add the filename to the references, including a reference to this step
-      // meta data.
-      //
-      reference.getEntries().add( new ResourceEntry( realTransname, ResourceType.ACTIONFILE ) );
-      references.add( reference );
     }
     return references;
-  }
-
-  /**
-   * @return the repository
-   */
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * @param repository
-   *          the repository to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
-  }
-
-  /**
-   * @return the specificationMethod
-   */
-  public ObjectLocationSpecificationMethod getSpecificationMethod() {
-    return specificationMethod;
-  }
-
-  /**
-   * @param specificationMethod
-   *          the specificationMethod to set
-   */
-  public void setSpecificationMethod( ObjectLocationSpecificationMethod specificationMethod ) {
-    this.specificationMethod = specificationMethod;
   }
 
   @Override
@@ -837,20 +640,6 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
     return new TransformationType[] { TransformationType.Normal, };
   }
 
-  @Override
-  public boolean hasRepositoryReferences() {
-    return specificationMethod == ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-  }
-
-  @Override
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    // The correct reference is stored in the trans name and directory attributes...
-    //
-    RepositoryDirectoryInterface repositoryDirectoryInterface =
-      RepositoryImportLocation.getRepositoryImportLocation().findDirectory( directoryPath );
-    transObjectId = repository.getTransformationID( transName, repositoryDirectoryInterface );
-  }
-
   /**
    * @return the allowingMultipleInputs
    */
@@ -889,8 +678,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   private boolean isMapppingDefined() {
-    return !Utils.isEmpty( fileName )
-      || transObjectId != null || ( !Utils.isEmpty( this.directoryPath ) && !Utils.isEmpty( transName ) );
+    return StringUtils.isNotEmpty( fileName );
   }
 
   public boolean[] isReferencedObjectEnabled() {
@@ -898,8 +686,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   @Deprecated
-  public Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws HopException {
-    return loadReferencedObject( index, rep, null, space );
+  public Object loadReferencedObject( int index, VariableSpace space ) throws HopException {
+    return loadReferencedObject( index, null, space );
   }
 
   /**
@@ -907,8 +695,6 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
    *
    * @param index
    *          the object index to load
-   * @param rep
-   *          the repository
    * @param metaStore
    *          the MetaStore to use
    * @param space
@@ -916,8 +702,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadMappingMeta( this, rep, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+    return loadMappingMeta( this, metaStore, space );
   }
 
   public IMetaStore getMetaStore() {

@@ -29,7 +29,6 @@ import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.parameters.DuplicateParamException;
@@ -41,11 +40,6 @@ import org.apache.hop.core.util.serialization.BaseSerializingMeta;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HasRepositoryDirectories;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
@@ -66,19 +60,14 @@ import java.util.Set;
  * @since 02-jan-2017
  * @author Yury Bakhmutski
  */
-public abstract class StepWithMappingMeta extends BaseSerializingMeta implements HasRepositoryDirectories, StepMetaInterface {
+public abstract class StepWithMappingMeta extends BaseSerializingMeta implements StepMetaInterface {
   //default value
   private static Class<?> PKG = StepWithMappingMeta.class;
 
-  protected ObjectLocationSpecificationMethod specificationMethod;
-  protected String transName;
   protected String fileName;
-  protected String directoryPath;
-  protected ObjectId transObjectId;
 
-  public static TransMeta loadMappingMeta( StepWithMappingMeta mappingMeta, Repository rep,
-                                           IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return loadMappingMeta( mappingMeta, rep, metaStore, space, true );
+  public static TransMeta loadMappingMeta( StepWithMappingMeta mappingMeta, IMetaStore metaStore, VariableSpace space ) throws HopException {
+    return loadMappingMeta( mappingMeta, metaStore, space, true );
   }
 
   /**
@@ -100,18 +89,16 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
     return tmpSpace;
   }
 
-  public static synchronized TransMeta loadMappingMeta( StepWithMappingMeta executorMeta, Repository rep,
+  public static synchronized TransMeta loadMappingMeta( StepWithMappingMeta executorMeta,
                                                         IMetaStore metaStore, VariableSpace space, boolean share ) throws HopException {
     TransMeta mappingTransMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
     // send restricted parentVariables with several important options
     // Otherwise we destroy child variables and the option "Inherit all variables from the transformation" is enabled always.
-    VariableSpace tmpSpace = r.resolveCurrentDirectory( executorMeta.getSpecificationMethod(), getVarSpaceOnlyWithRequiredParentVars( space ),
-        rep, executorMeta.getParentStepMeta(), executorMeta.getFileName() );
+    VariableSpace tmpSpace = r.resolveCurrentDirectory( getVarSpaceOnlyWithRequiredParentVars( space ),
+        executorMeta.getParentStepMeta(), executorMeta.getFileName() );
 
-    switch ( executorMeta.getSpecificationMethod() ) {
-      case FILENAME:
         String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
         if ( space != null ) {
           // This is a parent transformation and parent variable should work here. A child file name can be resolved via parent space.
@@ -120,87 +107,14 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
         try {
           // OK, load the meta-data from file...
           // Don't set internal variables: they belong to the parent thread!
-          if ( rep != null ) {
-            // need to try to load from the repository
-            realFilename = r.normalizeSlashes( realFilename );
-            try {
-              String dirStr = realFilename.substring( 0, realFilename.lastIndexOf( "/" ) );
-              String tmpFilename = realFilename.substring( realFilename.lastIndexOf( "/" ) + 1 );
-              RepositoryDirectoryInterface dir = rep.findDirectory( dirStr );
-              mappingTransMeta = rep.loadTransformation( tmpFilename, dir, null, true, null );
-            } catch ( HopException ke ) {
-              // try without extension
-              if ( realFilename.endsWith( Const.STRING_TRANS_DEFAULT_EXT ) ) {
-                try {
-                  String tmpFilename = realFilename.substring( realFilename.lastIndexOf( "/" ) + 1, realFilename.indexOf( "." + Const.STRING_TRANS_DEFAULT_EXT ) );
-                  String dirStr = realFilename.substring( 0, realFilename.lastIndexOf( "/" ) );
-                  RepositoryDirectoryInterface dir = rep.findDirectory( dirStr );
-                  mappingTransMeta = rep.loadTransformation( tmpFilename, dir, null, true, null );
-                } catch ( HopException ke2 ) {
-                  // fall back to try loading from file system (transMeta is going to be null)
-                }
-              }
-            }
-          }
           if ( mappingTransMeta == null ) {
-            mappingTransMeta = new TransMeta( realFilename, metaStore, rep, true, tmpSpace, null );
+            mappingTransMeta = new TransMeta( realFilename, metaStore, true, tmpSpace );
             LogChannel.GENERAL.logDetailed( "Loading transformation from repository", "Transformation was loaded from XML file [" + realFilename + "]" );
           }
         } catch ( Exception e ) {
           throw new HopException( BaseMessages.getString( PKG, "StepWithMappingMeta.Exception.UnableToLoadTrans" ), e );
         }
-        break;
 
-      case REPOSITORY_BY_NAME:
-        String realTransname = tmpSpace.environmentSubstitute( executorMeta.getTransName() );
-        String realDirectory = tmpSpace.environmentSubstitute( executorMeta.getDirectoryPath() );
-
-        if ( space != null ) {
-          // This is a parent transformation and parent variable should work here. A child file name can be resolved via parent space.
-          realTransname = space.environmentSubstitute( realTransname );
-          realDirectory = space.environmentSubstitute( realDirectory );
-        }
-
-        if ( rep != null ) {
-          if ( !Utils.isEmpty( realTransname ) && !Utils.isEmpty( realDirectory ) ) {
-            realDirectory = r.normalizeSlashes( realDirectory );
-            RepositoryDirectoryInterface repdir = rep.findDirectory( realDirectory );
-            if ( repdir != null ) {
-              try {
-                // reads the last revision in the repository...
-                mappingTransMeta = rep.loadTransformation( realTransname, repdir, null, true, null );
-                // TODO: FIXME: pass in metaStore to repository?
-
-                LogChannel.GENERAL.logDetailed( "Loading transformation from repository", "Executor transformation [" + realTransname + "] was loaded from the repository" );
-              } catch ( Exception e ) {
-                throw new HopException( "Unable to load transformation [" + realTransname + "]", e );
-              }
-            }
-          }
-        } else {
-          // rep is null, let's try loading by filename
-          try {
-            mappingTransMeta = new TransMeta( realDirectory + "/" + realTransname, metaStore, null, true, tmpSpace, null );
-          } catch ( HopException ke ) {
-            try {
-              // add .ktr extension and try again
-              mappingTransMeta =
-                new TransMeta( realDirectory + "/" + realTransname + "." + Const.STRING_TRANS_DEFAULT_EXT, metaStore, null, true, tmpSpace, null );
-            } catch ( HopException ke2 ) {
-              throw new HopException( BaseMessages.getString( PKG, "StepWithMappingMeta.Exception.UnableToLoadTrans",
-                realTransname ) + realDirectory );
-            }
-          }
-        }
-        break;
-
-      case REPOSITORY_BY_REFERENCE:
-        // Read the last revision by reference...
-        mappingTransMeta = rep.loadTransformation( executorMeta.getTransObjectId(), null );
-        break;
-      default:
-        break;
-    }
     if ( mappingTransMeta == null ) {  //skip warning
       return null;
     }
@@ -214,7 +128,6 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
       // variables from the transformation?' option is checked)
       addMissingVariables( mappingTransMeta, space );
     }
-    mappingTransMeta.setRepository( rep );
     mappingTransMeta.setMetaStore( metaStore );
     mappingTransMeta.setFilename( mappingTransMeta.getFilename() );
 
@@ -281,48 +194,6 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
   }
 
 
-  /**
-   * @return the specificationMethod
-   */
-  public ObjectLocationSpecificationMethod getSpecificationMethod() {
-    return specificationMethod;
-  }
-
-  @Override
-  public ObjectLocationSpecificationMethod[] getSpecificationMethods() {
-    return new ObjectLocationSpecificationMethod[] { specificationMethod };
-  }
-
-  /**
-   * @param specificationMethod the specificationMethod to set
-   */
-  public void setSpecificationMethod( ObjectLocationSpecificationMethod specificationMethod ) {
-    this.specificationMethod = specificationMethod;
-  }
-
-  /**
-   * @return the directoryPath
-   */
-  public String getDirectoryPath() {
-    return directoryPath;
-  }
-
-  /**
-   * @param directoryPath the directoryPath to set
-   */
-  public void setDirectoryPath( String directoryPath ) {
-    this.directoryPath = directoryPath;
-  }
-
-  @Override
-  public String[] getDirectories() {
-    return new String[]{ directoryPath };
-  }
-
-  @Override
-  public void setDirectories( String[] directories ) {
-    this.directoryPath = directories[0];
-  }
 
   /**
    * @return the fileName
@@ -344,37 +215,9 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
     this.fileName = fileName;
   }
 
-  /**
-   * @return the transName
-   */
-  public String getTransName() {
-    return transName;
-  }
-
-  /**
-   * @param transName the transName to set
-   */
-  public void setTransName( String transName ) {
-    this.transName = transName;
-  }
-
-  /**
-   * @return the transObjectId
-   */
-  public ObjectId getTransObjectId() {
-    return transObjectId;
-  }
-
-  /**
-   * @param transObjectId the transObjectId to set
-   */
-  public void setTransObjectId( ObjectId transObjectId ) {
-    this.transObjectId = transObjectId;
-  }
-
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface resourceNamingInterface, Repository repository,
+                                 ResourceNamingInterface resourceNamingInterface,
                                  IMetaStore metaStore ) throws HopException {
     try {
       // Try to load the transformation from repository or file.
@@ -385,14 +228,14 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
       //
       // First load the mapping transformation...
       //
-      TransMeta mappingTransMeta = loadMappingMeta( this, repository, metaStore, space );
+      TransMeta mappingTransMeta = loadMappingMeta( this, metaStore, space );
 
       // Also go down into the mapping transformation and export the files
       // there. (mapping recursively down)
       //
       String proposedNewFilename =
               mappingTransMeta.exportResources(
-                      mappingTransMeta, definitions, resourceNamingInterface, repository, metaStore );
+                      mappingTransMeta, definitions, resourceNamingInterface, metaStore );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -403,16 +246,9 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
       //
       mappingTransMeta.setFilename( newFilename );
 
-      // exports always reside in the root directory, in case we want to turn
-      // this into a file repository...
-      //
-      mappingTransMeta.setRepositoryDirectory( new RepositoryDirectory() );
-
       // change it in the job entry
       //
       replaceFileName( newFilename );
-
-      setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
 
       return proposedNewFilename;
     } catch ( Exception e ) {

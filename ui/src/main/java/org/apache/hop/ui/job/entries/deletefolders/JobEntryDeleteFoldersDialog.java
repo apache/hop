@@ -51,7 +51,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.deletefolders.JobEntryDeleteFolders;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -115,8 +114,8 @@ public class JobEntryDeleteFoldersDialog extends JobEntryDialog implements JobEn
   private TextVar wLimitFolders;
   private FormData fdlNrErrorsLessThan, fdNrErrorsLessThan;
 
-  public JobEntryDeleteFoldersDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryDeleteFoldersDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryDeleteFolders) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

@@ -29,9 +29,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.kdr.HopDatabaseRepository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -536,49 +534,6 @@ public class CalculatorMetaFunction implements Cloneable {
       }
       if ( Utils.isEmpty( groupingSymbol ) ) {
         groupingSymbol = ",";
-      }
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step, int nr ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, nr, "field_name", fieldName );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "calc_type", getCalcTypeDesc() );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "field_a", fieldA );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "field_b", fieldB );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "field_c", fieldC );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_type", ValueMetaFactory.getValueMetaName( valueType ) );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_length", valueLength );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_precision", valuePrecision );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "remove", removedFromResult );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "conversion_mask", conversionMask );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "decimal_symbol", decimalSymbol );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "grouping_symbol", groupingSymbol );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "currency_symbol", currencySymbol );
-  }
-
-  public CalculatorMetaFunction( Repository rep, ObjectId id_step, int nr ) throws HopException {
-    fieldName = rep.getStepAttributeString( id_step, nr, "field_name" );
-    calcType = getCalcFunctionType( rep.getStepAttributeString( id_step, nr, "calc_type" ) );
-    fieldA = rep.getStepAttributeString( id_step, nr, "field_a" );
-    fieldB = rep.getStepAttributeString( id_step, nr, "field_b" );
-    fieldC = rep.getStepAttributeString( id_step, nr, "field_c" );
-    valueType = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, nr, "value_type" ) );
-    valueLength = (int) rep.getStepAttributeInteger( id_step, nr, "value_length" );
-    valuePrecision = (int) rep.getStepAttributeInteger( id_step, nr, "value_precision" );
-    removedFromResult = rep.getStepAttributeBoolean( id_step, nr, "remove" );
-    conversionMask = rep.getStepAttributeString( id_step, nr, "conversion_mask" );
-    decimalSymbol = rep.getStepAttributeString( id_step, nr, "decimal_symbol" );
-    groupingSymbol = rep.getStepAttributeString( id_step, nr, "grouping_symbol" );
-    currencySymbol = rep.getStepAttributeString( id_step, nr, "currency_symbol" );
-
-    // Fix 2.x backward compatibility
-    // The conversion mask was added in a certain revision.
-    // Anything that we load from before then should get masks set to retain backward compatibility
-    //
-    if ( rep instanceof HopDatabaseRepository ) {
-      HopDatabaseRepository repository = (HopDatabaseRepository) rep;
-      if ( repository.findStepAttributeID( id_step, nr, "conversion_mask" ) != null ) {
-        fixBackwardCompatibility();
       }
     }
   }

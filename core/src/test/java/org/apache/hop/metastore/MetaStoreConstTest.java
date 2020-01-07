@@ -43,7 +43,7 @@ public class MetaStoreConstTest {
     MetaStoreConst.disableMetaStore = false;
     File tempDir = Files.createTempDir();
     String tempPath = tempDir.getAbsolutePath();
-    System.setProperty( Const.PENTAHO_METASTORE_FOLDER, tempPath );
+    System.setProperty( Const.HOP_METASTORE_FOLDER, tempPath );
     String metaFolder = tempPath + File.separator + XmlUtil.META_FOLDER_NAME;
 
     // Create a metastore

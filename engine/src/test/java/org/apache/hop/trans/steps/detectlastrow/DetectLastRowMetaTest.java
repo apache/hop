@@ -69,7 +69,7 @@ public class DetectLastRowMetaTest {
     meta.setDefault();
     meta.setResultFieldName( "The Result" );
     RowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "this step", null, null, new Variables(), null, null );
+    meta.getFields( rowMeta, "this step", null, null, new Variables(), null );
 
     assertEquals( 1, rowMeta.size() );
     assertEquals( "The Result", rowMeta.getValueMeta( 0 ).getName() );

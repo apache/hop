@@ -51,7 +51,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.checkfilelocked.JobEntryCheckFilesLocked;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -116,9 +115,9 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
   private Button wbaFilename; // Add or change
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
-  public JobEntryCheckFilesLockedDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
+  public JobEntryCheckFilesLockedDialog( Shell parent, JobEntryInterface jobEntryInt,
     JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCheckFilesLocked) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

@@ -68,7 +68,7 @@ public class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelI
    */
   protected void setFields( ExcelInputField... fields ) throws Exception {
     meta.setField( fields );
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null, null );
+    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
   }
 
   /**

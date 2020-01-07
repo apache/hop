@@ -32,11 +32,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.PluginPropertyHandler.LoadXml;
 import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
-import org.apache.hop.core.util.PluginPropertyHandler.ReadFromRepository;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
-import org.apache.hop.core.util.PluginPropertyHandler.SaveToRepository;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
@@ -131,29 +128,6 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   @Override
   public String getXML() throws HopException {
     return PluginPropertyHandler.toXml( this.getProperties() );
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see org.apache.hop.trans.step.StepMetaInterface#readRep(org.apache.hop.repository.Repository, long,
-   *      java.util.List, java.util.Map)
-   */
-  public void readRep( final Repository repo, final IMetaStore metaStore, final ObjectId stepId,
-    final List<DatabaseMeta> databaseList ) throws HopException {
-    PluginPropertyHandler.walk( this.getProperties(), new ReadFromRepository( repo, metaStore, stepId ) );
-    initDbMeta( databaseList );
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see org.apache.hop.trans.step.StepMetaInterface#saveRep(org.apache.hop.repository.Repository, long, long)
-   */
-  public void saveRep( final Repository repo, final IMetaStore metaStore, final ObjectId transformationId,
-    final ObjectId stepId ) throws HopException {
-    final SaveToRepository handler = new SaveToRepository( repo, metaStore, transformationId, stepId );
-    PluginPropertyHandler.walk( this.getProperties(), handler );
   }
 
   /**

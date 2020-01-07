@@ -32,7 +32,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.RepositoryAttributeInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.w3c.dom.Node;
 
@@ -53,7 +56,7 @@ public abstract class BaseLogTable {
   public static String PROP_LOG_TABLE_TIMEOUT_DAYS = "_LOG_TABLE_TIMEOUT_IN_DAYS";
 
   protected VariableSpace space;
-  protected HasDatabasesInterface databasesInterface;
+  protected IMetaStore metaStore;
 
   protected String connectionName;
 
@@ -63,10 +66,10 @@ public abstract class BaseLogTable {
 
   protected List<LogTableField> fields;
 
-  public BaseLogTable( VariableSpace space, HasDatabasesInterface databasesInterface, String connectionName,
-    String schemaName, String tableName ) {
+  public BaseLogTable( VariableSpace space, IMetaStore metaStore, String connectionName,
+                       String schemaName, String tableName ) {
     this.space = space;
-    this.databasesInterface = databasesInterface;
+    this.metaStore = metaStore;
     this.connectionName = connectionName;
     this.schemaName = schemaName;
     this.tableName = tableName;
@@ -75,7 +78,7 @@ public abstract class BaseLogTable {
 
   public void replaceMeta( BaseLogTable baseLogTable ) {
     this.space = baseLogTable.space;
-    this.databasesInterface = baseLogTable.databasesInterface;
+    this.metaStore = baseLogTable.metaStore;
     this.connectionName = baseLogTable.connectionName;
     this.schemaName = baseLogTable.schemaName;
     this.tableName = baseLogTable.tableName;
@@ -103,75 +106,6 @@ public abstract class BaseLogTable {
     return super.clone();
   }
 
-  /**
-   * Save this core information of the log table to the repository using the specified attribute interface.
-   *
-   * @param attributeInterface
-   *          The attribute interface to use to set attributes
-   * @throws HopException
-   */
-  public void saveToRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_CONNECTION_NAME, getConnectionName() );
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_SCHEMA_NAME, getSchemaName() );
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_TABLE_NAME, getTableName() );
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_TIMEOUT_DAYS, getTimeoutInDays() );
-
-    // Store the fields too...
-    //
-    for ( int i = 0; i < getFields().size(); i++ ) {
-      LogTableField field = getFields().get( i );
-      attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_FIELD_ID + i, field.getId() );
-      attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_FIELD_NAME + i, field.getFieldName() );
-      attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_FIELD_ENABLED + i, field.isEnabled() );
-
-      if ( field.isSubjectAllowed() ) {
-        attributeInterface.setAttribute(
-          getLogTableCode() + PROP_LOG_TABLE_FIELD_SUBJECT + i, field.getSubject() == null ? null : field
-            .getSubject().toString() );
-      }
-    }
-  }
-
-  public void loadFromRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    connectionName = schemaName = tableName = null;
-
-    String connectionNameFromRepository =
-      attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_CONNECTION_NAME );
-    if ( connectionNameFromRepository != null ) {
-      connectionName = connectionNameFromRepository;
-    }
-    String schemaNameFromRepository =
-      attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_SCHEMA_NAME );
-    if ( schemaNameFromRepository != null ) {
-      schemaName = schemaNameFromRepository;
-    }
-    String tableNameFromRepository =
-      attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_TABLE_NAME );
-    if ( tableNameFromRepository != null ) {
-      tableName = tableNameFromRepository;
-    }
-    timeoutInDays = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_TIMEOUT_DAYS );
-    for ( int i = 0; i < getFields().size(); i++ ) {
-      String id = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_FIELD_ID + i );
-      // Only read further if the ID is available.
-      // For backward compatibility, this might not be provided yet!
-      //
-      if ( id != null ) {
-        LogTableField field = findField( id );
-        if ( field != null ) {
-          field.setFieldName( attributeInterface.getAttributeString( getLogTableCode()
-            + PROP_LOG_TABLE_FIELD_NAME + i ) );
-          field.setEnabled( attributeInterface.getAttributeBoolean( getLogTableCode()
-            + PROP_LOG_TABLE_FIELD_ENABLED + i ) );
-          if ( field.isSubjectAllowed() ) {
-            field.setSubject( attributeInterface.getAttributeString( getLogTableCode()
-              + PROP_LOG_TABLE_FIELD_SUBJECT + i ) );
-          }
-        }
-      }
-    }
-  }
-
   public abstract String getLogTableCode();
 
   public abstract String getConnectionNameVariable();
@@ -189,11 +123,15 @@ public abstract class BaseLogTable {
     if ( name == null ) {
       return null;
     }
-    if ( databasesInterface == null ) {
+    if ( metaStore == null ) {
       return null;
     }
 
-    return databasesInterface.findDatabase( name );
+    try {
+      return DatabaseMeta.createFactory( metaStore ).loadElement( name );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to load database connection '"+name+"'", e);
+    }
   }
 
   /**

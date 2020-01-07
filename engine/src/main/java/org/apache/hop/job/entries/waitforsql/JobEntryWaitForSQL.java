@@ -45,8 +45,7 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -236,12 +235,12 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.findDatabase( databases, dbname );
+      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       successCondition =
@@ -261,32 +260,6 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
     }
   }
 
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      connection = rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", "id_database", databases );
-
-      schemaname = rep.getJobEntryAttributeString( id_jobentry, "schemaname" );
-      tablename = rep.getJobEntryAttributeString( id_jobentry, "tablename" );
-      successCondition =
-        getSuccessConditionByCode( Const.NVL(
-          rep.getJobEntryAttributeString( id_jobentry, "success_condition" ), "" ) );
-      rowsCountValue = rep.getJobEntryAttributeString( id_jobentry, "rows_count_value" );
-      iscustomSQL = rep.getJobEntryAttributeBoolean( id_jobentry, "is_custom_sql" );
-      isUseVars = rep.getJobEntryAttributeBoolean( id_jobentry, "is_usevars" );
-      isAddRowsResult = rep.getJobEntryAttributeBoolean( id_jobentry, "add_rows_result" );
-      customSQL = rep.getJobEntryAttributeString( id_jobentry, "custom_sql" );
-      maximumTimeout = rep.getJobEntryAttributeString( id_jobentry, "maximum_timeout" );
-      checkCycleTime = rep.getJobEntryAttributeString( id_jobentry, "check_cycle_time" );
-      successOnTimeout = rep.getJobEntryAttributeBoolean( id_jobentry, "success_on_timeout" );
-      isClearResultList = rep.getJobEntryAttributeBoolean( id_jobentry, "clear_result_rows" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "JobEntryWaitForSQL.UnableLoadRep", "" + id_jobentry ), dbe );
-    }
-  }
-
   private static int getSuccessConditionByCode( String tt ) {
     if ( tt == null ) {
       return 0;
@@ -298,31 +271,6 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
       }
     }
     return 0;
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveDatabaseMetaJobEntryAttribute( id_job, getObjectId(), "connection", "id_database", connection );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "schemaname", schemaname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "tablename", tablename );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "success_condition", getSuccessConditionCode( successCondition ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "rows_count_value", rowsCountValue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "custom_sql", customSQL );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "is_custom_sql", iscustomSQL );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "is_usevars", isUseVars );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_rows_result", isAddRowsResult );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maximum_timeout", maximumTimeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "check_cycle_time", checkCycleTime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_on_timeout", successOnTimeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "clear_result_rows", isClearResultList );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "JobEntryWaitForSQL.UnableSaveRep", "" + id_job ), dbe );
-    }
   }
 
   public void setDatabase( DatabaseMeta database ) {
@@ -616,7 +564,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

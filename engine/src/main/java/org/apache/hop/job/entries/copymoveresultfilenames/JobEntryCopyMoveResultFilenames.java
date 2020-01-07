@@ -54,8 +54,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -156,16 +155,14 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
       .append( "      " ).append( XMLHandler.addTagValue( "CreateDestinationFolder", CreateDestinationFolder ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "RemovedSourceFilename", RemovedSourceFilename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "AddDestinationFilename", AddDestinationFilename ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( destination_folder );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
@@ -192,62 +189,6 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryCopyMoveResultFilenames.CanNotLoadFromXML", xe.getMessage() ) );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      foldername = rep.getJobEntryAttributeString( id_jobentry, "foldername" );
-      specifywildcard = rep.getJobEntryAttributeBoolean( id_jobentry, "specify_wildcard" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      wildcardexclude = rep.getJobEntryAttributeString( id_jobentry, "wildcardexclude" );
-      destination_folder = rep.getJobEntryAttributeString( id_jobentry, "destination_folder" );
-      nr_errors_less_than = rep.getJobEntryAttributeString( id_jobentry, "nr_errors_less_than" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      add_date = rep.getJobEntryAttributeBoolean( id_jobentry, "add_date" );
-      add_time = rep.getJobEntryAttributeBoolean( id_jobentry, "add_time" );
-      SpecifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      date_time_format = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      AddDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddDateBeforeExtension" );
-      action = rep.getJobEntryAttributeString( id_jobentry, "action" );
-
-      OverwriteFile = rep.getJobEntryAttributeBoolean( id_jobentry, "OverwriteFile" );
-      CreateDestinationFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "CreateDestinationFolder" );
-      RemovedSourceFilename = rep.getJobEntryAttributeBoolean( id_jobentry, "RemovedSourceFilename" );
-      AddDestinationFilename = rep.getJobEntryAttributeBoolean( id_jobentry, "AddDestinationFilename" );
-
-    } catch ( HopException dbe ) {
-      throw new HopXMLException( BaseMessages.getString(
-        PKG, "JobEntryCopyMoveResultFilenames.CanNotLoadFromRep", "" + id_jobentry, dbe.getMessage() ) );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "foldername", foldername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "specify_wildcard", specifywildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcardexclude", wildcardexclude );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destination_folder", destination_folder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_errors_less_than", nr_errors_less_than );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_date", add_date );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_time", add_time );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", SpecifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "AddDateBeforeExtension", AddDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "action", action );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "OverwriteFile", OverwriteFile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "CreateDestinationFolder", CreateDestinationFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "RemovedSourceFilename", RemovedSourceFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "AddDestinationFilename", AddDestinationFilename );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopXMLException( BaseMessages.getString(
-        PKG, "JobEntryCopyMoveResultFilenames.CanNotSaveToRep", "" + id_job, dbe.getMessage() ) );
     }
   }
 
@@ -397,12 +338,6 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
     result.setResult( false );
 
     boolean deleteFile = getAction().equals( "delete" );
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     String realdestinationFolder = null;
     if ( !deleteFile ) {
@@ -675,7 +610,8 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
   /**********************************************************
    *
    * @param selectedfile
-   * @param sourceWildcard
+   * @param pattern
+   * @param include
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
   private boolean CheckFileWildcard( String selectedfile, Pattern pattern, boolean include ) {
@@ -692,7 +628,7 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

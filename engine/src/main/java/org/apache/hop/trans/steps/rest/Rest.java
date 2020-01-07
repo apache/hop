@@ -361,7 +361,7 @@ public class Rest extends BaseStep implements StepInterface {
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Let's set URL
       if ( meta.isUrlInField() ) {

@@ -39,8 +39,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -177,7 +176,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -246,47 +245,8 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      directory = rep.getStepAttributeString( id_step, "directory" );
-      prefix = rep.getStepAttributeString( id_step, "prefix" );
-      cacheSize = (int) rep.getStepAttributeInteger( id_step, "cache_size" );
-
-      mainStepname = rep.getStepAttributeString( id_step, "main" );
-
-      condition = rep.loadConditionFromStepAttribute( id_step, "id_condition" );
-      if ( condition == null ) {
-        condition = new Condition();
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JoinRowsMeta.Exception.UnexpectedErrorInReadStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "directory", directory );
-      rep.saveStepAttribute( id_transformation, id_step, "prefix", prefix );
-      rep.saveStepAttribute( id_transformation, id_step, "cache_size", cacheSize );
-
-      if ( mainStepname == null ) {
-        mainStepname = getLookupStepname();
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "main", mainStepname );
-
-      rep.saveConditionStepAttribute( id_transformation, id_step, "id_condition", condition );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JoinRowsMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( space instanceof TransMeta ) {
       TransMeta transMeta = (TransMeta) space;
       StepMeta[] steps = transMeta.getPrevSteps( transMeta.findStep( origin ) );
@@ -306,7 +266,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

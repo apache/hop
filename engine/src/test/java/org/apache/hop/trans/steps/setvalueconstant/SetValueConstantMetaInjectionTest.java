@@ -38,7 +38,7 @@ public class SetValueConstantMetaInjectionTest extends BaseMetadataInjectionTest
   public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new SetValueConstantMeta() );
   }
 

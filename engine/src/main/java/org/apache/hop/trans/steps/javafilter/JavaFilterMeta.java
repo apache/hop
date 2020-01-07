@@ -33,8 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -80,7 +79,7 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
   public void allocate( int nrCalcs ) {
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     List<StreamInterface> targetStreams = getStepIOMeta().getTargetStreams();
 
     targetStreams.get( 0 ).setSubject( XMLHandler.getTagValue( stepnode, "send_true_to" ) );
@@ -124,15 +123,6 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
     condition = "true";
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    List<StreamInterface> targetStreams = getStepIOMeta().getTargetStreams();
-
-    targetStreams.get( 0 ).setSubject( rep.getStepAttributeString( id_step, "send_true_to" ) );
-    targetStreams.get( 1 ).setSubject( rep.getStepAttributeString( id_step, "send_false_to" ) );
-
-    condition = rep.getStepAttributeString( id_step, "condition" );
-  }
-
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     List<StreamInterface> targetStreams = getStepIOMeta().getTargetStreams();
@@ -141,18 +131,9 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    List<StreamInterface> targetStreams = getStepIOMeta().getTargetStreams();
-
-    rep.saveStepAttribute( id_transformation, id_step, "send_true_to", targetStreams.get( 0 ).getStepname() );
-    rep.saveStepAttribute( id_transformation, id_step, "send_false_to", targetStreams.get( 1 ).getStepname() );
-
-    rep.saveStepAttribute( id_transformation, id_step, "condition", condition );
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

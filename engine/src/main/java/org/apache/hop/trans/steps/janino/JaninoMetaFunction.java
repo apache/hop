@@ -28,8 +28,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -109,24 +108,6 @@ public class JaninoMetaFunction implements Cloneable {
     valueLength = Const.toInt( XMLHandler.getTagValue( calcnode, "value_length" ), -1 );
     valuePrecision = Const.toInt( XMLHandler.getTagValue( calcnode, "value_precision" ), -1 );
     replaceField = XMLHandler.getTagValue( calcnode, "replace_field" );
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step, int nr ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, nr, "field_name", fieldName );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "formula_string", formula );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_type", ValueMetaFactory.getValueMetaName( valueType ) );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_length", valueLength );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "value_precision", valuePrecision );
-    rep.saveStepAttribute( id_transformation, id_step, nr, "replace_field", replaceField );
-  }
-
-  public JaninoMetaFunction( Repository rep, ObjectId id_step, int nr ) throws HopException {
-    fieldName = rep.getStepAttributeString( id_step, nr, "field_name" );
-    formula = rep.getStepAttributeString( id_step, nr, "formula_string" );
-    valueType = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, nr, "value_type" ) );
-    valueLength = (int) rep.getStepAttributeInteger( id_step, nr, "value_length" );
-    valuePrecision = (int) rep.getStepAttributeInteger( id_step, nr, "value_precision" );
-    replaceField = rep.getStepAttributeString( id_step, nr, "replace_field" );
   }
 
   /**

@@ -40,7 +40,6 @@ import org.apache.hop.core.util.PluginMessages;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.StringPluginProperty;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
@@ -160,7 +159,7 @@ public class TeraFastMeta extends AbstractStepMeta {
    */
   public void check( final List<CheckResultInterface> remarks, final TransMeta transmeta, final StepMeta stepMeta,
     final RowMetaInterface prev, final String[] input, final String[] output, final RowMetaInterface info,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     CheckResult checkResult;
     try {
       RowMetaInterface tableFields = getRequiredFields( transmeta );
@@ -287,7 +286,7 @@ public class TeraFastMeta extends AbstractStepMeta {
    */
   @Override
   public void getFields( final RowMetaInterface inputRowMeta, final String name, final RowMetaInterface[] info,
-    final StepMeta nextStep, final VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    final StepMeta nextStep, final VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 

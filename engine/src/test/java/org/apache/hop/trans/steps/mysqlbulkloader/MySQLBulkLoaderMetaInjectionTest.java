@@ -34,7 +34,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 public class MySQLBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<MySQLBulkLoaderMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new MySQLBulkLoaderMeta() );
   }
 

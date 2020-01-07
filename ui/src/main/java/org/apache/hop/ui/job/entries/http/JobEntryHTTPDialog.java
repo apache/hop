@@ -55,7 +55,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.http.JobEntryHTTP;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -211,8 +210,8 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
   private FormData fdGeneralComp, fdHeadersComp;
   private FormData fdTabFolder;
 
-  public JobEntryHTTPDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryHTTPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryHTTP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobHTTP.Name.Default" ) );

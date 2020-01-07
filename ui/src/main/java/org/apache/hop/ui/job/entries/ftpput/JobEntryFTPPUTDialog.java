@@ -56,7 +56,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.ftpput.JobEntryFTPPUT;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -243,8 +242,8 @@ public class JobEntryFTPPUTDialog extends JobEntryDialog implements JobEntryDial
   private FTPClient ftpclient = null;
   private String pwdFolder = null;
 
-  public JobEntryFTPPUTDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFTPPUTDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTPPUT) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPPUT.Name.Default" ) );

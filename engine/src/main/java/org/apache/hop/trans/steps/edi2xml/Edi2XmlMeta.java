@@ -37,8 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -87,7 +86,7 @@ public class Edi2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
 
     try {
       setInputField( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "inputfield" ) ) );
@@ -99,31 +98,8 @@ public class Edi2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      inputField = rep.getStepAttributeString( id_step, "inputfield" );
-      outputField = rep.getStepAttributeString( id_step, "outputfield" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "Edi2Xml.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "inputfield", inputField );
-      rep.saveStepAttribute( id_transformation, id_step, "outputfield", outputField );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "Edi2Xml.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
 
     ValueMetaInterface extra = null;
 
@@ -146,7 +122,7 @@ public class Edi2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!

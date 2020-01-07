@@ -51,8 +51,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -534,9 +533,9 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
    * @param fileRequired
    *          The fileRequired to set.
    */
-  public void setFileRequired( String[] fileRequiredin ) {
-    for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+  public void setFileRequired( String[] fileRequired ) {
+    for ( int i = 0; i < fileRequired.length; i++ ) {
+      this.fileRequired[i] = getRequiredFilesCode( fileRequired[i] );
     }
   }
 
@@ -779,7 +778,7 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       acceptingFilenames = YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "accept_filenames" ) );
       passingThruFields = YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "passing_through_fields" ) );
@@ -1052,7 +1051,7 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !isPassingThruFields() ) {
       // all incoming fields are not transmitted !
       row.clear();
@@ -1184,13 +1183,6 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
       row.addValueMeta( v );
     }
 
-  }
-
-  @Override
-  @Deprecated
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space ) throws HopStepException {
-    getFields( inputRowMeta, name, info, nextStep, space, null, null );
   }
 
   @Override
@@ -1347,250 +1339,6 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      acceptingFilenames = rep.getStepAttributeBoolean( id_step, "accept_filenames" );
-      passingThruFields = rep.getStepAttributeBoolean( id_step, "passing_through_fields" );
-      acceptingField = rep.getStepAttributeString( id_step, "accept_field" );
-      acceptingStepName = rep.getStepAttributeString( id_step, "accept_stepname" );
-
-      separator = rep.getStepAttributeString( id_step, "separator" );
-      enclosure = rep.getStepAttributeString( id_step, "enclosure" );
-      breakInEnclosureAllowed = rep.getStepAttributeBoolean( id_step, "enclosure_breaks" );
-      escapeCharacter = rep.getStepAttributeString( id_step, "escapechar" );
-      header = rep.getStepAttributeBoolean( id_step, "header" );
-      nrHeaderLines = (int) rep.getStepAttributeInteger( id_step, "nr_headerlines" );
-      footer = rep.getStepAttributeBoolean( id_step, "footer" );
-      nrFooterLines = (int) rep.getStepAttributeInteger( id_step, "nr_footerlines" );
-      lineWrapped = rep.getStepAttributeBoolean( id_step, "line_wrapped" );
-      nrWraps = (int) rep.getStepAttributeInteger( id_step, "nr_wraps" );
-      layoutPaged = rep.getStepAttributeBoolean( id_step, "layout_paged" );
-      nrLinesPerPage = (int) rep.getStepAttributeInteger( id_step, "nr_lines_per_page" );
-      nrLinesDocHeader = (int) rep.getStepAttributeInteger( id_step, "nr_lines_doc_header" );
-      noEmptyLines = rep.getStepAttributeBoolean( id_step, "noempty" );
-
-      includeFilename = rep.getStepAttributeBoolean( id_step, "include" );
-      filenameField = rep.getStepAttributeString( id_step, "include_field" );
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      rowNumberByFile = rep.getStepAttributeBoolean( id_step, "rownumByFile" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-
-      fileFormat = rep.getStepAttributeString( id_step, "format" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      String addToResult = rep.getStepAttributeString( id_step, "add_to_result_filenames" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        isaddresult = true;
-      } else {
-        isaddresult = rep.getStepAttributeBoolean( id_step, "add_to_result_filenames" );
-      }
-
-      rowLimit = rep.getStepAttributeInteger( id_step, "limit" );
-
-      int nrfiles = rep.countNrStepAttributes( id_step, "file_name" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-      int nrfilters = rep.countNrStepAttributes( id_step, "filter_string" );
-
-      allocate( nrfiles, nrfields, nrfilters );
-
-      for ( int i = 0; i < nrfiles; i++ ) {
-        fileName[i] = loadSourceRep( rep, id_step, i );
-        fileMask[i] = rep.getStepAttributeString( id_step, i, "file_mask" );
-        excludeFileMask[i] = rep.getStepAttributeString( id_step, i, "exclude_file_mask" );
-        fileRequired[i] = rep.getStepAttributeString( id_step, i, "file_required" );
-        if ( !YES.equalsIgnoreCase( fileRequired[i] ) ) {
-          fileRequired[i] = NO;
-        }
-        includeSubFolders[i] = rep.getStepAttributeString( id_step, i, "include_subfolders" );
-        if ( !YES.equalsIgnoreCase( includeSubFolders[i] ) ) {
-          includeSubFolders[i] = NO;
-        }
-      }
-      fileType = rep.getStepAttributeString( id_step, "file_type" );
-      fileCompression = rep.getStepAttributeString( id_step, "compression" );
-      if ( fileCompression == null ) {
-        fileCompression = "None";
-        if ( rep.getStepAttributeBoolean( id_step, "file_zipped" ) ) {
-          fileCompression = "Zip";
-        }
-      }
-
-      for ( int i = 0; i < nrfilters; i++ ) {
-        filter[i] = new TextFileFilter();
-        filter[i].setFilterPosition( (int) rep.getStepAttributeInteger( id_step, i, "filter_position" ) );
-        filter[i].setFilterString( rep.getStepAttributeString( id_step, i, "filter_string" ) );
-        filter[i].setFilterLastLine( rep.getStepAttributeBoolean( id_step, i, "filter_is_last_line" ) );
-        filter[i].setFilterPositive( rep.getStepAttributeBoolean( id_step, i, "filter_is_positive" ) );
-      }
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        TextFileInputField field = new TextFileInputField();
-
-        field.setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field.setType( ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-        field.setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        field.setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        field.setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        field.setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        field.setNullString( rep.getStepAttributeString( id_step, i, "field_nullif" ) );
-        field.setIfNullValue( rep.getStepAttributeString( id_step, i, "field_ifnull" ) );
-        field.setPosition( (int) rep.getStepAttributeInteger( id_step, i, "field_position" ) );
-        field.setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        field.setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        field.setTrimType( ValueMetaString
-          .getTrimTypeByCode( rep.getStepAttributeString( id_step, i, "field_trim_type" ) ) );
-        field.setRepeated( rep.getStepAttributeBoolean( id_step, i, "field_repeat" ) );
-
-        inputFields[i] = field;
-      }
-
-      errorIgnored = rep.getStepAttributeBoolean( id_step, "error_ignored" );
-      skipBadFiles = rep.getStepAttributeBoolean( id_step, "skip_bad_files" );
-      fileErrorField = rep.getStepAttributeString( id_step, "file_error_field" );
-      fileErrorMessageField = rep.getStepAttributeString( id_step, "file_error_message_field" );
-
-      errorLineSkipped = rep.getStepAttributeBoolean( id_step, "error_line_skipped" );
-      errorCountField = rep.getStepAttributeString( id_step, "error_count_field" );
-      errorFieldsField = rep.getStepAttributeString( id_step, "error_fields_field" );
-      errorTextField = rep.getStepAttributeString( id_step, "error_text_field" );
-
-      warningFilesDestinationDirectory = rep.getStepAttributeString( id_step, "bad_line_files_dest_dir" );
-      warningFilesExtension = rep.getStepAttributeString( id_step, "bad_line_files_ext" );
-      errorFilesDestinationDirectory = rep.getStepAttributeString( id_step, "error_line_files_dest_dir" );
-      errorFilesExtension = rep.getStepAttributeString( id_step, "error_line_files_ext" );
-      lineNumberFilesDestinationDirectory = rep.getStepAttributeString( id_step, "line_number_files_dest_dir" );
-      lineNumberFilesExtension = rep.getStepAttributeString( id_step, "line_number_files_ext" );
-
-      dateFormatLenient = rep.getStepAttributeBoolean( id_step, 0, "date_format_lenient", true );
-
-      String dateLocale = rep.getStepAttributeString( id_step, 0, "date_format_locale" );
-      if ( dateLocale != null ) {
-        dateFormatLocale = EnvUtil.createLocale( dateLocale );
-      } else {
-        dateFormatLocale = Locale.getDefault();
-      }
-      shortFileFieldName = rep.getStepAttributeString( id_step, "shortFileFieldName" );
-      pathFieldName = rep.getStepAttributeString( id_step, "pathFieldName" );
-      hiddenFieldName = rep.getStepAttributeString( id_step, "hiddenFieldName" );
-      lastModificationTimeFieldName = rep.getStepAttributeString( id_step, "lastModificationTimeFieldName" );
-      uriNameFieldName = rep.getStepAttributeString( id_step, "uriNameFieldName" );
-      rootUriNameFieldName = rep.getStepAttributeString( id_step, "rootUriNameFieldName" );
-      extensionFieldName = rep.getStepAttributeString( id_step, "extensionFieldName" );
-      sizeFieldName = rep.getStepAttributeString( id_step, "sizeFieldName" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "accept_filenames", acceptingFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "passing_through_fields", passingThruFields );
-      rep.saveStepAttribute( id_transformation, id_step, "accept_field", acceptingField );
-      rep.saveStepAttribute( id_transformation, id_step, "accept_stepname", ( acceptingStep != null
-        ? acceptingStep.getName() : "" ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "separator", separator );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure", enclosure );
-      rep.saveStepAttribute( id_transformation, id_step, "enclosure_breaks", breakInEnclosureAllowed );
-      rep.saveStepAttribute( id_transformation, id_step, "escapechar", escapeCharacter );
-      rep.saveStepAttribute( id_transformation, id_step, "header", header );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_headerlines", nrHeaderLines );
-      rep.saveStepAttribute( id_transformation, id_step, "footer", footer );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_footerlines", nrFooterLines );
-      rep.saveStepAttribute( id_transformation, id_step, "line_wrapped", lineWrapped );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_wraps", nrWraps );
-      rep.saveStepAttribute( id_transformation, id_step, "layout_paged", layoutPaged );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_lines_per_page", nrLinesPerPage );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_lines_doc_header", nrLinesDocHeader );
-
-      rep.saveStepAttribute( id_transformation, id_step, "noempty", noEmptyLines );
-
-      rep.saveStepAttribute( id_transformation, id_step, "include", includeFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "include_field", filenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "rownumByFile", rowNumberByFile );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "format", fileFormat );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "add_to_result_filenames", isaddresult );
-
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-
-      for ( int i = 0; i < fileName.length; i++ ) {
-        saveSourceRep( rep, id_transformation, id_step, i, fileName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_mask", fileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "exclude_file_mask", excludeFileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", fileRequired[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "include_subfolders", includeSubFolders[i] );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "file_type", fileType );
-      rep.saveStepAttribute( id_transformation, id_step, "compression",
-        ( fileCompression == null ) ? "None" : fileCompression );
-
-      for ( int i = 0; i < filter.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "filter_position", filter[i].getFilterPosition() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "filter_string", filter[i].getFilterString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "filter_is_last_line", filter[i].isFilterLastLine() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "filter_is_positive", filter[i].isFilterPositive() );
-      }
-
-      for ( int i = 0; i < inputFields.length; i++ ) {
-        TextFileInputField field = inputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_nullif", field.getNullString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_ifnull", field.getIfNullValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_position", field.getPosition() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field.getTrimTypeCode() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_repeat", field.isRepeated() );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "error_ignored", errorIgnored );
-      rep.saveStepAttribute( id_transformation, id_step, "skip_bad_files", skipBadFiles );
-      rep.saveStepAttribute( id_transformation, id_step, "file_error_field", fileErrorField );
-      rep.saveStepAttribute( id_transformation, id_step, "file_error_message_field", fileErrorMessageField );
-      rep.saveStepAttribute( id_transformation, id_step, "error_line_skipped", errorLineSkipped );
-      rep.saveStepAttribute( id_transformation, id_step, "error_count_field", errorCountField );
-      rep.saveStepAttribute( id_transformation, id_step, "error_fields_field", errorFieldsField );
-      rep.saveStepAttribute( id_transformation, id_step, "error_text_field", errorTextField );
-
-      rep.saveStepAttribute(
-        id_transformation, id_step, "bad_line_files_dest_dir", warningFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "bad_line_files_ext", warningFilesExtension );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "error_line_files_dest_dir", errorFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "error_line_files_ext", errorFilesExtension );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "line_number_files_dest_dir", lineNumberFilesDestinationDirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "line_number_files_ext", lineNumberFilesExtension );
-
-      rep.saveStepAttribute( id_transformation, id_step, "date_format_lenient", dateFormatLenient );
-      rep.saveStepAttribute( id_transformation, id_step, "date_format_locale", dateFormatLocale.toString() );
-
-      rep.saveStepAttribute( id_transformation, id_step, "shortFileFieldName", shortFileFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "pathFieldName", pathFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "hiddenFieldName", hiddenFieldName );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "lastModificationTimeFieldName", lastModificationTimeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "uriNameFieldName", uriNameFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "rootUriNameFieldName", rootUriNameFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "extensionFieldName", extensionFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "sizeFieldName", sizeFieldName );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public String[] getFilePaths( VariableSpace space ) {
     return FileInputList.createFilePathList(
       space, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
@@ -1613,7 +1361,7 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -2034,8 +1782,6 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -2043,7 +1789,7 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -2087,14 +1833,5 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
 
   protected void saveSource( StringBuilder retVal, String source ) {
     retVal.append( "      " ).append( XMLHandler.addTagValue( "name", source ) );
-  }
-
-  protected String loadSourceRep( Repository rep, ObjectId id_step, int i ) throws HopException {
-    return rep.getStepAttributeString( id_step, i, "file_name" );
-  }
-
-  protected void saveSourceRep( Repository rep, ObjectId id_transformation, ObjectId id_step, int i, String fileName )
-    throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, i, "file_name", fileName ); //this should be in subclass
   }
 }

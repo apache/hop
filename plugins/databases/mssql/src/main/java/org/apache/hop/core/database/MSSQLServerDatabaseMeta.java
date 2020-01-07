@@ -50,7 +50,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
   )
   private boolean usingDoubleDigit;

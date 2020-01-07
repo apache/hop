@@ -41,7 +41,6 @@ import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.file.BaseFileInputFiles;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
 
 public class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;
@@ -53,10 +52,8 @@ public class TextFileInputMetaTest {
 
   @Before
   public void setUp() throws Exception {
-    NamedClusterEmbedManager  manager = mock( NamedClusterEmbedManager.class );
 
     TransMeta parentTransMeta = mock( TransMeta.class );
-    doReturn( manager ).when( parentTransMeta ).getNamedClusterEmbedManager();
 
     StepMeta parentStepMeta = mock( StepMeta.class );
     doReturn( parentTransMeta ).when( parentStepMeta ).getParentTransMeta();
@@ -70,20 +67,6 @@ public class TextFileInputMetaTest {
     doReturn( FILE_NAME_VALID_PATH ).when( variableSpace ).environmentSubstitute( FILE_NAME_VALID_PATH );
     FileObject mockedFileObject = mock( FileObject.class );
     doReturn( mockedFileObject ).when( inputMeta ).getFileObject( anyString(), eq( variableSpace ) );
-  }
-
-  @Test
-  public void whenExportingResourcesWeGetFileObjectsOnlyFromFilesWithNotNullAndNotEmptyFileNames() throws Exception {
-    inputMeta.inputFiles = new BaseFileInputFiles();
-    inputMeta.inputFiles.fileName = new String[] { FILE_NAME_NULL, FILE_NAME_EMPTY, FILE_NAME_VALID_PATH };
-    inputMeta.inputFiles.fileMask =
-      new String[] { StringUtil.EMPTY_STRING, StringUtil.EMPTY_STRING, StringUtil.EMPTY_STRING };
-
-    inputMeta.exportResources( variableSpace, null, mock( ResourceNamingInterface.class ), null, null );
-
-    verify( inputMeta ).getFileObject( FILE_NAME_VALID_PATH, variableSpace );
-    verify( inputMeta, never() ).getFileObject( FILE_NAME_NULL, variableSpace );
-    verify( inputMeta, never() ).getFileObject( FILE_NAME_EMPTY, variableSpace );
   }
 
   @Test

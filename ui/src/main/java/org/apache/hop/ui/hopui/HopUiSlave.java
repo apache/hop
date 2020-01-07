@@ -63,10 +63,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.ui.core.ConstUI;
@@ -1025,9 +1022,6 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       public void setInternalHopVariables() {
       }
 
-      public void setObjectId( ObjectId id ) {
-      }
-
       public void setFilename( String filename ) {
       }
 
@@ -1079,10 +1073,6 @@ public class HopUiSlave extends Composite implements TabItemInterface {
         return null;
       }
 
-      public RepositoryDirectoryInterface getRepositoryDirectory() {
-        return null;
-      }
-
       public String getDefaultExtension() {
         return null;
       }
@@ -1098,18 +1088,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       public void clearChanged() {
       }
 
-      public ObjectId getObjectId() {
-        return null;
-      }
-
-      public RepositoryObjectType getRepositoryElementType() {
-        return null;
-      }
-
       public void setName( String name ) {
-      }
-
-      public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
       }
 
       public String getDescription() {
@@ -1117,13 +1096,6 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       }
 
       public void setDescription( String description ) {
-      }
-
-      public ObjectRevision getObjectRevision() {
-        return null;
-      }
-
-      public void setObjectRevision( ObjectRevision objectRevision ) {
       }
     };
   }

@@ -33,13 +33,11 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -74,7 +72,7 @@ public class JobExecutorMetaTest {
   public void setUp() throws Exception {
 
     List<String> attributes =
-        Arrays.asList( "fileName", "jobName", "directoryPath", "groupSize", "groupField", "groupTime",
+        Arrays.asList( "fileName", "groupSize", "groupField", "groupTime",
             "executionTimeField", "executionFilesRetrievedField", "executionLogTextField",
             "executionLogChannelIdField", "executionResultField", "executionNrErrorsField", "executionLinesReadField",
             "executionLinesWrittenField", "executionLinesInputField", "executionLinesOutputField",
@@ -108,64 +106,5 @@ public class JobExecutorMetaTest {
     assertNull( jobExecutorMeta.getExecutionResultTargetStepMeta() );
     assertNull( jobExecutorMeta.getResultRowsTargetStepMeta() );
     assertNull( jobExecutorMeta.getResultFilesTargetStepMeta() );
-  }
-
-  @Test
-  public void testExportResources() throws HopException {
-    JobExecutorMeta jobExecutorMeta = spy( new JobExecutorMeta() );
-    JobMeta jobMeta = mock( JobMeta.class );
-
-    String testName = "test";
-
-    doReturn( jobMeta ).when( jobExecutorMeta ).loadJobMetaProxy( any( JobExecutorMeta.class ),
-            any( Repository.class ), any( VariableSpace.class ) );
-    when( jobMeta.exportResources( any( JobMeta.class ), any( Map.class ), any( ResourceNamingInterface.class ),
-            any( Repository.class ), any( IMetaStore.class ) ) ).thenReturn( testName );
-
-    jobExecutorMeta.exportResources( null, null, null, null, null );
-
-    verify( jobMeta ).setFilename( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + testName );
-    verify( jobExecutorMeta ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-  }
-
-  @Test
-  public void testLoadJobMeta() throws HopException {
-    String param1 = "param1";
-    String param2 = "param2";
-    String param3 = "param3";
-    String parentValue1 = "parentValue1";
-    String parentValue2 = "parentValue2";
-    String childValue3 = "childValue3";
-
-    JobExecutorMeta jobExecutorMeta = spy( new JobExecutorMeta() );
-    Repository repository = Mockito.mock( Repository.class );
-
-    JobMeta meta = new JobMeta();
-    meta.setVariable( param2, "childValue2 should be override" );
-    meta.setVariable( param3, childValue3 );
-
-    Mockito.doReturn( meta ).when( repository )
-      .loadJob( Mockito.eq( "test.kjb" ), Mockito.anyObject(), Mockito.anyObject(), Mockito.anyObject() );
-
-    VariableSpace parentSpace = new Variables();
-    parentSpace.setVariable( param1, parentValue1 );
-    parentSpace.setVariable( param2, parentValue2 );
-
-    jobExecutorMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    jobExecutorMeta.setFileName( "/home/admin/test.kjb" );
-
-    JobMeta jobMeta;
-
-    jobExecutorMeta.getParameters().setInheritingAllVariables( false );
-    jobMeta = JobExecutorMeta.loadJobMeta( jobExecutorMeta, repository, parentSpace );
-    Assert.assertEquals( null, jobMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, jobMeta.getVariable( param2 ) );
-    Assert.assertEquals( childValue3, jobMeta.getVariable( param3 ) );
-
-    jobExecutorMeta.getParameters().setInheritingAllVariables( true );
-    jobMeta = JobExecutorMeta.loadJobMeta( jobExecutorMeta, repository, parentSpace );
-    Assert.assertEquals( parentValue1, jobMeta.getVariable( param1 ) );
-    Assert.assertEquals( parentValue2, jobMeta.getVariable( param2 ) );
-    Assert.assertEquals( childValue3, jobMeta.getVariable( param3 ) );
   }
 }

@@ -62,8 +62,7 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
 
       data.outputRowMeta = rowMeta.clone();
       meta.getFields(
-        data.outputRowMeta, getStepname(), new RowMetaInterface[] { meta.getTableFields(), }, null, this,
-        repository, metaStore );
+        data.outputRowMeta, getStepname(), new RowMetaInterface[] { meta.getTableFields(), }, null, this, metaStore );
 
       data.lookupRowMeta = new RowMeta();
 

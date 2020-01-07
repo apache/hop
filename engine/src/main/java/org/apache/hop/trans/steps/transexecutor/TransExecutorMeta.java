@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.transexecutor;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -38,14 +38,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HasRepositoryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryImportLocation;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.StringObjectId;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -76,8 +68,7 @@ import java.util.List;
  * @author Matt
  * @since 18-mar-2013
  */
-public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaInterface, HasRepositoryInterface,
-  ISubTransAwareMeta {
+public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaInterface, ISubTransAwareMeta {
 
   private static Class<?> PKG = TransExecutorMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -208,12 +199,6 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
 
   private StepMeta executorsOutputStepMeta;
 
-  /**
-   * This repository object is injected from the outside at runtime or at design time. It comes from either Spoon or
-   * Trans
-   */
-  private Repository repository;
-
   private IMetaStore metaStore;
 
   public TransExecutorMeta() {
@@ -244,28 +229,7 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "specification_method", specificationMethod == null ? null
-      : specificationMethod.getCode() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trans_object_id", transObjectId == null ? null
-      : transObjectId.toString() ) );
-    // Export a little bit of extra information regarding the reference since it doesn't really matter outside the same
-    // repository.
-    //
-    if ( repository != null && transObjectId != null ) {
-      try {
-        RepositoryObject objectInformation =
-          repository.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-        if ( objectInformation != null ) {
-          transName = objectInformation.getName();
-          directoryPath = objectInformation.getRepositoryDirectory().getPath();
-        }
-      } catch ( HopException e ) {
-        // Ignore object reference problems. It simply means that the reference is no longer valid.
-      }
-    }
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trans_name", transName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "directory_path", directoryPath ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "group_size", groupSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "group_field", groupField ) );
@@ -324,16 +288,9 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
     return retval.toString();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      String method = XMLHandler.getTagValue( stepnode, "specification_method" );
-      specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-      String transId = XMLHandler.getTagValue( stepnode, "trans_object_id" );
-      transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-
-      transName = XMLHandler.getTagValue( stepnode, "trans_name" );
       fileName = XMLHandler.getTagValue( stepnode, "filename" );
-      directoryPath = XMLHandler.getTagValue( stepnode, "directory_path" );
 
       groupSize = XMLHandler.getTagValue( stepnode, "group_size" );
       groupField = XMLHandler.getTagValue( stepnode, "group_field" );
@@ -386,114 +343,7 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    String method = rep.getStepAttributeString( id_step, "specification_method" );
-    specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-    String transId = rep.getStepAttributeString( id_step, "trans_object_id" );
-    transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-    transName = rep.getStepAttributeString( id_step, "trans_name" );
-    fileName = rep.getStepAttributeString( id_step, "filename" );
-    directoryPath = rep.getStepAttributeString( id_step, "directory_path" );
-
-    groupSize = rep.getStepAttributeString( id_step, "group_size" );
-    groupField = rep.getStepAttributeString( id_step, "group_field" );
-    groupTime = rep.getStepAttributeString( id_step, "group_time" );
-
-    parameters = new TransExecutorParameters( rep, id_step );
-
-    executionResultTargetStep = rep.getStepAttributeString( id_step, F_EXECUTION_RESULT_TARGET_STEP );
-    executionTimeField = rep.getStepAttributeString( id_step, "execution_time_field" );
-    executionResultField = rep.getStepAttributeString( id_step, "execution_result_field" );
-    executionNrErrorsField = rep.getStepAttributeString( id_step, "execution_errors_field" );
-    executionLinesReadField = rep.getStepAttributeString( id_step, "execution_lines_read_field" );
-    executionLinesWrittenField = rep.getStepAttributeString( id_step, "execution_lines_written_field" );
-    executionLinesInputField = rep.getStepAttributeString( id_step, "execution_lines_input_field" );
-    executionLinesOutputField = rep.getStepAttributeString( id_step, "execution_lines_output_field" );
-    executionLinesRejectedField = rep.getStepAttributeString( id_step, "execution_lines_rejected_field" );
-    executionLinesUpdatedField = rep.getStepAttributeString( id_step, "execution_lines_updated_field" );
-    executionLinesDeletedField = rep.getStepAttributeString( id_step, "execution_lines_deleted_field" );
-    executionFilesRetrievedField = rep.getStepAttributeString( id_step, "execution_files_retrieved_field" );
-    executionExitStatusField = rep.getStepAttributeString( id_step, "execution_exit_status_field" );
-    executionLogTextField = rep.getStepAttributeString( id_step, "execution_log_text_field" );
-    executionLogChannelIdField = rep.getStepAttributeString( id_step, "execution_log_channelid_field" );
-
-    outputRowsSourceStep = rep.getStepAttributeString( id_step, "result_rows_target_step" );
-    int nrFields = rep.countNrStepAttributes( id_step, "result_rows_field_name" );
-    allocate( nrFields );
-
-    for ( int i = 0; i < nrFields; i++ ) {
-      outputRowsField[ i ] = rep.getStepAttributeString( id_step, i, "result_rows_field_name" );
-      outputRowsType[ i ] = ValueMetaFactory.getIdForValueMeta(
-        rep.getStepAttributeString( id_step, i, "result_rows_field_type" ) );
-      outputRowsLength[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "result_rows_field_length" );
-      outputRowsPrecision[ i ] = (int) rep.getStepAttributeInteger( id_step, i, "result_rows_field_precision" );
-    }
-
-    resultFilesTargetStep = rep.getStepAttributeString( id_step, F_RESULT_FILE_TARGET_STEP );
-    resultFilesFileNameField = rep.getStepAttributeString( id_step, "result_files_file_name_field" );
-    executorsOutputStep = rep.getStepAttributeString( id_step, F_EXECUTOR_OUTPUT_STEP );
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "specification_method", specificationMethod == null ? null
-      : specificationMethod.getCode() );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_object_id", transObjectId == null ? null : transObjectId
-      .toString() );
-    rep.saveStepAttribute( id_transformation, id_step, "filename", fileName );
-    rep.saveStepAttribute( id_transformation, id_step, "trans_name", transName );
-    rep.saveStepAttribute( id_transformation, id_step, "directory_path", directoryPath );
-
-    rep.saveStepAttribute( id_transformation, id_step, "group_size", groupSize );
-    rep.saveStepAttribute( id_transformation, id_step, "group_field", groupField );
-    rep.saveStepAttribute( id_transformation, id_step, "group_time", groupTime );
-
-    // save the mapping parameters too
-    //
-    parameters.saveRep( rep, metaStore, id_transformation, id_step );
-
-    // The output side...
-    //
-    rep.saveStepAttribute( id_transformation, id_step, F_EXECUTION_RESULT_TARGET_STEP,
-      executionResultTargetStepMeta == null ? null : executionResultTargetStepMeta.getName() );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_time_field", executionTimeField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_result_field", executionResultField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_errors_field", executionNrErrorsField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_read_field", executionLinesReadField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_written_field", executionLinesWrittenField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_input_field", executionLinesInputField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_output_field", executionLinesOutputField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_rejected_field", executionLinesRejectedField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_updated_field", executionLinesUpdatedField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_lines_deleted_field", executionLinesDeletedField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_files_retrieved_field",
-      executionFilesRetrievedField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_exit_status_field", executionExitStatusField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_log_text_field", executionLogTextField );
-    rep.saveStepAttribute( id_transformation, id_step, "execution_log_channelid_field", executionLogChannelIdField );
-
-    rep.saveStepAttribute( id_transformation, id_step, "result_rows_target_step", outputRowsSourceStepMeta == null
-      ? null : outputRowsSourceStepMeta.getName() );
-
-    for ( int i = 0; i < outputRowsField.length; i++ ) {
-      rep.saveStepAttribute( id_transformation, id_step, i, "result_rows_field_name", outputRowsField[ i ] );
-      rep.saveStepAttribute( id_transformation, id_step, i, "result_rows_field_type",
-        ValueMetaFactory.getValueMetaName( outputRowsType[ i ] ) );
-      rep.saveStepAttribute( id_transformation, id_step, i, "result_rows_field_length", outputRowsLength[ i ] );
-      rep.saveStepAttribute( id_transformation, id_step, i, "result_rows_field_precision", outputRowsPrecision[ i ] );
-    }
-
-    rep.saveStepAttribute( id_transformation, id_step, F_RESULT_FILE_TARGET_STEP, resultFilesTargetStepMeta == null
-      ? null : resultFilesTargetStepMeta.getName() );
-    rep.saveStepAttribute( id_transformation, id_step, "result_files_file_name_field", resultFilesFileNameField );
-
-    rep.saveStepAttribute( id_transformation, id_step, F_EXECUTOR_OUTPUT_STEP, executorsOutputStepMeta == null ? null
-      : executorsOutputStepMeta.getName() );
-  }
-
   public void setDefault() {
-    specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
     parameters = new TransExecutorParameters();
     parameters.setInheritingAllVariables( true );
 
@@ -571,7 +421,7 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( nextStep != null ) {
       if ( nextStep.equals( executionResultTargetStepMeta ) ) {
         inputRowMeta.clear();
@@ -594,14 +444,14 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
   @Deprecated
-  public static synchronized TransMeta loadTransMeta( TransExecutorMeta executorMeta, Repository rep,
+  public static synchronized TransMeta loadTransMeta( TransExecutorMeta executorMeta,
                                                       VariableSpace space ) throws HopException {
-    return loadMappingMeta( executorMeta, rep, null, space );
+    return loadMappingMeta( executorMeta, null, space );
   }
 
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo, RowMetaInterface prev,
-                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
                      IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
@@ -639,21 +489,13 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
   public List<ResourceReference> getResourceDependencies( TransMeta transMeta, StepMeta stepInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
     String realFilename = transMeta.environmentSubstitute( fileName );
-    String realTransname = transMeta.environmentSubstitute( transName );
-    String realDirectoryPath = transMeta.environmentSubstitute( directoryPath );
     ResourceReference reference = new ResourceReference( stepInfo );
 
-    if ( !Utils.isEmpty( realFilename ) ) {
+    if ( StringUtils.isNotEmpty( realFilename ) ) {
       // Add the filename to the references, including a reference to this step
       // meta data.
       //
       reference.getEntries().add( new ResourceEntry( realFilename, ResourceType.ACTIONFILE ) );
-    } else if ( !Utils.isEmpty( realTransname ) ) {
-      // Add the filename to the references, including a reference to this step
-      // meta data.
-      //
-      String realTransformation = realDirectoryPath + "/" + transName;
-      reference.getEntries().add( new ResourceEntry( realTransformation, ResourceType.ACTIONFILE ) );
     }
     references.add( reference );
     return references;
@@ -730,20 +572,6 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
     return new TransformationType[] { TransformationType.Normal, };
   }
 
-  @Override
-  public boolean hasRepositoryReferences() {
-    return specificationMethod == ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-  }
-
-  @Override
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    // The correct reference is stored in the trans name and directory attributes...
-    //
-    RepositoryDirectoryInterface repositoryDirectoryInterface =
-      RepositoryImportLocation.getRepositoryImportLocation().findDirectory( directoryPath );
-    transObjectId = repository.getTransformationID( transName, repositoryDirectoryInterface );
-  }
-
   /**
    * @return the mappingParameters
    */
@@ -756,20 +584,6 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
    */
   public void setMappingParameters( TransExecutorParameters mappingParameters ) {
     this.parameters = mappingParameters;
-  }
-
-  /**
-   * @return the repository
-   */
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * @param repository the repository to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   /**
@@ -1079,8 +893,7 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
   private boolean isTransDefined() {
-    return !Utils.isEmpty( fileName ) || transObjectId != null || ( !Utils.isEmpty( this.directoryPath ) && !Utils
-      .isEmpty( transName ) );
+    return StringUtils.isNotEmpty( fileName );
   }
 
   public boolean[] isReferencedObjectEnabled() {
@@ -1091,14 +904,13 @@ public class TransExecutorMeta extends StepWithMappingMeta implements StepMetaIn
    * Load the referenced object
    *
    * @param index the object index to load
-   * @param rep   the repository
    * @param space the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space )
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space )
     throws HopException {
-    return loadMappingMeta( this, rep, metaStore, space );
+    return loadMappingMeta( this, metaStore, space );
   }
 
   public IMetaStore getMetaStore() {

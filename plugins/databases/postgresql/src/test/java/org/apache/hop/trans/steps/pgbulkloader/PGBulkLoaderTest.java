@@ -66,10 +66,6 @@ public class PGBulkLoaderTest {
   private static final String DB_NAME_OVVERRIDE = "test1181_2";
   private static final String DB_NAME_EMPTY = "";
 
-  private static final String PG_TEST_CONNECTION =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<connection> <name>" + CONNECTION_NAME + "</name><server>" + CONNECTION_DB_HOST + "</server><type>POSTGRESQL</type><access>Native</access><database>" + CONNECTION_DB_NAME + "</database>"
-          + "  <port>" + CONNECTION_DB_PORT + "</port><username>" + CONNECTION_DB_USERNAME + "</username><password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password></connection>";
-
   @BeforeClass
   public static void setupBeforeClass() throws HopException {
     HopClientEnvironment.init();
@@ -196,7 +192,10 @@ public class PGBulkLoaderTest {
   }
 
   private static DatabaseMeta getDatabaseMetaSpy() throws HopXMLException {
-    DatabaseMeta databaseMeta = spy( new DatabaseMeta( PG_TEST_CONNECTION ) );
+    DatabaseMeta databaseMeta = spy( new DatabaseMeta(
+      CONNECTION_NAME, "POSTGRESQL", "Native",
+      CONNECTION_DB_HOST, CONNECTION_DB_NAME, CONNECTION_DB_PORT,
+      CONNECTION_DB_USERNAME, CONNECTION_DB_PASSWORD ) );
     return databaseMeta;
   }
 }

@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.job.entries.trans;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -43,7 +42,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -56,10 +54,7 @@ import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.ConstUI;
@@ -69,8 +64,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogHelper;
-import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 import java.io.File;
@@ -93,8 +86,8 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
     BaseMessages.getString( PKG, "JobTrans.Fileformat.LOG" ),
     BaseMessages.getString( PKG, "JobTrans.Fileformat.All" ) };
 
-  public JobEntryTransDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryTransDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryTrans) jobEntryInt;
   }
 
@@ -213,11 +206,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        if ( rep != null ) {
-          selectTransformation();
-        } else {
-          pickFileVFS();
-        }
+        pickFileVFS();
       }
     } );
 
@@ -255,7 +244,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
       if ( inputTransMeta == null ) {
         JobEntryTrans jet = new JobEntryTrans();
         getInfo( jet );
-        inputTransMeta = jet.getTransMeta( rep, metaStore, jobMeta );
+        inputTransMeta = jet.getTransMeta( metaStore, jobMeta );
       }
       String[] parameters = inputTransMeta.listParameters();
 
@@ -276,17 +265,6 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
         BaseMessages.getString( PKG, "JobEntryTransDialog.Exception.UnableToLoadTransformation.Message" ), e );
     }
 
-  }
-
-  private void selectTransformation() {
-    RepositoryObject repositoryObject = DialogHelper.selectRepositoryObject( "*.ktr", log );
-
-    if ( repositoryObject != null ) {
-      String path = DialogUtils
-        .getPath( jobMeta.getRepositoryDirectory().getPath(), repositoryObject.getRepositoryDirectory().getPath() );
-      String fullPath = ( path.equals( "/" ) ? "/" : path + "/" ) + repositoryObject.getName();
-      wPath.setText( fullPath );
-    }
   }
 
   protected void pickFileVFS() {
@@ -313,7 +291,6 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
             prevName = getEntryName( Const.trim( wPath.getText() ) + ".ktr" );
           }
           if ( HopVFS.fileExists( prevName ) ) {
-            specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
             wPath.setText( prevName );
             return;
           } else {
@@ -331,7 +308,6 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
               transMeta.initializeVariablesFrom( jobEntry );
               transMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
-              specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
               hopUi.saveFile();
               return;
             }
@@ -373,26 +349,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
   public void getData() {
     wName.setText( Const.NVL( jobEntry.getName(), "" ) );
 
-    specificationMethod = jobEntry.getSpecificationMethod();
-    switch ( specificationMethod ) {
-      case FILENAME:
-        wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
-        break;
-      case REPOSITORY_BY_NAME:
-        String dirPath = Const.NVL( jobEntry.getDirectory(), "" );
-        String transPath = Const.NVL( jobEntry.getTransname(), "" );
-        String fullPath = ( StringUtils.isBlank( dirPath ) ? "" : dirPath + "/" ) + transPath;
-        wPath.setText( fullPath );
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        referenceObjectId = jobEntry.getTransObjectId();
-        if ( rep != null && jobEntry.getTransObjectId() != null ) {
-          getByReferenceData( jobEntry.getTransObjectId() );
-        }
-        break;
-      default:
-        break;
-    }
+      wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
 
     // Arguments
     if ( jobEntry.arguments != null ) {
@@ -468,21 +425,6 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
     wName.setFocus();
   }
 
-  private void getByReferenceData( ObjectId transObjectId ) {
-    try {
-      RepositoryObject transInf = rep.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-      String path =
-        DialogUtils.getPath( jobMeta.getRepositoryDirectory().getPath(), transInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( transInf.getName(), "" );
-      wPath.setText( fullPath );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "JobEntryTransDialog.Exception.UnableToReferenceObjectId.Title" ),
-        BaseMessages.getString( PKG, "JobEntryTransDialog.Exception.UnableToReferenceObjectId.Message" ), e );
-    }
-  }
-
   protected void cancel() {
     jobEntry.setChanged( backupChanged );
 
@@ -492,40 +434,10 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
 
   private void getInfo( JobEntryTrans jet ) throws HopException {
     jet.setName( wName.getText() );
-    if ( rep != null ) {
-      specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-    } else {
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-    }
-    jet.setSpecificationMethod( specificationMethod );
-    switch ( specificationMethod ) {
-      case FILENAME:
-        jet.setFileName( wPath.getText() );
-        if ( jet.getFilename().isEmpty() ) {
-          throw new HopException( BaseMessages.getString( PKG,
-            "JobTrans.Dialog.Exception.NoValidMappingDetailsFound" ) );
-        }
-
-        jet.setDirectory( null );
-        jet.setTransname( null );
-        jet.setTransObjectId( null );
-        break;
-      case REPOSITORY_BY_NAME:
-        String transPath = wPath.getText();
-        String transName = transPath;
-        String directory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          transName = transPath.substring( index + 1 );
-          directory = index == 0 ? "/" : transPath.substring( 0, index );
-        }
-        jet.setDirectory( directory );
-        jet.setTransname( transName );
-        jet.setFileName( null );
-        jet.setTransObjectId( null );
-        break;
-      default:
-        break;
+    jet.setFileName( wPath.getText() );
+    if ( jet.getFilename().isEmpty() ) {
+      throw new HopException( BaseMessages.getString( PKG,
+        "JobTrans.Dialog.Exception.NoValidMappingDetailsFound" ) );
     }
 
     int nritems = wFields.nrNonEmpty();

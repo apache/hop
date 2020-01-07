@@ -45,8 +45,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -188,7 +187,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param folderRequired
+   * @param folderRequiredin
    *          The folderRequired to set.
    */
 
@@ -229,7 +228,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
     this.rowLimit = rowLimit;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -267,7 +266,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // the folderName
     ValueMetaInterface folderName = new ValueMetaString( "folderName" );
@@ -349,7 +348,6 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
     for ( int i = 0; i < folderName.length; i++ ) {
       retval.append( "      " ).append( XMLHandler.addTagValue( "name", folderName[i] ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", folderRequired[i] ) );
-      parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( folderName[i] );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -382,47 +380,6 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrfiles = rep.countNrStepAttributes( id_step, "file_name" );
-
-      dynamicFoldernameField = rep.getStepAttributeString( id_step, "foldername_field" );
-
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      isFoldernameDynamic = rep.getStepAttributeBoolean( id_step, "foldername_dynamic" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-      rowLimit = rep.getStepAttributeInteger( id_step, "limit" );
-
-      allocate( nrfiles );
-
-      for ( int i = 0; i < nrfiles; i++ ) {
-        folderName[i] = rep.getStepAttributeString( id_step, i, "file_name" );
-        folderRequired[i] = rep.getStepAttributeString( id_step, i, "file_required" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "foldername_dynamic", isFoldernameDynamic );
-      rep.saveStepAttribute( id_transformation, id_step, "foldername_field", dynamicFoldernameField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-
-      for ( int i = 0; i < folderName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_name", folderName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", folderRequired[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public FileInputList getFolderList( VariableSpace space ) {
     return FileInputList.createFolderList( space, folderName, folderRequired );
   }
@@ -433,7 +390,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -507,15 +464,13 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

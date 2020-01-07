@@ -40,8 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -196,15 +195,15 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param fieldType
+   * @param secretKeyLength
    *          The fieldType to set.
    */
-  public void setSecretKeyLength( String[] value ) {
-    this.secretKeyLength = value;
+  public void setSecretKeyLength( String[] secretKeyLength ) {
+    this.secretKeyLength = secretKeyLength;
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -278,7 +277,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     ValueMetaInterface v;
     if ( isOutputKeyInBinary() ) {
@@ -329,51 +328,9 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "algorithm" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        algorithm[i] = rep.getStepAttributeString( id_step, i, "algorithm" );
-        scheme[i] = rep.getStepAttributeString( id_step, i, "scheme" );
-        secretKeyLength[i] = rep.getStepAttributeString( id_step, i, "secretKeyLen" );
-        secretKeyCount[i] = rep.getStepAttributeString( id_step, i, "secretKeyCount" );
-      }
-      secretKeyFieldName = rep.getStepAttributeString( id_step, "secretKeyFieldName" );
-      secretKeyLengthFieldName = rep.getStepAttributeString( id_step, "secretKeyLengthFieldName" );
-      algorithmFieldName = rep.getStepAttributeString( id_step, "algorithmFieldName" );
-      outputKeyInBinary = rep.getStepAttributeBoolean( id_step, "outputKeyInBinary" );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < algorithm.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "algorithm", algorithm[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "scheme", scheme[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "secretKeyLen", secretKeyLength[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "secretKeyCount", secretKeyCount[i] );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "secretKeyFieldName", secretKeyFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "secretKeyLengthFieldName", secretKeyLengthFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "algorithmFieldName", algorithmFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "outputKeyInBinary", outputKeyInBinary );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < algorithm.length; i++ ) {

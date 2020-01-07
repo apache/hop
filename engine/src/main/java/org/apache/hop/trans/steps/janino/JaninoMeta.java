@@ -36,8 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -81,7 +80,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
     formula = new JaninoMetaFunction[nrCalcs];
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     int nrCalcs = XMLHandler.countNodes( stepnode, JaninoMetaFunction.XML_TAG );
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
@@ -133,23 +132,9 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
     formula = new JaninoMetaFunction[0];
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    int nrCalcs = rep.countNrStepAttributes( id_step, "field_name" );
-    allocate( nrCalcs );
-    for ( int i = 0; i < nrCalcs; i++ ) {
-      formula[i] = new JaninoMetaFunction( rep, id_step, i );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    for ( int i = 0; i < formula.length; i++ ) {
-      formula[i].saveRep( rep, metaStore, id_transformation, id_step, i );
-    }
-  }
-
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < formula.length; i++ ) {
       JaninoMetaFunction fn = formula[i];
       if ( Utils.isEmpty( fn.getReplaceField() ) ) {
@@ -201,7 +186,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
    */
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

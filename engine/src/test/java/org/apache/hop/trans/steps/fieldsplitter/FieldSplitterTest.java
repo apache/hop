@@ -48,7 +48,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -95,7 +94,7 @@ public class FieldSplitterTest {
     FieldSplitterMeta processRowMeta = smh.processRowsStepMetaInterface;
     doReturn( "field to split" ).when( processRowMeta ).getSplitField();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ),
+        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
         any( IMetaStore.class ) );
     doReturn( new String[] { "a", "b" } ).when( processRowMeta ).getFieldName();
     doReturn( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } ).when( processRowMeta )

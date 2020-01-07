@@ -31,15 +31,9 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopSecurityException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.RepositoryPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.repository.RepositoriesMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryMeta;
-import org.apache.hop.repository.RepositoryOperation;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.version.BuildVersion;
@@ -125,62 +119,6 @@ public abstract class AbstractBaseCommandExecutor {
     BuildVersion buildVersion = BuildVersion.getInstance();
     getLog().logBasic( BaseMessages.getString( getPkgClazz(), kettleVersionMsgTkn, buildVersion.getVersion(),
             buildVersion.getRevision(), buildVersion.getBuildDate() ) );
-  }
-
-  public RepositoryMeta loadRepositoryConnection( final String repoName, String loadingAvailableRepMsgTkn,
-                                                     String noRepsDefinedMsgTkn, String findingRepMsgTkn ) throws HopException {
-
-    RepositoriesMeta repsinfo;
-
-    if ( Utils.isEmpty( repoName ) || ( repsinfo = loadRepositoryInfo( loadingAvailableRepMsgTkn, noRepsDefinedMsgTkn ) ) == null ) {
-      return null;
-    }
-
-    logDebug( findingRepMsgTkn, repoName );
-    return repsinfo.findRepository( repoName );
-  }
-
-  public RepositoriesMeta loadRepositoryInfo( String loadingAvailableRepMsgTkn, String noRepsDefinedMsgTkn ) throws HopException {
-
-    RepositoriesMeta repsinfo = new RepositoriesMeta();
-    repsinfo.getLog().setLogLevel( getLog().getLogLevel() );
-
-    logDebug( loadingAvailableRepMsgTkn );
-
-    try {
-      repsinfo.readData();
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( getPkgClazz(), noRepsDefinedMsgTkn ), e );
-    }
-
-    return repsinfo;
-  }
-
-  public Repository establishRepositoryConnection( RepositoryMeta repositoryMeta, final String username, final String password,
-                                                     final RepositoryOperation... operations ) throws HopException, HopSecurityException {
-
-    Repository rep = PluginRegistry.getInstance().loadClass( RepositoryPluginType.class, repositoryMeta, Repository.class );
-    rep.init( repositoryMeta );
-    rep.getLog().setLogLevel( getLog().getLogLevel() );
-    rep.connect( username != null ? username : null, password != null ? password : null );
-
-    if ( operations != null ) {
-      // throws HopSecurityException if username does does have permission for given operations
-      rep.getSecurityProvider().validateAction( operations );
-    }
-
-    return rep;
-  }
-
-  public void printRepositoryDirectories( Repository repository, RepositoryDirectoryInterface directory ) throws HopException {
-
-    String[] directories = repository.getDirectoryNames( directory.getObjectId() );
-
-    if ( directories != null ) {
-      for ( String dir :  directories ) {
-        System.out.println( dir );
-      }
-    }
   }
 
   protected void printParameter( String name, String value, String defaultValue, String description ) {

@@ -32,8 +32,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Before;
 import org.junit.Test;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.repository.StringObjectId;
-
 /**
  * We have a {@link SlaveServer} with a bunch of attributes (userName, password, port and others).
  *
@@ -152,7 +150,6 @@ public class SlaveServerConcurrentTest {
       assertEquals( id, extractId( slaveServer.getProxyHostname() ) );
       assertEquals( id, extractId( slaveServer.getProxyPort() ) );
       assertEquals( id, extractId( slaveServer.getNonProxyHosts() ) );
-      assertEquals( id, extractId( slaveServer.getObjectId().getId() ) );
     }
 
     private String extractId( String string ) {
@@ -175,7 +172,6 @@ public class SlaveServerConcurrentTest {
     slaveServer.setProxyHostname( PROXY_HOST_NAME + id );
     slaveServer.setProxyPort( PROXY_PORT + id );
     slaveServer.setNonProxyHosts( NON_PROXY_HOSTS + id );
-    slaveServer.setObjectId( new StringObjectId( ID + id ) );
 
     return slaveServer;
   }

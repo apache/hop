@@ -60,8 +60,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -231,7 +230,7 @@ public class ScriptValuesMetaMod extends BaseStepMeta implements StepMetaInterfa
     this.jsScripts = jsScripts;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -395,7 +394,7 @@ public class ScriptValuesMetaMod extends BaseStepMeta implements StepMetaInterfa
   }
 
   public void getFields( RowMetaInterface row, String originStepname, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       for ( int i = 0; i < fieldname.length; i++ ) {
         if ( !Utils.isEmpty( fieldname[i] ) ) {
@@ -483,75 +482,9 @@ public class ScriptValuesMetaMod extends BaseStepMeta implements StepMetaInterfa
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      String script = rep.getStepAttributeString( id_step, "script" );
-      compatible = rep.getStepAttributeBoolean( id_step, 0, "compatible", true );
-      optimizationLevel = rep.getStepAttributeString( id_step, 0, "optimizationLevel" );
-
-      // When in compatibility mode, we load the script, not the other tabs...
-      //
-      if ( !Utils.isEmpty( script ) ) {
-        jsScripts = new ScriptValuesScript[1];
-        jsScripts[0] = new ScriptValuesScript( ScriptValuesScript.TRANSFORM_SCRIPT, "ScriptValue", script );
-      } else {
-        int nrScripts = rep.countNrStepAttributes( id_step, JSSCRIPT_TAG_NAME );
-        jsScripts = new ScriptValuesScript[nrScripts];
-        for ( int i = 0; i < nrScripts; i++ ) {
-          jsScripts[i] = new ScriptValuesScript(
-            (int) rep.getStepAttributeInteger( id_step, i, JSSCRIPT_TAG_TYPE ),
-            rep.getStepAttributeString( id_step, i, JSSCRIPT_TAG_NAME ),
-            rep.getStepAttributeString( id_step, i, JSSCRIPT_TAG_SCRIPT ) );
-        }
-      }
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldname[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        rename[i] = rep.getStepAttributeString( id_step, i, "field_rename" );
-        type[i] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        length[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_length" );
-        precision[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_precision" );
-        replace[i] = rep.getStepAttributeBoolean( id_step, i, "field_replace" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ScriptValuesMetaMod.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "compatible", compatible );
-      rep.saveStepAttribute( id_transformation, id_step, 0, "optimizationLevel", optimizationLevel );
-
-      for ( int i = 0; i < jsScripts.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, JSSCRIPT_TAG_NAME, jsScripts[i].getScriptName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, JSSCRIPT_TAG_SCRIPT, jsScripts[i].getScript() );
-        rep.saveStepAttribute( id_transformation, id_step, i, JSSCRIPT_TAG_TYPE, jsScripts[i].getScriptType() );
-      }
-
-      for ( int i = 0; i < fieldname.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldname[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_rename", rename[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-          ValueMetaFactory.getValueMetaName( type[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", length[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", precision[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_replace", replace[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "ScriptValuesMetaMod.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean error_found = false;
     String error_message = "";
     CheckResult cr;

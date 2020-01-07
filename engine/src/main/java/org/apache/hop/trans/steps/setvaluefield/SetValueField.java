@@ -69,7 +69,7 @@ public class SetValueField extends BaseStep implements StepInterface {
       first = false;
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.indexOfField = new int[meta.getFieldName().length];
       data.indexOfReplaceByValue = new int[meta.getFieldName().length];

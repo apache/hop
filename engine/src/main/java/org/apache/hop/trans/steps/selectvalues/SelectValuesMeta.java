@@ -50,8 +50,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.FieldnameLineage;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -216,7 +215,7 @@ public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -474,7 +473,7 @@ public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       RowMetaInterface rowMeta = inputRowMeta.clone();
       inputRowMeta.clear();
@@ -527,113 +526,8 @@ public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, getRepCode( "FIELD_NAME" ) );
-      int nrremove = rep.countNrStepAttributes( id_step, getRepCode( "REMOVE_NAME" ) );
-      int nrmeta = rep.countNrStepAttributes( id_step, getRepCode( "META_NAME" ) );
-
-      allocate( nrfields, nrremove, nrmeta );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        selectFields[i].setName( rep.getStepAttributeString( id_step, i, getRepCode( "FIELD_NAME" ) ) );
-        selectFields[i].setRename( rep.getStepAttributeString( id_step, i, getRepCode( "FIELD_RENAME" ) ) );
-        selectFields[i].setLength( (int) rep.getStepAttributeInteger( id_step, i, getRepCode( "FIELD_LENGTH" ) ) );
-        selectFields[i].setPrecision( (int) rep.getStepAttributeInteger( id_step, i, getRepCode(
-            "FIELD_PRECISION" ) ) );
-      }
-      selectingAndSortingUnspecifiedFields = rep.getStepAttributeBoolean( id_step, getRepCode( "SELECT_UNSPECIFIED" ) );
-
-      for ( int i = 0; i < nrremove; i++ ) {
-        deleteName[i] = rep.getStepAttributeString( id_step, i, getRepCode( "REMOVE_NAME" ) );
-      }
-
-      for ( int i = 0; i < nrmeta; i++ ) {
-        meta[i] = new SelectMetadataChange( this );
-        meta[i].setName( rep.getStepAttributeString( id_step, i, getRepCode( "META_NAME" ) ) );
-        meta[i].setRename( rep.getStepAttributeString( id_step, i, getRepCode( "META_RENAME" ) ) );
-        meta[i].setType( (int) rep.getStepAttributeInteger( id_step, i, getRepCode( "META_TYPE" ) ) );
-        meta[i].setLength( (int) rep.getStepAttributeInteger( id_step, i, getRepCode( "META_LENGTH" ) ) );
-        meta[i].setPrecision( (int) rep.getStepAttributeInteger( id_step, i, getRepCode( "META_PRECISION" ) ) );
-        meta[i].setStorageType( ValueMetaBase.getStorageType( rep.getStepAttributeString( id_step, i, getRepCode(
-            "META_STORAGE_TYPE" ) ) ) );
-        meta[i].setConversionMask( rep.getStepAttributeString( id_step, i, getRepCode( "META_CONVERSION_MASK" ) ) );
-        meta[i].setDateFormatLenient( Boolean.parseBoolean( rep.getStepAttributeString( id_step, i, getRepCode(
-            "META_DATE_FORMAT_LENIENT" ) ) ) );
-        meta[i].setDateFormatLocale( rep.getStepAttributeString( id_step, i, getRepCode(
-            "META_DATE_FORMAT_LOCALE" ) ) );
-        meta[i].setDateFormatTimeZone( rep.getStepAttributeString( id_step, i, getRepCode(
-            "META_DATE_FORMAT_TIMEZONE" ) ) );
-        meta[i].setLenientStringToNumber( Boolean.parseBoolean( rep.getStepAttributeString( id_step, i, getRepCode(
-            "META_LENIENT_STRING_TO_NUMBER" ) ) ) );
-        meta[i].setDecimalSymbol( rep.getStepAttributeString( id_step, i, getRepCode( "META_DECIMAL" ) ) );
-        meta[i].setGroupingSymbol( rep.getStepAttributeString( id_step, i, getRepCode( "META_GROUPING" ) ) );
-        meta[i].setCurrencySymbol( rep.getStepAttributeString( id_step, i, getRepCode( "META_CURRENCY" ) ) );
-        meta[i].setEncoding( rep.getStepAttributeString( id_step, i, getRepCode( "META_ENCODING" ) ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "SelectValuesMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      for ( int i = 0; i < selectFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "FIELD_NAME" ), selectFields[i].getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "FIELD_RENAME" ), selectFields[i]
-            .getRename() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "FIELD_LENGTH" ), selectFields[i]
-            .getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "FIELD_PRECISION" ), selectFields[i]
-            .getPrecision() );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, getRepCode( "SELECT_UNSPECIFIED" ),
-          selectingAndSortingUnspecifiedFields );
-
-      for ( int i = 0; i < deleteName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "REMOVE_NAME" ), deleteName[i] );
-      }
-
-      for ( int i = 0; i < meta.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_NAME" ), meta[i].getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_RENAME" ), meta[i].getRename() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_TYPE" ), meta[i].getType() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_LENGTH" ), meta[i].getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_PRECISION" ), meta[i].getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_STORAGE_TYPE" ), ValueMetaBase
-            .getStorageTypeCode( meta[i].getStorageType() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_CONVERSION_MASK" ), meta[i]
-            .getConversionMask() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_DATE_FORMAT_LENIENT" ), Boolean
-            .toString( meta[i].isDateFormatLenient() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_DATE_FORMAT_LOCALE" ), meta[i]
-            .getDateFormatLocale() == null ? null : meta[i].getDateFormatLocale().toString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_DATE_FORMAT_TIMEZONE" ), meta[i]
-            .getDateFormatTimeZone() == null ? null : meta[i].getDateFormatTimeZone().toString() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_LENIENT_STRING_TO_NUMBER" ), Boolean
-            .toString( meta[i].isLenientStringToNumber() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_DECIMAL" ), meta[i]
-            .getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_GROUPING" ), meta[i]
-            .getGroupingSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_CURRENCY" ), meta[i]
-            .getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, getRepCode( "META_ENCODING" ), meta[i].getEncoding() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "SelectValuesMeta.Exception.UnableToSaveStepInfoToRepository" ) + id_step, e );
-    }
-
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     CheckResult cr;
 

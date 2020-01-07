@@ -39,7 +39,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
-import org.apache.hop.repository.RepositoryAttributeInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
@@ -80,8 +80,8 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
 
   private String logSizeLimit;
 
-  private JobLogTable( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    super( space, databasesInterface, null, null, null );
+  private JobLogTable( VariableSpace space, IMetaStore metaStore ) {
+    super( space, metaStore, null, null, null );
   }
 
   @Override
@@ -114,31 +114,15 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<DatabaseMeta> databases, List<StepMeta> steps ) {
-    connectionName = XMLHandler.getTagValue( node, "connection" );
-    schemaName = XMLHandler.getTagValue( node, "schema" );
-    tableName = XMLHandler.getTagValue( node, "table" );
-    logSizeLimit = XMLHandler.getTagValue( node, "size_limit_lines" );
-    logInterval = XMLHandler.getTagValue( node, "interval" );
-    timeoutInDays = XMLHandler.getTagValue( node, "timeout_days" );
+  public void loadXML( Node jobNode, List<StepMeta> steps ) {
+    connectionName = XMLHandler.getTagValue( jobNode, "connection" );
+    schemaName = XMLHandler.getTagValue( jobNode, "schema" );
+    tableName = XMLHandler.getTagValue( jobNode, "table" );
+    logSizeLimit = XMLHandler.getTagValue( jobNode, "size_limit_lines" );
+    logInterval = XMLHandler.getTagValue( jobNode, "interval" );
+    timeoutInDays = XMLHandler.getTagValue( jobNode, "timeout_days" );
 
-    super.loadFieldsXML( node );
-  }
-
-  public void saveToRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.saveToRepository( attributeInterface );
-
-    // Also save the log interval and log size limit
-    //
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_INTERVAL, logInterval );
-    attributeInterface.setAttribute( getLogTableCode() + PROP_LOG_TABLE_SIZE_LIMIT, logSizeLimit );
-  }
-
-  public void loadFromRepository( RepositoryAttributeInterface attributeInterface ) throws HopException {
-    super.loadFromRepository( attributeInterface );
-
-    logInterval = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_INTERVAL );
-    logSizeLimit = attributeInterface.getAttributeString( getLogTableCode() + PROP_LOG_TABLE_SIZE_LIMIT );
+    super.loadFieldsXML( jobNode );
   }
 
   @Override
@@ -154,8 +138,8 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
   }
 
   //CHECKSTYLE:LineLength:OFF
-  public static JobLogTable getDefault( VariableSpace space, HasDatabasesInterface databasesInterface ) {
-    JobLogTable table = new JobLogTable( space, databasesInterface );
+  public static JobLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
+    JobLogTable table = new JobLogTable( space, metaStore );
 
     table.fields.add( new LogTableField( ID.ID_JOB.id, true, false, "ID_JOB", BaseMessages.getString( PKG, "JobLogTable.FieldName.BatchID" ), BaseMessages.getString( PKG, "JobLogTable.FieldDescription.BatchID" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
     table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "JobLogTable.FieldName.ChannelID" ), BaseMessages.getString( PKG, "JobLogTable.FieldDescription.ChannelID" ), ValueMetaInterface.TYPE_STRING, 255 ) );
@@ -258,8 +242,7 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
    * Get the logging interval in seconds. Disabled if the logging interval is <=0. A value higher than 0 means that the
    * log table is updated every 'logInterval' seconds.
    *
-   * @param logInterval
-   *          The log interval,
+   * @return The log interval,
    */
   public String getLogInterval() {
     return logInterval;
@@ -281,12 +264,12 @@ public class JobLogTable extends BaseLogTable implements Cloneable, LogTableInte
   }
 
   /**
-   * This method calculates all the values that are required
+   * This method calculates all the values that are required for the logging table
    *
-   * @param id
-   *          the id to use or -1 if no id is needed
    * @param status
    *          the log status to use
+   * @param subject
+   * @param parent
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof Job ) {

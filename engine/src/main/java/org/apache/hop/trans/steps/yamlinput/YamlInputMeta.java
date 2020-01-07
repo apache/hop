@@ -45,8 +45,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -378,7 +377,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -559,7 +558,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       YamlInputField field = inputFields[i];
@@ -601,109 +600,6 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      includeFilename = rep.getStepAttributeBoolean( id_step, "include" );
-      filenameField = rep.getStepAttributeString( id_step, "include_field" );
-
-      addResultFile = rep.getStepAttributeBoolean( id_step, "addresultfile" );
-      validating = rep.getStepAttributeBoolean( id_step, "validating" );
-      IsIgnoreEmptyFile = rep.getStepAttributeBoolean( id_step, "IsIgnoreEmptyFile" );
-      doNotFailIfNoFile = rep.getStepAttributeBoolean( id_step, "doNotFailIfNoFile" );
-
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-      rowLimit = rep.getStepAttributeInteger( id_step, "limit" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-
-      int nrFiles = rep.countNrStepAttributes( id_step, "file_name" );
-      int nrFields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrFiles, nrFields );
-
-      for ( int i = 0; i < nrFiles; i++ ) {
-        fileName[i] = rep.getStepAttributeString( id_step, i, "file_name" );
-        fileMask[i] = rep.getStepAttributeString( id_step, i, "file_mask" );
-        fileRequired[i] = rep.getStepAttributeString( id_step, i, "file_required" );
-        includeSubFolders[i] = rep.getStepAttributeString( id_step, i, "include_subfolders" );
-      }
-
-      for ( int i = 0; i < nrFields; i++ ) {
-        YamlInputField field = new YamlInputField();
-
-        field.setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field.setPath( rep.getStepAttributeString( id_step, i, "field_path" ) );
-        field.setType( ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) ) );
-        field.setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-        field.setCurrencySymbol( rep.getStepAttributeString( id_step, i, "field_currency" ) );
-        field.setDecimalSymbol( rep.getStepAttributeString( id_step, i, "field_decimal" ) );
-        field.setGroupSymbol( rep.getStepAttributeString( id_step, i, "field_group" ) );
-        field.setLength( (int) rep.getStepAttributeInteger( id_step, i, "field_length" ) );
-        field.setPrecision( (int) rep.getStepAttributeInteger( id_step, i, "field_precision" ) );
-        field.setTrimType( YamlInputField.getTrimTypeByCode( rep.getStepAttributeString(
-          id_step, i, "field_trim_type" ) ) );
-
-        inputFields[i] = field;
-      }
-      inFields = rep.getStepAttributeBoolean( id_step, "IsInFields" );
-      IsAFile = rep.getStepAttributeBoolean( id_step, "IsAFile" );
-
-      yamlField = rep.getStepAttributeString( id_step, "YamlField" );
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "YamlInputMeta.Exception.ErrorReadingRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "include", includeFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "include_field", filenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "addresultfile", addResultFile );
-
-      rep.saveStepAttribute( id_transformation, id_step, "validating", validating );
-      rep.saveStepAttribute( id_transformation, id_step, "IsIgnoreEmptyFile", IsIgnoreEmptyFile );
-      rep.saveStepAttribute( id_transformation, id_step, "doNotFailIfNoFile", doNotFailIfNoFile );
-
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-
-      for ( int i = 0; i < fileName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_name", fileName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_mask", fileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", fileRequired[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "include_subfolders", includeSubFolders[i] );
-      }
-
-      for ( int i = 0; i < inputFields.length; i++ ) {
-        YamlInputField field = inputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_path", field.getPath() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_currency", field.getCurrencySymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_decimal", field.getDecimalSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_group", field.getGroupSymbol() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", field.getLength() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", field.getPrecision() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_trim_type", field.getTrimTypeCode() );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "IsInFields", inFields );
-      rep.saveStepAttribute( id_transformation, id_step, "IsAFile", IsAFile );
-
-      rep.saveStepAttribute( id_transformation, id_step, "YamlField", yamlField );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "YamlInputMeta.Exception.ErrorSavingToRepository", "" + id_step ), e );
-    }
-  }
-
   public FileInputList getFiles( VariableSpace space ) {
     return FileInputList.createFileList( space, fileName, fileMask, fileRequired, includeSubFolderBoolean() );
   }
@@ -720,7 +616,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -798,8 +694,6 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -807,7 +701,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

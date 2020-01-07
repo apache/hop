@@ -36,8 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -63,8 +62,8 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   private String increment;
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -73,7 +72,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       valuename = XMLHandler.getTagValue( stepnode, "valuename" );
       slaveServerName = XMLHandler.getTagValue( stepnode, "slave" );
@@ -95,7 +94,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v = new ValueMetaInteger( valuename );
     v.setOrigin( name );
     row.addValueMeta( v );
@@ -114,35 +113,9 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      valuename = rep.getStepAttributeString( id_step, "valuename" );
-      slaveServerName = rep.getStepAttributeString( id_step, "slave" );
-      sequenceName = rep.getStepAttributeString( id_step, "seqname" );
-      increment = rep.getStepAttributeString( id_step, "increment" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "GetSequenceMeta.Exception.UnableToReadStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "valuename", valuename );
-      rep.saveStepAttribute( id_transformation, id_step, "slave", slaveServerName );
-      rep.saveStepAttribute( id_transformation, id_step, "seqname", sequenceName );
-      rep.saveStepAttribute( id_transformation, id_step, "increment", increment );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "GetSequenceMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

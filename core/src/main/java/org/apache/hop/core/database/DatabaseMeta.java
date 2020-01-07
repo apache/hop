@@ -26,7 +26,7 @@ package org.apache.hop.core.database;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -44,18 +44,17 @@ import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IHasFactory;
+import org.apache.hop.metastore.api.IHasName;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.shared.SharedObjectBase;
-import org.apache.hop.shared.SharedObjectInterface;
-import org.w3c.dom.Node;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -78,13 +77,14 @@ import java.util.concurrent.Future;
  * @author Matt
  * @since 18-05-2003
  */
-public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInterface, SharedObjectInterface,
-  VariableSpace, RepositoryElementInterface {
+@MetaStoreElementType(
+  name = "Relational Database Connection",
+  description = "This contains all the metadata needed to connect to a relational database"
+)
+public class DatabaseMeta extends SharedObjectBase implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator2!!
 
   public static final String XML_TAG = "connection";
-
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.DATABASE;
 
   private static final String DROP_TABLE_STATEMENT = "DROP TABLE IF EXISTS ";
 
@@ -98,6 +98,9 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     }
   };
 
+  private String name;
+
+  @MetaStoreAttribute(key="rdbms")
   private DatabaseInterface databaseInterface;
 
   private static volatile Future<Map<String, DatabaseInterface>> allDatabaseInterfaces;
@@ -125,8 +128,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
   }
 
   private VariableSpace variables = new Variables();
-
-  private ObjectRevision objectRevision;
 
   private boolean readOnly = false;
 
@@ -187,6 +188,27 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     addOptions();
   }
 
+  @Override public MetaStoreFactory<DatabaseMeta> getFactory( IMetaStore metaStore ) {
+    return createFactory(metaStore);
+  }
+
+  public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore) {
+    MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore, HopDefaults.NAMESPACE );
+    factory.setObjectFactory( new DatabaseMetaStoreObjectFactory() );
+    return factory;
+  }
+
+  public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXMLException {
+    if (metaStore==null || StringUtils.isEmpty(connectionName)) {
+      return null; // Nothing to find or load
+    }
+    try {
+      return createFactory( metaStore ).loadElement( connectionName );
+    } catch(Exception e) {
+      throw new HopXMLException( "Unable to load relational database connection '"+connectionName+"'", e );
+    }
+  }
+
   /**
    * Set default values for an Oracle database.
    */
@@ -206,7 +228,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
   public DatabaseMeta( DatabaseMeta databaseMeta ) {
     this();
     replaceMeta( databaseMeta );
-    setObjectId( null );
   }
 
   /**
@@ -263,26 +284,10 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     return getDatabaseInterfacesMap().get( plugin.getIds()[ 0 ] );
   }
 
-  /**
-   * Returns the database ID of this database connection if a repository was used before.
-   *
-   * @return the ID of the db connection.
-   */
-  @Override
-  public ObjectId getObjectId() {
-    return databaseInterface.getObjectId();
-  }
-
-  @Override
-  public void setObjectId( ObjectId id ) {
-    databaseInterface.setObjectId( id );
-  }
-
   @Override
   public Object clone() {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.replaceMeta( this );
-    databaseMeta.setObjectId( null );
     return databaseMeta;
   }
 
@@ -297,7 +302,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
 
     this.databaseInterface = (DatabaseInterface) databaseMeta.databaseInterface.clone();
 
-    this.setObjectId( databaseMeta.getObjectId() );
     this.setChanged();
   }
 
@@ -329,8 +333,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
       throw new RuntimeException( "Database type [" + type + "] not found!", kde );
     }
 
-    setName( oldInterface.getName() );
-    setDisplayName( oldInterface.getDisplayName() );
     setAccessType( oldInterface.getAccessType() );
     setHostname( oldInterface.getHostname() );
     setDBName( oldInterface.getDatabaseName() );
@@ -348,37 +350,19 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
   }
 
   /**
-   * Sets the name of the database connection. This name should be unique in a transformation and in general in a single
-   * repository.
+   * Gets name
    *
-   * @param name The name of the database connection
+   * @return value of name
    */
-  @Override
-  public void setName( String name ) {
-    databaseInterface.setName( name );
-  }
-
-  /**
-   * Returns the name of the database connection
-   *
-   * @return The name of the database connection
-   */
-  @Override
   public String getName() {
-    return databaseInterface.getName();
-  }
-
-  public void setDisplayName( String displayName ) {
-    databaseInterface.setDisplayName( displayName );
+    return name;
   }
 
   /**
-   * Returns the name of the database connection
-   *
-   * @return The name of the database connection
+   * @param name The name to set
    */
-  public String getDisplayName() {
-    return databaseInterface.getDisplayName();
+  public void setName( String name ) {
+    this.name = name;
   }
 
   /**
@@ -615,7 +599,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
 
   @Override
   public String toString() {
-    return getDisplayName();
+    return getName();
   }
 
   /**
@@ -632,120 +616,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
    */
   public void setAttributes( Properties attributes ) {
     databaseInterface.setAttributes( attributes );
-  }
-
-  /**
-   * Constructs a new database using an XML string snippet. It expects the snippet to be enclosed in
-   * <code>connection</code> tags.
-   *
-   * @param xml The XML string to parse
-   * @throws HopXMLException in case there is an XML parsing error
-   */
-  public DatabaseMeta( String xml ) throws HopXMLException {
-    this( XMLHandler.getSubNode( XMLHandler.loadXMLString( xml ), "connection" ) );
-  }
-
-  /**
-   * Reads the information from an XML Node into this new database connection.
-   *
-   * @param con The Node to read the data from
-   * @throws HopXMLException
-   */
-  public DatabaseMeta( Node con ) throws HopXMLException {
-    this();
-
-    try {
-      String type = XMLHandler.getTagValue( con, "type" );
-      try {
-        databaseInterface = getDatabaseInterface( type );
-
-      } catch ( HopDatabaseException kde ) {
-        throw new HopXMLException( "Unable to create new database interface", kde );
-      }
-
-      setName( XMLHandler.getTagValue( con, "name" ) );
-      setDisplayName( getName() );
-      setHostname( XMLHandler.getTagValue( con, "server" ) );
-      String acc = XMLHandler.getTagValue( con, "access" );
-      setAccessType( getAccessType( acc ) );
-
-      setDBName( XMLHandler.getTagValue( con, "database" ) );
-
-      // The DB port is read here too for backward compatibility! getName()
-      //
-      setPort( XMLHandler.getTagValue( con, "port" ) );
-      setUsername( XMLHandler.getTagValue( con, "username" ) );
-      setPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( con, "password" ) ) );
-      setServername( XMLHandler.getTagValue( con, "servername" ) );
-      setDataTablespace( XMLHandler.getTagValue( con, "data_tablespace" ) );
-      setIndexTablespace( XMLHandler.getTagValue( con, "index_tablespace" ) );
-
-      setReadOnly( Boolean.valueOf( XMLHandler.getTagValue( con, "read_only" ) ) );
-
-      // Also, read the database attributes...
-      Node attrsnode = XMLHandler.getSubNode( con, "attributes" );
-      if ( attrsnode != null ) {
-        List<Node> attrnodes = XMLHandler.getNodes( attrsnode, "attribute" );
-        for ( Node attrnode : attrnodes ) {
-          String code = XMLHandler.getTagValue( attrnode, "code" );
-          String attribute = XMLHandler.getTagValue( attrnode, "attribute" );
-          if ( code != null && attribute != null ) {
-            databaseInterface.addAttribute( code, attribute );
-          }
-          getPort();
-        }
-      }
-    } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load database connection info from XML node", e );
-    }
-  }
-
-  @Override
-  public String getXML() {
-    StringBuilder retval = new StringBuilder( 250 );
-
-    retval.append( "  <" ).append( XML_TAG ).append( '>' ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "name", getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "server", getHostname() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "type", getPluginId() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "access", getAccessTypeDesc() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "database", getDatabaseName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "port", getPort() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "username", getUsername() ) );
-    retval.append( "    " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "servername", getServername() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "data_tablespace", getDataTablespace() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "index_tablespace", getIndexTablespace() ) );
-
-    // only write the tag out if it is set to true
-    if ( isReadOnly() ) {
-      retval.append( "    " ).append( XMLHandler.addTagValue( "read_only", Boolean.toString( isReadOnly() ) ) );
-    }
-
-    retval.append( "    <attributes>" ).append( Const.CR );
-
-    List<String> list = new ArrayList<>();
-    Set<Object> keySet = getAttributes().keySet();
-    for ( Object object : keySet ) {
-      list.add( (String) object );
-    }
-    Collections.sort( list ); // Sort the entry-sets to make sure we can compare XML strings: if the order is different,
-    // the XML is different.
-
-    for ( Iterator<String> iter = list.iterator(); iter.hasNext(); ) {
-      String code = iter.next();
-      String attribute = getAttributes().getProperty( code );
-      if ( !Utils.isEmpty( attribute ) ) {
-        retval.append( "      <attribute>"
-          + XMLHandler.addTagValue( "code", code, false )
-          + XMLHandler.addTagValue( "attribute", attribute, false ) + "</attribute>" + Const.CR );
-      }
-    }
-    retval.append( "    </attributes>" ).append( Const.CR );
-
-    retval.append( "  </" + XML_TAG + ">" ).append( Const.CR );
-    return retval.toString();
   }
 
   @Override
@@ -2078,7 +1948,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     int nr = 2;
     while ( DatabaseMeta.findDatabase( databases, getName() ) != null ) {
       setName( name + " " + nr );
-      setDisplayName( name + " " + nr );
       nr++;
     }
     return getName();
@@ -2159,7 +2028,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
    * @param dbname    The name of the database connection
    * @return The database object if one was found, null otherwise.
    */
-  public static final DatabaseMeta findDatabase( List<? extends SharedObjectInterface> databases, String dbname ) {
+  public static final DatabaseMeta findDatabase( List<DatabaseMeta> databases, String dbname ) {
     if ( databases == null || dbname == null ) {
       return null;
     }
@@ -2186,26 +2055,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
     }
 
     return -1;
-  }
-
-  /**
-   * Find a database with a certain ID in an arraylist of databases.
-   *
-   * @param databases The ArrayList of databases
-   * @param id        The id of the database connection
-   * @return The database object if one was found, null otherwise.
-   */
-  public static final DatabaseMeta findDatabase( List<DatabaseMeta> databases, ObjectId id ) {
-    if ( databases == null ) {
-      return null;
-    }
-
-    for ( DatabaseMeta ci : databases ) {
-      if ( ci.getObjectId() != null && ci.getObjectId().equals( id ) ) {
-        return ci;
-      }
-    }
-    return null;
   }
 
   @Override
@@ -2400,45 +2249,6 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, XMLInte
 
   public void setPreferredSchemaName( String preferredSchemaName ) {
     databaseInterface.setPreferredSchemaName( preferredSchemaName );
-  }
-
-  /**
-   * Not used in this case, simply return root /
-   */
-  @Override
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return new RepositoryDirectory();
-  }
-
-  @Override
-  public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
-    throw new RuntimeException( "Setting a directory on a database connection is not supported" );
-  }
-
-  @Override
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
-  }
-
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return objectRevision;
-  }
-
-  @Override
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    this.objectRevision = objectRevision;
-  }
-
-  @Override
-  public String getDescription() {
-    // NOT USED
-    return null;
-  }
-
-  @Override
-  public void setDescription( String description ) {
-    // NOT USED
   }
 
   public boolean supportsSequenceNoMaxValueOption() {

@@ -54,7 +54,6 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
     split = false;
     evaluation = true;
     unconditional = false;
-    id = null;
 
     if ( from != null && from.isStart() ) {
       setUnconditional();

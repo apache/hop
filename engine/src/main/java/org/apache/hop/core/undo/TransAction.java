@@ -63,15 +63,12 @@ public class TransAction {
 
   public static final int TYPE_ACTION_NONE = 0;
   public static final int TYPE_ACTION_CHANGE_STEP = 1;
-  public static final int TYPE_ACTION_CHANGE_CONNECTION = 2;
   public static final int TYPE_ACTION_CHANGE_HOP = 3;
   public static final int TYPE_ACTION_CHANGE_NOTE = 4;
   public static final int TYPE_ACTION_NEW_STEP = 5;
-  public static final int TYPE_ACTION_NEW_CONNECTION = 6;
   public static final int TYPE_ACTION_NEW_HOP = 7;
   public static final int TYPE_ACTION_NEW_NOTE = 8;
   public static final int TYPE_ACTION_DELETE_STEP = 9;
-  public static final int TYPE_ACTION_DELETE_CONNECTION = 10;
   public static final int TYPE_ACTION_DELETE_HOP = 11;
   public static final int TYPE_ACTION_DELETE_NOTE = 12;
   public static final int TYPE_ACTION_POSITION_STEP = 13;
@@ -112,15 +109,12 @@ public class TransAction {
 
   public static final String[] desc_action = new String[] {
     "", BaseMessages.getString( PKG, "TransAction.label.ChangeStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeConnection" ),
     BaseMessages.getString( PKG, "TransAction.label.ChangeHop" ),
     BaseMessages.getString( PKG, "TransAction.label.ChangeNote" ),
     BaseMessages.getString( PKG, "TransAction.label.NewStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewConnection" ),
     BaseMessages.getString( PKG, "TransAction.label.NewHop" ),
     BaseMessages.getString( PKG, "TransAction.label.NewNote" ),
     BaseMessages.getString( PKG, "TransAction.label.DeleteStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteConnection" ),
     BaseMessages.getString( PKG, "TransAction.label.DeleteHop" ),
     BaseMessages.getString( PKG, "TransAction.label.DeleteNote" ),
     BaseMessages.getString( PKG, "TransAction.label.PositionStep" ),
@@ -166,9 +160,6 @@ public class TransAction {
     if ( prev[0] instanceof StepMeta ) {
       type = TYPE_ACTION_DELETE_STEP;
     }
-    if ( prev[0] instanceof DatabaseMeta ) {
-      type = TYPE_ACTION_DELETE_CONNECTION;
-    }
     if ( prev[0] instanceof TransHopMeta ) {
       type = TYPE_ACTION_DELETE_HOP;
     }
@@ -194,9 +185,6 @@ public class TransAction {
 
     if ( prev[0] instanceof StepMeta ) {
       type = TYPE_ACTION_CHANGE_STEP;
-    }
-    if ( prev[0] instanceof DatabaseMeta ) {
-      type = TYPE_ACTION_CHANGE_CONNECTION;
     }
     if ( prev[0] instanceof TransHopMeta ) {
       type = TYPE_ACTION_CHANGE_HOP;
@@ -226,9 +214,6 @@ public class TransAction {
 
     if ( prev[0] instanceof StepMeta ) {
       type = TYPE_ACTION_NEW_STEP;
-    }
-    if ( prev[0] instanceof DatabaseMeta ) {
-      type = TYPE_ACTION_NEW_CONNECTION;
     }
     if ( prev[0] instanceof TransHopMeta ) {
       type = TYPE_ACTION_NEW_HOP;

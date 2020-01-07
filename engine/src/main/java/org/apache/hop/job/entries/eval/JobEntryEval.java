@@ -45,8 +45,7 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -84,34 +83,13 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       script = XMLHandler.getTagValue( entrynode, "script" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryEval.UnableToLoadFromXml" ), e );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      script = rep.getJobEntryAttributeString( id_jobentry, "script" );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryEval.UnableToLoadFromRepo", String
-        .valueOf( id_jobentry ) ), dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "script", script );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntryEval.UnableToSaveToRepo", String
-        .valueOf( id_job ) ), dbe );
     }
   }
 
@@ -225,7 +203,7 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "script", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 

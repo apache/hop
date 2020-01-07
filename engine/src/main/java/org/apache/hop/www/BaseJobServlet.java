@@ -38,7 +38,6 @@ import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransAdapter;
 import org.apache.hop.trans.TransConfiguration;
@@ -59,16 +58,13 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     jobMeta.setLogLevel( jobExecutionConfiguration.getLogLevel() );
     jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
 
-    // If there was a repository, we know about it at this point in time.
-    final Repository repository = jobConfiguration.getJobExecutionConfiguration().getRepository();
-
     String carteObjectId = UUID.randomUUID().toString();
 
     SimpleLoggingObject servletLoggingObject =
         getServletLogging( carteObjectId, jobExecutionConfiguration.getLogLevel() );
 
     // Create the transformation and store in the list...
-    final Job job = new Job( repository, jobMeta, servletLoggingObject );
+    final Job job = new Job( jobMeta, servletLoggingObject );
     // Setting variables
     job.initializeVariablesFrom( null );
     job.getJobMeta().setMetaStore( jobMap.getSlaveServerConfig().getMetaStore() );
@@ -91,15 +87,6 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     // Note: the plugin (Job and Trans) job entries need to call the delegation listeners in the parent job.
     if ( jobExecutionConfiguration.isExpandingRemoteJob() ) {
       job.addDelegationListener( new HopServerDelegationHandler( getTransformationMap(), getJobMap() ) );
-    }
-
-    // Make sure to disconnect from the repository when the job finishes.
-    if ( repository != null ) {
-      job.addJobListener( new JobAdapter() {
-        public void jobFinished( Job job ) {
-          repository.disconnect();
-        }
-      } );
     }
 
     getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
@@ -153,24 +140,11 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
 
     }
 
-    // If there was a repository, we know about it at this point in time.
-    final Repository repository = transExecutionConfiguration.getRepository();
-
-    trans.setRepository( repository );
     trans.setSocketRepository( getSocketRepository() );
 
     trans.setContainerObjectId( carteObjectId );
     getTransformationMap().addTransformation( transMeta.getName(), carteObjectId, trans, transConfiguration );
 
-    if ( repository != null ) {
-      // The repository connection is open: make sure we disconnect from the repository once we
-      // are done with this transformation.
-      trans.addTransListener( new TransAdapter() {
-        @Override public void transFinished( Trans trans ) {
-          repository.disconnect();
-        }
-      } );
-    }
     final Long passedBatchId = transExecutionConfiguration.getPassedBatchId();
     if ( passedBatchId != null ) {
       trans.setPassedBatchId( passedBatchId );

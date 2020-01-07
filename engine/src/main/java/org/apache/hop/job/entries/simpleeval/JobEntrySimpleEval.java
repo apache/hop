@@ -42,8 +42,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -343,10 +342,10 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
       valuetype = getValueTypeByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "valuetype" ), "" ) );
       fieldname = XMLHandler.getTagValue( entrynode, "fieldname" );
@@ -368,61 +367,6 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     } catch ( HopXMLException xe ) {
       throw new HopXMLException(
         BaseMessages.getString( PKG, "JobEntrySimple.Error.Exception.UnableLoadXML" ), xe );
-    }
-  }
-
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      valuetype = getValueTypeByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "valuetype" ), "" ) );
-      fieldname = rep.getJobEntryAttributeString( id_jobentry, "fieldname" );
-      variablename = rep.getJobEntryAttributeString( id_jobentry, "variablename" );
-      fieldtype = getFieldTypeByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "fieldtype" ), "" ) );
-      mask = rep.getJobEntryAttributeString( id_jobentry, "mask" );
-      comparevalue = rep.getJobEntryAttributeString( id_jobentry, "comparevalue" );
-      minvalue = rep.getJobEntryAttributeString( id_jobentry, "minvalue" );
-      maxvalue = rep.getJobEntryAttributeString( id_jobentry, "maxvalue" );
-      successcondition =
-        getSuccessConditionByCode( Const.NVL(
-          rep.getJobEntryAttributeString( id_jobentry, "successcondition" ), "" ) );
-      successnumbercondition =
-        getSuccessNumberConditionByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "successnumbercondition" ), "" ) );
-      successbooleancondition =
-        getSuccessBooleanConditionByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "successbooleancondition" ), "" ) );
-      successwhenvarset = rep.getJobEntryAttributeBoolean( id_jobentry, "successwhenvarset" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntrySimple.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "valuetype", getValueTypeCode( valuetype ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fieldname", fieldname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "variablename", variablename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fieldtype", getFieldTypeCode( fieldtype ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "mask", mask );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "comparevalue", comparevalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "minvalue", minvalue );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maxvalue", maxvalue );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "successcondition", getSuccessConditionCode( successcondition ) );
-      rep
-        .saveJobEntryAttribute(
-          id_job, getObjectId(), "successnumbercondition",
-          getSuccessNumberConditionCode( successnumbercondition ) );
-      rep.saveJobEntryAttribute(
-        id_job, getObjectId(), "successbooleancondition",
-        getSuccessBooleanConditionCode( successbooleancondition ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "successwhenvarset", successwhenvarset );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobEntrySimple.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
     }
   }
 

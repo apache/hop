@@ -38,8 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -132,7 +131,7 @@ public class InjectorMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( 0 );
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -185,42 +184,8 @@ public class InjectorMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( 0 );
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldname[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        type[i] = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        length[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_length" );
-        precision[i] = (int) rep.getStepAttributeInteger( id_step, i, "field_precision" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "InjectorMeta.Exception.ErrorReadingStepInfoFromRepository" ), e );
-    }
-
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < fieldname.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldname[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type",
-          ValueMetaFactory.getValueMetaName( type[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_length", length[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_precision", precision[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "InjectorMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < this.fieldname.length; i++ ) {
       ValueMetaInterface v;
       try {
@@ -232,16 +197,9 @@ public class InjectorMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  @Override
-  @Deprecated
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space ) throws HopStepException {
-    getFields( inputRowMeta, name, info, nextStep, space, null, null );
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       CheckResult cr =
@@ -254,13 +212,6 @@ public class InjectorMeta extends BaseStepMeta implements StepMetaInterface {
           PKG, "InjectorMeta.CheckResult.NoInputReceivedError" ), stepMeta );
       remarks.add( cr );
     }
-  }
-
-  @Deprecated
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info ) {
-    check( remarks, transMeta, stepMeta, prev, input, output, info, transMeta, repository, repository != null
-      ? repository.getMetaStore() : null );
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,

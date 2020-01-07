@@ -22,7 +22,7 @@
 
 package org.apache.hop.resource;
 
-import org.apache.hop.repository.ObjectId;
+
 
 public interface ResourceHolderInterface {
 
@@ -37,20 +37,15 @@ public interface ResourceHolderInterface {
   public String getDescription();
 
   /**
-   * @return The ID of the holder of the resource
-   */
-  public ObjectId getObjectId();
-
-  /**
    * @return The Type ID of the resource holder. The Type ID is the system-defined type identifier (like TRANS or SORT).
    */
-  public String getTypeId();
+  public String getPluginId();
 
   /**
    * Gets the high-level type of resource holder.
    *
    * @return JOBENTRY, STEP, etc.
    */
-  public String getHolderType();
+  public String getTypeId();
 
 }

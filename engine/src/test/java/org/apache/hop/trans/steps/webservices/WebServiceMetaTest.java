@@ -39,8 +39,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.StringObjectId;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.utils.TestUtils;
@@ -75,7 +73,7 @@ public class WebServiceMetaTest {
     Node node = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
-    WebServiceMeta webServiceMeta = new WebServiceMeta( node, Collections.singletonList( dbMeta ), metastore );
+    WebServiceMeta webServiceMeta = new WebServiceMeta( node, metastore );
     assertEquals( "httpUser", webServiceMeta.getHttpLogin() );
     assertEquals( "tryandguess", webServiceMeta.getHttpPassword() );
     assertEquals( "http://webservices.gama-system.com/exchangerates.asmx?WSDL", webServiceMeta.getUrl() );
@@ -110,141 +108,6 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testReadRep() throws Exception {
-
-    Repository rep = mock( Repository.class );
-    IMetaStore metastore = mock( IMetaStore.class );
-    DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    StringObjectId id_step = new StringObjectId( "oid" );
-    when( rep.getStepAttributeString( id_step, "wsOperation" ) ).thenReturn( "GetCurrentExchangeRate" );
-    when( rep.getStepAttributeString( id_step, "wsOperationRequest" ) ).thenReturn( "opRequest" );
-    when( rep.getStepAttributeString( id_step, "wsOperationNamespace" ) ).thenReturn( "opNamespace" );
-    when( rep.getStepAttributeString( id_step, "wsInFieldContainer" ) ).thenReturn( "ifc" );
-    when( rep.getStepAttributeString( id_step, "wsInFieldArgument" ) ).thenReturn( "ifa" );
-    when( rep.getStepAttributeString( id_step, "wsOutFieldContainer" ) ).thenReturn( "ofc" );
-    when( rep.getStepAttributeString( id_step, "wsOutFieldArgument" ) ).thenReturn( "ofa" );
-    when( rep.getStepAttributeString( id_step, "proxyHost" ) ).thenReturn( "phost" );
-    when( rep.getStepAttributeString( id_step, "proxyPort" ) ).thenReturn( "1234" );
-    when( rep.getStepAttributeString( id_step, "httpLogin" ) ).thenReturn( "user" );
-    when( rep.getStepAttributeString( id_step, "httpPassword" ) ).thenReturn( "password" );
-    when( rep.getStepAttributeInteger( id_step, "callStep" ) ).thenReturn( 2L );
-    when( rep.getStepAttributeBoolean( id_step, "passingInputData" ) ).thenReturn( true );
-    when( rep.getStepAttributeBoolean( id_step, 0, "compatible", true ) ).thenReturn( false );
-    when( rep.getStepAttributeString( id_step, "repeating_element" ) ).thenReturn( "repeat" );
-    when( rep.getStepAttributeBoolean( id_step, 0, "reply_as_string" ) ).thenReturn( true );
-
-    when( rep.countNrStepAttributes( id_step, "fieldIn_ws_name" ) ) .thenReturn( 2 );
-    when( rep.getStepAttributeString( id_step, 0, "fieldIn_name" ) ).thenReturn( "bank" );
-    when( rep.getStepAttributeString( id_step, 0, "fieldIn_ws_name" ) ).thenReturn( "inBank" );
-    when( rep.getStepAttributeString( id_step, 0, "fieldIn_xsd_type" ) ).thenReturn( "string" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldIn_name" ) ).thenReturn( "branch" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldIn_ws_name" ) ).thenReturn( "inBranch" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldIn_xsd_type" ) ).thenReturn( "string" );
-
-    when( rep.countNrStepAttributes( id_step, "fieldOut_ws_name" ) ) .thenReturn( 2 );
-    when( rep.getStepAttributeString( id_step, 0, "fieldOut_name" ) ).thenReturn( "balance" );
-    when( rep.getStepAttributeString( id_step, 0, "fieldOut_ws_name" ) ).thenReturn( "outBalance" );
-    when( rep.getStepAttributeString( id_step, 0, "fieldOut_xsd_type" ) ).thenReturn( "int" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldOut_name" ) ).thenReturn( "transactions" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldOut_ws_name" ) ).thenReturn( "outTransactions" );
-    when( rep.getStepAttributeString( id_step, 1, "fieldOut_xsd_type" ) ).thenReturn( "int" );
-
-    WebServiceMeta webServiceMeta = new WebServiceMeta(  rep, metastore, id_step, Collections.singletonList( dbMeta )  );
-
-    String expectedXml = ""
-      + "    <wsURL/>\n"
-      + "    <wsOperation>GetCurrentExchangeRate</wsOperation>\n"
-      + "    <wsOperationRequest>opRequest</wsOperationRequest>\n"
-      + "    <wsOperationNamespace>opNamespace</wsOperationNamespace>\n"
-      + "    <wsInFieldContainer>ifc</wsInFieldContainer>\n"
-      + "    <wsInFieldArgument>ifa</wsInFieldArgument>\n"
-      + "    <wsOutFieldContainer>ofc</wsOutFieldContainer>\n"
-      + "    <wsOutFieldArgument>ofa</wsOutFieldArgument>\n"
-      + "    <proxyHost>phost</proxyHost>\n"
-      + "    <proxyPort>1234</proxyPort>\n"
-      + "    <httpLogin>user</httpLogin>\n"
-      + "    <httpPassword>password</httpPassword>\n"
-      + "    <callStep>2</callStep>\n"
-      + "    <passingInputData>Y</passingInputData>\n"
-      + "    <compatible>N</compatible>\n"
-      + "    <repeating_element>repeat</repeating_element>\n"
-      + "    <reply_as_string>Y</reply_as_string>\n"
-      + "    <fieldsIn>\n"
-      + "    <field>\n"
-      + "        <name>bank</name>\n"
-      + "        <wsName>inBank</wsName>\n"
-      + "        <xsdType>string</xsdType>\n"
-      + "    </field>\n"
-      + "    <field>\n"
-      + "        <name>branch</name>\n"
-      + "        <wsName>inBranch</wsName>\n"
-      + "        <xsdType>string</xsdType>\n"
-      + "    </field>\n"
-      + "      </fieldsIn>\n"
-      + "    <fieldsOut>\n"
-      + "    <field>\n"
-      + "        <name>balance</name>\n"
-      + "        <wsName>outBalance</wsName>\n"
-      + "        <xsdType>int</xsdType>\n"
-      + "    </field>\n"
-      + "    <field>\n"
-      + "        <name>transactions</name>\n"
-      + "        <wsName>outTransactions</wsName>\n"
-      + "        <xsdType>int</xsdType>\n"
-      + "    </field>\n"
-      + "      </fieldsOut>\n";
-    String actualXml = TestUtils.toUnixLineSeparators( webServiceMeta.getXML() );
-    assertEquals( expectedXml, actualXml );
-  }
-
-  @Test
-  public void testSaveRep() throws Exception {
-    Node node = getTestNode();
-    DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
-    Repository rep = mock( Repository.class );
-    WebServiceMeta webServiceMeta = new WebServiceMeta();
-    webServiceMeta.loadXML( node, Collections.singletonList( dbMeta ), metastore );
-    StringObjectId aTransId = new StringObjectId( "aTransId" );
-    StringObjectId aStepId = new StringObjectId( "aStepId" );
-    webServiceMeta.saveRep( rep, metastore, aTransId, aStepId );
-
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsUrl", "http://webservices.gama-system.com/exchangerates.asmx?WSDL" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsOperation", "GetCurrentExchangeRate" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsOperationRequest", "opRequestName" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsOperationNamespace", "http://www.gama-system.com/webservices" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsInFieldContainer", null );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsInFieldArgument", null );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsOutFieldContainer", "GetCurrentExchangeRateResult" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "wsOutFieldArgument", "GetCurrentExchangeRateResult" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "proxyHost", "aProxy" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "proxyPort", "4444" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "httpLogin", "httpUser" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "httpPassword", "tryandguess" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "callStep", 1 );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "passingInputData", false );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "compatible", true );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "repeating_element", null );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, "reply_as_string", false );
-
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldIn_name", "Bank" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldIn_ws_name", "strBank" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldIn_xsd_type", "string" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 1, "fieldIn_name", "ToCurrency" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 1, "fieldIn_ws_name", "strCurrency" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 1, "fieldIn_xsd_type", "string" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 2, "fieldIn_name", "Rank" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 2, "fieldIn_ws_name", "intRank" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 2, "fieldIn_xsd_type", "int" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldOut_name", "GetCurrentExchangeRateResult" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldOut_ws_name", "GetCurrentExchangeRateResult" );
-    verify( rep ).saveStepAttribute( aTransId, aStepId, 0, "fieldOut_xsd_type", "decimal" );
-
-    Mockito.verifyNoMoreInteractions( rep );
-
-  }
-
-  @Test
   public void testGetFields() throws Exception {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     webServiceMeta.setDefault();
@@ -252,7 +115,6 @@ public class WebServiceMetaTest {
     RowMetaInterface rmi2 = mock( RowMetaInterface.class );
     StepMeta nextStep = mock( StepMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
-    Repository rep = mock( Repository.class );
     WebServiceField field1 = new WebServiceField();
     field1.setName( "field1" );
     field1.setWsName( "field1WS" );
@@ -266,7 +128,7 @@ public class WebServiceMetaTest {
     field3.setWsName( "field3WS" );
     field3.setXsdType( "string" );
     webServiceMeta.setFieldsOut( Arrays.asList( field1, field2, field3 ) );
-    webServiceMeta.getFields( rmi, "idk", new RowMetaInterface[]{ rmi2 }, nextStep, new Variables(), rep, metastore );
+    webServiceMeta.getFields( rmi, "idk", new RowMetaInterface[]{ rmi2 }, nextStep, new Variables(), metastore );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field1" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field2" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field3" ) ) );
@@ -291,12 +153,11 @@ public class WebServiceMetaTest {
     StepMeta stepMeta = mock( StepMeta.class );
     RowMetaInterface prev = mock( RowMetaInterface.class );
     RowMetaInterface info = mock( RowMetaInterface.class );
-    Repository rep = mock( Repository.class );
     IMetaStore metastore = mock( IMetaStore.class );
     String[] input = { "one" };
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
     webServiceMeta.check(
-      remarks, transMeta, stepMeta, null, input, null, info, new Variables(), rep, metastore );
+      remarks, transMeta, stepMeta, null, input, null, info, new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous steps!", remarks.get( 0 ).getText() );
     assertEquals( "Step is receiving info from other steps.", remarks.get( 1 ).getText() );
@@ -305,7 +166,7 @@ public class WebServiceMetaTest {
     webServiceMeta.setInFieldArgumentName( "ifan" );
     when( prev.size() ).thenReturn( 2 );
     webServiceMeta.check(
-      remarks, transMeta, stepMeta, prev, new String[]{}, null, info, new Variables(), rep, metastore );
+      remarks, transMeta, stepMeta, prev, new String[]{}, null, info, new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is connected to previous one, receiving 2 fields", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other steps!", remarks.get( 1 ).getText() );
@@ -315,7 +176,7 @@ public class WebServiceMetaTest {
   public void testGetFieldOut() throws Exception {
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IMetaStore metastore = mock( IMetaStore.class );
-    WebServiceMeta webServiceMeta = new WebServiceMeta( getTestNode(), Collections.singletonList( dbMeta ), metastore );
+    WebServiceMeta webServiceMeta = new WebServiceMeta( getTestNode(), metastore );
     assertNull( webServiceMeta.getFieldOutFromWsName( "", true ) );
     assertEquals(
       "GetCurrentExchangeRateResult",

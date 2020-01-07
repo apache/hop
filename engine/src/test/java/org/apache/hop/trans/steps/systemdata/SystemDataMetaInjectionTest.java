@@ -29,7 +29,7 @@ import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 public class SystemDataMetaInjectionTest extends BaseMetadataInjectionTest<SystemDataMeta> {
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new SystemDataMeta() );
   }
 

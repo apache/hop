@@ -47,7 +47,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.deleteresultfilenames.JobEntryDeleteResultFilenames;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -89,9 +88,9 @@ public class JobEntryDeleteResultFilenamesDialog extends JobEntryDialog implemen
 
   private boolean changed;
 
-  public JobEntryDeleteResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
+  public JobEntryDeleteResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt,
     JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryDeleteResultFilenames) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

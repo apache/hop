@@ -39,8 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -241,7 +240,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     this.messageField = fieldnamein;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -294,7 +293,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( getResultfieldname() ) ) {
       int type = ValueMetaInterface.TYPE_STRING;
@@ -330,27 +329,6 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      operationType =
-        getOperationTypeByCode( Const.NVL( rep.getStepAttributeString( id_step, "operation_type" ), "" ) );
-      algorithm = rep.getStepAttributeString( id_step, "algorithm" );
-      schema = rep.getStepAttributeString( id_step, "schema" );
-      secretKeyField = rep.getStepAttributeString( id_step, "secretKeyField" );
-      messageField = rep.getStepAttributeString( id_step, "messageField" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-
-      secretKey = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "secretKey" ) );
-      secretKeyInField = rep.getStepAttributeBoolean( id_step, "secretKeyInField" );
-      readKeyAsBinary = rep.getStepAttributeBoolean( id_step, "readKeyAsBinary" );
-      outputResultAsBinary = rep.getStepAttributeBoolean( id_step, "outputResultAsBinary" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SymmetricCryptoTransMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
-    }
-  }
-
   private static String getOperationTypeCode( int i ) {
     if ( i < 0 || i >= operationTypeCode.length ) {
       return operationTypeCode[0];
@@ -358,32 +336,9 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     return operationTypeCode[i];
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "operation_type", getOperationTypeCode( operationType ) );
-      rep.saveStepAttribute( id_transformation, id_step, "algorithm", algorithm );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schema );
-
-      rep.saveStepAttribute( id_transformation, id_step, "secretKeyField", secretKeyField );
-      rep.saveStepAttribute( id_transformation, id_step, "messageField", messageField );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-
-      rep.saveStepAttribute( id_transformation, id_step, "secretKey", Encr
-        .encryptPasswordIfNotUsingVariables( secretKey ) );
-      rep.saveStepAttribute( id_transformation, id_step, "secretKeyInField", secretKeyInField );
-      rep.saveStepAttribute( id_transformation, id_step, "readKeyAsBinary", readKeyAsBinary );
-      rep.saveStepAttribute( id_transformation, id_step, "outputResultAsBinary", outputResultAsBinary );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SymmetricCryptoTransMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 

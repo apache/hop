@@ -39,8 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -86,7 +85,7 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -151,7 +150,7 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     r.clear();
     String stepname = space.environmentSubstitute( stepnamefield );
     if ( !Utils.isEmpty( stepname ) ) {
@@ -385,59 +384,9 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
     this.steplinesupdatedfield = steplinesupdatedfield;
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      int nrsteps = rep.countNrStepAttributes( id_step, "step_name" );
-
-      allocate( nrsteps );
-
-      for ( int i = 0; i < nrsteps; i++ ) {
-        stepName[i] = rep.getStepAttributeString( id_step, i, "step_name" );
-        stepCopyNr[i] = rep.getStepAttributeString( id_step, i, "step_CopyNr" );
-        stepRequired[i] = rep.getStepAttributeString( id_step, i, "step_required" );
-        if ( !YES.equalsIgnoreCase( stepRequired[i] ) ) {
-          stepRequired[i] = NO;
-        }
-      }
-      stepnamefield = rep.getStepAttributeString( id_step, "stepnamefield" );
-      stepidfield = rep.getStepAttributeString( id_step, "stepidfield" );
-      steplinesinputfield = rep.getStepAttributeString( id_step, "steplinesinputfield" );
-      steplinesoutputfield = rep.getStepAttributeString( id_step, "steplinesoutputfield" );
-      steplinesreadfield = rep.getStepAttributeString( id_step, "steplinesreadfield" );
-      steplineswrittentfield = rep.getStepAttributeString( id_step, "steplineswrittentfield" );
-      steplinesupdatedfield = rep.getStepAttributeString( id_step, "steplinesupdatedfield" );
-      steplineserrorsfield = rep.getStepAttributeString( id_step, "steplineserrorsfield" );
-      stepsecondsfield = rep.getStepAttributeString( id_step, "stepsecondsfield" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < stepName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "step_name", stepName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "step_CopyNr", stepCopyNr[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "step_required", stepRequired[i] );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "stepnamefield", stepnamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "stepidfield", stepidfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplinesinputfield", steplinesinputfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplinesoutputfield", steplinesoutputfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplinesreadfield", steplinesreadfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplineswrittentfield", steplineswrittentfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplinesupdatedfield", steplinesupdatedfield );
-      rep.saveStepAttribute( id_transformation, id_step, "steplineserrorsfield", steplineserrorsfield );
-      rep.saveStepAttribute( id_transformation, id_step, "stepsecondsfield", stepsecondsfield );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev == null || prev.size() == 0 ) {

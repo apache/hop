@@ -44,8 +44,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -247,7 +246,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -347,7 +346,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     FileInputList fileList = getTextFileList( space );
     if ( fileList.nrOfFiles() == 0 ) {
@@ -383,57 +382,9 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      dbfFileName = rep.getStepAttributeString( id_step, "file_dbf" );
-      rowLimit = (int) rep.getStepAttributeInteger( id_step, "limit" );
-      rowNrAdded = rep.getStepAttributeBoolean( id_step, "add_rownr" );
-      rowNrField = rep.getStepAttributeString( id_step, "field_rownr" );
-
-      includeFilename = rep.getStepAttributeBoolean( id_step, "include" );
-      filenameField = rep.getStepAttributeString( id_step, "include_field" );
-      charactersetName = rep.getStepAttributeString( id_step, "charset_name" );
-
-      acceptingFilenames = rep.getStepAttributeBoolean( id_step, "accept_filenames" );
-      acceptingField = rep.getStepAttributeString( id_step, "accept_field" );
-      acceptingStepName = rep.getStepAttributeString( id_step, "accept_stepname" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "XBaseInputMeta.Exception.UnexpectedErrorReadingMetaDataFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "file_dbf", dbfFileName );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "add_rownr", rowNrAdded );
-      rep.saveStepAttribute( id_transformation, id_step, "field_rownr", rowNrField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "include", includeFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "include_field", filenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "charset_name", charactersetName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "accept_filenames", acceptingFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "accept_field", acceptingField );
-      if ( ( acceptingStepName == null ) && ( acceptingStep != null ) ) {
-        acceptingStepName = acceptingStep.getName();
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "accept_stepname", acceptingStepName );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "XBaseInputMeta.Exception.UnableToSaveMetaDataToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -536,8 +487,6 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -545,7 +494,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

@@ -25,8 +25,7 @@ package org.apache.hop.core.util;
 import java.util.prefs.Preferences;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -90,29 +89,4 @@ public interface PluginProperty {
    */
   void loadXml( final Node node );
 
-  /**
-   * @param repository
-   *          the repository.
-   * @param metaStore
-   *          the MetaStore
-   * @param transformationId
-   *          the transformationId.
-   * @param stepId
-   *          the stepId.
-   * @throws HopException
-   *           ...
-   */
-  void saveToRepositoryStep( final Repository repository, final IMetaStore metaStore,
-    final ObjectId transformationId, final ObjectId stepId ) throws HopException;
-
-  /**
-   *
-   * @param repository
-   *          the repository.
-   * @param stepId
-   *          the stepId.
-   * @throws HopException
-   *           ...
-   */
-  void readFromRepositoryStep( final Repository repository, final IMetaStore metaStore, final ObjectId stepId ) throws HopException;
 }

@@ -36,8 +36,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -124,7 +123,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -201,42 +200,6 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      int nrKeys = rep.countNrStepAttributes( id_step, "keys" );
-
-      allocateKeys( nrKeys );
-
-      for ( int i = 0; i < nrKeys; i++ ) {
-        keyFields[i] = rep.getStepAttributeString( id_step, i, "keys" );
-      }
-
-      long nInputStreams = rep.getStepAttributeInteger( id_step, "number_input" );
-
-      allocateInputSteps( (int) nInputStreams );
-
-      for ( int i = 0; i < nInputStreams; i++ ) {
-        inputSteps[i] = rep.getStepAttributeString( id_step, "step" + i );
-      }
-      // This next bit is completely unnecessary if you just pass the step name into
-      // the constructor above. That sets the subject to the step name in one pass
-      // instead of a second one.
-      // MB - 5/2016
-      //
-      // List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      // for ( int i = 0; i < infoStreams.size(); i++ ) {
-      //   infoStreams.get( i ).setSubject( rep.getStepAttributeString( id_step, "step" + i ) );
-      // }
-
-      joinType = rep.getStepAttributeString( id_step, "join_type" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "MultiMergeJoinMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     StepIOMetaInterface ioMeta = getStepIOMeta();
     ioMeta.getInfoStreams().clear();
@@ -251,36 +214,8 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      for ( int i = 0; i < keyFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "keys", keyFields[i] );
-      }
-
-      String[] inputStepsNames  = inputSteps != null ? inputSteps : ArrayUtils.EMPTY_STRING_ARRAY;
-      rep.saveStepAttribute( id_transformation, id_step, "number_input", inputStepsNames.length );
-      for ( int i = 0; i < inputStepsNames.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, "step" + i, inputStepsNames[ i ] );
-      }
-//      The following was the old way of persisting this step to the repository. This was inconsistent with
-//      how getXML works, and also fails the load/save tester
-//      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-//      rep.saveStepAttribute( id_transformation, id_step, "number_input", infoStreams.size() );
-//      for ( int i = 0; i < infoStreams.size(); i++ ) {
-//        rep.saveStepAttribute( id_transformation, id_step, "step" + i, infoStreams.get( i ).getStepname() );
-//      }
-      // inputSteps[i]
-      rep.saveStepAttribute( id_transformation, id_step, "join_type", getJoinType() );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MultiMergeJoinMeta.Exception.UnableToSaveStepInfo" )
-          + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     /*
      * @todo Need to check for the following: 1) Join type must be one of INNER / LEFT OUTER / RIGHT OUTER / FULL OUTER
@@ -294,7 +229,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //

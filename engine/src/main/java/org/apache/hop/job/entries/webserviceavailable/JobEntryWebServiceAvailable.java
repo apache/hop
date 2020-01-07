@@ -39,8 +39,7 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -85,39 +84,16 @@ public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneab
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       url = XMLHandler.getTagValue( entrynode, "url" );
       connectTimeOut = XMLHandler.getTagValue( entrynode, "connectTimeOut" );
       readTimeOut = XMLHandler.getTagValue( entrynode, "readTimeOut" );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryWebServiceAvailable.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      url = rep.getJobEntryAttributeString( id_jobentry, "url" );
-      connectTimeOut = rep.getJobEntryAttributeString( id_jobentry, "connectTimeOut" );
-      readTimeOut = rep.getJobEntryAttributeString( id_jobentry, "readTimeOut" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryWebServiceAvailable.ERROR_0002_Cannot_Load_Job_From_Repository", "" + id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "url", url );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "connectTimeOut", connectTimeOut );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "readTimeOut", readTimeOut );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryWebServiceAvailable.ERROR_0003_Cannot_Save_Job_Entry", "" + id_job ), dbe );
     }
   }
 

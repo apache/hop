@@ -46,8 +46,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -186,7 +185,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -276,15 +275,9 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
     }
   }
 
-  @VisibleForTesting
-  protected void registerUrlWithDirectory() {
-    parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( directory );
-  }
-
   @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 256 );
-    registerUrlWithDirectory();
     retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "sort_size", sortSize ) );
@@ -309,41 +302,6 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
     return retval.toString();
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      directory = rep.getStepAttributeString( id_step, "directory" );
-      prefix = rep.getStepAttributeString( id_step, "prefix" );
-      sortSize = rep.getStepAttributeString( id_step, "sort_size" );
-      freeMemoryLimit = rep.getStepAttributeString( id_step, "free_memory" );
-
-      compressFiles = rep.getStepAttributeBoolean( id_step, "compress" );
-      compressFilesVariable = rep.getStepAttributeString( id_step, "compress_variable" );
-
-      onlyPassingUniqueRows = rep.getStepAttributeBoolean( id_step, "unique_rows" );
-
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      String defaultStrength = Integer.toString( this.getDefaultCollationStrength() );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldName[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        ascending[i] = rep.getStepAttributeBoolean( id_step, i, "field_ascending" );
-        caseSensitive[i] = rep.getStepAttributeBoolean( id_step, i, "field_case_sensitive", true );
-        collatorEnabled[i] = rep.getStepAttributeBoolean( id_step, i, "field_collator_enabled", false );
-        collatorStrength[i] =
-            Integer.parseInt( Const.NVL( rep.getStepAttributeString( id_step, i, "field_collator_strength" ),
-                defaultStrength ) );
-        preSortedField[i] = rep.getStepAttributeBoolean( id_step, i, "field_presorted", false );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
   // Returns the default collation strength based on the users' default locale.
   // Package protected for testing purposes
   int getDefaultCollationStrength() {
@@ -364,33 +322,8 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "directory", directory );
-      rep.saveStepAttribute( id_transformation, id_step, "prefix", prefix );
-      rep.saveStepAttribute( id_transformation, id_step, "sort_size", sortSize );
-      rep.saveStepAttribute( id_transformation, id_step, "free_memory", freeMemoryLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "compress", compressFiles );
-      rep.saveStepAttribute( id_transformation, id_step, "compress_variable", compressFilesVariable );
-      rep.saveStepAttribute( id_transformation, id_step, "unique_rows", onlyPassingUniqueRows );
-
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_ascending", ascending[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_case_sensitive", caseSensitive[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_collator_enabled", collatorEnabled[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_collator_strength", collatorStrength[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_presorted", preSortedField[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Set the sorted properties: ascending/descending
     assignSortingCriteria( inputRowMeta );
   }
@@ -427,7 +360,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     CheckResult cr;
 

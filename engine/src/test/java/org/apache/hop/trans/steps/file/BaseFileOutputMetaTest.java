@@ -37,7 +37,7 @@ public class BaseFileOutputMetaTest {
   @Mock BaseFileOutputMeta meta;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     meta = Mockito.spy( new TextFileOutputMeta() );
   }
 

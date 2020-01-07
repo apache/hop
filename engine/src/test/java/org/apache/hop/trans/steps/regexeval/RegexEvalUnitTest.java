@@ -42,7 +42,7 @@ public class RegexEvalUnitTest {
   private StepMockHelper<RegexEvalMeta, RegexEvalData> stepMockHelper;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     stepMockHelper =
       new StepMockHelper<RegexEvalMeta, RegexEvalData>(
         "REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class );

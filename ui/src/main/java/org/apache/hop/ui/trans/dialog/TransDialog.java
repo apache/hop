@@ -24,6 +24,7 @@
 package org.apache.hop.ui.trans.dialog;
 import java.util.ArrayList;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -71,10 +72,6 @@ import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HopRepositoryLostException;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.hop.trans.TransDependency;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -93,7 +90,6 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.repository.RepositoryDirectoryUI;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 
@@ -106,7 +102,7 @@ public class TransDialog extends Dialog {
 
   private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
 
-  public static enum Tabs {
+  public enum Tabs {
     TRANS_TAB, PARAM_TAB, LOG_TAB, DATE_TAB, DEP_TAB, MISC_TAB, MONITOR_TAB, EXTRA_TAB,
   }
 
@@ -135,17 +131,13 @@ public class TransDialog extends Dialog {
 
   private FormData fdlExtendeddescription, fdExtendeddescription;
 
-  private Text wDirectory;
-  private Button wbDirectory;
-
   private Text wCreateUser;
   private Text wCreateDate;
 
   private Text wModUser;
   private Text wModDate;
 
-  private Button wbLogconnection;
-  private ComboVar wLogconnection;
+  private MetaSelectionManager<DatabaseMeta> wLogconnection;
 
   private TextVar wLogSizeLimit;
 
@@ -180,15 +172,11 @@ public class TransDialog extends Dialog {
   private SelectionAdapter lsDef;
 
   private ModifyListener lsMod;
-  private Repository rep;
   private PropsUI props;
-  private RepositoryDirectoryInterface newDirectory;
 
   private int middle;
 
   private int margin;
-
-  private String[] connectionNames;
 
   private Button wShowFeedback;
 
@@ -212,6 +200,8 @@ public class TransDialog extends Dialog {
 
   private Tabs currentTab = null;
 
+  private String[] connectionNames;
+
   protected boolean changed;
   private List wLogTypeList;
   private Composite wLogOptionsComposite;
@@ -228,18 +218,15 @@ public class TransDialog extends Dialog {
 
   private ArrayList<TransDialogPluginInterface> extraTabs;
 
-  public TransDialog( Shell parent, int style, TransMeta transMeta, Repository rep, Tabs currentTab ) {
-    this( parent, style, transMeta, rep );
+  public TransDialog( Shell parent, int style, TransMeta transMeta, Tabs currentTab ) {
+    this( parent, style, transMeta);
     this.currentTab = currentTab;
   }
 
-  public TransDialog( Shell parent, int style, TransMeta transMeta, Repository rep ) {
+  public TransDialog( Shell parent, int style, TransMeta transMeta) {
     super( parent, style );
     this.props = PropsUI.getInstance();
     this.transMeta = transMeta;
-    this.rep = rep;
-
-    this.newDirectory = null;
 
     directoryChangeAllowed = true;
     changed = false;
@@ -305,10 +292,6 @@ public class TransDialog extends Dialog {
         extraTab.addTab( transMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
-        HopRepositoryLostException krle = HopRepositoryLostException.lookupStackStrace( e );
-        if ( krle != null ) {
-          throw krle;
-        }
         new ErrorDialog( shell, "Error", "Error loading transformation dialog plugin with id "
           + transDialogPlugin.getIds()[0], e );
       }
@@ -437,9 +420,7 @@ public class TransDialog extends Dialog {
     fdlTransname.right = new FormAttachment( middle, -margin );
     fdlTransname.top = new FormAttachment( 0, margin );
     wlTransname.setLayoutData( fdlTransname );
-    wTransname = new Text( wTransComp, rep == null ? SWT.SINGLE | SWT.LEFT | SWT.BORDER
-      : SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY );
-    wTransname.setEnabled( rep == null );
+    wTransname = new Text( wTransComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER  );
     props.setLook( wTransname );
     wTransname.addModifyListener( lsMod );
     FormData fdTransname = new FormData();
@@ -547,48 +528,6 @@ public class TransDialog extends Dialog {
     fdTransversion.right = new FormAttachment( 100, 0 );
     wTransversion.setLayoutData( fdTransversion );
 
-    // Directory:
-    wlDirectory = new Label( wTransComp, SWT.RIGHT );
-    wlDirectory.setText( BaseMessages.getString( PKG, "TransDialog.Directory.Label" ) );
-    props.setLook( wlDirectory );
-    FormData fdlDirectory = new FormData();
-    fdlDirectory.left = new FormAttachment( 0, 0 );
-    fdlDirectory.right = new FormAttachment( middle, -margin );
-    fdlDirectory.top = new FormAttachment( wTransversion, margin );
-    wlDirectory.setLayoutData( fdlDirectory );
-
-    wbDirectory = new Button( wTransComp, SWT.PUSH );
-    wbDirectory.setToolTipText( BaseMessages.getString( PKG, "TransDialog.selectTransFolder.Tooltip" ) );
-    wbDirectory.setImage( GUIResource.getInstance().getImageArrow() );
-    props.setLook( wbDirectory );
-    FormData fdbDirectory = new FormData();
-    fdbDirectory.right = new FormAttachment( 100, 0 );
-    fdbDirectory.top = new FormAttachment( wTransversion, 0 );
-    wbDirectory.setLayoutData( fdbDirectory );
-    wbDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        RepositoryDirectoryInterface directoryFrom = transMeta.getRepositoryDirectory();
-        RepositoryDirectoryInterface rd = RepositoryDirectoryUI.chooseDirectory( shell, rep, directoryFrom );
-        if ( rd == null ) {
-          return;
-        }
-        // We need to change this in the repository as well!!
-        // We do this when the user pressed OK
-        newDirectory = rd;
-        wDirectory.setText( rd.getPath() );
-      }
-    } );
-
-    wDirectory = new Text( wTransComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wDirectory );
-    wDirectory.setEditable( false );
-    wDirectory.setEnabled( false );
-    FormData fdDirectory = new FormData();
-    fdDirectory.left = new FormAttachment( middle, 0 );
-    fdDirectory.top = new FormAttachment( wTransversion, margin );
-    fdDirectory.right = new FormAttachment( wbDirectory, 0 );
-    wDirectory.setLayoutData( fdDirectory );
-
     // Create User:
     Label wlCreateUser = new Label( wTransComp, SWT.RIGHT );
     wlCreateUser.setText( BaseMessages.getString( PKG, "TransDialog.CreateUser.Label" ) );
@@ -596,7 +535,7 @@ public class TransDialog extends Dialog {
     FormData fdlCreateUser = new FormData();
     fdlCreateUser.left = new FormAttachment( 0, 0 );
     fdlCreateUser.right = new FormAttachment( middle, -margin );
-    fdlCreateUser.top = new FormAttachment( wDirectory, margin );
+    fdlCreateUser.top = new FormAttachment( wTransversion, margin );
     wlCreateUser.setLayoutData( fdlCreateUser );
     wCreateUser = new Text( wTransComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCreateUser );
@@ -604,7 +543,7 @@ public class TransDialog extends Dialog {
     wCreateUser.addModifyListener( lsMod );
     FormData fdCreateUser = new FormData();
     fdCreateUser.left = new FormAttachment( middle, 0 );
-    fdCreateUser.top = new FormAttachment( wDirectory, margin );
+    fdCreateUser.top = new FormAttachment( wTransversion, margin );
     fdCreateUser.right = new FormAttachment( 100, 0 );
     wCreateUser.setLayoutData( fdCreateUser );
 
@@ -900,47 +839,13 @@ public class TransDialog extends Dialog {
 
     // Log table connection...
     //
-    Label wlLogconnection = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogconnection.setText( BaseMessages.getString( PKG, "TransDialog.LogConnection.Label" ) );
-    props.setLook( wlLogconnection );
-    FormData fdlLogconnection = new FormData();
-    fdlLogconnection.left = new FormAttachment( 0, 0 );
-    fdlLogconnection.right = new FormAttachment( middle, -margin );
-    fdlLogconnection.top = new FormAttachment( 0, 0 );
-    wlLogconnection.setLayoutData( fdlLogconnection );
-
-    wbLogconnection = new Button( wLogOptionsComposite, SWT.PUSH );
-    wbLogconnection.setText( BaseMessages.getString( PKG, "TransDialog.LogconnectionButton.Label" ) );
-    wbLogconnection.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DatabaseMeta databaseMeta = new DatabaseMeta();
-        databaseMeta.shareVariablesWith( transMeta );
-        getDatabaseDialog().setDatabaseMeta( databaseMeta );
-
-        if ( getDatabaseDialog().open() != null ) {
-          transMeta.addDatabase( getDatabaseDialog().getDatabaseMeta() );
-          wLogconnection.add( getDatabaseDialog().getDatabaseMeta().getName() );
-          wLogconnection.select( wLogconnection.getItemCount() - 1 );
-        }
-      }
-    } );
-    FormData fdbLogconnection = new FormData();
-    fdbLogconnection.right = new FormAttachment( 100, 0 );
-    fdbLogconnection.top = new FormAttachment( 0, 0 );
-    wbLogconnection.setLayoutData( fdbLogconnection );
-
-    wLogconnection = new ComboVar( transMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wLogconnection );
-    wLogconnection.addModifyListener( lsMod );
-    FormData fdLogconnection = new FormData();
-    fdLogconnection.left = new FormAttachment( middle, 0 );
-    fdLogconnection.top = new FormAttachment( 0, 0 );
-    fdLogconnection.right = new FormAttachment( wbLogconnection, -margin );
-    wLogconnection.setLayoutData( fdLogconnection );
-    wLogconnection.setItems( transMeta.getDatabaseNames() );
-    wLogconnection.setText( Const.NVL( logTable.getConnectionName(), "" ) );
-    wLogconnection.setToolTipText( BaseMessages.getString( PKG, "TransDialog.LogConnection.Tooltip", logTable
-      .getConnectionNameVariable() ) );
+    wLogconnection = new MetaSelectionManager<DatabaseMeta>(transMeta, transMeta.getMetaStore(), DatabaseMeta.class,
+      wLogOptionsComposite, SWT.NONE,
+      BaseMessages.getString( PKG, "TransDialog.LogConnection.Label" ),
+      BaseMessages.getString( PKG, "TransDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() )
+      );
+    wLogconnection.addToConnectionLine( wLogOptionsComposite, null, logTable.getDatabaseMeta(), lsMod );
+    connectionNames = wLogconnection.getItems();
 
     // Log schema ...
     //
@@ -1726,13 +1631,6 @@ public class TransDialog extends Dialog {
     fdMaxdatediff.right = new FormAttachment( 100, 0 );
     wMaxdatediff.setLayoutData( fdMaxdatediff );
 
-    connectionNames = new String[transMeta.nrDatabases()];
-    for ( int i = 0; i < transMeta.nrDatabases(); i++ ) {
-      DatabaseMeta ci = transMeta.getDatabase( i );
-      wMaxdateconnection.add( ci.getName() );
-      connectionNames[i] = ci.getName();
-    }
-
     FormData fdDateComp = new FormData();
     fdDateComp.left = new FormAttachment( 0, 0 );
     fdDateComp.top = new FormAttachment( 0, 0 );
@@ -2026,11 +1924,6 @@ public class TransDialog extends Dialog {
     fdEnableStepPerfMonitor.top = new FormAttachment( 0, 0 );
     wEnableStepPerfMonitor.setLayoutData( fdEnableStepPerfMonitor );
     wEnableStepPerfMonitor.addSelectionListener( lsModSel );
-    wEnableStepPerfMonitor.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        setFlags();
-      }
-    } );
 
     //
     // Step performance interval
@@ -2187,21 +2080,14 @@ public class TransDialog extends Dialog {
     wParamFields.setRowNums();
     wParamFields.optWidth( true );
 
-    // Directory:
-    if ( transMeta.getRepositoryDirectory() != null && transMeta.getRepositoryDirectory().getPath() != null ) {
-      wDirectory.setText( transMeta.getRepositoryDirectory().getPath() );
-    }
-
     // Performance monitoring tab:
     //
     wEnableStepPerfMonitor.setSelection( transMeta.isCapturingStepPerformanceSnapShots() );
     wStepPerfInterval.setText( Long.toString( transMeta.getStepPerformanceCapturingDelay() ) );
     wStepPerfMaxSize.setText( Const.NVL( transMeta.getStepPerformanceCapturingSizeLimit(), "" ) );
 
-    if ( rep == null ) {
-      wTransname.selectAll();
-      wTransname.setFocus();
-    }
+    wTransname.selectAll();
+    wTransname.setFocus();
 
     for ( TransDialogPluginInterface extraTab : extraTabs ) {
       try {
@@ -2210,20 +2096,6 @@ public class TransDialog extends Dialog {
         new ErrorDialog( shell, "Error", "Error adding extra plugin tab", e );
       }
     }
-
-    setFlags();
-  }
-
-  public void setFlags() {
-    wbDirectory.setEnabled( false );
-    // wDirectory.setEnabled(rep!=null);
-    wlDirectory.setEnabled( false );
-
-    // wlStepLogtable.setEnabled(wEnableStepPerfMonitor.getSelection());
-    // wStepLogtable.setEnabled(wEnableStepPerfMonitor.getSelection());
-
-    // wlLogSizeLimit.setEnabled(wLogfield.getSelection());
-    // wLogSizeLimit.setEnabled(wLogfield.getSelection());
   }
 
   private void cancel() {
@@ -2319,30 +2191,6 @@ public class TransDialog extends Dialog {
     transMeta.setUsingThreadPriorityManagment( wManageThreads.getSelection() );
     transMeta.setTransformationType( TransformationType.values()[Const.indexOfString( wTransformationType
       .getText(), TransformationType.getTransformationTypesDescriptions() )] );
-
-    if ( directoryChangeAllowed && transMeta.getObjectId() != null ) {
-      if ( newDirectory != null ) {
-        RepositoryDirectoryInterface dirFrom = transMeta.getRepositoryDirectory();
-
-        try {
-          ObjectId newId = rep.renameTransformation( transMeta.getObjectId(), newDirectory, transMeta.getName() );
-          transMeta.setObjectId( newId );
-          transMeta.setRepositoryDirectory( newDirectory );
-        } catch ( HopException ke ) {
-          transMeta.setRepositoryDirectory( dirFrom );
-          OK = false;
-          new ErrorDialog( shell,
-            BaseMessages.getString( PKG, "TransDialog.ErrorMovingTransformation.DialogTitle" ),
-            BaseMessages.getString( PKG, "TransDialog.ErrorMovingTransformation.DialogMessage" ), ke );
-        }
-      }
-    } else {
-      // Just update to the new selected directory...
-      //
-      if ( newDirectory != null ) {
-        transMeta.setRepositoryDirectory( newDirectory );
-      }
-    }
 
     // Performance monitoring tab:
     //

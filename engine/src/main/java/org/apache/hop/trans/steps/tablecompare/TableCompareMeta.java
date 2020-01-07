@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -83,6 +82,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   private String keyDescriptionField;
   private String valueReferenceField;
   private String valueCompareField;
+  private IMetaStore metaStore;
 
   public TableCompareMeta() {
     super(); // allocate BaseStepMeta
@@ -362,8 +362,8 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -375,7 +375,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( Utils.isEmpty( nrErrorsField ) ) {
       throw new HopStepException( BaseMessages.getString(
@@ -434,15 +434,16 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
     inputRowMeta.addValueMeta( nrErrorsRight );
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       referenceConnection =
-        DatabaseMeta.findDatabase( databases, XMLHandler.getTagValue( stepnode, "reference_connection" ) );
+        DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( stepnode, "reference_connection" ) );
       referenceSchemaField = XMLHandler.getTagValue( stepnode, "reference_schema_field" );
       referenceTableField = XMLHandler.getTagValue( stepnode, "reference_table_field" );
 
       compareConnection =
-        DatabaseMeta.findDatabase( databases, XMLHandler.getTagValue( stepnode, "compare_connection" ) );
+        DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( stepnode, "compare_connection" ) );
       compareSchemaField = XMLHandler.getTagValue( stepnode, "compare_schema_field" );
       compareTableField = XMLHandler.getTagValue( stepnode, "compare_table_field" );
 
@@ -513,69 +514,9 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-
-      referenceConnection = rep.loadDatabaseMetaFromStepAttribute( id_step, "reference_connection_id", databases );
-      referenceSchemaField = rep.getStepAttributeString( id_step, "reference_schema_field" );
-      referenceTableField = rep.getStepAttributeString( id_step, "reference_table_field" );
-
-      compareConnection = rep.loadDatabaseMetaFromStepAttribute( id_step, "compare_connection_id", databases );
-      compareSchemaField = rep.getStepAttributeString( id_step, "compare_schema_field" );
-      compareTableField = rep.getStepAttributeString( id_step, "compare_table_field" );
-
-      keyFieldsField = rep.getStepAttributeString( id_step, "key_fields_field" );
-      excludeFieldsField = rep.getStepAttributeString( id_step, "exclude_fields_field" );
-      nrErrorsField = rep.getStepAttributeString( id_step, "nr_errors_field" );
-
-      nrRecordsReferenceField = rep.getStepAttributeString( id_step, "nr_records_reference_field" );
-      nrRecordsCompareField = rep.getStepAttributeString( id_step, "nr_records_compare_field" );
-      nrErrorsLeftJoinField = rep.getStepAttributeString( id_step, "nr_errors_left_join_field" );
-      nrErrorsInnerJoinField = rep.getStepAttributeString( id_step, "nr_errors_inner_join_field" );
-      nrErrorsRightJoinField = rep.getStepAttributeString( id_step, "nr_errors_right_join_field" );
-
-      keyDescriptionField = rep.getStepAttributeString( id_step, "key_description_field" );
-      valueReferenceField = rep.getStepAttributeString( id_step, "value_reference_field" );
-      valueCompareField = rep.getStepAttributeString( id_step, "value_compare_field" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute(
-        id_transformation, id_step, "reference_connection_id", referenceConnection );
-      rep.saveStepAttribute( id_transformation, id_step, "reference_schema_field", referenceSchemaField );
-      rep.saveStepAttribute( id_transformation, id_step, "reference_table_field", referenceTableField );
-
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "compare_connection_id", compareConnection );
-      rep.saveStepAttribute( id_transformation, id_step, "compare_schema_field", compareSchemaField );
-      rep.saveStepAttribute( id_transformation, id_step, "compare_table_field", compareTableField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "key_fields_field", keyFieldsField );
-      rep.saveStepAttribute( id_transformation, id_step, "exclude_fields_field", excludeFieldsField );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_errors_field", nrErrorsField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "nr_records_reference_field", nrRecordsReferenceField );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_records_compare_field", nrRecordsCompareField );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_errors_left_join_field", nrErrorsLeftJoinField );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_errors_inner_join_field", nrErrorsInnerJoinField );
-      rep.saveStepAttribute( id_transformation, id_step, "nr_errors_right_join_field", nrErrorsRightJoinField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "key_description_field", keyDescriptionField );
-      rep.saveStepAttribute( id_transformation, id_step, "value_reference_field", valueReferenceField );
-      rep.saveStepAttribute( id_transformation, id_step, "value_compare_field", valueCompareField );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

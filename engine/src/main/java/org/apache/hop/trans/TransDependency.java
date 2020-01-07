@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
+
 import org.w3c.dom.Node;
 
 /*
@@ -46,8 +46,6 @@ public class TransDependency implements XMLInterface, Cloneable {
   private DatabaseMeta db;
   private String tablename;
   private String fieldname;
-
-  private ObjectId id;
 
   public TransDependency( DatabaseMeta db, String tablename, String fieldname ) {
     this.db = db;
@@ -86,14 +84,6 @@ public class TransDependency implements XMLInterface, Cloneable {
   @Override
   public Object clone() throws CloneNotSupportedException {
     return super.clone();
-  }
-
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
-  }
-
-  public ObjectId getObjectId() {
-    return id;
   }
 
   public void setDatabase( DatabaseMeta db ) {

@@ -71,7 +71,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
   }
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     mockInputRowMeta = mock( RowMetaInterface.class );
     mockVariableSpace = mock( VariableSpace.class );
   }
@@ -88,7 +88,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     when( mockValueMeta.getName() ).thenReturn( mockName );
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
-    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null, null );
+    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null );
     ArgumentCaptor<ValueMetaInterface> captor = ArgumentCaptor.forClass( ValueMetaInterface.class );
     verify( mockInputRowMeta ).setValueMeta( eq( 0 ), captor.capture() );
     assertEquals( mockName, captor.getValue().getName() );
@@ -106,7 +106,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     when( mockVariableSpace.environmentSubstitute( resultField ) ).thenReturn( mockName );
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
-    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null, null );
+    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null );
     ArgumentCaptor<ValueMetaInterface> captor = ArgumentCaptor.forClass( ValueMetaInterface.class );
     verify( mockInputRowMeta ).addValueMeta( captor.capture() );
     assertEquals( mockName, captor.getValue().getName() );
@@ -127,7 +127,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
     regexEvalMeta.setAllowCaptureGroupsFlag( true );
-    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null, null );
+    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null );
     ArgumentCaptor<ValueMetaInterface> captor = ArgumentCaptor.forClass( ValueMetaInterface.class );
     verify( mockInputRowMeta ).setValueMeta( eq( 0 ), captor.capture() );
     assertEquals( mockName, captor.getValue().getName() );
@@ -147,7 +147,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
     regexEvalMeta.setAllowCaptureGroupsFlag( true );
-    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null, null );
+    regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null );
     ArgumentCaptor<ValueMetaInterface> captor = ArgumentCaptor.forClass( ValueMetaInterface.class );
     verify( mockInputRowMeta ).addValueMeta( captor.capture() );
     assertEquals( fieldName, captor.getValue().getName() );

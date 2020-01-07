@@ -38,8 +38,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -212,8 +211,8 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     this.setEmptyStringAll = setEmptyStringAll;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -293,7 +292,7 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     this.valueTypes = valueTypes;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       selectFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "selectFields" ) );
       selectValuesType = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "selectValuesType" ) );
@@ -397,65 +396,9 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     */
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      replaceAllByValue = rep.getStepAttributeString( id_step, "replaceAllByValue" );
-      replaceAllMask = rep.getStepAttributeString( id_step, "replaceAllMask" );
-      selectFields = rep.getStepAttributeBoolean( id_step, "selectFields" );
-      selectValuesType = rep.getStepAttributeBoolean( id_step, "selectValuesType" );
-      setEmptyStringAll = rep.getStepAttributeBoolean( id_step, 0, "setEmptyStringAll", false );
-
-      int nrtypes = rep.countNrStepAttributes( id_step, "type_name" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-      allocate( nrtypes, nrfields );
-
-      for ( int i = 0; i < nrtypes; i++ ) {
-        valueTypes[i].setTypeName( rep.getStepAttributeString( id_step, i, "type_name" ) );
-        valueTypes[i].setTypereplaceValue( rep.getStepAttributeString( id_step, i, "type_replace_value" ) );
-        valueTypes[i].setTypereplaceMask( rep.getStepAttributeString( id_step, i, "type_replace_mask" ) );
-        valueTypes[i].setTypeEmptyString( rep.getStepAttributeBoolean( id_step, i, "set_type_empty_string", false ) );
-      }
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fields[i].setFieldName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        fields[i].setReplaceValue( rep.getStepAttributeString( id_step, i, "replace_value" ) );
-        fields[i].setReplaceMask( rep.getStepAttributeString( id_step, i, "replace_mask" ) );
-        fields[i].setEmptyString( rep.getStepAttributeBoolean( id_step, i, "set_empty_string", false ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "replaceAllByValue", replaceAllByValue );
-      rep.saveStepAttribute( id_transformation, id_step, "replaceAllMask", replaceAllMask );
-      rep.saveStepAttribute( id_transformation, id_step, "selectFields", selectFields );
-      rep.saveStepAttribute( id_transformation, id_step, "selectValuesType", selectValuesType );
-      rep.saveStepAttribute( id_transformation, id_step, "setEmptyStringAll", setEmptyStringAll );
-
-      for ( int i = 0; i < valueTypes.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "type_name", valueTypes[i].getTypeName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "type_replace_value", valueTypes[i].getTypereplaceValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "type_replace_mask", valueTypes[i].getTypereplaceMask() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "set_type_empty_string", valueTypes[i].isSetTypeEmptyString() );
-      }
-
-      for ( int i = 0; i < fields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fields[i].getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_value", fields[i].getReplaceValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_mask", fields[i].getReplaceMask() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "set_empty_string", fields[i].isSetEmptyString() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

@@ -84,7 +84,7 @@ public class MetaGenerator {
 
     // Generate loadXML()...
     //
-    code.append( "  public void loadXML(Node stepnode, List<DatabaseMeta> databases, "
+    code.append( "  public void loadXML(Node stepnode, "
       + "IMetaStore metaStore) throws HopXMLException {" ).append( Const.CR );
     for ( TypeFieldDefinition field : fields ) {
       switch ( field.getType() ) {
@@ -117,7 +117,7 @@ public class MetaGenerator {
     //
     code
       .append(
-        "  public void saveRep(Repository rep, ObjectId id_transformation, ObjectId id_step) throws HopException {" )
+        "  public void saveRep(ObjectId id_transformation, ObjectId id_step) throws HopException {" )
       .append( Const.CR );
     for ( TypeFieldDefinition field : fields ) {
       code.append(
@@ -129,7 +129,7 @@ public class MetaGenerator {
 
     // Load from repository
     //
-    code.append( "  public void readRep(Repository rep, ObjectId id_step, "
+    code.append( "  public void readRep(ObjectId id_step, "
       + "List<DatabaseMeta> databases) throws HopException {" ).append( Const.CR );
     for ( TypeFieldDefinition field : fields ) {
       switch ( field.getType() ) {

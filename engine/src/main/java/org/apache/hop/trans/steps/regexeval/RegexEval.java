@@ -79,7 +79,7 @@ public class RegexEval extends BaseStep implements StepInterface {
       // get the RowMeta
       data.outputRowMeta = getInputRowMeta().clone();
       int captureIndex = getInputRowMeta().size();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Let's check that Result Field is given
       if ( Utils.isEmpty( environmentSubstitute( meta.getResultFieldName() ) ) ) {

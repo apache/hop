@@ -246,11 +246,6 @@ public class BlockingStep extends BaseStep implements StepInterface {
     data = (BlockingStepData) sdi;
 
     if ( super.init( smi, sdi ) ) {
-      // Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( getTransMeta().getNamedClusterEmbedManager() != null ) {
-        getTransMeta().getNamedClusterEmbedManager().passEmbeddedMetastoreKey( getTransMeta(),
-          getTransMeta().getEmbeddedMetastoreProviderKey() );
-      }
       // Add init code here.
       return true;
     }

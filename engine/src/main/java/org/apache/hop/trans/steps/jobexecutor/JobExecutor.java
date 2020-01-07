@@ -45,7 +45,6 @@ import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.StepWithMappingMeta;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -112,19 +111,19 @@ public class JobExecutor extends BaseStep implements StepInterface {
 
         if ( meta.getExecutionResultTargetStepMeta() != null ) {
           meta.getFields( data.executionResultsOutputRowMeta, getStepname(), null, meta
-            .getExecutionResultTargetStepMeta(), this, repository, metaStore );
+            .getExecutionResultTargetStepMeta(), this, metaStore );
           data.executionResultRowSet = findOutputRowSet( meta.getExecutionResultTargetStepMeta().getName() );
         }
         if ( meta.getResultRowsTargetStepMeta() != null ) {
           meta.getFields(
             data.resultRowsOutputRowMeta, getStepname(), null, meta.getResultRowsTargetStepMeta(), this,
-            repository, metaStore );
+            metaStore );
           data.resultRowsRowSet = findOutputRowSet( meta.getResultRowsTargetStepMeta().getName() );
         }
         if ( meta.getResultFilesTargetStepMeta() != null ) {
           meta.getFields(
             data.resultFilesOutputRowMeta, getStepname(), null, meta.getResultFilesTargetStepMeta(), this,
-            repository, metaStore );
+            metaStore );
           data.resultFilesRowSet = findOutputRowSet( meta.getResultFilesTargetStepMeta().getName() );
         }
 
@@ -192,7 +191,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
       discardLogLines( data );
     }
 
-    data.executorJob = createJob( meta.getRepository(), data.executorJobMeta, this );
+    data.executorJob = createJob( data.executorJobMeta, this );
 
     data.executorJob.shareVariablesWith( data.executorJobMeta );
     data.executorJob.setParentTrans( getTrans() );
@@ -247,8 +246,6 @@ public class JobExecutor extends BaseStep implements StepInterface {
     } finally {
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, data.executorJob );
-        getExecutorJob().getJobMeta().disposeEmbeddedMetastoreProvider();
-        log.logDebug( BaseMessages.getString( PKG, "JobExecutor.Log.DisposeEmbeddedMetastore" ) );
         data.executorJob.fireJobFinishListeners();
       } catch ( HopException e ) {
         result.setNrErrors( 1 );
@@ -348,8 +345,8 @@ public class JobExecutor extends BaseStep implements StepInterface {
   }
 
   @VisibleForTesting
-  Job createJob( Repository repository, JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
-    return new Job( repository, jobMeta, parentLogging );
+  Job createJob( JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
+    return new Job( jobMeta, parentLogging );
   }
 
   @VisibleForTesting
@@ -393,11 +390,8 @@ public class JobExecutor extends BaseStep implements StepInterface {
     if ( super.init( smi, sdi ) ) {
       // First we need to load the mapping (transformation)
       try {
-        // Pass the repository down to the metadata object...
-        //
-        meta.setRepository( getTransMeta().getRepository() );
 
-        data.executorJobMeta = JobExecutorMeta.loadJobMeta( meta, meta.getRepository(), this );
+        data.executorJobMeta = JobExecutorMeta.loadJobMeta( meta, this );
 
         // Do we have a job at all?
         //

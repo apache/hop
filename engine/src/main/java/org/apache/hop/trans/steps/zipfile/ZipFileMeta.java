@@ -35,8 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -186,7 +185,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
     this.createparentfolder = createparentfolder;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -223,9 +222,6 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " ).append( XMLHandler.addTagValue( "createparentfolder", createparentfolder ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "keepsourcefolder", keepsourcefolder ) );
     retval.append( "    " + XMLHandler.addTagValue( "movetofolderfield", movetofolderfield ) );
-    parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( sourcefilenamefield );
-    parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( targetfilenamefield );
-    parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( baseFolderField );
     return retval.toString();
   }
 
@@ -247,46 +243,9 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      sourcefilenamefield = rep.getStepAttributeString( id_step, "sourcefilenamefield" );
-      targetfilenamefield = rep.getStepAttributeString( id_step, "targetfilenamefield" );
-      baseFolderField = rep.getStepAttributeString( id_step, "baseFolderField" );
-      operationType =
-        getOperationTypeByCode( Const.NVL( rep.getStepAttributeString( id_step, "operation_type" ), "" ) );
-      addresultfilenames = rep.getStepAttributeBoolean( id_step, "addresultfilenames" );
-      overwritezipentry = rep.getStepAttributeBoolean( id_step, "overwritezipentry" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "createparentfolder" );
-      keepsourcefolder = rep.getStepAttributeBoolean( id_step, "keepsourcefolder" );
-      movetofolderfield = rep.getStepAttributeString( id_step, "movetofolderfield" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ZipFileMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "sourcefilenamefield", sourcefilenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "targetfilenamefield", targetfilenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "baseFolderField", baseFolderField );
-      rep.saveStepAttribute( id_transformation, id_step, "operation_type", getOperationTypeCode( operationType ) );
-      rep.saveStepAttribute( id_transformation, id_step, "addresultfilenames", addresultfilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "overwritezipentry", overwritezipentry );
-      rep.saveStepAttribute( id_transformation, id_step, "createparentfolder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "keepsourcefolder", keepsourcefolder );
-      rep.saveStepAttribute( id_transformation, id_step, "movetofolderfield", movetofolderfield );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ZipFileMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

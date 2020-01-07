@@ -50,17 +50,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
@@ -74,8 +70,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogHelper;
-import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
@@ -132,9 +126,6 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
   private TableItem tiExecutionLogChannelIdField;
 
   private String executorOutputStep;
-
-  private ObjectId referenceObjectId;
-  private ObjectLocationSpecificationMethod specificationMethod;
 
   private ColumnInfo[] parameterColumns;
 
@@ -246,11 +237,7 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        if ( repository != null ) {
-          selectRepositoryTrans();
-        } else {
-          selectFileTrans();
-        }
+        selectFileTrans();
       }
     } );
 
@@ -354,33 +341,6 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
         ConstUI.LARGE_ICON_SIZE );
   }
 
-  private void selectRepositoryTrans() {
-    RepositoryObject repositoryObject = DialogHelper.selectRepositoryObject( "*.ktr", log );
-
-    try {
-      if ( repositoryObject != null ) {
-        loadRepositoryTrans( repositoryObject.getName(), repositoryObject.getRepositoryDirectory() );
-        String path = DialogUtils.getPath( transMeta.getRepositoryDirectory().getPath(),
-          executorTransMeta.getRepositoryDirectory().getPath() );
-        String fullPath = ( path.equals( "/" ) ? "/" : path + "/" ) + executorTransMeta.getName();
-        wPath.setText( fullPath );
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-    } catch ( HopException ke ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "TransExecutorDialog.ErrorSelectingObject.DialogTitle" ),
-        BaseMessages.getString( PKG, "TransExecutorDialog.ErrorSelectingObject.DialogMessage" ), ke );
-    }
-  }
-
-  private void loadRepositoryTrans( String transName, RepositoryDirectoryInterface repdir ) throws HopException {
-    // Read the transformation...
-    //
-    executorTransMeta =
-      repository.loadTransformation( transMeta.environmentSubstitute( transName ), repdir, null, false, null );
-    executorTransMeta.clearChanged();
-  }
-
   private void selectFileTrans() {
     String curFile = transMeta.environmentSubstitute( wPath.getText() );
 
@@ -412,7 +372,6 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
           fileName = fileName.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
         }
         wPath.setText( fileName );
-        specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
       }
     } catch ( IOException | HopException e ) {
       new ErrorDialog( shell,
@@ -422,79 +381,28 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
   }
 
   private void loadFileTrans( String fname ) throws HopException {
-    executorTransMeta = new TransMeta( transMeta.environmentSubstitute( fname ), repository );
+    executorTransMeta = new TransMeta( transMeta.environmentSubstitute( fname ) );
     executorTransMeta.clearChanged();
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
   void loadTransformation() throws HopException {
     String filename = wPath.getText();
-    if ( repository != null ) {
-      specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-    } else {
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
+    if ( Utils.isEmpty( filename ) ) {
+      return;
     }
-    switch ( specificationMethod ) {
-      case FILENAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        if ( !filename.endsWith( ".ktr" ) ) {
-          filename = filename + ".ktr";
-          wPath.setText( filename );
-        }
-        loadFileTrans( filename );
-        break;
-      case REPOSITORY_BY_NAME:
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        String transPath = transMeta.environmentSubstitute( filename );
-        String realTransname = transPath;
-        String realDirectory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          realTransname = transPath.substring( index + 1 );
-          realDirectory = transPath.substring( 0, index );
-        }
-
-        if ( Utils.isEmpty( realDirectory ) || Utils.isEmpty( realTransname ) ) {
-          throw new HopException(
-            BaseMessages.getString( PKG, "TransExecutorDialog.Exception.NoValidMappingDetailsFound" ) );
-        }
-        RepositoryDirectoryInterface repdir = repository.findDirectory( realDirectory );
-        if ( repdir == null ) {
-          throw new HopException( BaseMessages.getString(
-            PKG, "TransExecutorDialog.Exception.UnableToFindRepositoryDirectory" ) );
-        }
-        loadRepositoryTrans( realTransname, repdir );
-        break;
-      default:
-        break;
+    if ( !filename.endsWith( ".ktr" ) ) {
+      filename = filename + ".ktr";
+      wPath.setText( filename );
     }
+    loadFileTrans( filename );
   }
 
   /**
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    specificationMethod = transExecutorMeta.getSpecificationMethod();
-    switch ( specificationMethod ) {
-      case FILENAME:
-        wPath.setText( Const.NVL( transExecutorMeta.getFileName(), "" ) );
-        break;
-      case REPOSITORY_BY_NAME:
-        String fullPath = Const.NVL( transExecutorMeta.getDirectoryPath(), "" ) + "/" + Const
-          .NVL( transExecutorMeta.getTransName(), "" );
-        wPath.setText( fullPath );
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        referenceObjectId = transExecutorMeta.getTransObjectId();
-        getByReferenceData( referenceObjectId );
-        break;
-      default:
-        break;
-    }
+    wPath.setText( Const.NVL( transExecutorMeta.getFileName(), "" ) );
 
     // TODO: throw in a separate thread.
     //
@@ -1073,31 +981,7 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
         BaseMessages.getString( PKG, "TransExecutorDialog.ErrorLoadingSpecifiedTrans.Message" ), e );
     }
 
-    transExecutorMeta.setSpecificationMethod( specificationMethod );
-    switch ( specificationMethod ) {
-      case FILENAME:
-        transExecutorMeta.setFileName( wPath.getText() );
-        transExecutorMeta.setDirectoryPath( null );
-        transExecutorMeta.setTransName( null );
-        transExecutorMeta.setTransObjectId( null );
-        break;
-      case REPOSITORY_BY_NAME:
-        String transPath = wPath.getText();
-        String transName = transPath;
-        String directory = "";
-        int index = transPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          transName = transPath.substring( index + 1 );
-          directory = transPath.substring( 0, index );
-        }
-        transExecutorMeta.setDirectoryPath( directory );
-        transExecutorMeta.setTransName( transName );
-        transExecutorMeta.setFileName( null );
-        transExecutorMeta.setTransObjectId( null );
-        break;
-      default:
-        break;
-    }
+    transExecutorMeta.setFileName( wPath.getText() );
 
     // Load the information on the tabs, optionally do some
     // verifications...
@@ -1184,21 +1068,4 @@ public class TransExecutorDialog extends BaseStepDialog implements StepDialogInt
     }
 
   }
-
-  private void getByReferenceData( ObjectId transObjectId ) {
-    try {
-      RepositoryObject transInf = repository.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-      String path = DialogUtils
-        .getPath( transMeta.getRepositoryDirectory().getPath(), transInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( transInf.getName(), "" );
-      wPath.setText( fullPath );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "JobEntryTransDialog.Exception.UnableToReferenceObjectId.Title" ),
-        BaseMessages.getString( PKG, "JobEntryTransDialog.Exception.UnableToReferenceObjectId.Message" ), e );
-    }
-  }
-
-
 }

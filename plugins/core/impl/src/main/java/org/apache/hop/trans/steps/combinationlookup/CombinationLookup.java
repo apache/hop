@@ -132,8 +132,9 @@ public class CombinationLookup extends BaseStep implements StepInterface {
    * Key: - natural key fields Value: - Technical key - lookup fields / extra fields (allows us to compare or retrieve)
    * - Date_from - Date_to
    *
+   * @param rowMeta
    * @param row
-   * @param returnValues
+   * @param tk
    * @throws HopValueException
    */
   private void addToCache( RowMetaInterface rowMeta, Object[] row, Long tk ) throws HopValueException {
@@ -341,7 +342,7 @@ public class CombinationLookup extends BaseStep implements StepInterface {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.schemaTable =
         meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );

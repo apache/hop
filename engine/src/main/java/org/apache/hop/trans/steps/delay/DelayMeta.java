@@ -35,8 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -75,7 +74,7 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -152,37 +151,13 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
     this.timeout = timeout;
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      timeout = rep.getStepAttributeString( id_step, "timeout" );
-      scaletime = rep.getStepAttributeString( id_step, "scaletime" );
-      // set all unknown values to seconds
-      setScaleTimeCode( getScaleTimeCode() ); // compatibility reasons for transformations before 3.1.1, see PDI-1850,
-                                              // PDI-1532
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "DelayMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "timeout", timeout );
-      rep.saveStepAttribute( id_transformation, id_step, "scaletime", scaletime );
-
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "DelayMeta.Exception.UnexpectedErrorSavingStepInfo" ), e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

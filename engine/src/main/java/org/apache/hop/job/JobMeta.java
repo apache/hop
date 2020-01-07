@@ -31,8 +31,6 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.ProgressMonitorListener;
@@ -41,20 +39,18 @@ import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.IdNotFoundException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.exception.LookupReferencesException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.OverwritePrompter;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableInterface;
 import org.apache.hop.core.logging.LogTablePluginInterface;
@@ -70,6 +66,7 @@ import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLFormatter;
@@ -80,23 +77,16 @@ import org.apache.hop.job.entries.missing.MissingEntry;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.trans.steps.named.cluster.NamedClusterEmbedManager;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -112,20 +102,14 @@ import java.util.Set;
  * @author Matt
  * @since 11-08-2003
  */
-public class JobMeta extends AbstractMeta
-    implements Cloneable, Comparable<JobMeta>, XMLInterface, ResourceExportInterface, RepositoryElementInterface,
-    LoggingObjectInterface {
+public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMeta>,
+  XMLInterface, ResourceExportInterface, LoggingObjectInterface {
 
   private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String XML_TAG = "job";
 
   protected static final String XML_TAG_SLAVESERVERS = "slaveservers";
-
-  /**
-   * A constant specifying the repository element type as a Job.
-   */
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.JOB;
 
   static final int BORDER_INDENT = 20;
 
@@ -151,7 +135,9 @@ public class JobMeta extends AbstractMeta
 
   protected boolean expandingRemoteJob;
 
-  /** The log channel interface. */
+  /**
+   * The log channel interface.
+   */
   protected LogChannelInterface log;
 
   /**
@@ -187,7 +173,7 @@ public class JobMeta extends AbstractMeta
   /**
    * List of booleans indicating whether or not to remember the size and position of the different windows...
    */
-  public boolean[] max = new boolean[1];
+  public boolean[] max = new boolean[ 1 ];
 
   protected boolean batchIdPassed;
 
@@ -208,24 +194,24 @@ public class JobMeta extends AbstractMeta
    */
   @Override
   public void clear() {
-    jobcopies = new ArrayList<JobEntryCopy>();
-    jobhops = new ArrayList<JobHopMeta>();
+    jobcopies = new ArrayList<>();
+    jobhops = new ArrayList<>();
 
-    jobLogTable = JobLogTable.getDefault( this, this );
-    jobEntryLogTable = JobEntryLogTable.getDefault( this, this );
+    jobLogTable = JobLogTable.getDefault( this, metaStore );
+    jobEntryLogTable = JobEntryLogTable.getDefault( this, metaStore );
     extraLogTables = new ArrayList<LogTableInterface>();
 
     List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( LogTablePluginType.class );
     for ( PluginInterface plugin : plugins ) {
       try {
         LogTablePluginInterface logTablePluginInterface = (LogTablePluginInterface) PluginRegistry.getInstance()
-            .loadClass( plugin );
+          .loadClass( plugin );
         if ( logTablePluginInterface.getType() == TableType.JOB ) {
-          logTablePluginInterface.setContext( this, this );
+          logTablePluginInterface.setContext( this, metaStore );
           extraLogTables.add( logTablePluginInterface );
         }
       } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error loading log table plugin with ID " + plugin.getIds()[0], e );
+        LogChannel.GENERAL.logError( "Error loading log table plugin with ID " + plugin.getIds()[ 0 ], e );
       }
     }
 
@@ -264,7 +250,6 @@ public class JobMeta extends AbstractMeta
   public static final JobEntryCopy createStartEntry() {
     JobEntrySpecial jobEntrySpecial = new JobEntrySpecial( BaseMessages.getString( PKG, "JobMeta.StartJobEntry.Name" ), true, false );
     JobEntryCopy jobEntry = new JobEntryCopy();
-    jobEntry.setObjectId( null );
     jobEntry.setEntry( jobEntrySpecial );
     jobEntry.setLocation( 50, 50 );
     jobEntry.setDrawn( false );
@@ -281,7 +266,6 @@ public class JobMeta extends AbstractMeta
   public static final JobEntryCopy createDummyEntry() {
     JobEntrySpecial jobEntrySpecial = new JobEntrySpecial( BaseMessages.getString( PKG, "JobMeta.DummyJobEntry.Name" ), false, true );
     JobEntryCopy jobEntry = new JobEntryCopy();
-    jobEntry.setObjectId( null );
     jobEntry.setEntry( jobEntrySpecial );
     jobEntry.setLocation( 50, 50 );
     jobEntry.setDrawn( false );
@@ -339,12 +323,9 @@ public class JobMeta extends AbstractMeta
    * and then performing a string comparison, ultimately returning the result of the filename string comparison.
    * </ol>
    *
-   * @param j1
-   *          the first job to compare
-   * @param j2
-   *          the second job to compare
+   * @param j1 the first job to compare
+   * @param j2 the second job to compare
    * @return 0 if the two jobs are equal, 1 or -1 depending on the values (see description above)
-   *
    */
   public int compare( JobMeta j1, JobMeta j2 ) {
     return super.compare( j1, j2 );
@@ -407,7 +388,6 @@ public class JobMeta extends AbstractMeta
         jobMeta.jobcopies = new ArrayList<JobEntryCopy>();
         jobMeta.jobhops = new ArrayList<JobHopMeta>();
         jobMeta.notes = new ArrayList<NotePadMeta>();
-        jobMeta.databases = new ArrayList<DatabaseMeta>();
         jobMeta.slaveServers = new ArrayList<SlaveServer>();
         jobMeta.namedParams = new NamedParamsDefault();
       }
@@ -420,9 +400,6 @@ public class JobMeta extends AbstractMeta
       }
       for ( NotePadMeta entry : notes ) {
         jobMeta.notes.add( (NotePadMeta) entry.clone() );
-      }
-      for ( DatabaseMeta entry : databases ) {
-        jobMeta.databases.add( (DatabaseMeta) entry.clone() );
       }
       for ( SlaveServer slave : slaveServers ) {
         jobMeta.getSlaveServers().add( (SlaveServer) slave.clone() );
@@ -494,36 +471,6 @@ public class JobMeta extends AbstractMeta
     return false;
   }
 
-  private Set<DatabaseMeta> getUsedDatabaseMetas() {
-    Set<DatabaseMeta> databaseMetas = new HashSet<DatabaseMeta>();
-    for ( JobEntryCopy jobEntryCopy : getJobCopies() ) {
-      DatabaseMeta[] dbs = jobEntryCopy.getEntry().getUsedDatabaseConnections();
-      if ( dbs != null ) {
-        for ( DatabaseMeta db : dbs ) {
-          databaseMetas.add( db );
-        }
-      }
-    }
-
-    databaseMetas.add( jobLogTable.getDatabaseMeta() );
-
-    for ( LogTableInterface logTable : getExtraLogTables() ) {
-      databaseMetas.add( logTable.getDatabaseMeta() );
-    }
-    return databaseMetas;
-  }
-
-  /**
-   * This method asks all steps in the transformation whether or not the specified database connection is used. The
-   * connection is used in the transformation if any of the steps uses it or if it is being used to log to.
-   *
-   * @param databaseMeta The connection to check
-   * @return true if the connection is used in this transformation.
-   */
-  public boolean isDatabaseConnectionUsed( DatabaseMeta databaseMeta ) {
-    return getUsedDatabaseMetas().contains( databaseMeta );
-  }
-
   /*
    * (non-Javadoc)
    *
@@ -544,7 +491,7 @@ public class JobMeta extends AbstractMeta
   }
 
   /**
-   * Gets the job filter extensions. For JobMeta, this method returns the value of {@link Const.STRING_JOB_FILTER_EXT}
+   * Gets the job filter extensions. For JobMeta, this method returns the value of Const.STRING_JOB_FILTER_EXT
    *
    * @return the filter extensions
    * @see org.apache.hop.core.EngineMetaInterface#getFilterExtensions()
@@ -570,8 +517,6 @@ public class JobMeta extends AbstractMeta
    * @see org.apache.hop.core.xml.XMLInterface#getXML()
    */
   public String getXML() {
-    //Clear the embedded named clusters.  We will be repopulating from steps that used named clusters
-    getNamedClusterEmbedManager().clear();
 
     Props props = null;
     if ( Props.isInitialized() ) {
@@ -591,8 +536,6 @@ public class JobMeta extends AbstractMeta
       retval.append( "  " ).append( XMLHandler.addTagValue( "job_status", jobStatus ) );
     }
 
-    retval.append( "  " ).append( XMLHandler.addTagValue( "directory",
-        ( directory != null ? directory.getPath() : RepositoryDirectory.DIRECTORY_SEPARATOR ) ) );
     retval.append( "  " ).append( XMLHandler.addTagValue( "created_user", createdUser ) );
     retval.append( "  " ).append( XMLHandler.addTagValue( "created_date", XMLHandler.date2string( createdDate ) ) );
     retval.append( "  " ).append( XMLHandler.addTagValue( "modified_user", modifiedUser ) );
@@ -602,12 +545,12 @@ public class JobMeta extends AbstractMeta
     String[] parameters = listParameters();
     for ( int idx = 0; idx < parameters.length; idx++ ) {
       retval.append( "      " ).append( XMLHandler.openTag( "parameter" ) ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[idx] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[ idx ] ) );
       try {
         retval.append( "        " )
-            .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[idx] ) ) );
+          .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
         retval.append( "        " )
-            .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[idx] ) ) );
+          .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
       } catch ( UnknownParamException e ) {
         // skip the default value and/or description. This exception should never happen because we use listParameters()
         // above.
@@ -615,19 +558,6 @@ public class JobMeta extends AbstractMeta
       retval.append( "      " ).append( XMLHandler.closeTag( "parameter" ) ).append( Const.CR );
     }
     retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
-
-    Set<DatabaseMeta> usedDatabaseMetas = getUsedDatabaseMetas();
-    // Save the database connections...
-    for ( int i = 0; i < nrDatabases(); i++ ) {
-      DatabaseMeta dbMeta = getDatabase( i );
-      if ( props != null && props.areOnlyUsedConnectionsSavedToXML() ) {
-        if ( usedDatabaseMetas.contains( dbMeta ) ) {
-          retval.append( dbMeta.getXML() );
-        }
-      } else {
-        retval.append( dbMeta.getXML() );
-      }
-    }
 
     // The slave servers...
     //
@@ -650,7 +580,6 @@ public class JobMeta extends AbstractMeta
     retval.append( "  " ).append( XMLHandler.openTag( "entries" ) ).append( Const.CR );
     for ( int i = 0; i < nrJobEntries(); i++ ) {
       JobEntryCopy jge = getJobEntry( i );
-      jge.getEntry().setRepository( repository );
       retval.append( jge.getXML() );
     }
     retval.append( "  " ).append( XMLHandler.closeTag( "entries" ) ).append( Const.CR );
@@ -682,47 +611,21 @@ public class JobMeta extends AbstractMeta
    * Instantiates a new job meta.
    *
    * @param fname the fname
-   * @param rep   the rep
    * @throws HopXMLException the kettle xml exception
    */
-  public JobMeta( String fname, Repository rep ) throws HopXMLException {
-    this( null, fname, rep, null );
+  public JobMeta( String fname ) throws HopXMLException {
+    this( null, fname, null );
   }
 
   /**
-   * Instantiates a new job meta.
+   * Load the job from the XML file specified
    *
-   * @param fname    the fname
-   * @param rep      the rep
-   * @param prompter the prompter
-   * @throws HopXMLException the kettle xml exception
-   */
-  public JobMeta( String fname, Repository rep, OverwritePrompter prompter ) throws HopXMLException {
-    this( null, fname, rep, prompter );
-  }
-
-  /**
-   * Load the job from the XML file specified.
-   *
-   * @param fname The filename to load as a job
-   * @param rep   The repository to bind againt, null if there is no repository available.
+   * @param parentSpace
+   * @param fname
+   * @param metaStore
    * @throws HopXMLException
    */
-  @Deprecated
-  public JobMeta( VariableSpace parentSpace, String fname, Repository rep, OverwritePrompter prompter )
-      throws HopXMLException {
-    this( parentSpace, fname, rep, null, prompter );
-  }
-
-  /**
-   * Load the job from the XML file specified.
-   *
-   * @param fname The filename to load as a job
-   * @param rep   The repository to bind againt, null if there is no repository available.
-   * @throws HopXMLException
-   */
-  public JobMeta( VariableSpace parentSpace, String fname, Repository rep, IMetaStore metaStore,
-      OverwritePrompter prompter ) throws HopXMLException {
+  public JobMeta( VariableSpace parentSpace, String fname, IMetaStore metaStore ) throws HopXMLException {
     this.initializeVariablesFrom( parentSpace );
     this.metaStore = metaStore;
     try {
@@ -732,14 +635,14 @@ public class JobMeta extends AbstractMeta
         // The jobnode
         Node jobnode = XMLHandler.getSubNode( doc, XML_TAG );
 
-        loadXML( jobnode, fname, rep, metaStore, false, prompter );
+        loadXML( jobnode, fname, metaStore, false );
       } else {
         throw new HopXMLException(
-            BaseMessages.getString( PKG, "JobMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
+          BaseMessages.getString( PKG, "JobMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
       }
     } catch ( Exception e ) {
       throw new HopXMLException(
-          BaseMessages.getString( PKG, "JobMeta.Exception.UnableToLoadJobFromXMLFile" ) + fname + "]", e );
+        BaseMessages.getString( PKG, "JobMeta.Exception.UnableToLoadJobFromXMLFile" ) + fname + "]", e );
     }
   }
 
@@ -747,42 +650,36 @@ public class JobMeta extends AbstractMeta
    * Instantiates a new job meta.
    *
    * @param inputStream the input stream
-   * @param rep         the rep
-   * @param prompter    the prompter
    * @throws HopXMLException the kettle xml exception
    */
-  public JobMeta( InputStream inputStream, Repository rep, OverwritePrompter prompter ) throws HopXMLException {
+  public JobMeta( InputStream inputStream ) throws HopXMLException {
     this();
     Document doc = XMLHandler.loadXMLFile( inputStream, null, false, false );
-    loadXML( XMLHandler.getSubNode( doc, JobMeta.XML_TAG ), rep, prompter );
+    loadXML( XMLHandler.getSubNode( doc, JobMeta.XML_TAG ) );
   }
 
   /**
    * Create a new JobMeta object by loading it from a a DOM node.
    *
    * @param jobnode  The node to load from
-   * @param rep      The reference to a repository to load additional information from
-   * @param prompter The prompter to use in case a shared object gets overwritten
    * @throws HopXMLException
    */
-  public JobMeta( Node jobnode, Repository rep, OverwritePrompter prompter ) throws HopXMLException {
+  public JobMeta( Node jobnode ) throws HopXMLException {
     this();
-    loadXML( jobnode, rep, false, prompter );
+    loadXML( jobnode, false );
   }
 
   /**
    * Create a new JobMeta object by loading it from a a DOM node.
    *
    * @param jobnode                       The node to load from
-   * @param rep                           The reference to a repository to load additional information from
    * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @param prompter                      The prompter to use in case a shared object gets overwritten
    * @throws HopXMLException
    */
-  public JobMeta( Node jobnode, Repository rep, boolean ignoreRepositorySharedObjects, OverwritePrompter prompter )
-      throws HopXMLException {
+  public JobMeta( Node jobnode, boolean ignoreRepositorySharedObjects )
+    throws HopXMLException {
     this();
-    loadXML( jobnode, rep, ignoreRepositorySharedObjects, prompter );
+    loadXML( jobnode, ignoreRepositorySharedObjects );
   }
 
   /**
@@ -829,12 +726,10 @@ public class JobMeta extends AbstractMeta
    * Load xml.
    *
    * @param jobnode  the jobnode
-   * @param rep      the rep
-   * @param prompter the prompter
    * @throws HopXMLException the kettle xml exception
    */
-  public void loadXML( Node jobnode, Repository rep, OverwritePrompter prompter ) throws HopXMLException {
-    loadXML( jobnode, rep, false, prompter );
+  public void loadXML( Node jobnode ) throws HopXMLException {
+    loadXML( jobnode, false );
   }
 
   /**
@@ -842,27 +737,23 @@ public class JobMeta extends AbstractMeta
    *
    * @param jobnode  the jobnode
    * @param fname    The filename
-   * @param rep      the rep
-   * @param prompter the prompter
    * @throws HopXMLException the kettle xml exception
    */
-  public void loadXML( Node jobnode, String fname, Repository rep, OverwritePrompter prompter )
-      throws HopXMLException {
-    loadXML( jobnode, fname, rep, false, prompter );
+  public void loadXML( Node jobnode, String fname )
+    throws HopXMLException {
+    loadXML( jobnode, fname, false );
   }
 
   /**
    * Load a block of XML from an DOM node.
    *
    * @param jobnode                       The node to load from
-   * @param rep                           The reference to a repository to load additional information from
    * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @param prompter                      The prompter to use in case a shared object gets overwritten
    * @throws HopXMLException
    */
-  public void loadXML( Node jobnode, Repository rep, boolean ignoreRepositorySharedObjects, OverwritePrompter prompter )
-      throws HopXMLException {
-    loadXML( jobnode, null, rep, ignoreRepositorySharedObjects, prompter );
+  public void loadXML( Node jobnode, boolean ignoreRepositorySharedObjects )
+    throws HopXMLException {
+    loadXML( jobnode, null, ignoreRepositorySharedObjects );
   }
 
   /**
@@ -870,16 +761,13 @@ public class JobMeta extends AbstractMeta
    *
    * @param jobnode                       The node to load from
    * @param fname                         The filename
-   * @param rep                           The reference to a repository to load additional information from
    * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @param prompter                      The prompter to use in case a shared object gets overwritten
    * @throws HopXMLException
    * @deprecated
    */
   @Deprecated
-  public void loadXML( Node jobnode, String fname, Repository rep, boolean ignoreRepositorySharedObjects,
-      OverwritePrompter prompter ) throws HopXMLException {
-    loadXML( jobnode, fname, rep, null, ignoreRepositorySharedObjects, prompter );
+  public void loadXML( Node jobnode, String fname, boolean ignoreRepositorySharedObjects ) throws HopXMLException {
+    loadXML( jobnode, fname, null, ignoreRepositorySharedObjects  );
   }
 
   /**
@@ -887,14 +775,12 @@ public class JobMeta extends AbstractMeta
    *
    * @param jobnode                       The node to load from
    * @param fname                         The filename
-   * @param rep                           The reference to a repository to load additional information from
    * @param metaStore                     the MetaStore to use
    * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @param prompter                      The prompter to use in case a shared object gets overwritten
    * @throws HopXMLException
    */
-  public void loadXML( Node jobnode, String fname, Repository rep, IMetaStore metaStore,
-      boolean ignoreRepositorySharedObjects, OverwritePrompter prompter ) throws HopXMLException {
+  public void loadXML( Node jobnode, String fname, IMetaStore metaStore,
+                       boolean ignoreRepositorySharedObjects ) throws HopXMLException {
     Props props = null;
     if ( Props.isInitialized() ) {
       props = Props.getInstance();
@@ -904,31 +790,11 @@ public class JobMeta extends AbstractMeta
       // clear the jobs;
       clear();
 
-      // If we are not using a repository, we are getting the job from a file
-      // Set the filename here so it can be used in variables for ALL aspects of the job FIX: PDI-8890
-      if ( null == rep ) {
-        setFilename( fname );
-      }  else {
-        // Set the repository here so it can be used in variables for ALL aspects of the job FIX: PDI-16441
-        setRepository( rep );
-      }
+      setFilename( fname );
 
-      //
       // get job info:
       //
       setName( XMLHandler.getTagValue( jobnode, "name" ) );
-
-      // Optionally load the repository directory...
-      //
-      if ( rep != null ) {
-        String directoryPath = XMLHandler.getTagValue( jobnode, "directory" );
-        if ( directoryPath != null ) {
-          directory = rep.findDirectory( directoryPath );
-          if ( directory == null ) { // not found
-            directory = new RepositoryDirectory(); // The root as default
-          }
-        }
-      }
 
       // description
       description = XMLHandler.getTagValue( jobnode, "description" );
@@ -961,20 +827,12 @@ public class JobMeta extends AbstractMeta
       // Read objects from the shared XML file & the repository
       try {
         sharedObjectsFile = XMLHandler.getTagValue( jobnode, "shared_objects_file" );
-        if ( rep == null || ignoreRepositorySharedObjects ) {
-          sharedObjects = readSharedObjects();
-        } else {
-          sharedObjects = rep.readJobMetaSharedObjects( this );
-        }
+        sharedObjects = readSharedObjects();
       } catch ( Exception e ) {
         LogChannel.GENERAL
-            .logError( BaseMessages.getString( PKG, "JobMeta.ErrorReadingSharedObjects.Message", e.toString() ) );
+          .logError( BaseMessages.getString( PKG, "JobMeta.ErrorReadingSharedObjects.Message", e.toString() ) );
         LogChannel.GENERAL.logError( Const.getStackTracker( e ) );
       }
-
-      // Load the database connections, slave servers, cluster schemas & partition schemas into this object.
-      //
-      importFromMetaStore();
 
       // Read the named parameters.
       Node paramsNode = XMLHandler.getSubNode( jobnode, XML_TAG_PARAMETERS );
@@ -990,37 +848,6 @@ public class JobMeta extends AbstractMeta
         addParameterDefinition( paramName, defValue, descr );
       }
 
-      //
-      // Read the database connections
-      //
-      int nr = XMLHandler.countNodes( jobnode, "connection" );
-      Set<String> privateDatabases = new HashSet<String>( nr );
-      for ( int i = 0; i < nr; i++ ) {
-        Node dbnode = XMLHandler.getSubNodeByNr( jobnode, "connection", i );
-        DatabaseMeta dbcon = new DatabaseMeta( dbnode );
-        dbcon.shareVariablesWith( this );
-        if ( !dbcon.isShared() ) {
-          privateDatabases.add( dbcon.getName() );
-        }
-
-        DatabaseMeta exist = findDatabase( dbcon.getName() );
-        if ( exist == null ) {
-          addDatabase( dbcon );
-        } else {
-          if ( !exist.isShared() ) {
-            // skip shared connections
-            if ( shouldOverwrite( prompter, props,
-                BaseMessages.getString( PKG, "JobMeta.Dialog.ConnectionExistsOverWrite.Message", dbcon.getName() ),
-                BaseMessages.getString( PKG, "JobMeta.Dialog.ConnectionExistsOverWrite.DontShowAnyMoreMessage" ) ) ) {
-              int idx = indexOfDatabase( exist );
-              removeDatabase( idx );
-              addDatabase( idx, dbcon );
-            }
-          }
-        }
-      }
-      setPrivateDatabases( privateDatabases );
-
       // Read the slave servers...
       //
       Node slaveServersNode = XMLHandler.getSubNode( jobnode, XML_TAG_SLAVESERVERS );
@@ -1030,22 +857,7 @@ public class JobMeta extends AbstractMeta
         SlaveServer slaveServer = new SlaveServer( slaveServerNode );
         slaveServer.shareVariablesWith( this );
 
-        // Check if the object exists and if it's a shared object.
-        // If so, then we will keep the shared version, not this one.
-        // The stored XML is only for backup purposes.
-        SlaveServer check = findSlaveServer( slaveServer.getName() );
-        if ( check != null ) {
-          if ( !check.isShared() ) {
-            // we don't overwrite shared objects.
-            if ( shouldOverwrite( prompter, props, BaseMessages
-                    .getString( PKG, "JobMeta.Dialog.SlaveServerExistsOverWrite.Message", slaveServer.getName() ),
-                BaseMessages.getString( PKG, "JobMeta.Dialog.ConnectionExistsOverWrite.DontShowAnyMoreMessage" ) ) ) {
-              addOrReplaceSlaveServer( slaveServer );
-            }
-          }
-        } else {
-          slaveServers.add( slaveServer );
-        }
+        slaveServers.add( slaveServer );
       }
 
       /*
@@ -1064,17 +876,17 @@ public class JobMeta extends AbstractMeta
         jobLogTable.findField( JobLogTable.ID.CHANNEL_ID ).setEnabled( false );
         jobLogTable.findField( JobLogTable.ID.LINES_REJECTED ).setEnabled( false );
       } else {
-        jobLogTable.loadXML( jobLogNode, databases, null );
+        jobLogTable.loadXML( jobLogNode, null );
       }
 
       Node channelLogTableNode = XMLHandler.getSubNode( jobnode, ChannelLogTable.XML_TAG );
       if ( channelLogTableNode != null ) {
-        channelLogTable.loadXML( channelLogTableNode, databases, null );
+        channelLogTable.loadXML( channelLogTableNode, null );
       }
-      jobEntryLogTable.loadXML( jobnode, databases, null );
+      jobEntryLogTable.loadXML( jobnode, null );
 
       for ( LogTableInterface extraLogTable : extraLogTables ) {
-        extraLogTable.loadXML( jobnode, databases, null );
+        extraLogTable.loadXML( jobnode, null );
       }
 
       batchIdPassed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( jobnode, "pass_batchid" ) );
@@ -1088,7 +900,7 @@ public class JobMeta extends AbstractMeta
         Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "entry", i );
         // System.out.println("Reading entry:\n"+entrynode);
 
-        JobEntryCopy je = new JobEntryCopy( entrynode, databases, slaveServers, rep, metaStore );
+        JobEntryCopy je = new JobEntryCopy( entrynode, slaveServers, metaStore );
 
         if ( je.isSpecial() && je.isMissing() ) {
           addMissingEntry( (MissingEntry) je.getEntry() );
@@ -1430,7 +1242,7 @@ public class JobMeta extends AbstractMeta
     for ( JobHopMeta hi : jobhops ) {
       if ( hi.isEnabled() || includeDisabled ) {
         if ( hi != null && hi.getFromEntry() != null && hi.getToEntry() != null && hi.getFromEntry().equals( from )
-            && hi.getToEntry().equals( to ) ) {
+          && hi.getToEntry().equals( to ) ) {
           return hi;
         }
       }
@@ -1578,6 +1390,7 @@ public class JobMeta extends AbstractMeta
   public boolean hasLoop( JobEntryCopy entry, JobEntryCopy lookup, boolean info ) {
     return hasLoop( entry, lookup );
   }
+
   /**
    * Checks for loop.
    *
@@ -1599,7 +1412,7 @@ public class JobMeta extends AbstractMeta
    */
   private boolean hasLoop( JobEntryCopy entry, JobEntryCopy lookup, HashSet<JobEntryCopy> checkedEntries ) {
     String cacheKey =
-        entry.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
+      entry.getName() + " - " + ( lookup != null ? lookup.getName() : "" );
 
     Boolean hasLoop = loopCache.get( cacheKey );
 
@@ -1615,7 +1428,7 @@ public class JobMeta extends AbstractMeta
     for ( int i = 0; i < nr; i++ ) {
       JobEntryCopy prevJobMeta = findPrevJobEntry( entry, i );
       if ( prevJobMeta != null && ( prevJobMeta.equals( lookup )
-              || ( !checkedEntries.contains( prevJobMeta ) && hasLoop( prevJobMeta, lookup == null ? entry : lookup, checkedEntries ) ) ) ) {
+        || ( !checkedEntries.contains( prevJobMeta ) && hasLoop( prevJobMeta, lookup == null ? entry : lookup, checkedEntries ) ) ) ) {
         hasLoop = true;
         break;
       }
@@ -1736,13 +1549,13 @@ public class JobMeta extends AbstractMeta
         count++;
       }
     }
-    JobEntryCopy[] retval = new JobEntryCopy[count];
+    JobEntryCopy[] retval = new JobEntryCopy[ count ];
 
     count = 0;
     for ( int i = 0; i < nrJobEntries(); i++ ) {
       JobEntryCopy je = getJobEntry( i );
       if ( je.getName().equalsIgnoreCase( name ) ) {
-        retval[count] = je;
+        retval[ count ] = je;
         count++;
       }
     }
@@ -1763,12 +1576,12 @@ public class JobMeta extends AbstractMeta
 
       if ( hi.getFromEntry() != null && hi.getToEntry() != null ) {
         if ( hi.getFromEntry().getName().equalsIgnoreCase( name ) || hi.getToEntry().getName()
-            .equalsIgnoreCase( name ) ) {
+          .equalsIgnoreCase( name ) ) {
           hops.add( hi );
         }
       }
     }
-    return hops.toArray( new JobHopMeta[hops.size()] );
+    return hops.toArray( new JobHopMeta[ hops.size() ] );
   }
 
   public boolean isPathExist( JobEntryInterface from, JobEntryInterface to ) {
@@ -1901,11 +1714,11 @@ public class JobMeta extends AbstractMeta
    */
   public Point[] getSelectedLocations() {
     List<JobEntryCopy> selectedEntries = getSelectedEntries();
-    Point[] retval = new Point[selectedEntries.size()];
+    Point[] retval = new Point[ selectedEntries.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
       JobEntryCopy si = selectedEntries.get( i );
       Point p = si.getLocation();
-      retval[i] = new Point( p.x, p.y ); // explicit copy of location
+      retval[ i ] = new Point( p.x, p.y ); // explicit copy of location
     }
     return retval;
   }
@@ -1923,7 +1736,7 @@ public class JobMeta extends AbstractMeta
       points.add( new Point( p.x, p.y ) ); // explicit copy of location
     }
 
-    return points.toArray( new Point[points.size()] );
+    return points.toArray( new Point[ points.size() ] );
   }
 
   /**
@@ -1948,10 +1761,10 @@ public class JobMeta extends AbstractMeta
    * @return the entry indexes
    */
   public int[] getEntryIndexes( List<JobEntryCopy> entries ) {
-    int[] retval = new int[entries.size()];
+    int[] retval = new int[ entries.size() ];
 
     for ( int i = 0; i < entries.size(); i++ ) {
-      retval[i] = indexOfJobEntry( entries.get( i ) );
+      retval[ i ] = indexOfJobEntry( entries.get( i ) );
     }
 
     return retval;
@@ -1987,16 +1800,7 @@ public class JobMeta extends AbstractMeta
     }
 
     if ( name != null ) {
-      if ( directory != null ) {
-        String path = directory.getPath();
-        if ( path.endsWith( RepositoryDirectory.DIRECTORY_SEPARATOR ) ) {
-          return path + name;
-        } else {
-          return path + RepositoryDirectory.DIRECTORY_SEPARATOR + name;
-        }
-      } else {
-        return name;
-      }
+      return name;
     } else {
       return JobMeta.class.getName();
     }
@@ -2020,9 +1824,9 @@ public class JobMeta extends AbstractMeta
     this.batchIdPassed = batchIdPassed;
   }
 
-  public List<SQLStatement> getSQLStatements( Repository repository, ProgressMonitorListener monitor )
-      throws HopException {
-    return getSQLStatements( repository, null, monitor );
+  public List<SQLStatement> getSQLStatements( ProgressMonitorListener monitor )
+    throws HopException {
+    return getSQLStatements( null, monitor );
   }
 
   /**
@@ -2030,11 +1834,11 @@ public class JobMeta extends AbstractMeta
    *
    * @return An ArrayList of SQLStatement objects.
    */
-  public List<SQLStatement> getSQLStatements( Repository repository, IMetaStore metaStore,
-      ProgressMonitorListener monitor ) throws HopException {
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore,
+                                              ProgressMonitorListener monitor ) throws HopException {
     if ( monitor != null ) {
       monitor
-          .beginTask( BaseMessages.getString( PKG, "JobMeta.Monitor.GettingSQLNeededForThisJob" ), nrJobEntries() + 1 );
+        .beginTask( BaseMessages.getString( PKG, "JobMeta.Monitor.GettingSQLNeededForThisJob" ), nrJobEntries() + 1 );
     }
     List<SQLStatement> stats = new ArrayList<SQLStatement>();
 
@@ -2043,9 +1847,7 @@ public class JobMeta extends AbstractMeta
       if ( monitor != null ) {
         monitor.subTask( BaseMessages.getString( PKG, "JobMeta.Monitor.GettingSQLForJobEntryCopy" ) + copy + "]" );
       }
-      stats.addAll( copy.getEntry().getSQLStatements( repository, metaStore, this ) );
-      stats.addAll( compatibleGetEntrySQLStatements( copy.getEntry(), repository ) );
-      stats.addAll( compatibleGetEntrySQLStatements( copy.getEntry(), repository, this ) );
+      stats.addAll( copy.getEntry().getSQLStatements( metaStore, this ) );
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
@@ -2063,14 +1865,14 @@ public class JobMeta extends AbstractMeta
         String sql = db.getDDL( jobLogTable.getTableName(), fields );
         if ( sql != null && sql.length() > 0 ) {
           SQLStatement stat = new SQLStatement( BaseMessages.getString( PKG, "JobMeta.SQLFeedback.ThisJob" ),
-              jobLogTable.getDatabaseMeta(), sql );
+            jobLogTable.getDatabaseMeta(), sql );
           stats.add( stat );
         }
       } catch ( HopDatabaseException dbe ) {
         SQLStatement stat = new SQLStatement( BaseMessages.getString( PKG, "JobMeta.SQLFeedback.ThisJob" ),
-            jobLogTable.getDatabaseMeta(), null );
+          jobLogTable.getDatabaseMeta(), null );
         stat.setError(
-            BaseMessages.getString( PKG, "JobMeta.SQLFeedback.ErrorObtainingJobLogTableInfo" ) + dbe.getMessage() );
+          BaseMessages.getString( PKG, "JobMeta.SQLFeedback.ErrorObtainingJobLogTableInfo" ) + dbe.getMessage() );
         stats.add( stat );
       } finally {
         db.disconnect();
@@ -2084,18 +1886,6 @@ public class JobMeta extends AbstractMeta
     }
 
     return stats;
-  }
-
-  @SuppressWarnings( "deprecation" )
-  private Collection<? extends SQLStatement> compatibleGetEntrySQLStatements( JobEntryInterface entry,
-      Repository repository, VariableSpace variableSpace ) throws HopException {
-    return entry.getSQLStatements( repository, variableSpace );
-  }
-
-  @SuppressWarnings( "deprecation" )
-  private Collection<? extends SQLStatement> compatibleGetEntrySQLStatements( JobEntryInterface entry,
-      Repository repository ) throws HopException {
-    return entry.getSQLStatements( repository );
   }
 
   /**
@@ -2134,10 +1924,10 @@ public class JobMeta extends AbstractMeta
       for ( int i = 0; i < nrJobEntries(); i++ ) {
         JobEntryCopy entryMeta = getJobEntry( i );
         stringList.add( new StringSearchResult( entryMeta.getName(), entryMeta, this,
-            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.JobEntryName" ) ) );
+          BaseMessages.getString( PKG, "JobMeta.SearchMetadata.JobEntryName" ) ) );
         if ( entryMeta.getDescription() != null ) {
           stringList.add( new StringSearchResult( entryMeta.getDescription(), entryMeta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.JobEntryDescription" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.JobEntryDescription" ) ) );
         }
         JobEntryInterface metaInterface = entryMeta.getEntry();
         StringSearcher.findMetaData( metaInterface, 1, stringList, entryMeta, this );
@@ -2147,39 +1937,38 @@ public class JobMeta extends AbstractMeta
     // Loop over all steps in the transformation and see what the used vars
     // are...
     if ( searchDatabases ) {
-      for ( int i = 0; i < nrDatabases(); i++ ) {
-        DatabaseMeta meta = getDatabase( i );
+      for ( DatabaseMeta meta : getDatabases() ) {
         stringList.add( new StringSearchResult( meta.getName(), meta, this,
-            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseConnectionName" ) ) );
+          BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseConnectionName" ) ) );
         if ( meta.getHostname() != null ) {
           stringList.add( new StringSearchResult( meta.getHostname(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseHostName" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseHostName" ) ) );
         }
         if ( meta.getDatabaseName() != null ) {
           stringList.add( new StringSearchResult( meta.getDatabaseName(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseName" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseName" ) ) );
         }
         if ( meta.getUsername() != null ) {
           stringList.add( new StringSearchResult( meta.getUsername(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseUsername" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseUsername" ) ) );
         }
         if ( meta.getPluginId() != null ) {
           stringList.add( new StringSearchResult( meta.getPluginId(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseTypeDescription" ) ) );
         }
         if ( meta.getPort() != null ) {
           stringList.add( new StringSearchResult( meta.getPort(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabasePort" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabasePort" ) ) );
         }
         if ( meta.getServername() != null ) {
           stringList.add( new StringSearchResult( meta.getServername(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseServer" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabaseServer" ) ) );
         }
         // if ( includePasswords )
         // {
         if ( meta.getPassword() != null ) {
           stringList.add( new StringSearchResult( meta.getPassword(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabasePassword" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.DatabasePassword" ) ) );
           // }
         }
       }
@@ -2192,7 +1981,7 @@ public class JobMeta extends AbstractMeta
         NotePadMeta meta = getNote( i );
         if ( meta.getNote() != null ) {
           stringList.add( new StringSearchResult( meta.getNote(), meta, this,
-              BaseMessages.getString( PKG, "JobMeta.SearchMetadata.NotepadText" ) ) );
+            BaseMessages.getString( PKG, "JobMeta.SearchMetadata.NotepadText" ) ) );
         }
       }
     }
@@ -2295,46 +2084,6 @@ public class JobMeta extends AbstractMeta
   }
 
   /**
-   * Find a jobentry with a certain ID in a list of job entries.
-   *
-   * @param jobentries  The List of jobentries
-   * @param id_jobentry The id of the jobentry
-   * @return The JobEntry object if one was found, null otherwise.
-   */
-  public static final JobEntryInterface findJobEntry( List<JobEntryInterface> jobentries, ObjectId id_jobentry ) {
-    if ( jobentries == null ) {
-      return null;
-    }
-
-    for ( JobEntryInterface je : jobentries ) {
-      if ( je.getObjectId() != null && je.getObjectId().equals( id_jobentry ) ) {
-        return je;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find a jobentrycopy with a certain ID in a list of job entry copies.
-   *
-   * @param jobcopies        The List of jobentry copies
-   * @param id_jobentry_copy The id of the jobentry copy
-   * @return The JobEntryCopy object if one was found, null otherwise.
-   */
-  public static final JobEntryCopy findJobEntryCopy( List<JobEntryCopy> jobcopies, ObjectId id_jobentry_copy ) {
-    if ( jobcopies == null ) {
-      return null;
-    }
-
-    for ( JobEntryCopy jec : jobcopies ) {
-      if ( jec.getObjectId() != null && jec.getObjectId().equals( id_jobentry_copy ) ) {
-        return jec;
-      }
-    }
-    return null;
-  }
-
-  /**
    * This method sets various internal kettle variables that can be used by the transformation.
    */
   @Override
@@ -2342,31 +2091,18 @@ public class JobMeta extends AbstractMeta
     setInternalFilenameHopVariables( var );
     setInternalNameHopVariable( var );
 
-    // The name of the directory in the repository
-    variables
-        .setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, directory != null ? directory.getPath() : "" );
-
-    boolean hasRepoDir = getRepositoryDirectory() != null && getRepository() != null;
-
-    // setup fallbacks
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY,
-          variables.getVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY ) );
-    } else {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY,
-          variables.getVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY ) );
-    }
+    variables.getVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY );
     updateCurrentDir();
   }
+
   // changed to protected for testing purposes
+  //
   protected void updateCurrentDir() {
     String prevCurrentDir = variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY );
     String currentDir = variables.getVariable(
-      repository != null
-          ? Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY
-          : filename != null
-            ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
-            : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY );
+      filename != null
+        ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY );
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, currentDir );
     fireCurrentDirectoryChanged( prevCurrentDir, currentDir );
   }
@@ -2416,15 +2152,15 @@ public class JobMeta extends AbstractMeta
 
   protected void setInternalEntryCurrentDirectory() {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-      repository != null ? Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY
-        : filename != null ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
+      filename != null
+        ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
         : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
   @Deprecated
   public void checkJobEntries( List<CheckResultInterface> remarks, boolean only_selected,
-      ProgressMonitorListener monitor ) {
-    checkJobEntries( remarks, only_selected, monitor, this, null, null );
+                               ProgressMonitorListener monitor ) {
+    checkJobEntries( remarks, only_selected, monitor, this, null );
   }
 
   /**
@@ -2435,11 +2171,11 @@ public class JobMeta extends AbstractMeta
    * @param monitor       Progress monitor (not presently in use)
    */
   public void checkJobEntries( List<CheckResultInterface> remarks, boolean only_selected,
-      ProgressMonitorListener monitor, VariableSpace space, Repository repository, IMetaStore metaStore ) {
+                               ProgressMonitorListener monitor, VariableSpace space, IMetaStore metaStore ) {
     remarks.clear(); // Empty remarks
     if ( monitor != null ) {
       monitor.beginTask( BaseMessages.getString( PKG, "JobMeta.Monitor.VerifyingThisJobEntryTask.Title" ),
-          jobcopies.size() + 2 );
+        jobcopies.size() + 2 );
     }
     boolean stop_checking = false;
     for ( int i = 0; i < jobcopies.size() && !stop_checking; i++ ) {
@@ -2449,10 +2185,9 @@ public class JobMeta extends AbstractMeta
         if ( entry != null ) {
           if ( monitor != null ) {
             monitor
-                .subTask( BaseMessages.getString( PKG, "JobMeta.Monitor.VerifyingJobEntry.Title", entry.getName() ) );
+              .subTask( BaseMessages.getString( PKG, "JobMeta.Monitor.VerifyingJobEntry.Title", entry.getName() ) );
           }
-          entry.check( remarks, this, space, repository, metaStore );
-          compatibleEntryCheck( entry, remarks );
+          entry.check( remarks, this, space, metaStore );
           if ( monitor != null ) {
             monitor.worked( 1 ); // progress bar...
             if ( monitor.isCanceled() ) {
@@ -2468,11 +2203,6 @@ public class JobMeta extends AbstractMeta
     if ( monitor != null ) {
       monitor.done();
     }
-  }
-
-  @SuppressWarnings( "deprecation" )
-  private void compatibleEntryCheck( JobEntryInterface entry, List<CheckResultInterface> remarks ) {
-    entry.check( remarks, this );
   }
 
   /**
@@ -2494,7 +2224,7 @@ public class JobMeta extends AbstractMeta
   }
 
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     String resourceName = null;
     try {
       // Handle naming for both repository and XML bases resources...
@@ -2503,92 +2233,69 @@ public class JobMeta extends AbstractMeta
       String originalPath;
       String fullname;
       String extension = "kjb";
-      if ( Utils.isEmpty( getFilename() ) ) {
-        // Assume repository...
-        //
-        originalPath = directory.getPath();
-        baseName = getName();
-        fullname =
-            directory.getPath() + ( directory.getPath().endsWith( RepositoryDirectory.DIRECTORY_SEPARATOR ) ? ""
-                : RepositoryDirectory.DIRECTORY_SEPARATOR ) + getName() + "." + extension; //
-      } else {
-        // Assume file
-        //
+      if ( StringUtils.isNotEmpty( getFilename() ) ) {
         FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( getFilename() ), space );
         originalPath = fileObject.getParent().getName().getPath();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getName().getPath();
-      }
 
-      resourceName = namingInterface
-          .nameResource( baseName, originalPath, extension, ResourceNamingInterface.FileNamingType.JOB );
-      ResourceDefinition definition = definitions.get( resourceName );
-      if ( definition == null ) {
-        // If we do this once, it will be plenty :-)
-        //
-        JobMeta jobMeta = (JobMeta) this.realClone( false );
+        resourceName = namingInterface.nameResource( baseName, originalPath, extension, ResourceNamingInterface.FileNamingType.JOB );
+        ResourceDefinition definition = definitions.get( resourceName );
+        if ( definition == null ) {
+          // If we do this once, it will be plenty :-)
+          //
+          JobMeta jobMeta = (JobMeta) this.realClone( false );
 
-        // All objects get re-located to the root folder,
-        // but, when exporting, we need to see current directory
-        // in order to make 'Internal.Entry.Current.Directory' variable work
-        jobMeta.setRepositoryDirectory( directory );
+          // Add used resources, modify transMeta accordingly
+          // Go through the list of steps, etc.
+          // These critters change the steps in the cloned TransMeta
+          // At the end we make a new XML version of it in "exported"
+          // format...
 
-        // Add used resources, modify transMeta accordingly
-        // Go through the list of steps, etc.
-        // These critters change the steps in the cloned TransMeta
-        // At the end we make a new XML version of it in "exported"
-        // format...
-
-        // loop over steps, databases will be exported to XML anyway.
-        //
-        for ( JobEntryCopy jobEntry : jobMeta.jobcopies ) {
-          compatibleJobEntryExportResources( jobEntry.getEntry(), jobMeta, definitions, namingInterface, repository );
-          jobEntry.getEntry().exportResources( jobMeta, definitions, namingInterface, repository, metaStore );
-        }
-
-        // Set a number of parameters for all the data files referenced so far...
-        //
-        Map<String, String> directoryMap = namingInterface.getDirectoryMap();
-        if ( directoryMap != null ) {
-          for ( String directory : directoryMap.keySet() ) {
-            String parameterName = directoryMap.get( directory );
-            jobMeta.addParameterDefinition( parameterName, directory, "Data file path discovered during export" );
+          // loop over steps, databases will be exported to XML anyway.
+          //
+          for ( JobEntryCopy jobEntry : jobMeta.jobcopies ) {
+            jobEntry.getEntry().exportResources( jobMeta, definitions, namingInterface, metaStore );
           }
+
+          // Set a number of parameters for all the data files referenced so far...
+          //
+          Map<String, String> directoryMap = namingInterface.getDirectoryMap();
+          if ( directoryMap != null ) {
+            for ( String directory : directoryMap.keySet() ) {
+              String parameterName = directoryMap.get( directory );
+              jobMeta.addParameterDefinition( parameterName, directory, "Data file path discovered during export" );
+            }
+          }
+
+          // At the end, add ourselves to the map...
+          //
+          String jobMetaContent = jobMeta.getXML();
+
+          definition = new ResourceDefinition( resourceName, jobMetaContent );
+
+          // Also remember the original filename (if any), including variables etc.
+          //
+          if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
+            definition.setOrigin( fullname );
+          } else {
+            definition.setOrigin( this.getFilename() );
+          }
+
+          definitions.put( fullname, definition );
         }
-
-        // At the end, add ourselves to the map...
-        //
-        String jobMetaContent = jobMeta.getXML();
-
-        definition = new ResourceDefinition( resourceName, jobMetaContent );
-
-        // Also remember the original filename (if any), including variables etc.
-        //
-        if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
-          definition.setOrigin( fullname );
-        } else {
-          definition.setOrigin( this.getFilename() );
-        }
-
-        definitions.put( fullname, definition );
       }
     } catch ( FileSystemException e ) {
       throw new HopException(
-          BaseMessages.getString( PKG, "JobMeta.Exception.AnErrorOccuredReadingJob", getFilename() ), e );
+        BaseMessages.getString( PKG, "JobMeta.Exception.AnErrorOccuredReadingJob", getFilename() ), e );
     } catch ( HopFileException e ) {
       throw new HopException(
-          BaseMessages.getString( PKG, "JobMeta.Exception.AnErrorOccuredReadingJob", getFilename() ), e );
+        BaseMessages.getString( PKG, "JobMeta.Exception.AnErrorOccuredReadingJob", getFilename() ), e );
     }
 
     return resourceName;
   }
 
-  @SuppressWarnings( "deprecation" )
-  private void compatibleJobEntryExportResources( JobEntryInterface entry, JobMeta jobMeta,
-      Map<String, ResourceDefinition> definitions, ResourceNamingInterface namingInterface, Repository repository2 )
-      throws HopException {
-    entry.exportResources( jobMeta, definitions, namingInterface, repository );
-  }
 
   /**
    * See if the name of the supplied job entry copy doesn't collide with any other job entry copy in the job.
@@ -2640,15 +2347,6 @@ public class JobMeta extends AbstractMeta
    */
   public List<JobHopMeta> getJobhops() {
     return jobhops;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.repository.RepositoryElementInterface#getRepositoryElementType()
-   */
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
   }
 
   /**
@@ -2742,32 +2440,6 @@ public class JobMeta extends AbstractMeta
   }
 
   /**
-   * Look up the references after import
-   *
-   * @param repository the repository to reference.
-   */
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    HopException lastThrownException = null;
-    Map<String, RepositoryObjectType> notFoundedReferences = new HashMap<>();
-    for ( JobEntryCopy copy : jobcopies ) {
-      if ( copy.getEntry().hasRepositoryReferences() ) {
-        try {
-          copy.getEntry().lookupRepositoryReferences( repository );
-        } catch ( IdNotFoundException e ) {
-          lastThrownException = e;
-          String path = e.getPathToObject();
-          String name = e.getObjectName();
-          String key = StringUtils.isEmpty( path ) || path.equals( "null" ) ? name : path + "/" + name;
-          notFoundedReferences.put( key, e.getObjectType() );
-        }
-      }
-    }
-    if ( lastThrownException != null && !notFoundedReferences.isEmpty() ) {
-      throw new LookupReferencesException( lastThrownException, notFoundedReferences );
-    }
-  }
-
-  /**
    * Returns whether or not the job is gathering metrics. For a JobMeta this is always false.
    *
    * @return is gathering metrics = false;
@@ -2824,14 +2496,6 @@ public class JobMeta extends AbstractMeta
 
   public boolean hasMissingPlugins() {
     return missingEntries != null && !missingEntries.isEmpty();
-  }
-
-  @Override
-  public NamedClusterEmbedManager getNamedClusterEmbedManager( ) {
-    if ( namedClusterEmbedManager == null ) {
-      namedClusterEmbedManager = new NamedClusterEmbedManager( this, LogChannel.GENERAL );
-    }
-    return namedClusterEmbedManager;
   }
 
   public String getStartCopyName() {

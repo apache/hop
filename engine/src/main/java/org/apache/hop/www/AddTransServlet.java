@@ -30,7 +30,6 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransAdapter;
 import org.apache.hop.trans.TransConfiguration;
@@ -207,10 +206,6 @@ public class AddTransServlet extends BaseHttpServlet implements HopServerPluginI
         transMeta.setParameterValue( param, value );
       }
 
-      // If there was a repository, we know about it at this point in time.
-      //
-      final Repository repository = transExecutionConfiguration.getRepository();
-
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
         new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
@@ -247,22 +242,10 @@ public class AddTransServlet extends BaseHttpServlet implements HopServerPluginI
 
       }
 
-      trans.setRepository( repository );
       trans.setSocketRepository( getSocketRepository() );
 
       getTransformationMap().addTransformation( transMeta.getName(), carteObjectId, trans, transConfiguration );
       trans.setContainerObjectId( carteObjectId );
-
-      if ( repository != null ) {
-        // The repository connection is open: make sure we disconnect from the repository once we
-        // are done with this transformation.
-        //
-        trans.addTransListener( new TransAdapter() {
-          @Override public void transFinished( Trans trans ) {
-            repository.disconnect();
-          }
-        } );
-      }
 
       String message = "Transformation '" + trans.getName() + "' was added to HopServer with id " + carteObjectId;
 

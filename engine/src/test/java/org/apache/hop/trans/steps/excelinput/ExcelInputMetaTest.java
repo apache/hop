@@ -230,7 +230,6 @@ public class ExcelInputMetaTest {
     loadSaveTester = new LoadSaveTester( ExcelInputMeta.class, attributes, getterMap,
       setterMap, attrValidatorMap, typeValidatorMap );
 
-    loadSaveTester.testRepoRoundTrip();
   }
 
   public class NullStringArrayLoadSaveValidator implements FieldLoadSaveValidator<String[]> {

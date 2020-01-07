@@ -60,8 +60,7 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -191,10 +190,10 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       url = XMLHandler.getTagValue( entrynode, "url" );
       targetFilename = XMLHandler.getTagValue( entrynode, "targetfilename" );
       fileAppended = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "file_appended" ) );
@@ -229,86 +228,6 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'HTTP' from XML node", xe );
-    }
-  }
-
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      url = rep.getJobEntryAttributeString( id_jobentry, "url" );
-      targetFilename = rep.getJobEntryAttributeString( id_jobentry, "targetfilename" );
-      fileAppended = rep.getJobEntryAttributeBoolean( id_jobentry, "file_appended" );
-      dateTimeAdded = rep.getJobEntryAttributeBoolean( id_jobentry, "date_time_added" );
-      targetFilenameExtension = Const.NVL( rep.getJobEntryAttributeString( id_jobentry, "targetfilename_extension" ),
-          rep.getJobEntryAttributeString( id_jobentry, "targetfilename_extention" ) );
-
-      uploadFilename = rep.getJobEntryAttributeString( id_jobentry, "uploadfilename" );
-
-      urlFieldname = rep.getJobEntryAttributeString( id_jobentry, "url_fieldname" );
-      uploadFieldname = rep.getJobEntryAttributeString( id_jobentry, "upload_fieldname" );
-      destinationFieldname = rep.getJobEntryAttributeString( id_jobentry, "dest_fieldname" );
-      runForEveryRow = rep.getJobEntryAttributeBoolean( id_jobentry, "run_every_row" );
-
-      username = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-
-      proxyHostname = rep.getJobEntryAttributeString( id_jobentry, "proxy_host" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxy_port" ); // backward compatible.
-
-      nonProxyHosts = rep.getJobEntryAttributeString( id_jobentry, "non_proxy_hosts" );
-      addfilenameresult =
-        "Y".equalsIgnoreCase( Const
-          .NVL( rep.getJobEntryAttributeString( id_jobentry, "addfilenameresult" ), "Y" ) );
-
-      // How many headerName?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "header_name" );
-      allocate( argnr );
-
-      for ( int a = 0; a < argnr; a++ ) {
-        headerName[a] = rep.getJobEntryAttributeString( id_jobentry, a, "header_name" );
-        headerValue[a] = rep.getJobEntryAttributeString( id_jobentry, a, "header_value" );
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'HTTP' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "url", url );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targetfilename", targetFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "file_appended", fileAppended );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_added", dateTimeAdded );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "targetfilename_extension", targetFilenameExtension );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "uploadfilename", uploadFilename );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "url_fieldname", urlFieldname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "upload_fieldname", uploadFieldname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "dest_fieldname", destinationFieldname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "run_every_row", runForEveryRow );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", username );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_host", proxyHostname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_port", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "non_proxy_hosts", nonProxyHosts );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addfilenameresult", addfilenameresult );
-      if ( headerName != null ) {
-        for ( int i = 0; i < headerName.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "header_name", headerName[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "header_value", headerValue[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'HTTP' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -791,7 +710,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "targetFilename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "targetFilenameExtention", remarks,

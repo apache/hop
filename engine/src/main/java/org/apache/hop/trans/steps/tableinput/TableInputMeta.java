@@ -43,8 +43,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -73,7 +72,7 @@ import java.util.List;
 public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   private DatabaseMeta databaseMeta;
 
@@ -99,7 +98,11 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( this.databases, connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch ( HopXMLException e ) {
+      throw new RuntimeException( "Error loading conneciton '"+connectionName+"'", e );
+    }
   }
 
   /**
@@ -162,8 +165,8 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     this.sql = sql;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -171,10 +174,10 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
-    this.databases = databases;
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
-      databaseMeta = DatabaseMeta.findDatabase( databases, XMLHandler.getTagValue( stepnode, "connection" ) );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( stepnode, "connection" ) );
       sql = XMLHandler.getTagValue( stepnode, "sql" );
       rowLimit = XMLHandler.getTagValue( stepnode, "limit" );
 
@@ -202,7 +205,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( databaseMeta == null ) {
       return; // TODO: throw an exception here
     }
@@ -299,52 +302,9 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    this.databases = databases;
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      sql = rep.getStepAttributeString( id_step, "sql" );
-      rowLimit = rep.getStepAttributeString( id_step, "limit" );
-      if ( rowLimit == null ) {
-        rowLimit = Long.toString( rep.getStepAttributeInteger( id_step, "limit" ) );
-      }
-
-      String lookupFromStepname = rep.getStepAttributeString( id_step, "lookup" );
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      infoStream.setSubject( lookupFromStepname );
-
-      executeEachInputRow = rep.getStepAttributeBoolean( id_step, "execute_each_row" );
-      variableReplacementActive = rep.getStepAttributeBoolean( id_step, "variables_active" );
-      lazyConversionActive = rep.getStepAttributeBoolean( id_step, "lazy_conversion_active" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "sql", sql );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup", infoStream.getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "execute_each_row", executeEachInputRow );
-      rep.saveStepAttribute( id_transformation, id_step, "variables_active", variableReplacementActive );
-      rep.saveStepAttribute( id_transformation, id_step, "lazy_conversion_active", lazyConversionActive );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -476,7 +436,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
 
     // if ( stepMeta.getName().equalsIgnoreCase( "cdc_cust" ) ) {
@@ -486,7 +446,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     // Find the lookupfields...
     RowMetaInterface out = new RowMeta();
     // TODO: this builds, but does it work in all cases.
-    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info }, null, transMeta, repository, metaStore );
+    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info }, null, transMeta, metaStore );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

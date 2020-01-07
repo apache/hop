@@ -711,7 +711,7 @@ public class SystemData extends BaseStep implements StepInterface {
       if ( first ) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       }
 
     } else {
@@ -721,7 +721,7 @@ public class SystemData extends BaseStep implements StepInterface {
       if ( first ) {
         first = false;
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+        meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       }
     }
 

@@ -43,8 +43,7 @@ public class HopUiPartitionsDelegate extends HopUiSharedObjectDelegate {
     PartitionSchema partitionSchema = new PartitionSchema();
 
     PartitionSchemaDialog dialog =
-        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(), transMeta
-            .getDatabases(), transMeta );
+        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(), transMeta );
     if ( dialog.open() ) {
       List<PartitionSchema> partitions = transMeta.getPartitionSchemas();
       if ( isDuplicate( partitions, partitionSchema ) ) {
@@ -57,22 +56,6 @@ public class HopUiPartitionsDelegate extends HopUiSharedObjectDelegate {
 
       partitions.add( partitionSchema );
 
-      if ( hopUi.rep != null ) {
-        try {
-          if ( !hopUi.rep.getSecurityProvider().isReadOnly() ) {
-            hopUi.rep.save( partitionSchema, Const.VERSION_COMMENT_INITIAL_VERSION, null );
-            if ( sharedObjectSyncUtil != null ) {
-              sharedObjectSyncUtil.reloadTransformationRepositoryObjects( false );
-            }
-          } else {
-            throw new HopException( BaseMessages.getString(
-              PKG, "Spoon.Dialog.Exception.ReadOnlyRepositoryUser" ) );
-          }
-        } catch ( HopException e ) {
-          showSaveErrorDialog( partitionSchema, e );
-        }
-      }
-
       refreshTree();
     }
   }
@@ -80,41 +63,17 @@ public class HopUiPartitionsDelegate extends HopUiSharedObjectDelegate {
   public void editPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
     String originalName = partitionSchema.getName();
     PartitionSchemaDialog dialog =
-        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(),
-            transMeta.getDatabases(), transMeta );
+        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(), transMeta );
     if ( dialog.open() ) {
-      if ( hopUi.rep != null && partitionSchema.getObjectId() != null ) {
-        try {
-          saveSharedObjectToRepository( partitionSchema, null );
-          if ( sharedObjectSyncUtil != null ) {
-            sharedObjectSyncUtil.synchronizePartitionSchemas( partitionSchema, originalName );
-          }
-        } catch ( HopException e ) {
-          showSaveErrorDialog( partitionSchema, e );
-        }
-      }
       refreshTree();
     }
   }
 
   public void delPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
-    try {
-      int idx = transMeta.getPartitionSchemas().indexOf( partitionSchema );
-      transMeta.getPartitionSchemas().remove( idx );
+    int idx = transMeta.getPartitionSchemas().indexOf( partitionSchema );
+    transMeta.getPartitionSchemas().remove( idx );
 
-      if ( hopUi.rep != null && partitionSchema.getObjectId() != null ) {
-        // remove the partition schema from the repository too...
-        hopUi.rep.deletePartitionSchema( partitionSchema.getObjectId() );
-        if ( sharedObjectSyncUtil != null ) {
-          sharedObjectSyncUtil.deletePartitionSchema( partitionSchema );
-        }
-      }
-      refreshTree();
-    } catch ( HopException e ) {
-      new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingClusterSchema.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorDeletingClusterSchema.Message" ), e );
-    }
+    refreshTree();
   }
 
   private void showSaveErrorDialog( PartitionSchema partitionSchema, HopException e ) {

@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,18 +109,8 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
     LinkedList<String> subjects = new LinkedList<>();
     while ( loggingObject != null ) {
       if ( loggingObject.getObjectType() == TRANS || loggingObject.getObjectType() == JOB ) {
-        RepositoryDirectoryInterface rd = loggingObject.getRepositoryDirectory();
         String filename = loggingObject.getFilename();
-        if ( rd != null ) {
-          String path = rd.getPath();
-          if ( path.equals( SEPARATOR ) ) {
-            if ( filename != null && filename.length() > 0 ) {
-              subjects.add( filename );
-            }
-          } else {
-            subjects.add( path + SEPARATOR + filename );
-          }
-        } else if ( filename != null && filename.length() > 0 ) {
+        if ( filename != null && filename.length() > 0 ) {
           subjects.add( filename );
         }
       }

@@ -39,8 +39,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -111,7 +110,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -216,64 +215,10 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrKeys = rep.countNrStepAttributes( id_step, "key_field" );
-      int nrValues = rep.countNrStepAttributes( id_step, "value_field" );
-
-      allocate( nrKeys, nrValues );
-
-      for ( int i = 0; i < nrKeys; i++ ) {
-        keyFields[i] = rep.getStepAttributeString( id_step, i, "key_field" );
-      }
-      for ( int i = 0; i < nrValues; i++ ) {
-        valueFields[i] = rep.getStepAttributeString( id_step, i, "value_field" );
-      }
-
-      flagField = rep.getStepAttributeString( id_step, "flag_field" );
-
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      StreamInterface referenceStream = infoStreams.get( 0 );
-      StreamInterface compareStream = infoStreams.get( 1 );
-
-      referenceStream.setSubject( rep.getStepAttributeString( id_step, "reference" ) );
-      compareStream.setSubject( rep.getStepAttributeString( id_step, "compare" ) );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MergeRowsMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
     for ( StreamInterface stream : infoStreams ) {
       stream.setStepMeta( StepMeta.findStep( steps, (String) stream.getSubject() ) );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      for ( int i = 0; i < keyFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_field", keyFields[i] );
-      }
-
-      for ( int i = 0; i < valueFields.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_field", valueFields[i] );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "flag_field", flagField );
-
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      StreamInterface referenceStream = infoStreams.get( 0 );
-      StreamInterface compareStream = infoStreams.get( 1 );
-
-      rep.saveStepAttribute( id_transformation, id_step, "reference", referenceStream.getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "compare", compareStream.getStepname() );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MergeRowsMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
     }
   }
 
@@ -287,7 +232,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //
@@ -313,7 +258,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();

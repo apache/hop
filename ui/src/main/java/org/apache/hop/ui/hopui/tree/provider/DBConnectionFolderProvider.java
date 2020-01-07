@@ -26,7 +26,6 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.HopRepositoryLostException;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
@@ -55,19 +54,9 @@ public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
 
   @Override
   public void refresh( AbstractMeta meta, TreeNode treeNode, String filter ) {
-    DatabasesCollector collector = new DatabasesCollector( meta, hopUi.getRepository() );
+    DatabasesCollector collector = new DatabasesCollector( meta );
     try {
-      try {
-        collector.collectDatabases();
-      } catch ( HopException e ) {
-        if ( e.getCause() instanceof HopRepositoryLostException ) {
-          HopUi.getInstance().handleRepositoryLost( (HopRepositoryLostException) e.getCause() );
-          collector = new DatabasesCollector( meta, null );
-          collector.collectDatabases();
-        } else {
-          throw e;
-        }
-      }
+      collector.collectDatabases();
     } catch ( HopException e ) {
       new ErrorDialog( HopUi.getInstance().getShell(),
               BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
@@ -82,8 +71,7 @@ public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
       }
       DatabaseMeta databaseMeta = collector.getMetaFor( dbName );
 
-      TreeNode childTreeNode = createTreeNode( treeNode, databaseMeta.getDisplayName(), guiResource
-              .getImageConnectionTree() );
+      TreeNode childTreeNode = createTreeNode( treeNode, databaseMeta.getName(), guiResource.getImageConnectionTree() );
       if ( databaseMeta.isShared() ) {
         childTreeNode.setFont( guiResource.getFontBold() );
       }

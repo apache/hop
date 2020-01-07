@@ -43,8 +43,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -252,8 +251,8 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     fieldDatabase = new String[nrRows];
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -402,10 +401,10 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     return useBatchUpdate;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       tableName = XMLHandler.getTagValue( stepnode, "table" );
       commitSize = XMLHandler.getTagValue( stepnode, "commit" );
@@ -497,86 +496,8 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-      commitSize = rep.getStepAttributeString( id_step, "commit" );
-      truncateTable = rep.getStepAttributeBoolean( id_step, "truncate" );
-      ignoreErrors = rep.getStepAttributeBoolean( id_step, "ignore_errors" );
-      useBatchUpdate = rep.getStepAttributeBoolean( id_step, "use_batch" );
-      specifyFields = rep.getStepAttributeBoolean( id_step, "specify_fields" );
-
-      partitioningEnabled = rep.getStepAttributeBoolean( id_step, "partitioning_enabled" );
-      partitioningField = rep.getStepAttributeString( id_step, "partitioning_field" );
-      partitioningDaily = rep.getStepAttributeBoolean( id_step, "partitioning_daily" );
-      partitioningMonthly = rep.getStepAttributeBoolean( id_step, "partitioning_monthly" );
-
-      tableNameInField = rep.getStepAttributeBoolean( id_step, "tablename_in_field" );
-      tableNameField = rep.getStepAttributeString( id_step, "tablename_field" );
-      tableNameInTable = rep.getStepAttributeBoolean( id_step, "tablename_in_table" );
-
-      returningGeneratedKeys = rep.getStepAttributeBoolean( id_step, "return_keys" );
-      generatedKeyField = rep.getStepAttributeString( id_step, "return_field" );
-
-      int nrCols = rep.countNrStepAttributes( id_step, "column_name" );
-      int nrStreams = rep.countNrStepAttributes( id_step, "stream_name" );
-
-      int nrRows = ( nrCols < nrStreams ? nrStreams : nrCols );
-      allocate( nrRows );
-
-      for ( int idx = 0; idx < nrRows; idx++ ) {
-        fieldDatabase[idx] = Const.NVL( rep.getStepAttributeString( id_step, idx, "column_name" ), "" );
-        fieldStream[idx] = Const.NVL( rep.getStepAttributeString( id_step, idx, "stream_name" ), "" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "truncate", truncateTable );
-      rep.saveStepAttribute( id_transformation, id_step, "ignore_errors", ignoreErrors );
-      rep.saveStepAttribute( id_transformation, id_step, "use_batch", useBatchUpdate );
-      rep.saveStepAttribute( id_transformation, id_step, "specify_fields", specifyFields );
-
-      rep.saveStepAttribute( id_transformation, id_step, "partitioning_enabled", partitioningEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "partitioning_field", partitioningField );
-      rep.saveStepAttribute( id_transformation, id_step, "partitioning_daily", partitioningDaily );
-      rep.saveStepAttribute( id_transformation, id_step, "partitioning_monthly", partitioningMonthly );
-
-      rep.saveStepAttribute( id_transformation, id_step, "tablename_in_field", tableNameInField );
-      rep.saveStepAttribute( id_transformation, id_step, "tablename_field", tableNameField );
-      rep.saveStepAttribute( id_transformation, id_step, "tablename_in_table", tableNameInTable );
-
-      rep.saveStepAttribute( id_transformation, id_step, "return_keys", returningGeneratedKeys );
-      rep.saveStepAttribute( id_transformation, id_step, "return_field", generatedKeyField );
-
-      int nrRows = ( fieldDatabase.length < fieldStream.length ? fieldStream.length : fieldDatabase.length );
-      for ( int idx = 0; idx < nrRows; idx++ ) {
-        String columnName = ( idx < fieldDatabase.length ? fieldDatabase[idx] : "" );
-        String streamName = ( idx < fieldStream.length ? fieldStream[idx] : "" );
-        rep.saveStepAttribute( id_transformation, id_step, idx, "column_name", columnName );
-        rep.saveStepAttribute( id_transformation, id_step, idx, "stream_name", streamName );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Just add the returning key field...
     if ( returningGeneratedKeys && generatedKeyField != null && generatedKeyField.length() > 0 ) {
       ValueMetaInterface key =
@@ -588,7 +509,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
       RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      Repository repository, IMetaStore metaStore ) {
+      IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
           new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
@@ -790,7 +711,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
       IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
@@ -815,7 +736,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      Repository repository, IMetaStore metaStore ) {
+      IMetaStore metaStore ) {
     return getSQLStatements( transMeta, stepMeta, prev, null, false, null );
   }
 

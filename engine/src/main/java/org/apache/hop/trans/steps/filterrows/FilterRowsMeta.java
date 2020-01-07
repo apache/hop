@@ -40,8 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -83,7 +82,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
     condition = new Condition();
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -200,21 +199,6 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
     allocate();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      allocate();
-
-      setTrueStepname( rep.getStepAttributeString( id_step, "send_true_to" ) );
-      setFalseStepname( rep.getStepAttributeString( id_step, "send_false_to" ) );
-
-      condition = rep.loadConditionFromStepAttribute( id_step, "id_condition" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FilterRowsMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     List<StreamInterface> targetStreams = getStepIOMeta().getTargetStreams();
@@ -223,22 +207,8 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      if ( condition != null ) {
-        rep.saveConditionStepAttribute( id_transformation, id_step, "id_condition", condition );
-        rep.saveStepAttribute( id_transformation, id_step, "send_true_to", getTrueStepname() );
-        rep.saveStepAttribute( id_transformation, id_step, "send_false_to", getFalseStepname() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FilterRowsMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Clear the sortedDescending flag on fields used within the condition - otherwise the comparisons will be
     // inverted!!
     String[] conditionField = condition.getUsedFields();
@@ -253,7 +223,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

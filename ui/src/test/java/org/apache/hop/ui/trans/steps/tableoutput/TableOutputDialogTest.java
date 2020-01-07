@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.trans.steps.tableoutput;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.custom.CCombo;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +87,7 @@ public class TableOutputDialogTest {
     TransMeta transMeta = mock( TransMeta.class );
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     TextVar text = mock( TextVar.class );
-    CCombo combo = mock( CCombo.class );
+    MetaSelectionManager<DatabaseMeta> combo = mock( MetaSelectionManager.class );
     DatabaseInterface dbInterface = mock( DatabaseInterface.class );
 
     setInternalState( dialog, "wTable", text );

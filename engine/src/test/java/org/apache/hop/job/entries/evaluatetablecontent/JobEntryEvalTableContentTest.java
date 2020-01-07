@@ -146,7 +146,7 @@ public class JobEntryEvalTableContentTest {
   @Before
   public void setUp() throws Exception {
     MockDriver.registerInstance();
-    Job job = new Job( null, new JobMeta() );
+    Job job = new Job( new JobMeta() );
     entry = new JobEntryEvalTableContent();
 
     job.getJobMeta().addJobEntry( new JobEntryCopy( entry ) );

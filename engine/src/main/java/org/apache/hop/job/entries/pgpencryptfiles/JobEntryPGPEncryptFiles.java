@@ -57,8 +57,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -242,10 +241,10 @@ public class JobEntryPGPEncryptFiles extends JobEntryBase implements Cloneable, 
     return actionTypeCodes[i];
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       gpglocation = XMLHandler.getTagValue( entrynode, "gpglocation" );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -308,101 +307,6 @@ public class JobEntryPGPEncryptFiles extends JobEntryBase implements Cloneable, 
       }
     }
     return 0;
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      gpglocation = rep.getJobEntryAttributeString( id_jobentry, "gpglocation" );
-      arg_from_previous = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      include_subfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      add_result_filesname = rep.getJobEntryAttributeBoolean( id_jobentry, "add_result_filesname" );
-      destination_is_a_file = rep.getJobEntryAttributeBoolean( id_jobentry, "destination_is_a_file" );
-      create_destination_folder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_destination_folder" );
-      nr_errors_less_than = rep.getJobEntryAttributeString( id_jobentry, "nr_errors_less_than" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      add_date = rep.getJobEntryAttributeBoolean( id_jobentry, "add_date" );
-      add_time = rep.getJobEntryAttributeBoolean( id_jobentry, "add_time" );
-      SpecifyFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyFormat" );
-      date_time_format = rep.getJobEntryAttributeString( id_jobentry, "date_time_format" );
-      AddDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddDateBeforeExtension" );
-      DoNotKeepFolderStructure = rep.getJobEntryAttributeBoolean( id_jobentry, "DoNotKeepFolderStructure" );
-      iffileexists = rep.getJobEntryAttributeString( id_jobentry, "iffileexists" );
-      destinationFolder = rep.getJobEntryAttributeString( id_jobentry, "destinationFolder" );
-      ifmovedfileexists = rep.getJobEntryAttributeString( id_jobentry, "ifmovedfileexists" );
-      moved_date_time_format = rep.getJobEntryAttributeString( id_jobentry, "moved_date_time_format" );
-      AddMovedDateBeforeExtension = rep.getJobEntryAttributeBoolean( id_jobentry, "AddMovedDateBeforeExtension" );
-      create_move_to_folder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_move_to_folder" );
-      add_moved_date = rep.getJobEntryAttributeBoolean( id_jobentry, "add_moved_date" );
-      add_moved_time = rep.getJobEntryAttributeBoolean( id_jobentry, "add_moved_time" );
-      SpecifyMoveFormat = rep.getJobEntryAttributeBoolean( id_jobentry, "SpecifyMoveFormat" );
-      asciiMode = rep.getJobEntryAttributeBoolean( id_jobentry, "asciiMode" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "source_filefolder" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        action_type[a] =
-          getActionTypeByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, a, "action_type" ), "" ) );
-        source_filefolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "source_filefolder" );
-        userid[a] = rep.getJobEntryAttributeString( id_jobentry, a, "userid" );
-        destination_filefolder[a] = rep.getJobEntryAttributeString( id_jobentry, a, "destination_filefolder" );
-        wildcard[a] = rep.getJobEntryAttributeString( id_jobentry, a, "wildcard" );
-      }
-    } catch ( HopException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "gpglocation", gpglocation );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", arg_from_previous );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", include_subfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_result_filesname", add_result_filesname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destination_is_a_file", destination_is_a_file );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_destination_folder", create_destination_folder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_errors_less_than", nr_errors_less_than );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_date", add_date );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_time", add_time );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyFormat", SpecifyFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "date_time_format", date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "AddDateBeforeExtension", AddDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "DoNotKeepFolderStructure", DoNotKeepFolderStructure );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "iffileexists", iffileexists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destinationFolder", destinationFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ifmovedfileexists", ifmovedfileexists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "moved_date_time_format", moved_date_time_format );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_moved_date", add_moved_date );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_moved_time", add_moved_time );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "SpecifyMoveFormat", SpecifyMoveFormat );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_move_to_folder", create_move_to_folder );
-      rep
-        .saveJobEntryAttribute(
-          id_job, getObjectId(), "AddMovedDateBeforeExtension", AddMovedDateBeforeExtension );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "asciiMode", asciiMode );
-
-      // save the arguments...
-      if ( source_filefolder != null ) {
-        for ( int i = 0; i < source_filefolder.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "action_type", getActionTypeCode( action_type[i] ) );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "source_filefolder", source_filefolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "userid", userid[i] );
-          rep
-            .saveJobEntryAttribute(
-              id_job, getObjectId(), i, "destination_filefolder", destination_filefolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "wildcard", wildcard[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
-    }
   }
 
   public Result execute( Result previousResult, int nr ) {
@@ -1459,7 +1363,7 @@ public class JobEntryPGPEncryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 

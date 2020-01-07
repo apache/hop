@@ -34,6 +34,7 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ExtensionDataInterface;
 import org.apache.hop.core.SQLStatement;
@@ -58,11 +59,10 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.LongObjectId;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceHolderInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
@@ -79,8 +79,8 @@ import org.w3c.dom.Node;
  * @author Matt Created on 18-jun-04
  *
  */
-public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSourceInterface,
-  ResourceHolderInterface, LoggingObjectInterface, AttributesInterface, ExtensionDataInterface {
+public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInterface,
+  AttributesInterface, ExtensionDataInterface, CheckResultSourceInterface, ResourceHolderInterface {
 
   /** The name of the job entry */
   private String name;
@@ -96,18 +96,11 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   /** Whether the job entry has changed. */
   private boolean changed;
 
-  /** The object id for the job entry. Should be unique in most cases. Used to distinguish
-   * Logging channels for objects. */
-  private ObjectId id;
-
   /** The variable bindings for the job entry */
   protected VariableSpace variables = new Variables();
 
   /** The map for setVariablesStep bindings for the job entry */
   protected Map<String, String> entryStepSetVariablesMap = new ConcurrentHashMap<>();
-
-  /** The repository */
-  protected Repository rep;
 
   /** The parent job */
   protected Job parentJob;
@@ -151,7 +144,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   public JobEntryBase( String name, String description ) {
     setName( name );
     setDescription( description );
-    setObjectId( null );
     log = new LogChannel( this );
     attributesMap = new HashMap<>();
     extensionDataMap = new HashMap<>();
@@ -190,37 +182,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Sets the object id.
-   *
-   * @param id
-   *          the new object id
-   */
-  public void setObjectId( ObjectId id ) {
-    this.id = id;
-  }
-
-  /**
-   * Sets the id for the job entry
-   *
-   * @param id
-   *          the new id
-   */
-  public void setID( long id ) {
-    this.id = new LongObjectId( id );
-  }
-
-  /**
-   * Gets the object id
-   *
-   * @return the object id
-   * @see org.apache.hop.core.CheckResultSourceInterface#getObjectId()
-   */
-  @Override
-  public ObjectId getObjectId() {
-    return id;
-  }
-
-  /**
    * Gets the plug-in type description
    *
    * @return the plug-in type description
@@ -246,7 +207,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    * @return the name of the job entry
    * @see org.apache.hop.core.CheckResultSourceInterface#getName()
    */
-  @Override
   public String getName() {
     return name;
   }
@@ -267,9 +227,12 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    * @return the description of the job entry
    * @see org.apache.hop.core.CheckResultSourceInterface#getDescription()
    */
-  @Override
   public String getDescription() {
     return description;
+  }
+
+  @Override public String getTypeId() {
+    return "JOBENTRY";
   }
 
   /**
@@ -427,14 +390,12 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    *
    * @param entrynode
    *          the top-level XML node
-   * @param databases
-   *          the list of databases
    * @param slaveServers
    *          the list of slave servers
    * @throws HopXMLException
    *           if any errors occur during the loading of the XML
    */
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers ) throws HopXMLException {
     try {
       setName( XMLHandler.getTagValue( entrynode, "name" ) );
       setDescription( XMLHandler.getTagValue( entrynode, "description" ) );
@@ -446,92 +407,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load base info for job entry", e );
     }
-  }
-
-  /**
-   * @deprecated use {@link #loadXML(Node, List, List, Repository, IMetaStore)}
-   * @param entrynode
-   * @param databases
-   * @param slaveServers
-   * @param repository
-   * @throws HopXMLException
-   */
-  @Deprecated
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository repository ) throws HopXMLException {
-    // Provided for compatibility with v4 code
-  }
-
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
-    // Provided for compatibility with v4 code
-  }
-
-  /**
-   * Parses the repository objects. For JobEntryBase, this is a stub (empty) method
-   *
-   * @param rep
-   *          the repository
-   * @throws HopException
-   *           if any errors occur during parsing
-   */
-  public void parseRepositoryObjects( Repository rep ) throws HopException {
-  }
-
-  /**
-   * This method is called by PDI whenever a job entry needs to read its configuration from a PDI repository. For
-   * JobEntryBase, this method performs no operations.
-   *
-   * @deprecated use {@link #loadRep(Repository, IMetaStore, ObjectId, List, List)}
-   *
-   * @param rep
-   *          the repository object
-   * @param id_jobentry
-   *          the id of the job entry
-   * @param databases
-   *          the list of databases
-   * @param slaveServers
-   *          the list of slave servers
-   * @throws HopException
-   *           if any errors occur during the load
-   */
-  @Deprecated
-  public void loadRep( Repository rep, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    // Nothing by default, provided for API and runtime compatibility against v4 code
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    // Nothing by default, provided for API and runtime compatibility against v4 code
-  }
-
-  /**
-   * This method is called by PDI whenever a job entry needs to save its settings to a PDI repository. For JobEntryBase,
-   * this method performs no operations.
-   *
-   * @deprecated use {@link #saveRep(Repository, IMetaStore, ObjectId)}
-   *
-   * @param rep
-   *          the repository object
-   * @param id_job
-   *          the id_job
-   * @throws HopException
-   *           if any errors occur during the save
-   */
-  @Deprecated
-  public void saveRep( Repository rep, ObjectId id_job ) throws HopException {
-    // Nothing by default, provided for API and runtime compatibility against v4 code
-  }
-
-  /**
-   * @param rep
-   * @param metaStore
-   * @param id_job
-   * @throws HopException
-   */
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    // Nothing by default, provided for API and runtime compatibility against v4 code
   }
 
   /**
@@ -592,53 +467,16 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Gets the SQL statements needed by this job entry to execute successfully.
-   *
-   * @deprecated use {@link #getSQLStatements(Repository, IMetaStore, VariableSpace)}
-   *
-   * @param repository
-   *          the repository
-   * @return a list of SQL statements
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
-   */
-  @Deprecated
-  public List<SQLStatement> getSQLStatements( Repository repository ) throws HopException {
-    return new ArrayList<>();
-  }
-
-  /**
    * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables. For
    * JobEntryBase, this method returns an empty list.
    *
-   * @deprecated use {@link #getSQLStatements(Repository, IMetaStore, VariableSpace)}
-   *
-   * @param repository
-   *          the repository object
    * @param space
    *          a variable space object containing variable bindings
    * @return an empty list
    * @throws HopException
    *           if any errors occur during the generation of SQL statements
    */
-  @Deprecated
-  public List<SQLStatement> getSQLStatements( Repository repository, VariableSpace space ) throws HopException {
-    return new ArrayList<>();
-  }
-
-  /**
-   * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables. For
-   * JobEntryBase, this method returns an empty list.
-   *
-   * @param repository
-   *          the repository object
-   * @param space
-   *          a variable space object containing variable bindings
-   * @return an empty list
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
-   */
-  public List<SQLStatement> getSQLStatements( Repository repository, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
     return new ArrayList<>();
   }
 
@@ -831,19 +669,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Support for overrides not having to put in a check method. For JobEntryBase, this method performs no operations.
-   *
-   * @param remarks
-   *          CheckResults from checking the job entry
-   * @param jobMeta
-   *          JobMeta information letting threading back to the JobMeta possible
-   * @deprecated use {@link #check(List, JobMeta, VariableSpace, Repository, IMetaStore)}
-   */
-  @Deprecated
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta ) {
-  }
-
-  /**
    * Allows JobEntry objects to check themselves for consistency
    *
    * @param remarks
@@ -852,13 +677,10 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    *          the metadata object for the job entry
    * @param space
    *          the variable space to resolve string expressions with variables with
-   * @param repository
-   *          the repository to load Hop objects from
    * @param metaStore
    *          the MetaStore to load common elements from
    */
-  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+  public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore ) {
 
   }
 
@@ -875,30 +697,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. For
-   * JobEntryBase, this method simply returns null
-   *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param repository
-   *          The repository to load resources from
-   *
-   * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
-   * @deprecated use {@link #exportResources(VariableSpace, Map, ResourceNamingInterface, Repository, IMetaStore)}
-   */
-  @Deprecated
-  public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository ) throws HopException {
-    return null;
-  }
-
-  /**
    * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. The supplied
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
@@ -909,8 +707,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    *          The map containing the filenames and content
    * @param namingInterface
    *          The resource naming interface allows the object to be named appropriately
-   * @param repository
-   *          The repository to load resources from
    * @param metaStore
    *          the metaStore to load external metadata from
    *
@@ -919,7 +715,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    *           in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     return null;
   }
 
@@ -940,27 +736,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    */
   public void setPluginId( String configId ) {
     this.configId = configId;
-  }
-
-  /**
-   * Gets the plugin id.
-   *
-   * @deprecated use {@link #getPluginId()}
-   */
-  @Override
-  @Deprecated
-  public String getTypeId() {
-    return getPluginId();
-  }
-
-  /**
-   * Sets the plugin id.
-   *
-   * @deprecated use {@link #setPluginId(String)}
-   */
-  @Deprecated
-  public void setTypeId( String typeId ) {
-    setPluginId( typeId );
   }
 
   /**
@@ -986,42 +761,12 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Returns the holder type for the job entry
-   *
-   * @return the holder type for the job entry
-   * @see org.apache.hop.resource.ResourceHolderInterface#getHolderType()
-   */
-  @Override
-  public String getHolderType() {
-    return "JOBENTRY";
-  }
-
-  /**
    * Gets the variable bindings for the job entry.
    *
    * @return the variable bindings for the job entry.
    */
   protected VariableSpace getVariables() {
     return variables;
-  }
-
-  /**
-   * Sets the repository for the job entry.
-   *
-   * @param repository
-   *          the repository
-   */
-  public void setRepository( Repository repository ) {
-    this.rep = repository;
-  }
-
-  /**
-   * Gets the repository for the job entry.
-   *
-   * @return the repository
-   */
-  public Repository getRepository() {
-    return rep;
   }
 
   /**
@@ -1268,15 +1013,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
     return null;
   }
 
-  /**
-   * Gets the revision of the object with respect to a repository
-   *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectRevision()
-   */
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return null;
-  }
 
   /**
    * Gets the logging object type
@@ -1298,17 +1034,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   @Override
   public LoggingObjectInterface getParent() {
     return parentJob;
-  }
-
-  /**
-   * Gets the directory of the job entry in the repository. For JobEntryBase, this returns null
-   *
-   * @return null
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getRepositoryDirectory()
-   */
-  @Override
-  public RepositoryDirectory getRepositoryDirectory() {
-    return null;
   }
 
   /**
@@ -1372,17 +1097,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   }
 
   /**
-   * Looks up the references after import
-   *
-   * @param repository
-   *          the repository to reference.
-   * @throws HopException
-   *           if any errors occur during the lookup
-   */
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-  }
-
-  /**
    * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
    */
   public String[] getReferencedObjectDescriptions() {
@@ -1399,29 +1113,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
   /**
    * Load the referenced object
    *
-   * @deprecated use {@link #loadReferencedObject(int, Repository, IMetaStore, VariableSpace)}
-   *
    * @param index
    *          the referenced object index to load (in case there are multiple references)
-   * @param rep
-   *          the repository
-   * @param space
-   *          the variable space to use
-   * @return the referenced object once loaded
-   * @throws HopException
-   */
-  @Deprecated
-  public Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws HopException {
-    return null;
-  }
-
-  /**
-   * Load the referenced object
-   *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param rep
-   *          the repository
    * @param metaStore
    *          the metaStore to load from
    * @param space
@@ -1429,7 +1122,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, CheckResultSource
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
     return null;
   }
 

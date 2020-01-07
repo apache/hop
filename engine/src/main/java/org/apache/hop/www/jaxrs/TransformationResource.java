@@ -38,7 +38,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransAdapter;
 import org.apache.hop.trans.TransConfiguration;
@@ -234,7 +233,6 @@ public class TransformationResource {
       // If there was a repository, we know about it at this point in time.
       //
       TransExecutionConfiguration executionConfiguration = transConfiguration.getTransExecutionConfiguration();
-      final Repository repository = transConfiguration.getTransExecutionConfiguration().getRepository();
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
@@ -246,23 +244,11 @@ public class TransformationResource {
       //
       final Trans trans = new Trans( transMeta, servletLoggingObject );
 
-      trans.setRepository( repository );
       trans.setSocketRepository( HopServerSingleton.getInstance().getSocketRepository() );
 
       HopServerSingleton.getInstance().getTransformationMap().addTransformation(
         transMeta.getName(), carteObjectId, trans, transConfiguration );
       trans.setContainerObjectId( carteObjectId );
-
-      if ( repository != null ) {
-        // The repository connection is open: make sure we disconnect from the repository once we
-        // are done with this transformation.
-        //
-        trans.addTransListener( new TransAdapter() {
-          @Override public void transFinished( Trans trans ) {
-            repository.disconnect();
-          }
-        } );
-      }
 
       return getTransformationStatus( carteObjectId );
     } catch ( HopException e ) {

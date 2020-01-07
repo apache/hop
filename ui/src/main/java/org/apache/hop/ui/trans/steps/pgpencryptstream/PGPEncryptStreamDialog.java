@@ -429,7 +429,7 @@ public class PGPEncryptStreamDialog extends BaseStepDialog implements StepDialog
     input.setStreamField( wStreamFieldName.getText() );
     input.setGPGPLocation( wGPGLocation.getText() );
     input.setKeyName( wKeyName.getText() );
-    input.setResultfieldname( wResult.getText() );
+    input.setResultFieldName( wResult.getText() );
     input.setKeynameInField( wKeyNameFromField.getSelection() );
     input.setKeynameFieldName( wKeyNameFieldName.getText() );
     stepname = wStepname.getText(); // return value

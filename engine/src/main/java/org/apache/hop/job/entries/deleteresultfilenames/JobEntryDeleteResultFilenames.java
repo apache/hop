@@ -47,8 +47,7 @@ import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -97,10 +96,10 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
@@ -109,31 +108,6 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryDeleteResultFilenames.CanNotLoadFromXML", xe.getMessage() ) );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      foldername = rep.getJobEntryAttributeString( id_jobentry, "foldername" );
-      specifywildcard = rep.getJobEntryAttributeBoolean( id_jobentry, "specify_wildcard" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      wildcardexclude = rep.getJobEntryAttributeString( id_jobentry, "wildcardexclude" );
-    } catch ( HopException dbe ) {
-      throw new HopXMLException( BaseMessages.getString(
-        PKG, "JobEntryDeleteResultFilenames.CanNotLoadFromRep", "" + id_jobentry, dbe.getMessage() ) );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "foldername", foldername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "specify_wildcard", specifywildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcardexclude", wildcardexclude );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopXMLException( BaseMessages.getString(
-        PKG, "JobEntryDeleteResultFilenames.CanNotSaveToRep", "" + id_job, dbe.getMessage() ) );
     }
   }
 
@@ -248,7 +222,7 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

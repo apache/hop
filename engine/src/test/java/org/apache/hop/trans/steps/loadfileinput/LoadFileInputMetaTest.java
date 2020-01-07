@@ -119,7 +119,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
     DocumentBuilder db = dbf.newDocumentBuilder();
     Document doc = db.parse( new InputSource( new StringReader( "<step>" + xmlOrig + "</step>" ) ) );
     IMetaStore metaStore = null;
-    testMeta.loadXML( doc.getFirstChild(), null, metaStore );
+    testMeta.loadXML( doc.getFirstChild(), metaStore );
     assertEquals( origMeta, testMeta );
   }
 

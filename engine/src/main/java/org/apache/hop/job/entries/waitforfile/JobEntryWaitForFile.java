@@ -46,8 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -103,16 +102,14 @@ public class JobEntryWaitForFile extends JobEntryBase implements Cloneable, JobE
     retval.append( "      " ).append( XMLHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "file_size_check", fileSizeCheck ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       maximumTimeout = XMLHandler.getTagValue( entrynode, "maximum_timeout" );
       checkCycleTime = XMLHandler.getTagValue( entrynode, "check_cycle_time" );
@@ -121,36 +118,6 @@ public class JobEntryWaitForFile extends JobEntryBase implements Cloneable, JobE
       addFilenameToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'wait for file' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      maximumTimeout = rep.getJobEntryAttributeString( id_jobentry, "maximum_timeout" );
-      checkCycleTime = rep.getJobEntryAttributeString( id_jobentry, "check_cycle_time" );
-      successOnTimeout = rep.getJobEntryAttributeBoolean( id_jobentry, "success_on_timeout" );
-      fileSizeCheck = rep.getJobEntryAttributeBoolean( id_jobentry, "file_size_check" );
-      addFilenameToResult = rep.getJobEntryAttributeBoolean( id_jobentry, "add_filename_result" );
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'wait for file' from the repository for id_jobentry=" + id_jobentry,
-        dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "maximum_timeout", maximumTimeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "check_cycle_time", checkCycleTime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_on_timeout", successOnTimeout );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "file_size_check", fileSizeCheck );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_filename_result", addFilenameToResult );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'wait for file' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -176,12 +143,6 @@ public class JobEntryWaitForFile extends JobEntryBase implements Cloneable, JobE
     if ( filename != null ) {
       FileObject fileObject = null;
       String realFilename = getRealFilename();
-
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
 
       try {
         fileObject = HopVFS.getFileObject( realFilename, this );
@@ -404,7 +365,7 @@ public class JobEntryWaitForFile extends JobEntryBase implements Cloneable, JobE
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "maximumTimeout", remarks,

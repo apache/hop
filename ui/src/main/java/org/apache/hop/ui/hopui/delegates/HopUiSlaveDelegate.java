@@ -30,7 +30,6 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.HasSlaveServersInterface;
 import org.apache.hop.ui.cluster.dialog.SlaveServerDialog;
 import org.apache.hop.ui.core.PropsUI;
@@ -63,7 +62,7 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
         + slaveServer.getName() + " : " + slaveServer.getServerAndPort() );
       tabItem.setControl( hopUiSlave );
 
-      tabMapEntry = new TabMapEntry( tabItem, null, tabName, null, null, hopUiSlave, ObjectType.SLAVE_SERVER );
+      tabMapEntry = new TabMapEntry( tabItem, null, tabName, hopUiSlave, ObjectType.SLAVE_SERVER );
       hopUi.delegates.tabs.addTab( tabMapEntry );
     }
     int idx = tabfolder.indexOf( tabMapEntry.getTabItem() );
@@ -73,14 +72,6 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
   public void delSlaveServer( HasSlaveServersInterface hasSlaveServersInterface, SlaveServer slaveServer )
     throws HopException {
 
-    Repository rep = hopUi.getRepository();
-    if ( rep != null && slaveServer.getObjectId() != null ) {
-      // remove the slave server from the repository too...
-      rep.deleteSlave( slaveServer.getObjectId() );
-      if ( sharedObjectSyncUtil != null ) {
-        sharedObjectSyncUtil.deleteSlaveServer( slaveServer );
-      }
-    }
     hasSlaveServersInterface.getSlaveServers().remove( slaveServer );
     refreshTree();
 
@@ -95,23 +86,6 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
     if ( dialog.open() ) {
       slaveServer.verifyAndModifySlaveServerName( hasSlaveServersInterface.getSlaveServers(), null );
       hasSlaveServersInterface.getSlaveServers().add( slaveServer );
-      if ( hopUi.rep != null ) {
-        try {
-          if ( !hopUi.rep.getSecurityProvider().isReadOnly() ) {
-            hopUi.rep.save( slaveServer, Const.VERSION_COMMENT_INITIAL_VERSION, null );
-            // repository objects are "global"
-            if ( sharedObjectSyncUtil != null ) {
-              sharedObjectSyncUtil.reloadJobRepositoryObjects( false );
-              sharedObjectSyncUtil.reloadTransformationRepositoryObjects( false );
-            }
-          } else {
-            showSaveErrorDialog( slaveServer,
-                new HopException( BaseMessages.getString( PKG, "Spoon.Dialog.Exception.ReadOnlyRepositoryUser" ) ) );
-          }
-        } catch ( HopException e ) {
-          showSaveErrorDialog( slaveServer, e );
-        }
-      }
 
       refreshTree();
     }
@@ -121,13 +95,6 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
     String originalName = slaveServer.getName();
     SlaveServerDialog dialog = new SlaveServerDialog( hopUi.getShell(), slaveServer, existingServers );
     if ( dialog.open() ) {
-      if ( hopUi.rep != null ) {
-        try {
-          saveSharedObjectToRepository( slaveServer, null );
-        } catch ( HopException e ) {
-          showSaveErrorDialog( slaveServer, e );
-        }
-      }
       if ( sharedObjectSyncUtil != null ) {
         sharedObjectSyncUtil.synchronizeSlaveServers( slaveServer, originalName );
       }

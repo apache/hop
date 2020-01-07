@@ -58,7 +58,6 @@ import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -237,8 +236,8 @@ public class JobEntrySFTPPUTDialog extends JobEntryDialog implements JobEntryDia
 
   private SFTPClient sftpclient = null;
 
-  public JobEntrySFTPPUTDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySFTPPUTDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySFTPPUT) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobSFTPPUT.Title" ) );

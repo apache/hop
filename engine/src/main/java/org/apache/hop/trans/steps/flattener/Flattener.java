@@ -73,7 +73,7 @@ public class Flattener extends BaseStep implements StepInterface {
     if ( first ) {
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.fieldNr = data.inputRowMeta.indexOfValue( meta.getFieldName() );
       if ( data.fieldNr < 0 ) {

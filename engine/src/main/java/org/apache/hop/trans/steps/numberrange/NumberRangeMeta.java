@@ -38,8 +38,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -75,12 +74,8 @@ public class NumberRangeMeta extends BaseStepMeta implements StepMetaInterface {
     rules = new LinkedList<NumberRangeRule>();
   }
 
-  public NumberRangeMeta( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    loadXML( stepnode, databases, metaStore );
-  }
-
-  public NumberRangeMeta( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    readRep( rep, metaStore, id_step, databases );
+  public NumberRangeMeta( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    loadXML( stepnode, metaStore );
   }
 
   @Override
@@ -106,7 +101,7 @@ public class NumberRangeMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface mcValue = new ValueMetaString( outputField );
     mcValue.setOrigin( name );
     mcValue.setLength( 255 );
@@ -120,7 +115,7 @@ public class NumberRangeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       inputField = XMLHandler.getTagValue( stepnode, "inputField" );
       outputField = XMLHandler.getTagValue( stepnode, "outputField" );
@@ -161,58 +156,9 @@ public class NumberRangeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      inputField = rep.getStepAttributeString( id_step, "inputField" );
-      outputField = rep.getStepAttributeString( id_step, "outputField" );
-
-      emptyRules();
-      String fallBackValue = rep.getStepAttributeString( id_step, "fallBackValue" );
-      setFallBackValue( fallBackValue );
-      int nrfields = rep.countNrStepAttributes( id_step, "lower_bound" );
-      for ( int i = 0; i < nrfields; i++ ) {
-        String lowerBoundStr = rep.getStepAttributeString( id_step, i, "lower_bound" );
-        String upperBoundStr = rep.getStepAttributeString( id_step, i, "upper_bound" );
-        String value = rep.getStepAttributeString( id_step, i, "value" );
-
-        double lowerBound = Double.parseDouble( lowerBoundStr );
-        double upperBound = Double.parseDouble( upperBoundStr );
-
-        addRule( lowerBound, upperBound, value );
-
-      }
-    } catch ( Exception dbe ) {
-      throw new HopException( "error reading step with id_step=" + id_step + " from the repository", dbe );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "inputField", inputField );
-      rep.saveStepAttribute( id_transformation, id_step, "outputField", outputField );
-      rep.saveStepAttribute( id_transformation, id_step, "fallBackValue", getFallBackValue() );
-
-      int i = 0;
-      for ( NumberRangeRule rule : rules ) {
-        rep
-          .saveStepAttribute( id_transformation, id_step, i, "lower_bound", String
-            .valueOf( rule.getLowerBound() ) );
-        rep
-          .saveStepAttribute( id_transformation, id_step, i, "upper_bound", String
-            .valueOf( rule.getUpperBound() ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "value", String.valueOf( rule.getValue() ) );
-        i++;
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save step information to the repository, id_step=" + id_step, dbe );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

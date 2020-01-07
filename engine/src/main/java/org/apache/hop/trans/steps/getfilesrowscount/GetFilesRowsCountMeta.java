@@ -42,8 +42,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -351,7 +350,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
     this.rowsCountFieldName = rowsCountFieldName;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -390,7 +389,6 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
       retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[i] ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
-      parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( fileName[i] );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -493,7 +491,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v =
       new ValueMetaInteger( space.environmentSubstitute( rowsCountFieldName ) );
     v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
@@ -505,79 +503,6 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
       v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
-    }
-  }
-
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-
-      includeFilesCount = rep.getStepAttributeBoolean( id_step, "files_count" );
-      filesCountFieldName = rep.getStepAttributeString( id_step, "files_count_fieldname" );
-      rowsCountFieldName = rep.getStepAttributeString( id_step, "rows_count_fieldname" );
-
-      RowSeparator_format = scrubOldRowSeparator( rep.getStepAttributeString( id_step, "rowseparator_format" ) );
-      RowSeparator = rep.getStepAttributeString( id_step, "row_separator" );
-      smartCount = rep.getStepAttributeBoolean( id_step, "smartCount" );
-      String addresult = rep.getStepAttributeString( id_step, "isaddresult" );
-      if ( Utils.isEmpty( addresult ) ) {
-        isaddresult = true;
-      } else {
-        isaddresult = rep.getStepAttributeBoolean( id_step, "isaddresult" );
-      }
-
-      filefield = rep.getStepAttributeBoolean( id_step, "filefield" );
-      outputFilenameField = rep.getStepAttributeString( id_step, "filename_Field" );
-
-      int nrFiles = rep.countNrStepAttributes( id_step, "file_name" );
-
-      allocate( nrFiles );
-
-      for ( int i = 0; i < nrFiles; i++ ) {
-        fileName[i] = rep.getStepAttributeString( id_step, i, "file_name" );
-        fileMask[i] = rep.getStepAttributeString( id_step, i, "file_mask" );
-        excludeFileMask[i] = rep.getStepAttributeString( id_step, i, "exclude_file_mask" );
-        fileRequired[i] = rep.getStepAttributeString( id_step, i, "file_required" );
-        if ( !YES.equalsIgnoreCase( fileRequired[i] ) ) {
-          fileRequired[i] = NO;
-        }
-        includeSubFolders[i] = rep.getStepAttributeString( id_step, i, "include_subfolders" );
-        if ( !YES.equalsIgnoreCase( includeSubFolders[i] ) ) {
-          includeSubFolders[i] = NO;
-        }
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "GetFilesRowsCountMeta.Exception.ErrorReadingRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-
-      rep.saveStepAttribute( id_transformation, id_step, "files_count", includeFilesCount );
-      rep.saveStepAttribute( id_transformation, id_step, "files_count_fieldname", filesCountFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "rows_count_fieldname", rowsCountFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "rowseparator_format", RowSeparator_format );
-      rep.saveStepAttribute( id_transformation, id_step, "row_separator", RowSeparator );
-      rep.saveStepAttribute( id_transformation, id_step, "isaddresult", isaddresult );
-      rep.saveStepAttribute( id_transformation, id_step, "smartCount", smartCount );
-
-      rep.saveStepAttribute( id_transformation, id_step, "filefield", filefield );
-      rep.saveStepAttribute( id_transformation, id_step, "filename_Field", outputFilenameField );
-
-      for ( int i = 0; i < fileName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_name", fileName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_mask", fileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "exclude_file_mask", excludeFileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", fileRequired[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "include_subfolders", includeSubFolders[i] );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "GetFilesRowsCountMeta.Exception.ErrorSavingToRepository", "" + id_step ), e );
     }
   }
 
@@ -597,7 +522,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -661,15 +586,13 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

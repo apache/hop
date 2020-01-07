@@ -40,8 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -357,8 +356,8 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Deprecated
@@ -413,7 +412,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !Utils.isEmpty( fieldName ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
       v.setOrigin( name );
@@ -502,7 +501,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       applicationType = XMLHandler.getTagValue( stepnode, "applicationType" );
       method = XMLHandler.getTagValue( stepnode, "method" );
@@ -558,107 +557,9 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      applicationType = rep.getStepAttributeString( id_step, "applicationType" );
-      method = rep.getStepAttributeString( id_step, "method" );
-      url = rep.getStepAttributeString( id_step, "url" );
-      urlInField = rep.getStepAttributeBoolean( id_step, "urlInField" );
-
-      methodFieldName = rep.getStepAttributeString( id_step, "methodFieldName" );
-      dynamicMethod = rep.getStepAttributeBoolean( id_step, "dynamicMethod" );
-      urlField = rep.getStepAttributeString( id_step, "urlField" );
-      bodyField = rep.getStepAttributeString( id_step, "bodyField" );
-      httpLogin = rep.getStepAttributeString( id_step, "httpLogin" );
-      httpPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "httpPassword" ) );
-
-      proxyHost = rep.getStepAttributeString( id_step, "proxyHost" );
-      proxyPort = rep.getStepAttributeString( id_step, "proxyPort" );
-
-      trustStoreFile = rep.getStepAttributeString( id_step, "trustStoreFile" );
-      trustStorePassword =
-          Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "trustStorePassword" ) );
-
-      preemptive = rep.getStepAttributeBoolean( id_step, "preemptive" );
-      int nrheaders = rep.countNrStepAttributes( id_step, "header_field" );
-      int nrparams = rep.countNrStepAttributes( id_step, "parameter_field" );
-      int nrmatrixparams = rep.countNrStepAttributes( id_step, "matrix_parameter_field" );
-      allocate( nrheaders, nrparams, nrmatrixparams );
-
-      for ( int i = 0; i < nrheaders; i++ ) {
-        headerField[i] = rep.getStepAttributeString( id_step, i, "header_field" );
-        headerName[i] = rep.getStepAttributeString( id_step, i, "header_name" );
-      }
-      for ( int i = 0; i < nrparams; i++ ) {
-        parameterField[i] = rep.getStepAttributeString( id_step, i, "parameter_field" );
-        parameterName[i] = rep.getStepAttributeString( id_step, i, "parameter_name" );
-      }
-      for ( int i = 0; i < nrmatrixparams; i++ ) {
-        matrixParameterField[i] = rep.getStepAttributeString( id_step, i, "matrix_parameter_field" );
-        matrixParameterName[i] = rep.getStepAttributeString( id_step, i, "matrix_parameter_name" );
-      }
-
-      fieldName = rep.getStepAttributeString( id_step, "result_name" );
-      resultCodeFieldName = rep.getStepAttributeString( id_step, "result_code" );
-      responseTimeFieldName = rep.getStepAttributeString( id_step, "response_time" );
-      responseHeaderFieldName = rep.getStepAttributeString( id_step, "response_header" );
-    } catch ( Exception e ) {
-      throw new HopException(
-        BaseMessages.getString( PKG, "RestMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "applicationType", applicationType );
-      rep.saveStepAttribute( id_transformation, id_step, "method", method );
-      rep.saveStepAttribute( id_transformation, id_step, "url", url );
-      rep.saveStepAttribute( id_transformation, id_step, "methodFieldName", methodFieldName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "dynamicMethod", dynamicMethod );
-      rep.saveStepAttribute( id_transformation, id_step, "urlInField", urlInField );
-      rep.saveStepAttribute( id_transformation, id_step, "urlField", urlField );
-      rep.saveStepAttribute( id_transformation, id_step, "bodyField", bodyField );
-      rep.saveStepAttribute( id_transformation, id_step, "httpLogin", httpLogin );
-      rep.saveStepAttribute( id_transformation, id_step, "httpPassword", Encr
-        .encryptPasswordIfNotUsingVariables( httpPassword ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "proxyHost", proxyHost );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPort", proxyPort );
-
-      rep.saveStepAttribute( id_transformation, id_step, "trustStoreFile", trustStoreFile );
-      rep.saveStepAttribute( id_transformation, id_step, "trustStorePassword", Encr
-          .encryptPasswordIfNotUsingVariables( trustStorePassword ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "preemptive", preemptive );
-      for ( int i = 0; i < headerName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "header_field", headerField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "header_name", headerName[i] );
-      }
-      for ( int i = 0; i < parameterField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_field", parameterField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_name", parameterName[i] );
-      }
-      for ( int i = 0; i < matrixParameterField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "matrix_parameter_field", matrixParameterField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "matrix_parameter_name", matrixParameterName[i] );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "result_name", fieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "result_code", resultCodeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "response_time", responseTimeFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "response_header", responseHeaderFieldName );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "RestMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!

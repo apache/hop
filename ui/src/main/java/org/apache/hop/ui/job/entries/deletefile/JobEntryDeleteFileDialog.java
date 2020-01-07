@@ -48,7 +48,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.deletefile.JobEntryDeleteFile;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -90,8 +89,8 @@ public class JobEntryDeleteFileDialog extends JobEntryDialog implements JobEntry
 
   private boolean changed;
 
-  public JobEntryDeleteFileDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryDeleteFileDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryDeleteFile) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

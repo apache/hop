@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.trans.steps.tableexists;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -62,7 +63,7 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 public class TableExistsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlTableName;
   private CCombo wTableName;
@@ -133,7 +134,7 @@ public class TableExistsDialog extends BaseStepDialog implements StepDialogInter
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabase(), lsMod );
     if ( input.getDatabase() == null && transMeta.nrDatabases() == 1 ) {
       wConnection.select( 0 );
     }
@@ -285,8 +286,6 @@ public class TableExistsDialog extends BaseStepDialog implements StepDialogInter
 
     if ( input.getDatabase() != null ) {
       wConnection.setText( input.getDatabase().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getDynamicTablenameField() != null ) {
       wTableName.setText( input.getDynamicTablenameField() );

@@ -44,8 +44,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -226,7 +225,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -333,7 +332,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
   @Override
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     // Check compatibility mode
     boolean compatibilityMode = ValueMetaBase.convertStringToBoolean(
       space.getVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N" ) );
@@ -469,63 +468,9 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int groupsize = rep.countNrStepAttributes( id_step, "group_name" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "aggregate_name" );
-
-      allocate( groupsize, nrvalues );
-
-      for ( int i = 0; i < groupsize; i++ ) {
-        groupField[i] = rep.getStepAttributeString( id_step, i, "group_name" );
-      }
-
-      boolean hasNumberOfValues = false;
-      for ( int i = 0; i < nrvalues; i++ ) {
-        aggregateField[i] = rep.getStepAttributeString( id_step, i, "aggregate_name" );
-        subjectField[i] = rep.getStepAttributeString( id_step, i, "aggregate_subject" );
-        aggregateType[i] = getType( rep.getStepAttributeString( id_step, i, "aggregate_type" ) );
-
-        if ( aggregateType[i] == TYPE_GROUP_COUNT_ALL
-          || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[i] == TYPE_GROUP_COUNT_ANY ) {
-          hasNumberOfValues = true;
-        }
-        valueField[i] = rep.getStepAttributeString( id_step, i, "aggregate_value_field" );
-      }
-
-      alwaysGivingBackOneRow = rep.getStepAttributeBoolean( id_step, 0, "give_back_row", hasNumberOfValues );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MemoryGroupByMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "give_back_row", alwaysGivingBackOneRow );
-
-      for ( int i = 0; i < groupField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "group_name", groupField[i] );
-      }
-
-      for ( int i = 0; i < subjectField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_name", aggregateField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_subject", subjectField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_type", getTypeDesc( aggregateType[i] ) );
-        rep.saveStepAttribute( id_transformation, id_step, i, "aggregate_value_field", valueField[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MemoryGroupByMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

@@ -23,7 +23,6 @@
 package org.apache.hop.ui.job.entries.job;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,7 +40,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -55,11 +53,7 @@ import org.apache.hop.job.entries.job.JobEntryJob;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryElementMetaInterface;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -68,8 +62,6 @@ import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogHelper;
-import org.apache.hop.ui.util.DialogUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 import java.io.File;
@@ -96,8 +88,8 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     BaseMessages.getString( PKG, "JobJob.Fileformat.LOG" ),
     BaseMessages.getString( PKG, "JobJob.Fileformat.All" ) };
 
-  public JobEntryJobDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryJobDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryJob) jobEntryInt;
   }
 
@@ -220,11 +212,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        if ( rep != null ) {
-          selectJob();
-        } else {
-          pickFileVFS();
-        }
+      pickFileVFS();
       }
     } );
 
@@ -262,7 +250,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
       if ( inputJobMeta == null ) {
         JobEntryJob jej = new JobEntryJob();
         getInfo( jej );
-        inputJobMeta = jej.getJobMeta( rep, metaStore, jobMeta );
+        inputJobMeta = jej.getJobMeta( metaStore, jobMeta );
       }
       String[] parameters = inputJobMeta.listParameters();
 
@@ -282,25 +270,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
         shell, BaseMessages.getString( PKG, "JobEntryJobDialog.Exception.UnableToLoadJob.Title" ), BaseMessages
         .getString( PKG, "JobEntryJobDialog.Exception.UnableToLoadJob.Message" ), e );
     }
-  }
-
-  private void selectJob() {
-    RepositoryObject repositoryObject = DialogHelper.selectRepositoryObject( "*.kjb", log );
-
-    if ( repositoryObject != null ) {
-      String path = DialogUtils
-        .getPath( jobMeta.getRepositoryDirectory().getPath(), repositoryObject.getRepositoryDirectory().getPath() );
-      String fullPath = ( path.equals( "/" ) ? "/" : path + "/" ) + repositoryObject.getName();
-      wPath.setText( fullPath );
-    }
-  }
-
-  private void updateByReferenceField( RepositoryElementMetaInterface element ) {
-    String path = getPathOf( element );
-    if ( path == null ) {
-      path = "";
-    }
-    wByReference.setText( path );
   }
 
   protected void pickFileVFS() {
@@ -327,7 +296,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
           }
           if ( HopVFS.fileExists( prevName ) ) {
             wPath.setText( prevName );
-            specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
             return;
           } else {
             // File specified doesn't exist. Ask if we should create the file...
@@ -344,7 +312,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
               newJobMeta.initializeVariablesFrom( jobEntry );
               newJobMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
-              specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
               hopUi.saveFile();
               return;
             }
@@ -390,26 +357,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
   public void getData() {
     wName.setText( Const.NVL( jobEntry.getName(), "" ) );
 
-    specificationMethod = jobEntry.getSpecificationMethod();
-    switch ( specificationMethod ) {
-      case FILENAME:
-        wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
-        break;
-      case REPOSITORY_BY_NAME:
-        String dirPath = Const.NVL( jobEntry.getDirectory(), "" );
-        String transPath = Const.NVL( jobEntry.getJobName(), "" );
-        String fullPath = ( StringUtils.isBlank( dirPath ) ? "" : dirPath + "/" ) + transPath;
-        wPath.setText( fullPath );
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        referenceObjectId = jobEntry.getJobObjectId();
-        if ( rep != null ) {
-          getByReferenceData( referenceObjectId );
-        }
-        break;
-      default:
-        break;
-    }
+    wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
 
     // Arguments
     if ( jobEntry.arguments != null ) {
@@ -485,21 +433,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     wName.setFocus();
   }
 
-  private void getByReferenceData( ObjectId referenceObjectId ) {
-    try {
-      RepositoryObject jobInf = rep.getObjectInformation( referenceObjectId, RepositoryObjectType.JOB );
-      String path =
-        DialogUtils.getPath( jobMeta.getRepositoryDirectory().getPath(), jobInf.getRepositoryDirectory().getPath() );
-      String fullPath =
-        Const.NVL( path, "" ) + "/" + Const.NVL( jobInf.getName(), "" );
-      wPath.setText( fullPath );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "JobEntryJobDialog.Exception.UnableToReferenceObjectId.Title" ),
-        BaseMessages.getString( PKG, "JobEntryJobDialog.Exception.UnableToReferenceObjectId.Message" ), e );
-    }
-  }
-
   protected void cancel() {
     jobEntry.setChanged( backupChanged );
 
@@ -511,30 +444,9 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
   protected void getInfo( JobEntryJob jej ) {
     String jobPath = getPath();
     jej.setName( getName() );
-    switch ( specificationMethod ) {
-      case FILENAME:
-        jej.setFileName( jobPath );
-        jej.setDirectory( null );
-        jej.setJobName( null );
-        jej.setJobObjectId( null );
-        break;
-      case REPOSITORY_BY_NAME:
-        jobPath = getPath();
-        String jobName = jobPath;
-        String directory = "";
-        int index = jobPath.lastIndexOf( "/" );
-        if ( index != -1 ) {
-          jobName = jobPath.substring( index + 1 );
-          directory = index == 0 ? "/" : jobPath.substring( 0, index );
-        }
-        jej.setDirectory( directory );
-        jej.setJobName( jobName );
-        jej.setFileName( null );
-        jej.setJobObjectId( null );
-        break;
-      default:
-        break;
-    }
+    jej.setFileName( jobPath );
+    jej.setDirectory( null );
+    jej.setJobName( null );
 
     // Do the arguments
     int nritems = wFields.nrNonEmpty();
@@ -641,7 +553,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
       mb.open();
       return;
     }
-    getSpecificationPath( jobEntry );
     getInfo( jobEntry );
     jobEntry.setChanged();
     dispose();
@@ -657,14 +568,4 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     return wPath.getText();
   }
 
-  @VisibleForTesting
-  protected void getSpecificationPath( JobEntryJob jej ) {
-    String jobPath = getPath();
-    if ( rep == null || jobPath.startsWith( "file://" ) || jobPath.startsWith( "zip:file://" ) || jobPath.startsWith( "hdfs://" ) ) {
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-    } else {
-      specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-    }
-    jej.setSpecificationMethod( specificationMethod );
-  }
 }

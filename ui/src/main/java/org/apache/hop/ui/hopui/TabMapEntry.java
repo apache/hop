@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 import org.apache.xul.swt.tab.TabItem;
 
 public class TabMapEntry {
@@ -36,10 +35,6 @@ public class TabMapEntry {
 
   private String objectName;
 
-  private RepositoryDirectoryInterface repositoryDirectory;
-
-  private String versionLabel;
-
   private TabItemInterface object;
 
   private ObjectType objectType;
@@ -47,19 +42,17 @@ public class TabMapEntry {
   private boolean showingLocation;
 
   /**
-   * @param tabName
+   *
+   * @param tabItem
+   * @param filename
    * @param objectName
-   * @param objectType
    * @param object
+   * @param objectType
    */
-  public TabMapEntry( TabItem tabItem, String filename, String objectName,
-    RepositoryDirectoryInterface repositoryDirectory, String versionLabel, TabItemInterface object,
-    ObjectType objectType ) {
+  public TabMapEntry( TabItem tabItem, String filename, String objectName, TabItemInterface object, ObjectType objectType ) {
     this.tabItem = tabItem;
     this.filename = filename;
     this.objectName = objectName;
-    this.repositoryDirectory = repositoryDirectory;
-    this.versionLabel = versionLabel;
     this.object = object;
     this.objectType = objectType;
   }
@@ -71,15 +64,8 @@ public class TabMapEntry {
     boolean sameName = objectName != null && entry.objectName != null && objectName.equals( entry.objectName );
     boolean sameFile =
       ( filename == null && entry.filename == null ) || ( filename != null && filename.equals( entry.filename ) );
-    boolean sameVersion =
-      ( versionLabel == null && entry.versionLabel == null )
-        || ( versionLabel != null && versionLabel.equals( entry.versionLabel ) );
-    boolean sameDirectory =
-      ( repositoryDirectory == null && entry.repositoryDirectory == null )
-        || ( repositoryDirectory != null && entry.repositoryDirectory != null && repositoryDirectory
-          .getPath().equals( entry.repositoryDirectory.getPath() ) );
 
-    return sameType && sameName && sameVersion && sameFile && sameDirectory;
+    return sameType && sameName && sameFile;
   }
 
   /**
@@ -95,14 +81,6 @@ public class TabMapEntry {
    */
   public void setObjectName( String objectName ) {
     this.objectName = objectName;
-  }
-
-  public String getVersionLabel() {
-    return versionLabel;
-  }
-
-  public void setVersionLabel( String versionLabel ) {
-    this.versionLabel = versionLabel;
   }
 
   /**
@@ -163,21 +141,6 @@ public class TabMapEntry {
    */
   public void setFilename( String filename ) {
     this.filename = filename;
-  }
-
-  /**
-   * @return the repositoryDirectory
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return repositoryDirectory;
-  }
-
-  /**
-   * @param repositoryDirectory
-   *          the repositoryDirectory to set
-   */
-  public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
-    this.repositoryDirectory = repositoryDirectory;
   }
 
   /**

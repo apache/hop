@@ -22,46 +22,32 @@
 
 package org.apache.hop.job;
 
-import org.junit.Assert;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.JobTracker;
 import org.apache.hop.core.logging.BaseLogTable;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.JobLogTable;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.HasDatabasesInterface;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
@@ -71,7 +57,7 @@ public class JobTest {
   private Job mockedJob;
   private Database mockedDataBase;
   private VariableSpace mockedVariableSpace;
-  private HasDatabasesInterface hasDatabasesInterface;
+  private IMetaStore mockedMetaStore;
   private JobMeta mockedJobMeta;
   private JobEntryCopy mockedJobEntryCopy;
   private JobEntrySpecial mockedJobEntrySpecial;
@@ -83,7 +69,7 @@ public class JobTest {
     mockedDataBase = mock( Database.class );
     mockedJob = mock( Job.class );
     mockedVariableSpace = mock( VariableSpace.class );
-    hasDatabasesInterface = mock( HasDatabasesInterface.class );
+    mockedMetaStore = mock( IMetaStore.class );
     mockedJobMeta = mock( JobMeta.class );
     mockedJobEntryCopy = mock( JobEntryCopy.class );
     mockedJobEntrySpecial = mock( JobEntrySpecial.class );
@@ -95,7 +81,7 @@ public class JobTest {
   @Test
   public void recordsCleanUpMethodIsCalled_JobEntryLogTable() throws Exception {
 
-    JobEntryLogTable jobEntryLogTable = JobEntryLogTable.getDefault( mockedVariableSpace, hasDatabasesInterface );
+    JobEntryLogTable jobEntryLogTable = JobEntryLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
     setAllTableParamsDefault( jobEntryLogTable );
 
     JobMeta jobMeta = new JobMeta(  );
@@ -111,7 +97,7 @@ public class JobTest {
 
   @Test
   public void recordsCleanUpMethodIsCalled_JobLogTable() throws Exception {
-    JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, hasDatabasesInterface );
+    JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
     setAllTableParamsDefault( jobLogTable );
 
     doCallRealMethod().when( mockedJob ).writeLogTableInformation( jobLogTable, LogStatus.END );
@@ -131,13 +117,12 @@ public class JobTest {
 
   @Test
   public void testNewJobWithContainerObjectId() {
-    Repository repository = mock( Repository.class );
     JobMeta meta = mock( JobMeta.class );
 
     String carteId = UUID.randomUUID().toString();
     doReturn( carteId ).when( meta ).getContainerObjectId();
 
-    Job job = new Job( repository, meta );
+    Job job = new Job( meta );
 
     assertEquals( carteId, job.getContainerObjectId() );
   }
@@ -148,11 +133,10 @@ public class JobTest {
    */
   @Test
   public void testTwoJobsGetSameLogChannelId() {
-    Repository repository = mock( Repository.class );
     JobMeta meta = mock( JobMeta.class );
 
-    Job job1 = new Job( repository, meta );
-    Job job2 = new Job( repository, meta );
+    Job job1 = new Job( meta );
+    Job job2 = new Job( meta );
 
     assertEquals( job1.getLogChannelId(), job2.getLogChannelId() );
   }
@@ -163,7 +147,6 @@ public class JobTest {
    */
   @Test
   public void testTwoJobsGetDifferentLogChannelIdWithDifferentCarteId() {
-    Repository repository = mock( Repository.class );
     JobMeta meta1 = mock( JobMeta.class );
     JobMeta meta2 = mock( JobMeta.class );
 
@@ -173,8 +156,8 @@ public class JobTest {
     doReturn( carteId1 ).when( meta1 ).getContainerObjectId();
     doReturn( carteId2 ).when( meta2 ).getContainerObjectId();
 
-    Job job1 = new Job( repository, meta1 );
-    Job job2 = new Job( repository, meta2 );
+    Job job1 = new Job( meta1 );
+    Job job2 = new Job( meta2 );
 
     assertNotEquals( job1.getContainerObjectId(), job2.getContainerObjectId() );
     assertNotEquals( job1.getLogChannelId(), job2.getLogChannelId() );
@@ -188,97 +171,23 @@ public class JobTest {
     jobTest.copyVariablesFrom( null );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    jobTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
+    jobTest.setInternalEntryCurrentDirectory( hasFilename );
 
     assertEquals( "file:///C:/SomeFilenameDirectory", jobTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
 
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithRepository( ) {
-    Job jobTest = new Job(  );
-    boolean hasFilename = false;
-    boolean hasRepoDir = true;
-    jobTest.copyVariablesFrom( null );
-    jobTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    jobTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
-
-    assertEquals( "/SomeRepDirectory", jobTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-  }
-
-  @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository( ) {
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename( ) {
     Job jobTest = new Job(  );
     jobTest.copyVariablesFrom( null );
     boolean hasFilename = false;
-    boolean hasRepoDir = false;
     jobTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, "/SomeRepDirectory" );
-    jobTest.setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
+    jobTest.setInternalEntryCurrentDirectory( hasFilename );
 
     assertEquals( "Original value defined at run execution", jobTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
   }
 
-  /**
-   * Tests the execution of Job With Previous Results (Called by JobExecutor - Job Calling another Job)
-   * The called Job is not set to Repeat
-   */
-  @Test
-  public void executeWithPreviousResultsNoRepeatTest() {
-    executeWithPreviousResultsTest( false );
-  }
 
-  /**
-   * Tests the execution of Job With Previous Results (Called by JobExecutor - Job Calling another Job)
-   * The called Job is set to Repeat
-   */
-  @Test
-  public void executeWithPreviousResultsWithRepeatTest() {
-    executeWithPreviousResultsTest( true );
-  }
-
-  private void executeWithPreviousResultsTest( boolean repeat ) {
-    setupJobMockExecution();
-    try {
-      when( mockedJobEntrySpecial.execute( any( Result.class ), anyInt() ) ).thenReturn( new Result(  ) );
-      when( mockedJob.execute( anyInt(), any( Result.class ) ) ).thenCallRealMethod();
-      when( mockedJobEntrySpecial.isRepeat() ).thenReturn( repeat );
-      if ( repeat ) {
-        //The job will repeat its execution until it is stopped
-        scheduleStopJobExecution();
-      }
-      mockedJob.execute( 0, new Result(  ) );
-      //Test expected invocations. If repeat setActive(false) will be called at least twice. With no repeat, only once.
-      verify( mockedJob, repeat ? atLeast( 2 ) : times( 1 ) ).setActive( false );
-    } catch ( HopException e ) {
-      Assert.fail( "Could not execute job" );
-    }
-  }
-
-  private void setupJobMockExecution() {
-    setInternalState( mockedJob, "jobMeta", mockedJobMeta );
-    setInternalState( mockedJob, "log", mockedLogChannel );
-    setInternalState( mockedJob, "jobTracker", new JobTracker( mockedJobMeta ) );
-    setInternalState( mockedJob, "jobEntryListeners", new ArrayList<>(  ) );
-    setInternalState( mockedJob, "jobEntryResults", new LinkedList<>(  ) );
-    setInternalState( mockedJob, "status", new AtomicInteger( 0 ) );
-    when( mockedJobMeta.findJobEntry( JobMeta.STRING_SPECIAL_START, 0, false ) ).thenReturn( mockedJobEntryCopy );
-    when( mockedJobEntryCopy.getEntry() ).thenReturn( mockedJobEntrySpecial );
-    when( mockedJobEntrySpecial.getLogChannel() ).thenReturn( mockedLogChannel );
-    when( mockedJobEntrySpecial.clone() ).thenReturn( mockedJobEntrySpecial );
-    when( mockedJob.isStopped() ).thenCallRealMethod();
-    doCallRealMethod().when( mockedJob ).setStopped( anyBoolean() );
-    HopLogStore.init();
-  }
-
-  private void scheduleStopJobExecution() {
-    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    Runnable task = () -> mockedJob.setStopped( true );
-    scheduler.schedule( task, 1, TimeUnit.SECONDS );
-    scheduler.shutdown();
-  }
 }

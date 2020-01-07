@@ -53,7 +53,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   @GuiElement(
     id = "driverClass",
     order="10",
-    i18nPackage = "org.apache.hop.ui.core.database.dialog",
+    i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.DriverClass",
     type = GuiElementType.TEXT,
     variables = true,

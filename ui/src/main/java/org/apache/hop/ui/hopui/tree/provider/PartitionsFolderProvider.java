@@ -26,8 +26,7 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -89,17 +88,6 @@ public class PartitionsFolderProvider extends TreeFolderProvider {
   }
 
   private List<PartitionSchema> pickupPartitionSchemas( TransMeta transMeta ) throws HopException {
-    Repository rep = hopUi.getRepository();
-    if ( rep != null ) {
-      ObjectId[] ids = rep.getPartitionSchemaIDs( false );
-      List<PartitionSchema> result = new ArrayList<>( ids.length );
-      for ( ObjectId id : ids ) {
-        PartitionSchema schema = rep.loadPartitionSchema( id, null );
-        result.add( schema );
-      }
-      return result;
-    }
-
     return transMeta.getPartitionSchemas();
   }
 

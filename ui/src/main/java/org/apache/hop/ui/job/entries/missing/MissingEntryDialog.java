@@ -41,7 +41,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.missing.MissingEntry;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
@@ -61,14 +60,14 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
   public static final int MISSING_JOB_ENTRY_ID = 2;
 
   public MissingEntryDialog( Shell parent, List<MissingEntry> missingEntries ) {
-    super( parent, null, null, null );
+    super( parent, null, null );
     this.shellParent = parent;
     this.missingEntries = missingEntries;
     this.mode = MISSING_JOB_ENTRIES;
   }
 
-  public MissingEntryDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public MissingEntryDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     this.shellParent = parent;
     this.mode = MISSING_JOB_ENTRY_ID;
   }

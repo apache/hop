@@ -50,7 +50,7 @@ public class JobEntryFilesExistTest {
 
   @Before
   public void setUp() throws Exception {
-    job = new Job( null, new JobMeta() );
+    job = new Job( new JobMeta() );
     entry = new JobEntryFilesExist();
 
     job.getJobMeta().addJobEntry( new JobEntryCopy( entry ) );

@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans;
 
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
-import org.apache.hop.repository.ObjectId;
 import org.apache.hop.trans.step.StepMeta;
 
 /**
@@ -31,15 +29,7 @@ import org.apache.hop.trans.step.StepMeta;
  */
 public interface ISubTransAwareMeta {
 
-  ObjectLocationSpecificationMethod getSpecificationMethod();
-
   String getFileName();
-
-  String getDirectoryPath();
-
-  String getTransName();
-
-  ObjectId getTransObjectId();
 
   StepMeta getParentStepMeta();
 

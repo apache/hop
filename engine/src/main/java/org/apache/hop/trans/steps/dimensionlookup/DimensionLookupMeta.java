@@ -55,8 +55,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -134,7 +133,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
   @Injection( name = "TARGET_TABLE" )
   private String tableName;
 
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   /** The database connection */
   private DatabaseMeta databaseMeta;
@@ -277,7 +276,11 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( databases, connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch(Exception e) {
+      throw new RuntimeException( "Error loading relational database connection '"+connectionName+"'", e );
+    }
   }
 
   /**
@@ -577,8 +580,8 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys, int nrfields ) {
@@ -747,7 +750,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Change all the fields to normal storage, this is the fastest way to handle lazy conversion.
     // It doesn't make sense to use it in the SCD context but people try it anyway
@@ -893,7 +896,8 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       String upd;
       int nrkeys, nrfields;
@@ -902,7 +906,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
       schemaName = XMLHandler.getTagValue( stepnode, "schema" );
       tableName = XMLHandler.getTagValue( stepnode, "table" );
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       commit = XMLHandler.getTagValue( stepnode, "commit" );
       commitSize = Const.toInt( commit, 0 );
 
@@ -973,127 +977,6 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
     }
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
-    throws HopException {
-    try {
-      this.databases = databases;
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-      commitSize = (int) rep.getStepAttributeInteger( id_step, "commit" );
-      update = rep.getStepAttributeBoolean( id_step, "update" );
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "lookup_key_name" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_update" );
-
-      allocate( nrkeys, nrfields );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        keyStream[i] = rep.getStepAttributeString( id_step, i, "lookup_key_name" );
-        keyLookup[i] = rep.getStepAttributeString( id_step, i, "lookup_key_field" );
-      }
-
-      dateField = rep.getStepAttributeString( id_step, "date_name" );
-      dateFrom = rep.getStepAttributeString( id_step, "date_from" );
-      dateTo = rep.getStepAttributeString( id_step, "date_to" );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        fieldStream[i] = rep.getStepAttributeString( id_step, i, "field_name" );
-        fieldLookup[i] = rep.getStepAttributeString( id_step, i, "field_lookup" );
-        fieldUpdate[i] = getUpdateType( update, rep.getStepAttributeString( id_step, i, "field_update" ) );
-        if ( !update ) {
-          returnType[i] = fieldUpdate[i];
-        }
-      }
-
-      keyField = rep.getStepAttributeString( id_step, "return_name" );
-      keyRename = rep.getStepAttributeString( id_step, "return_rename" );
-      autoIncrement = rep.getStepAttributeBoolean( id_step, "use_autoinc" );
-      versionField = rep.getStepAttributeString( id_step, "version_field" );
-      techKeyCreation = rep.getStepAttributeString( id_step, "creation_method" );
-      if ( update ) { // symmetry with readData above ...
-        sequenceName = rep.getStepAttributeString( id_step, "sequence" );
-      }
-      minYear = (int) rep.getStepAttributeInteger( id_step, "min_year" );
-      maxYear = (int) rep.getStepAttributeInteger( id_step, "max_year" );
-
-      cacheSize = (int) rep.getStepAttributeInteger( id_step, "cache_size" );
-      preloadingCache = rep.getStepAttributeBoolean( id_step, "preload_cache" );
-      useBatchUpdate = rep.getStepAttributeBoolean( id_step, "useBatch" );
-
-      usingStartDateAlternative = rep.getStepAttributeBoolean( id_step, "use_start_date_alternative" );
-      startDateAlternative = getStartDateAlternative( rep.getStepAttributeString( id_step, "start_date_alternative" ) );
-      startDateFieldName = rep.getStepAttributeString( id_step, "start_date_field_name" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "DimensionLookupMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
-    throws HopException {
-    try {
-      actualizeWithInjectedValues();
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "update", update );
-
-      for ( int i = 0; i < keyStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_name", keyStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "lookup_key_field", keyLookup[i] );
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "date_name", dateField );
-      rep.saveStepAttribute( id_transformation, id_step, "date_from", dateFrom );
-      rep.saveStepAttribute( id_transformation, id_step, "date_to", dateTo );
-
-      if ( fieldStream != null ) {
-        for ( int i = 0; i < fieldStream.length; i++ ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_name", fieldStream[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_lookup", fieldLookup[i] );
-          rep.saveStepAttribute( id_transformation, id_step, i, "field_update", getUpdateTypeCode( update,
-              fieldUpdate[i] ) );
-        }
-      }
-
-      rep.saveStepAttribute( id_transformation, id_step, "return_name", keyField );
-      rep.saveStepAttribute( id_transformation, id_step, "return_rename", keyRename );
-      rep.saveStepAttribute( id_transformation, id_step, "creation_method", techKeyCreation );
-
-      // For the moment still save 'use_autoinc' for backwards compatibility
-      // (Sven Boden).
-      rep.saveStepAttribute( id_transformation, id_step, "use_autoinc", autoIncrement );
-      rep.saveStepAttribute( id_transformation, id_step, "version_field", versionField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "sequence", sequenceName );
-      rep.saveStepAttribute( id_transformation, id_step, "min_year", minYear );
-      rep.saveStepAttribute( id_transformation, id_step, "max_year", maxYear );
-
-      rep.saveStepAttribute( id_transformation, id_step, "cache_size", cacheSize );
-      rep.saveStepAttribute( id_transformation, id_step, "preload_cache", preloadingCache );
-      rep.saveStepAttribute( id_transformation, id_step, "useBatch", useBatchUpdate );
-
-      rep.saveStepAttribute( id_transformation, id_step, "use_start_date_alternative", usingStartDateAlternative );
-      rep.saveStepAttribute( id_transformation, id_step, "start_date_alternative", getStartDateAlternativeCode(
-          startDateAlternative ) );
-      rep.saveStepAttribute( id_transformation, id_step, "start_date_field_name", startDateFieldName );
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG,
-          "DimensionLookupMeta.Exception.UnableToLoadDimensionLookupInfoFromRepository" ), dbe );
-    }
-  }
-
   public Date getMinDate() {
     Calendar mincal = Calendar.getInstance();
     mincal.set( Calendar.YEAR, minYear );
@@ -1122,7 +1005,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
       IMetaStore metaStore ) {
     if ( update ) {
       checkUpdate( remarks, stepMeta, prev );
@@ -1551,7 +1434,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      Repository repository, IMetaStore metaStore ) {
+      IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( update ) { // Only bother in case of update, not lookup!
@@ -1728,7 +1611,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, Repository repository, IMetaStore metaStore ) {
+      String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore ) {
     if ( prev != null ) {
       if ( !update ) {
         // Lookup: we do a lookup on the natural keys + the return fields!

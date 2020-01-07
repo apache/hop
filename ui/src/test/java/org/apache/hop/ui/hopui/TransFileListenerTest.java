@@ -23,7 +23,6 @@ package org.apache.hop.ui.hopui;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta;
@@ -88,115 +87,5 @@ public class TransFileListenerTest {
     assertEquals( "xml", extensions[1] );
   }
 
-  @Test
-  public void testProcessLinkedTransWithFilename() {
-    TransExecutorMeta transExecutorMeta = spy( new TransExecutorMeta() );
-    transExecutorMeta.setFileName( "/path/to/Transformation2.ktr" );
-    transExecutorMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    StepMeta transExecutorStep = mock( StepMeta.class );
-    when( transExecutorStep.getStepID() ).thenReturn( "TransExecutor" );
-    when( transExecutorStep.getStepMetaInterface() ).thenReturn( transExecutorMeta );
 
-    TransMeta parent = mock( TransMeta.class );
-    when( parent.getSteps() ).thenReturn( Arrays.asList( transExecutorStep ) );
-
-    TransMeta result = transFileListener.processLinkedTrans( parent );
-
-    boolean found = false;
-    for ( StepMeta stepMeta : result.getSteps() ) {
-      if ( stepMeta.getStepID().equalsIgnoreCase( "TransExecutor" ) ) {
-        found = true;
-        TransExecutorMeta resultExecMeta = (TransExecutorMeta) stepMeta.getStepMetaInterface();
-        assertEquals( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, resultExecMeta.getSpecificationMethod() );
-        assertEquals( resultExecMeta.getDirectoryPath(), "/path/to" );
-        assertEquals( resultExecMeta.getTransName(), "Transformation2" );
-      }
-    }
-    assertTrue( found );
-  }
-
-  @Test
-  public void testProcessLinkedTransWithNoFilename() {
-    TransExecutorMeta transExecutorMeta = spy( new TransExecutorMeta() );
-    transExecutorMeta.setFileName( null );
-    transExecutorMeta.setDirectoryPath( "/path/to" );
-    transExecutorMeta.setTransName( "Transformation2" );
-    transExecutorMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    StepMeta transExecutorStep = mock( StepMeta.class );
-    when( transExecutorStep.getStepID() ).thenReturn( "TransExecutor" );
-    when( transExecutorStep.getStepMetaInterface() ).thenReturn( transExecutorMeta );
-
-    TransMeta parent = mock( TransMeta.class );
-    when( parent.getSteps() ).thenReturn( Arrays.asList( transExecutorStep ) );
-
-    TransMeta result = transFileListener.processLinkedTrans( parent );
-
-    boolean found = false;
-    for ( StepMeta stepMeta : result.getSteps() ) {
-      if ( stepMeta.getStepID().equalsIgnoreCase( "TransExecutor" ) ) {
-        found = true;
-        TransExecutorMeta resultExecMeta = (TransExecutorMeta) stepMeta.getStepMetaInterface();
-        assertEquals( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, resultExecMeta.getSpecificationMethod() );
-        assertEquals( resultExecMeta.getDirectoryPath(), "/path/to" );
-        assertEquals( resultExecMeta.getTransName(), "Transformation2" );
-      }
-    }
-    assertTrue( found );
-  }
-
-  @Test
-  public void testProcessLinkedJobsWithFilename() {
-    JobExecutorMeta jobExecutorMeta = spy( new JobExecutorMeta() );
-    jobExecutorMeta.setFileName( "/path/to/Job1.kjb" );
-    jobExecutorMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-    StepMeta jobExecutorStep = mock( StepMeta.class );
-    when( jobExecutorStep.getStepID() ).thenReturn( "JobExecutor" );
-    when( jobExecutorStep.getStepMetaInterface() ).thenReturn( jobExecutorMeta );
-
-    TransMeta parent = mock( TransMeta.class );
-    when( parent.getSteps() ).thenReturn( Arrays.asList( jobExecutorStep ) );
-
-    TransMeta result = transFileListener.processLinkedJobs( parent );
-
-    boolean found = false;
-    for ( StepMeta stepMeta : result.getSteps() ) {
-      if ( stepMeta.getStepID().equalsIgnoreCase( "JobExecutor" ) ) {
-        found = true;
-        JobExecutorMeta resultExecMeta = (JobExecutorMeta) stepMeta.getStepMetaInterface();
-        assertEquals( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, resultExecMeta.getSpecificationMethod() );
-        assertEquals( resultExecMeta.getDirectoryPath(), "/path/to" );
-        assertEquals( resultExecMeta.getJobName(), "Job1" );
-      }
-    }
-    assertTrue( found );
-  }
-
-  @Test
-  public void testProcessLinkedJobsWithNoFilename() {
-    JobExecutorMeta jobExecutorMeta = spy( new JobExecutorMeta() );
-    jobExecutorMeta.setFileName( null );
-    jobExecutorMeta.setDirectoryPath( "/path/to" );
-    jobExecutorMeta.setJobName( "Job1" );
-    jobExecutorMeta.setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-    StepMeta transExecutorStep = mock( StepMeta.class );
-    when( transExecutorStep.getStepID() ).thenReturn( "JobExecutor" );
-    when( transExecutorStep.getStepMetaInterface() ).thenReturn( jobExecutorMeta );
-
-    TransMeta parent = mock( TransMeta.class );
-    when( parent.getSteps() ).thenReturn( Arrays.asList( transExecutorStep ) );
-
-    TransMeta result = transFileListener.processLinkedJobs( parent );
-
-    boolean found = false;
-    for ( StepMeta stepMeta : result.getSteps() ) {
-      if ( stepMeta.getStepID().equalsIgnoreCase( "JobExecutor" ) ) {
-        found = true;
-        JobExecutorMeta resultExecMeta = (JobExecutorMeta) stepMeta.getStepMetaInterface();
-        assertEquals( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME, resultExecMeta.getSpecificationMethod() );
-        assertEquals( resultExecMeta.getDirectoryPath(), "/path/to" );
-        assertEquals( resultExecMeta.getJobName(), "Job1" );
-      }
-    }
-    assertTrue( found );
-  }
 }

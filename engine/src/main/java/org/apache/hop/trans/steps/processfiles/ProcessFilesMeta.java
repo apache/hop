@@ -35,8 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -201,8 +200,8 @@ public class ProcessFilesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   @Override
@@ -244,7 +243,7 @@ public class ProcessFilesMeta extends BaseStepMeta implements StepMetaInterface 
     return operationTypeCode[i];
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       sourcefilenamefield = XMLHandler.getTagValue( stepnode, "sourcefilenamefield" );
       targetfilenamefield = XMLHandler.getTagValue( stepnode, "targetfilenamefield" );
@@ -275,44 +274,9 @@ public class ProcessFilesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      sourcefilenamefield = rep.getStepAttributeString( id_step, "sourcefilenamefield" );
-      targetfilenamefield = rep.getStepAttributeString( id_step, "targetfilenamefield" );
-      operationType =
-        getOperationTypeByCode( Const.NVL( rep.getStepAttributeString( id_step, "operation_type" ), "" ) );
-      addresultfilenames = rep.getStepAttributeBoolean( id_step, "addresultfilenames" );
-      overwritetargetfile = rep.getStepAttributeBoolean( id_step, "overwritetargetfile" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "createparentfolder" );
-      simulate = rep.getStepAttributeBoolean( id_step, "simulate" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ProcessFilesMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "sourcefilenamefield", sourcefilenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "targetfilenamefield", targetfilenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "operation_type", getOperationTypeCode( operationType ) );
-      rep.saveStepAttribute( id_transformation, id_step, "addresultfilenames", addresultfilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "overwritetargetfile", overwritetargetfile );
-      rep.saveStepAttribute( id_transformation, id_step, "createparentfolder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "simulate", simulate );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ProcessFilesMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

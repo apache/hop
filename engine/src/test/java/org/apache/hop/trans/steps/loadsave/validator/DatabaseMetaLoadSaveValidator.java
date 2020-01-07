@@ -26,8 +26,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.repository.LongObjectId;
-
 public class DatabaseMetaLoadSaveValidator implements FieldLoadSaveValidator<DatabaseMeta> {
 
   private static final Random rand = new Random();
@@ -35,7 +33,6 @@ public class DatabaseMetaLoadSaveValidator implements FieldLoadSaveValidator<Dat
   @Override
   public DatabaseMeta getTestObject() {
     DatabaseMeta db = new DatabaseMeta();
-    db.setObjectId( new LongObjectId( rand.nextInt( Integer.MAX_VALUE ) ) );
     db.setName( UUID.randomUUID().toString() );
     db.setHostname( UUID.randomUUID().toString() );
     db.setUsername( UUID.randomUUID().toString() );

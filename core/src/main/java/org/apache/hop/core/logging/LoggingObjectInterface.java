@@ -24,9 +24,6 @@ package org.apache.hop.core.logging;
 
 import java.util.Date;
 
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
 
 public interface LoggingObjectInterface {
   /**
@@ -36,12 +33,6 @@ public interface LoggingObjectInterface {
    */
   public String getObjectName();
 
-  /**
-   * Gets the repository directory.
-   *
-   * @return the repositoryDirectory
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory();
 
   /**
    * Gets the filename.
@@ -49,20 +40,6 @@ public interface LoggingObjectInterface {
    * @return the filename
    */
   public String getFilename();
-
-  /**
-   * Gets the object id in a repository.
-   *
-   * @return the objectId in a repository
-   */
-  public ObjectId getObjectId();
-
-  /**
-   * Gets the objects revision in a repository.
-   *
-   * @return the object revision in a repository
-   */
-  public ObjectRevision getObjectRevision();
 
   /**
    * Gets the log channel id.

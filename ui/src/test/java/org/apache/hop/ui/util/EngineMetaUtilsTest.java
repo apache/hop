@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.RepositoryObjectType;
 import org.apache.hop.trans.TransMeta;
 
 public class EngineMetaUtilsTest {
@@ -45,13 +44,6 @@ public class EngineMetaUtilsTest {
   public void isJobOrTransformation_withTransformation() {
     TransMeta transfromataionInstance = new TransMeta();
     assertTrue( EngineMetaUtils.isJobOrTransformation( transfromataionInstance ) );
-  }
-
-  @Test
-  public void isJobOrTransformationReturnsFalse_withDatabase() {
-    EngineMetaInterface testMetaInstance = mock( EngineMetaInterface.class );
-    when( testMetaInstance.getRepositoryElementType() ).thenReturn( RepositoryObjectType.DATABASE );
-    assertFalse( EngineMetaUtils.isJobOrTransformation( testMetaInstance ) );
   }
 
 }

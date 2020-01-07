@@ -49,7 +49,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -95,8 +94,8 @@ public class JobEntryDummyDialog extends JobEntryDialog implements JobEntryDialo
 
   private boolean changed;
 
-  public JobEntryDummyDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryDummyDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     props = PropsUI.getInstance();
     this.jobEntry = (JobEntryDummy) jobEntryInt;
 

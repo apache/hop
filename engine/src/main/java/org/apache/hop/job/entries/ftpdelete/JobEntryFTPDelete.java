@@ -53,8 +53,7 @@ import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -228,10 +227,10 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
       protocol = XMLHandler.getTagValue( entrynode, "protocol" );
       port = XMLHandler.getTagValue( entrynode, "port" );
@@ -268,95 +267,6 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
 
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'ftp' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      protocol = rep.getJobEntryAttributeString( id_jobentry, "protocol" );
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      userName = rep.getJobEntryAttributeString( id_jobentry, "username" );
-      password =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "password" ) );
-      ftpDirectory = rep.getJobEntryAttributeString( id_jobentry, "ftpdirectory" );
-      wildcard = rep.getJobEntryAttributeString( id_jobentry, "wildcard" );
-      timeout = (int) rep.getJobEntryAttributeInteger( id_jobentry, "timeout" );
-      activeConnection = rep.getJobEntryAttributeBoolean( id_jobentry, "active" );
-
-      copyprevious = rep.getJobEntryAttributeBoolean( id_jobentry, "copyprevious" );
-
-      useproxy = rep.getJobEntryAttributeBoolean( id_jobentry, "useproxy" );
-      proxyHost = rep.getJobEntryAttributeString( id_jobentry, "proxy_host" );
-      proxyPort = rep.getJobEntryAttributeString( id_jobentry, "proxy_port" );
-      proxyUsername = rep.getJobEntryAttributeString( id_jobentry, "proxy_username" );
-      proxyPassword =
-        Encr
-          .decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString( id_jobentry, "proxy_password" ) );
-
-      publicpublickey = rep.getJobEntryAttributeBoolean( id_jobentry, "publicpublickey" );
-      keyFilename = rep.getJobEntryAttributeString( id_jobentry, "keyfilename" );
-      keyFilePass = rep.getJobEntryAttributeString( id_jobentry, "keyfilepass" );
-
-      nr_limit_success = rep.getJobEntryAttributeString( id_jobentry, "nr_limit_success" );
-      success_condition = rep.getJobEntryAttributeString( id_jobentry, "success_condition" );
-      FTPSConnectionType =
-        FTPSConnection.getConnectionTypeByCode( Const.NVL( rep.getJobEntryAttributeString(
-          id_jobentry, "ftps_connection_type" ), "" ) );
-
-      socksProxyHost = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_host" );
-      socksProxyPort = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_port" );
-      socksProxyUsername = rep.getJobEntryAttributeString( id_jobentry, "socksproxy_username" );
-      socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getJobEntryAttributeString(
-          id_jobentry, "socksproxy_password" ) );
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'ftp' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "protocol", protocol );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "username", userName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ftpdirectory", ftpDirectory );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wildcard", wildcard );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "timeout", timeout );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "active", activeConnection );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "copyprevious", copyprevious );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "useproxy", useproxy );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "publicpublickey", publicpublickey );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilename", keyFilename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "keyfilepass", keyFilePass );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_host", proxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_port", proxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_username", proxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "proxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "nr_limit_success", nr_limit_success );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "success_condition", success_condition );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "ftps_connection_type", FTPSConnection
-        .getConnectionType( FTPSConnectionType ) );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_host", socksProxyHost );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_port", socksProxyPort );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_username", socksProxyUsername );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "socksproxy_password", Encr
-        .encryptPasswordIfNotUsingVariables( socksProxyPassword ) );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'ftp' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -433,7 +343,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param connectionType
+   * @param type
    *          the connectionType to set
    */
   public void setFTPSConnectionType( int type ) {
@@ -600,7 +510,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param proxyPort
+   * @param port
    *          The port of the ftp.
    */
   public void setPort( String port ) {
@@ -1165,12 +1075,12 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
    * @param activeConnection
    *          the activeConnection to set
    */
-  public void setActiveConnection( boolean passive ) {
-    this.activeConnection = passive;
+  public void setActiveConnection( boolean activeConnection ) {
+    this.activeConnection = activeConnection;
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(
       this, "targetDirectory", remarks, AndValidator.putValidators(

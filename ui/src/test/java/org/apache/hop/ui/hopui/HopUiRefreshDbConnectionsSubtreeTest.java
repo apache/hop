@@ -100,7 +100,6 @@ public class HopUiRefreshDbConnectionsSubtreeTest {
   private static DatabaseMeta mockDatabaseMeta( String name ) {
     DatabaseMeta mock = mock( DatabaseMeta.class );
     when( mock.getName() ).thenReturn( name );
-    when( mock.getDisplayName() ).thenReturn( name );
     return mock;
   }
 }

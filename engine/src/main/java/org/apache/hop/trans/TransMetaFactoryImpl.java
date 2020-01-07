@@ -24,13 +24,12 @@ package org.apache.hop.trans;
 
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.repository.Repository;
 import org.w3c.dom.Node;
 
 public class TransMetaFactoryImpl implements TransMetaFactory {
 
   @Override
-  public TransMeta create( Node transnode, Repository rep ) throws HopXMLException, HopMissingPluginsException {
-    return new TransMeta( transnode, rep );
+  public TransMeta create( Node transnode  ) throws HopXMLException, HopMissingPluginsException {
+    return new TransMeta( transnode );
   }
 }

@@ -24,6 +24,8 @@ package org.apache.hop.ui.trans.steps.tableinput;
 
 import java.util.List;
 
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -66,7 +68,6 @@ import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.tableinput.TableInputMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -79,7 +80,7 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 public class TableInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSQL;
   private StyledTextComp wSQL;
@@ -167,11 +168,7 @@ public class TableInputDialog extends BaseStepDialog implements StepDialogInterf
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
 
     // Some buttons
     wOK = new Button( shell, SWT.PUSH );

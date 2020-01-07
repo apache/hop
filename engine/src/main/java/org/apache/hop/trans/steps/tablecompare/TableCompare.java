@@ -77,7 +77,7 @@ public class TableCompare extends BaseStep implements StepInterface {
       // What's the format of the output row?
       //
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Reference schema
       //

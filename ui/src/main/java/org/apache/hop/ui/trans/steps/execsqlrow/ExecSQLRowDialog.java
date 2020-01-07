@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.trans.steps.execsqlrow;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -60,7 +62,7 @@ public class ExecSQLRowDialog extends BaseStepDialog implements StepDialogInterf
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
 
   private boolean gotPreviousFields = false;
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlInsertField;
   private Text wInsertField;
@@ -150,7 +152,7 @@ public class ExecSQLRowDialog extends BaseStepDialog implements StepDialogInterf
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
     if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
       wConnection.select( 0 );
     }

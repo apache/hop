@@ -26,11 +26,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.PropsUI;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -69,7 +67,7 @@ public class JobEntryJobDialogTest {
     mockStatic( LoggingRegistry.class );
     when( LoggingRegistry.getInstance() ).thenReturn( logging );
 
-    dialog = spy( new JobEntryJobDialog( mock( Shell.class ), job, mock( Repository.class ), mock( JobMeta.class ) ) );
+    dialog = spy( new JobEntryJobDialog( mock( Shell.class ), job, mock( JobMeta.class ) ) );
     doReturn( "My Job" ).when( dialog ).getName();
     doNothing().when( dialog ).getInfo( job );
     doNothing().when( dialog ).getData();
@@ -87,50 +85,5 @@ public class JobEntryJobDialogTest {
 
     dialog.ok();
     verify( job, times( 1 ) ).setChanged();
-  }
-
-  @Test
-  public void testSpecificationMethod_ConnectedRepositoryByName() {
-    doReturn( "/path/job.kjb" ).when( dialog ).getPath();
-
-    dialog.ok();
-    verify( job, times( 1 ) ).setSpecificationMethod( ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME );
-  }
-
-  @Test
-  public void testSpecificationMethod_ConnectedFilename() {
-    doReturn( "file:///path/job.kjb" ).when( dialog ).getPath();
-
-    dialog.ok();
-    verify( job, times( 1 ) ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-  }
-
-  @Test
-  public void testSpecificationMethod_ConnectedFilenameZip() {
-    doReturn( "zip:file:///path/job.kjb" ).when( dialog ).getPath();
-
-    dialog.ok();
-    verify( job, times( 1 ) ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-  }
-
-  @Test
-  public void testSpecificationMethod_ConnectedFilenameHDFS() {
-    doReturn( "hdfs://path/job.kjb" ).when( dialog ).getPath();
-
-    dialog.ok();
-    verify( job, times( 1 ) ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
-  }
-
-  @Test
-  public void testSpecificationMethod_NotConnectedFilename() {
-    JobEntryJobDialog nc = spy( new JobEntryJobDialog( mock( Shell.class ), job, null, mock( JobMeta.class ) ) );
-    doReturn( "My Job" ).when( nc ).getName();
-    doReturn( "/path/job.kjb" ).when( nc ).getPath();
-    doNothing().when( nc ).getInfo( job );
-    doNothing().when( nc ).getData();
-    doNothing().when( nc ).dispose();
-
-    nc.ok();
-    verify( job, times( 1 ) ).setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
   }
 }

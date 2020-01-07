@@ -20,6 +20,7 @@ package org.apache.hop.core.logging;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class LogTableTest {
   private static String USER_PARAM = PARAM_START_SYMBOL + "param-content" + PARAM_END_SYMBOL;
   private static String HARDCODED_VALUE = "hardcoded";
   private VariableSpace mockedVariableSpace;
-  private HasDatabasesInterface mockedHasDbInterface;
+  private IMetaStore mockedMetaStore;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
@@ -43,7 +44,7 @@ public class LogTableTest {
     System.setProperty( Const.HOP_STEP_LOG_DB, "HOP_STEP_LOG_DB_VALUE" );
     System.setProperty( Const.HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT, "true" );
     mockedVariableSpace = mock( VariableSpace.class );
-    mockedHasDbInterface = mock( HasDatabasesInterface.class );
+    mockedMetaStore = mock( IMetaStore.class );
   }
   @Test
   public void hardcodedFieldsNotChanged() {
@@ -89,7 +90,7 @@ public class LogTableTest {
 
   private PerformanceLogTable getPerformanceLogTableWithAllEqFields( String fieldsValue ) {
     PerformanceLogTable performanceLogTable =
-      PerformanceLogTable.getDefault( mockedVariableSpace, mockedHasDbInterface );
+      PerformanceLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
     initCommonTableFields( performanceLogTable, fieldsValue );
     performanceLogTable.setLogInterval( fieldsValue );
 
@@ -97,7 +98,7 @@ public class LogTableTest {
   }
 
   private JobLogTable getJobLogTableWithAllEqFields( String fieldsValue ) {
-    JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, mockedHasDbInterface );
+    JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
     initCommonTableFields( jobLogTable, fieldsValue  );
     jobLogTable.setLogSizeLimit( fieldsValue );
     jobLogTable.setLogInterval( fieldsValue );
@@ -106,7 +107,7 @@ public class LogTableTest {
   }
 
   private TransLogTable getTransLogTableWithAllEqFields( String fieldsValue ) {
-    TransLogTable transLogTable = TransLogTable.getDefault( mockedVariableSpace, mockedHasDbInterface, null );
+    TransLogTable transLogTable = TransLogTable.getDefault( mockedVariableSpace, mockedMetaStore, null );
     initCommonTableFields( transLogTable, fieldsValue );
     transLogTable.setLogInterval( fieldsValue );
     transLogTable.setLogSizeLimit( fieldsValue );

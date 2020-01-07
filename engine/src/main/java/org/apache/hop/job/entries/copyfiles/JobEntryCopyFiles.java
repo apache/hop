@@ -64,8 +64,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -171,10 +170,6 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
         retval.append( "        <field>" ).append( Const.CR );
         saveSource( retval, source_filefolder[i] );
         saveDestination( retval, destination_filefolder[i] );
-        if ( parentJobMeta != null ) {
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( vsourcefilefolder[i] );
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( vdestinationfilefolder[i] );
-        }
         retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
@@ -184,10 +179,10 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       copy_empty_folders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copy_empty_folders" ) );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       overwrite_files = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "overwrite_files" ) );
@@ -242,87 +237,6 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     retval.append( "          " ).append( XMLHandler.addTagValue( DESTINATION_CONFIGURATION_NAME, namedCluster ) );
   }
 
-  protected String loadSourceRep( Repository rep, ObjectId id_jobentry, int a ) throws HopException {
-    String source_filefolder = rep.getJobEntryAttributeString( id_jobentry, a, SOURCE_FILE_FOLDER );
-    String ncName = rep.getJobEntryAttributeString( id_jobentry, a, SOURCE_CONFIGURATION_NAME );
-    return loadURL( source_filefolder, ncName, getMetaStore(), configurationMappings );
-  }
-
-  protected String loadDestinationRep( Repository rep, ObjectId id_jobentry, int a ) throws HopException {
-    String destination_filefolder = rep.getJobEntryAttributeString( id_jobentry, a, DESTINATION_FILE_FOLDER );
-    String ncName = rep.getJobEntryAttributeString( id_jobentry, a, DESTINATION_CONFIGURATION_NAME );
-    return loadURL( destination_filefolder, ncName, getMetaStore(), configurationMappings );
-  }
-
-  protected void saveSourceRep( Repository rep, ObjectId id_job, ObjectId id_jobentry, int i, String value )
-    throws HopException {
-    String namedCluster = configurationMappings.get( value );
-    rep.saveJobEntryAttribute( id_job, getObjectId(), i, SOURCE_FILE_FOLDER, value );
-    rep.saveJobEntryAttribute( id_job, id_jobentry, i, SOURCE_CONFIGURATION_NAME, namedCluster );
-  }
-
-  protected void saveDestinationRep( Repository rep, ObjectId id_job, ObjectId id_jobentry, int i, String value )
-    throws HopException {
-    String namedCluster = configurationMappings.get( value );
-    rep.saveJobEntryAttribute( id_job, getObjectId(), i, DESTINATION_FILE_FOLDER, value );
-    rep.saveJobEntryAttribute( id_job, id_jobentry, i, DESTINATION_CONFIGURATION_NAME, namedCluster );
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-      List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      copy_empty_folders = rep.getJobEntryAttributeBoolean( id_jobentry, "copy_empty_folders" );
-      arg_from_previous = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      overwrite_files = rep.getJobEntryAttributeBoolean( id_jobentry, "overwrite_files" );
-      include_subfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-      remove_source_files = rep.getJobEntryAttributeBoolean( id_jobentry, "remove_source_files" );
-
-      add_result_filesname = rep.getJobEntryAttributeBoolean( id_jobentry, "add_result_filesname" );
-      destination_is_a_file = rep.getJobEntryAttributeBoolean( id_jobentry, "destination_is_a_file" );
-      create_destination_folder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_destination_folder" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "source_filefolder" );
-      allocate( argnr );
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        source_filefolder[a] = loadSourceRep( rep, id_jobentry, a );
-        destination_filefolder[a] = loadDestinationRep( rep, id_jobentry, a );
-        wildcard[a] = rep.getJobEntryAttributeString( id_jobentry, a, "wildcard" );
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobCopyFiles.Error.Exception.UnableLoadRep" )
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "copy_empty_folders", copy_empty_folders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", arg_from_previous );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "overwrite_files", overwrite_files );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", include_subfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "remove_source_files", remove_source_files );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_result_filesname", add_result_filesname );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "destination_is_a_file", destination_is_a_file );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_destination_folder", create_destination_folder );
-
-      // save the arguments...
-      if ( source_filefolder != null ) {
-        for ( int i = 0; i < source_filefolder.length; i++ ) {
-          saveSourceRep( rep, id_job, getObjectId(), i, source_filefolder[i] );
-          saveDestinationRep( rep, id_job, getObjectId(), i, destination_filefolder[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "wildcard", wildcard[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-
-      throw new HopException( BaseMessages.getString( PKG, "JobCopyFiles.Error.Exception.UnableSaveRep" )
-        + id_job, dbe );
-    }
-  }
-
   String[] preprocessfilefilder( String[] folders ) {
     List<String> nfolders = new ArrayList<>();
     if ( folders != null ) {
@@ -346,12 +260,6 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
 
     if ( isBasic() ) {
       logBasic( BaseMessages.getString( PKG, "JobCopyFiles.Log.Starting" ) );
-    }
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
     }
 
     try {
@@ -1134,7 +1042,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( !res ) {

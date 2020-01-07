@@ -58,7 +58,6 @@ import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -241,8 +240,8 @@ public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryD
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.Pem" ),
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.All" ) };
 
-  public JobEntryFTPDeleteDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFTPDeleteDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTPDelete) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPDelete.Name.Default" ) );

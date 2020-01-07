@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -75,7 +76,7 @@ import org.apache.hop.ui.trans.step.TableItemInsertListener;
 public class DBProcDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Button wbProcName;
   private Label wlProcName;
@@ -165,11 +166,7 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabase() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabase(), lsMod );
 
     // ProcName line...
     // add button to get list of procedures on selected connection...
@@ -461,8 +458,6 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
 
     if ( input.getDatabase() != null ) {
       wConnection.setText( input.getDatabase().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
     if ( input.getProcedure() != null ) {
       wProcName.setText( input.getProcedure() );

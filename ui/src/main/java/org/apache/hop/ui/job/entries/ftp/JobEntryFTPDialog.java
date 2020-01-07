@@ -56,7 +56,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.ftp.JobEntryFTP;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -291,8 +290,8 @@ public class JobEntryFTPDialog extends JobEntryDialog implements JobEntryDialogI
   // encodings = (String [])charsetSet.toArray(new String[0]);
   // }
 
-  public JobEntryFTPDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFTPDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTP) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTP.Name.Default" ) );

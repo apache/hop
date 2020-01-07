@@ -5,10 +5,11 @@
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
   </database-type>
 
-  <database-type id="H2">
-    <description>H2</description>
-    <classname>org.apache.hop.core.database.H2DatabaseMeta</classname>
+  <database-type id="NONE">
+    <description>No connection type</description>
+    <classname>org.apache.hop.core.database.NoneDatabaseMeta</classname>
   </database-type>
+
 
   <database-type id="MYSQL">
     <description>MySQL</description>

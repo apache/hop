@@ -51,7 +51,6 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.nullif.NullIfMeta.Field;
@@ -89,7 +88,7 @@ public class NullIfTest {
     Field[] fields = createArrayWithOneField( "nullable-field", "nullable-value" );
     doReturn( fields ).when( processRowMeta ).getFields();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ),
+        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
         any( IMetaStore.class ) );
 
     return processRowMeta;
@@ -164,7 +163,7 @@ public class NullIfTest {
     fields[3] = createArrayWithOneField( "value4", "2015/06/06 00:00:00.000" )[0];
     doReturn( fields ).when( processRowMeta ).getFields();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ),
+        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
         any( IMetaStore.class ) );
 
     return processRowMeta;

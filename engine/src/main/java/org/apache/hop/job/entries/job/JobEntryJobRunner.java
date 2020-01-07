@@ -77,8 +77,6 @@ public class JobEntryJobRunner implements Runnable {
       job.setResult( result );
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, getJob() );
-        job.getJobMeta().disposeEmbeddedMetastoreProvider();
-        log.logDebug( BaseMessages.getString( PKG, "Job.Log.DisposeEmbeddedMetastore" ) );
         job.fireJobFinishListeners();
 
         //catch more general exception to prevent thread hanging

@@ -48,7 +48,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.abort.JobEntryAbort;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
@@ -82,8 +81,8 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
 
   private TextVar wMessageAbort;
 
-  public JobEntryAbortDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryAbortDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryAbort) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryAbortDialog.Jobname.Label" ) );

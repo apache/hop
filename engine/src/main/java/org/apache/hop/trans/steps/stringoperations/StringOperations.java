@@ -231,7 +231,7 @@ public class StringOperations extends BaseStep implements StepInterface {
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputFieldsNr = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       data.nrFieldsInStream = meta.getFieldInStream().length;
       data.inStreamNrs = new int[data.nrFieldsInStream];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {

@@ -77,7 +77,7 @@ public class CheckSum extends BaseStep implements StepInterface {
 
       data.outputRowMeta = getInputRowMeta().clone();
       data.nrInfields = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
         data.fieldnrs = new int[meta.getFieldName().length];

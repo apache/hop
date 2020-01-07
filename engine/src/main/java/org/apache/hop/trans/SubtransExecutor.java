@@ -126,7 +126,6 @@ public class SubtransExecutor {
   private Trans createSubtrans() {
     Trans subTrans = new Trans( this.subtransMeta, this.parentTrans );
     subTrans.setParentTrans( this.parentTrans );
-    subTrans.setRepository( this.parentTrans.getRepository() );
     subTrans.setLogLevel( this.parentTrans.getLogLevel() );
     subTrans.setArguments( this.parentTrans.getArguments() );
     if ( this.shareVariables ) {

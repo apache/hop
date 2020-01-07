@@ -36,8 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -78,8 +77,8 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void setUseVars( boolean usevar ) {
@@ -90,7 +89,7 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
     return usevar;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       usevar = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "usevar" ) );
       Node fields = XMLHandler.getSubNode( stepnode, "fields" );
@@ -133,43 +132,9 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
     usevar = false;
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      usevar = rep.getStepAttributeBoolean( id_step, "usevar" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-      List<Field> fieldList = new ArrayList<>();
-      for ( int i = 0; i < nrfields; i++ ) {
-        Field field = new Field();
-        field.setFieldName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        field.setReplaceValue( rep.getStepAttributeString( id_step, i, "replace_value" ) );
-        field.setReplaceMask( rep.getStepAttributeString( id_step, i, "replace_mask" ) );
-        field.setEmptyString( rep.getStepAttributeBoolean( id_step, i, "set_empty_string", false ) );
-        fieldList.add( field );
-      }
-      setFields( fieldList );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "usevar", usevar );
-      for ( int i = 0; i < fields.size(); i++ ) {
-        Field field = fields.get( i );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_value", field.getReplaceValue() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "replace_mask", field.getReplaceMask() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "set_empty_string", field.isEmptyString() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

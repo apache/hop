@@ -107,7 +107,7 @@ public class TableInputMetaTest {
 
     VariableSpace space = mock( VariableSpace.class );
     RowMetaInterface rowMetaInterface = new RowMeta();
-    meta.getFields( rowMetaInterface, "TABLE_INPUT_META", null, null, space, null, null );
+    meta.getFields( rowMetaInterface, "TABLE_INPUT_META", null, null, space, null );
 
     assertEquals( expectedRowMeta.toString(), rowMetaInterface.toString() );
   }

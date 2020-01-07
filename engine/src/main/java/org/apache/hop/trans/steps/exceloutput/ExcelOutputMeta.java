@@ -45,8 +45,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -787,7 +786,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -1041,7 +1040,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) {
+    VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -1126,91 +1125,6 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      headerEnabled = rep.getStepAttributeBoolean( id_step, "header" );
-      footerEnabled = rep.getStepAttributeBoolean( id_step, "footer" );
-      encoding = rep.getStepAttributeString( id_step, "encoding" );
-      append = rep.getStepAttributeBoolean( id_step, "append" );
-
-      String addToResult = rep.getStepAttributeString( id_step, "add_to_result_filenames" );
-      if ( Utils.isEmpty( addToResult ) ) {
-        addToResultFilenames = true;
-      } else {
-        addToResultFilenames = rep.getStepAttributeBoolean( id_step, "add_to_result_filenames" );
-      }
-
-      fileName = rep.getStepAttributeString( id_step, "file_name" );
-      extension = rep.getStepAttributeString( id_step, "file_extention" );
-      usetempfiles = rep.getStepAttributeBoolean( id_step, "usetempfiles" );
-      tempdirectory = rep.getStepAttributeString( id_step, "tempdirectory" );
-      doNotOpenNewFileInit = rep.getStepAttributeBoolean( id_step, "do_not_open_newfile_init" );
-      createparentfolder = rep.getStepAttributeBoolean( id_step, "create_parent_folder" );
-      splitEvery = (int) rep.getStepAttributeInteger( id_step, "file_split" );
-      stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
-      dateInFilename = rep.getStepAttributeBoolean( id_step, "file_add_date" );
-      timeInFilename = rep.getStepAttributeBoolean( id_step, "file_add_time" );
-      SpecifyFormat = rep.getStepAttributeBoolean( id_step, "SpecifyFormat" );
-      date_time_format = rep.getStepAttributeString( id_step, "date_time_format" );
-
-      autoSizeColumns = rep.getStepAttributeBoolean( id_step, "autosizecolums" );
-      nullIsBlank = rep.getStepAttributeBoolean( id_step, "nullisblank" );
-      protectsheet = rep.getStepAttributeBoolean( id_step, "protect_sheet" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-
-      templateEnabled = rep.getStepAttributeBoolean( id_step, "template_enabled" );
-      templateAppend = rep.getStepAttributeBoolean( id_step, "template_append" );
-      templateFileName = rep.getStepAttributeString( id_step, "template_filename" );
-      sheetname = rep.getStepAttributeString( id_step, "sheetname" );
-      int nrfields = rep.countNrStepAttributes( id_step, "field_name" );
-
-      allocate( nrfields );
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        outputFields[i] = new ExcelField();
-
-        outputFields[i].setName( rep.getStepAttributeString( id_step, i, "field_name" ) );
-        outputFields[i].setType( rep.getStepAttributeString( id_step, i, "field_type" ) );
-        outputFields[i].setFormat( rep.getStepAttributeString( id_step, i, "field_format" ) );
-      }
-      // Header font
-      header_font_name =
-        getFontNameByCode( Const.NVL( rep.getStepAttributeString( id_step, "header_font_name" ), "" ) );
-      header_font_size =
-        Const.NVL( rep.getStepAttributeString( id_step, "header_font_size" ), "" + DEFAULT_FONT_SIZE );
-      header_font_bold = rep.getStepAttributeBoolean( id_step, "header_font_bold" );
-      header_font_italic = rep.getStepAttributeBoolean( id_step, "header_font_italic" );
-      header_font_underline =
-        getFontUnderlineByCode( Const.NVL( rep.getStepAttributeString( id_step, "header_font_underline" ), "" ) );
-      header_font_orientation =
-        getFontOrientationByCode( Const.NVL(
-          rep.getStepAttributeString( id_step, "header_font_orientation" ), "" ) );
-      header_font_color =
-        getFontColorByCode( Const.NVL( rep.getStepAttributeString( id_step, "header_font_color" ), ""
-          + FONT_COLOR_BLACK ) );
-      header_background_color =
-        getFontColorByCode( Const.NVL( rep.getStepAttributeString( id_step, "header_background_color" ), ""
-          + FONT_COLOR_NONE ) );
-      header_row_height = rep.getStepAttributeString( id_step, "header_row_height" );
-      header_alignment =
-        getFontAlignmentByCode( Const.NVL( rep.getStepAttributeString( id_step, "header_alignment" ), "" ) );
-      header_image = rep.getStepAttributeString( id_step, "header_image" );
-      // row font
-      row_font_name = getFontNameByCode( Const.NVL( rep.getStepAttributeString( id_step, "row_font_name" ), "" ) );
-      row_font_size = Const.NVL( rep.getStepAttributeString( id_step, "row_font_size" ), "" + DEFAULT_FONT_SIZE );
-      row_font_color =
-        getFontColorByCode( Const.NVL( rep.getStepAttributeString( id_step, "row_font_color" ), ""
-          + FONT_COLOR_BLACK ) );
-      row_background_color =
-        getFontColorByCode( Const.NVL( rep.getStepAttributeString( id_step, "row_background_color" ), ""
-          + FONT_COLOR_NONE ) );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
   private static String getFontNameCode( int i ) {
     if ( i < 0 || i >= font_name_code.length ) {
       return font_name_code[0];
@@ -1247,76 +1161,9 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "header", headerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "footer", footerEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
-      rep.saveStepAttribute( id_transformation, id_step, "append", append );
-      rep.saveStepAttribute( id_transformation, id_step, "add_to_result_filenames", addToResultFilenames );
-      rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
-      rep.saveStepAttribute( id_transformation, id_step, "do_not_open_newfile_init", doNotOpenNewFileInit );
-      rep.saveStepAttribute( id_transformation, id_step, "create_parent_folder", createparentfolder );
-      rep.saveStepAttribute( id_transformation, id_step, "file_extention", extension );
-      rep.saveStepAttribute( id_transformation, id_step, "file_split", splitEvery );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_stepnr", stepNrInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_date", dateInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "file_add_time", timeInFilename );
-      rep.saveStepAttribute( id_transformation, id_step, "SpecifyFormat", SpecifyFormat );
-      rep.saveStepAttribute( id_transformation, id_step, "date_time_format", date_time_format );
-      rep.saveStepAttribute( id_transformation, id_step, "tempdirectory", tempdirectory );
-      rep.saveStepAttribute( id_transformation, id_step, "usetempfiles", usetempfiles );
-      rep.saveStepAttribute( id_transformation, id_step, "autosizecolums", autoSizeColumns );
-      rep.saveStepAttribute( id_transformation, id_step, "nullisblank", nullIsBlank );
-      rep.saveStepAttribute( id_transformation, id_step, "protect_sheet", protectsheet );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveStepAttribute( id_transformation, id_step, "template_enabled", templateEnabled );
-      rep.saveStepAttribute( id_transformation, id_step, "template_append", templateAppend );
-      rep.saveStepAttribute( id_transformation, id_step, "template_filename", templateFileName );
-      rep.saveStepAttribute( id_transformation, id_step, "sheetname", sheetname );
-      for ( int i = 0; i < outputFields.length; i++ ) {
-        ExcelField field = outputFields[i];
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_name", field.getName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_type", field.getTypeDesc() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "field_format", field.getFormat() );
-      }
-      rep.saveStepAttribute( id_transformation, id_step, "header_font_name", getFontNameCode( header_font_name ) );
-      rep.saveStepAttribute( id_transformation, id_step, "header_font_size", header_font_size );
-      rep.saveStepAttribute( id_transformation, id_step, "header_font_bold", header_font_bold );
-      rep.saveStepAttribute( id_transformation, id_step, "header_font_italic", header_font_italic );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "header_font_underline", getFontUnderlineCode( header_font_underline ) );
-      rep
-        .saveStepAttribute(
-          id_transformation, id_step, "header_font_orientation",
-          getFontOrientationCode( header_font_orientation ) );
-      rep
-        .saveStepAttribute(
-          id_transformation, id_step, "header_font_color", getFontColorCode( header_font_color ) );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "header_background_color", getFontColorCode( header_background_color ) );
-      rep.saveStepAttribute( id_transformation, id_step, "header_row_height", header_row_height );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "header_alignment", getFontAlignmentCode( header_alignment ) );
-      rep.saveStepAttribute( id_transformation, id_step, "header_image", header_image );
-      // row font
-      rep.saveStepAttribute( id_transformation, id_step, "row_font_name", getFontNameCode( row_font_name ) );
-      rep.saveStepAttribute( id_transformation, id_step, "row_font_size", row_font_size );
-      rep.saveStepAttribute( id_transformation, id_step, "row_font_color", getFontColorCode( row_font_color ) );
-      rep.saveStepAttribute(
-        id_transformation, id_step, "row_background_color", getFontColorCode( row_background_color ) );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
@@ -1373,8 +1220,6 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore
    *          the metaStore in which non-kettle metadata could reside.
    *
@@ -1382,7 +1227,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

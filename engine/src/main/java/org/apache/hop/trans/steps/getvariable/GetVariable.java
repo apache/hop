@@ -77,7 +77,7 @@ public class GetVariable extends BaseStep implements StepInterface {
         data.inputRowMeta = new RowMeta();
       }
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Create a copy of the output row metadata to do the data conversion...
       //

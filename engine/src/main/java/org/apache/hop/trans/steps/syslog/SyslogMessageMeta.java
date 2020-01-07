@@ -35,8 +35,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.syslog.SyslogDefs;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -65,8 +64,8 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -231,7 +230,7 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       messagefieldname = XMLHandler.getTagValue( stepnode, "messagefieldname" );
       port = XMLHandler.getTagValue( stepnode, "port" );
@@ -248,44 +247,9 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      messagefieldname = rep.getStepAttributeString( id_step, "messagefieldname" );
-      serverName = rep.getJobEntryAttributeString( id_step, "servername" );
-      port = rep.getJobEntryAttributeString( id_step, "port" );
-      facility = rep.getJobEntryAttributeString( id_step, "facility" );
-      priority = rep.getJobEntryAttributeString( id_step, "priority" );
-      datePattern = rep.getJobEntryAttributeString( id_step, "datePattern" );
-      addTimestamp = rep.getJobEntryAttributeBoolean( id_step, "addTimestamp" );
-      addHostName = rep.getJobEntryAttributeBoolean( id_step, "addHostName" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SyslogMessageMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "messagefieldname", messagefieldname );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "port", port );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "servername", serverName );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "facility", facility );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "priority", priority );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "datePattern", datePattern );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "addTimestamp", addTimestamp );
-      rep.saveJobEntryAttribute( id_transformation, id_step, "addHostName", addHostName );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "SyslogMessageMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

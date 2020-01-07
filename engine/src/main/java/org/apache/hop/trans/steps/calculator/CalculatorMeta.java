@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -85,7 +84,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     failIfNoFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "failIfNoFile" ) );
 
     int nrCalcs = XMLHandler.countNodes( stepnode, CalculatorMetaFunction.XML_TAG );
@@ -148,27 +147,8 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    failIfNoFile = rep.getStepAttributeBoolean( id_step, "failIfNoFile" );
-
-    int nrCalcs = rep.countNrStepAttributes( id_step, "field_name" );
-    allocate( nrCalcs );
-    for ( int i = 0; i < nrCalcs; i++ ) {
-      calculation[i] = new CalculatorMetaFunction( rep, id_step, i );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    rep.saveStepAttribute( id_transformation, id_step, "failIfNoFile", failIfNoFile );
-    for ( int i = 0; i < calculation.length; i++ ) {
-      calculation[i].saveRep( rep, metaStore, id_transformation, id_step, i );
-    }
-  }
-
-  @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( CalculatorMetaFunction fn : calculation ) {
       if ( !fn.isRemovedFromResult() ) {
         if ( !Utils.isEmpty( fn.getFieldName() ) ) { // It's a new field!
@@ -220,7 +200,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!

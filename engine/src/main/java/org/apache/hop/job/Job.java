@@ -93,10 +93,7 @@ import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
+
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.Trans;
@@ -133,8 +130,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   private JobMeta jobMeta;
 
   private int logCommitSize = 10;
-
-  private Repository rep;
 
   private AtomicInteger errors;
 
@@ -285,12 +280,11 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     }
   }
 
-  public Job( Repository repository, JobMeta jobMeta ) {
-    this( repository, jobMeta, null );
+  public Job(JobMeta jobMeta ) {
+    this( jobMeta, null );
   }
 
-  public Job( Repository repository, JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
-    this.rep = repository;
+  public Job( JobMeta jobMeta, LoggingObjectInterface parentLogging ) {
     this.jobMeta = jobMeta;
     this.containerObjectId = jobMeta.getContainerObjectId();
     this.parentLoggingObject = parentLogging;
@@ -351,10 +345,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     return jobMeta.getName();
   }
 
-  public void setRepository( Repository rep ) {
-    this.rep = rep;
-  }
-
   /**
    * Threads main loop: called by Thread.start();
    */
@@ -404,7 +394,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
         shutdownHeartbeat( heartbeat );
 
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, this );
-        jobMeta.disposeEmbeddedMetastoreProvider();
         log.logDebug( BaseMessages.getString( PKG, "Job.Log.DisposeEmbeddedMetastore" ) );
 
         fireJobFinishListeners();
@@ -445,7 +434,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
       setFinished( false );
       setStopped( false );
-      HopEnvironment.setExecutionInformation( this, rep );
+      HopEnvironment.setExecutionInformation( this );
 
       log.logMinimal( BaseMessages.getString( PKG, "Job.Comment.JobStarted" ) );
 
@@ -544,7 +533,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     setFinished( false );
     setActive( true );
     setInitialized( true );
-    HopEnvironment.setExecutionInformation( this, rep );
+    HopEnvironment.setExecutionInformation( this );
 
     // Where do we start?
     JobEntryCopy startpoint;
@@ -629,12 +618,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     JobExecutionExtension extension = new JobExecutionExtension( this, prevResult, jobEntryCopy, true );
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobBeforeJobEntryExecution.id, extension );
 
-    jobMeta.disposeEmbeddedMetastoreProvider();
-    if ( jobMeta.getMetastoreLocatorOsgi() != null ) {
-      jobMeta.setEmbeddedMetastoreProviderKey( jobMeta.getMetastoreLocatorOsgi().setEmbeddedMetastore( jobMeta
-          .getEmbeddedMetaStore() ) );
-    }
-
     if ( extension.result != null ) {
       prevResult = extension.result;
     }
@@ -662,10 +645,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       // Execute this entry...
       JobEntryInterface cloneJei = (JobEntryInterface) jobEntryInterface.clone();
       ( (VariableSpace) cloneJei ).copyVariablesFrom( this );
-      cloneJei.setRepository( rep );
-      if ( rep != null ) {
-        cloneJei.setMetaStore( rep.getMetaStore() );
-      }
+      cloneJei.setMetaStore( getJobMeta().getMetaStore() );
       cloneJei.setParentJob( this );
       cloneJei.setParentJobMeta( this.getJobMeta() );
       final long start = System.currentTimeMillis();
@@ -1336,10 +1316,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     return jobMeta;
   }
 
-  public Repository getRep() {
-    return rep;
-  }
-
   public Thread getThread() {
     return this;
   }
@@ -1439,40 +1415,15 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
       variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME, "" );
     }
 
-    boolean hasRepoDir = jobMeta.getRepositoryDirectory() != null && jobMeta.getRepository() != null;
-
     // The name of the job
     variables.setVariable( Const.INTERNAL_VARIABLE_JOB_NAME, Const.NVL( jobMeta.getName(), "" ) );
 
-    // The name of the directory in the repository
-    variables.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, hasRepoDir ? jobMeta
-        .getRepositoryDirectory().getPath() : "" );
-
-    // setup fallbacks
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, variables.getVariable(
-          Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY ) );
-    } else {
-      variables.setVariable( Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY, variables.getVariable(
-          Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY ) );
-    }
-
-    if ( hasRepoDir ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-          Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY ) );
-      if ( "/".equals( variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) ) ) {
-        variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "" );
-      }
-    }
-
-    setInternalEntryCurrentDirectory( hasFilename, hasRepoDir );
 
   }
 
-  protected void setInternalEntryCurrentDirectory( boolean hasFilename, boolean hasRepoDir  ) {
+  protected void setInternalEntryCurrentDirectory( boolean hasFilename ) {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-      hasRepoDir ? Const.INTERNAL_VARIABLE_JOB_REPOSITORY_DIRECTORY
-        : hasFilename ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
+       hasFilename ? Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY
         : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
@@ -1639,16 +1590,13 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    *          the job meta
    * @param executionConfiguration
    *          the execution configuration
-   * @param repository
-   *          the repository
    * @param metaStore
    *          the metaStore
    * @return the string
    * @throws HopException
    *           the kettle exception
    */
-  public static String sendToSlaveServer( JobMeta jobMeta, JobExecutionConfiguration executionConfiguration,
-      Repository repository, IMetaStore metaStore ) throws HopException {
+  public static String sendToSlaveServer( JobMeta jobMeta, JobExecutionConfiguration executionConfiguration, IMetaStore metaStore ) throws HopException {
     String carteObjectId;
     SlaveServer slaveServer = executionConfiguration.getRemoteServer();
 
@@ -1679,7 +1627,7 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
             HopVFS.createTempFile( "jobExport", ".zip", System.getProperty( "java.io.tmpdir" ), jobMeta );
 
         TopLevelResource topLevelResource =
-            ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), jobMeta, jobMeta, repository,
+            ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), jobMeta, jobMeta,
                 metaStore, executionConfiguration.getXML(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
@@ -1943,30 +1891,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   }
 
   /**
-   * Gets the jobMeta's object id.
-   *
-   * @return ObjectId
-   */
-  public ObjectId getObjectId() {
-    if ( jobMeta == null ) {
-      return null;
-    }
-    return jobMeta.getObjectId();
-  }
-
-  /**
-   * Gets the job meta's object revision.
-   *
-   * @return ObjectRevision
-   */
-  public ObjectRevision getObjectRevision() {
-    if ( jobMeta == null ) {
-      return null;
-    }
-    return jobMeta.getObjectRevision();
-  }
-
-  /**
    * Gets LoggingObjectType.JOB, which is always the value for Job.
    *
    * @return LoggingObjectType LoggingObjectType.JOB
@@ -1982,18 +1906,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
    */
   public LoggingObjectInterface getParent() {
     return parentLoggingObject;
-  }
-
-  /**
-   * Gets the job meta's repository directory interface.
-   *
-   * @return RepositoryDirectoryInterface
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    if ( jobMeta == null ) {
-      return null;
-    }
-    return jobMeta.getRepositoryDirectory();
   }
 
   /**

@@ -52,7 +52,7 @@ public class StringOperationsTest {
   private static StepMockHelper<StringOperationsMeta, StringOperationsData> smh;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     smh =
         new StepMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
             StringOperationsData.class );

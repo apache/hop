@@ -61,12 +61,7 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryElementInterface;
-import org.apache.hop.repository.RepositoryObjectType;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.www.AllocateServerSocketServlet;
 import org.apache.hop.www.CleanupTransServlet;
@@ -114,7 +109,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectInterface, VariableSpace,
-  RepositoryElementInterface, XMLInterface {
+  XMLInterface {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator2!!
 
   public static final String STRING_SLAVESERVER = "Slave Server";
@@ -122,8 +117,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   private static final Random RANDOM = new Random();
 
   public static final String XML_TAG = "slaveserver";
-
-  public static final RepositoryObjectType REPOSITORY_ELEMENT_TYPE = RepositoryObjectType.SLAVE_SERVER;
 
   private static final String HTTP = "http";
   private static final String HTTPS = "https";
@@ -178,11 +171,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   private boolean shared;
 
-  private ObjectId id;
-
   private VariableSpace variables = new Variables();
-
-  private ObjectRevision objectRevision;
 
   private Date changedDate;
 
@@ -194,7 +183,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   public SlaveServer() {
     initializeVariablesFrom( null );
-    id = null;
     this.log = new LogChannel( STRING_SLAVESERVER );
     this.changedDate = new Date();
     lock = new ReentrantReadWriteLock();
@@ -312,7 +300,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
       this.nonProxyHosts = slaveServer.nonProxyHosts;
       this.master = slaveServer.master;
 
-      this.id = slaveServer.id;
       this.shared = slaveServer.shared;
       this.sslMode = slaveServer.sslMode;
 
@@ -1062,15 +1049,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
     return null;
   }
 
-  public static SlaveServer findSlaveServer( List<SlaveServer> slaveServers, ObjectId id ) {
-    for ( SlaveServer slaveServer : slaveServers ) {
-      if ( slaveServer.getObjectId() != null && slaveServer.getObjectId().equals( id ) ) {
-        return slaveServer;
-      }
-    }
-    return null;
-  }
-
   public static String[] getSlaveServerNames( List<SlaveServer> slaveServers ) {
     String[] names = new String[ slaveServers.size() ];
     for ( int i = 0; i < slaveServers.size(); i++ ) {
@@ -1215,51 +1193,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   public void injectVariables( Map<String, String> prop ) {
     variables.injectVariables( prop );
-  }
-
-  public ObjectId getObjectId() {
-    lock.readLock().lock();
-    try {
-      return id;
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  public void setObjectId( ObjectId id ) {
-    lock.writeLock().lock();
-    this.id = id;
-    lock.writeLock().unlock();
-  }
-
-  /**
-   * Not used in this case, simply return root /
-   */
-  public RepositoryDirectoryInterface getRepositoryDirectory() {
-    return new RepositoryDirectory();
-  }
-
-  public void setRepositoryDirectory( RepositoryDirectoryInterface repositoryDirectory ) {
-    throw new RuntimeException( "Setting a directory on a database connection is not supported" );
-  }
-
-  public RepositoryObjectType getRepositoryElementType() {
-    return REPOSITORY_ELEMENT_TYPE;
-  }
-
-  public ObjectRevision getObjectRevision() {
-    lock.readLock().lock();
-    try {
-      return objectRevision;
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  public void setObjectRevision( ObjectRevision objectRevision ) {
-    lock.writeLock().lock();
-    this.objectRevision = objectRevision;
-    lock.writeLock().unlock();
   }
 
   public String getDescription() {

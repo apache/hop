@@ -54,7 +54,6 @@ import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entries.ftpsget.JobEntryFTPSGet;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -264,8 +263,8 @@ public class JobEntryFTPSGetDialog extends JobEntryDialog implements JobEntryDia
 
   private FTPSConnection connection = null;
 
-  public JobEntryFTPSGetDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFTPSGetDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFTPSGet) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPS.Name.Default" ) );

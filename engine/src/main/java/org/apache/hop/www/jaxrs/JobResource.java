@@ -22,16 +22,6 @@
 
 package org.apache.hop.www.jaxrs;
 
-import java.util.UUID;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -42,9 +32,17 @@ import org.apache.hop.job.JobAdapter;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 @Path( "/carte/job" )
 public class JobResource {
@@ -94,46 +92,34 @@ public class JobResource {
   public JobStatus startJob( @PathParam( "id" ) String id ) {
     Job job = HopServerResource.getJob( id );
     HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
-    try {
-      if ( job.isInitialized() && !job.isActive() ) {
-        // Re-create the job from the jobMeta
+    if ( job.isInitialized() && !job.isActive() ) {
+      // Re-create the job from the jobMeta
+      //
+
+      // Create a new job object to start from a sane state. Then replace
+      // the new job in the job map
+      //
+      synchronized ( this ) {
+        JobConfiguration jobConfiguration = HopServerSingleton.getInstance().getJobMap().getConfiguration( entry );
+
+        String carteObjectId = UUID.randomUUID().toString();
+        SimpleLoggingObject servletLoggingObject =
+          new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
+        servletLoggingObject.setContainerObjectId( carteObjectId );
+
+        Job newJob = new Job( job.getJobMeta(), servletLoggingObject );
+        newJob.setLogLevel( job.getLogLevel() );
+
+        // Discard old log lines from the old job
         //
-        // We might need to re-connect to the repository
-        //
-        if ( job.getRep() != null && !job.getRep().isConnected() ) {
-          if ( job.getRep().getUserInfo() != null ) {
-            job.getRep().connect( job.getRep().getUserInfo().getLogin(), job.getRep().getUserInfo().getPassword() );
-          } else {
-            job.getRep().connect( null, null );
-          }
-        }
+        HopLogStore.discardLines( job.getLogChannelId(), true );
 
-        // Create a new job object to start from a sane state. Then replace
-        // the new job in the job map
-        //
-        synchronized ( this ) {
-          JobConfiguration jobConfiguration = HopServerSingleton.getInstance().getJobMap().getConfiguration( entry );
-
-          String carteObjectId = UUID.randomUUID().toString();
-          SimpleLoggingObject servletLoggingObject =
-            new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
-          servletLoggingObject.setContainerObjectId( carteObjectId );
-
-          Job newJob = new Job( job.getRep(), job.getJobMeta(), servletLoggingObject );
-          newJob.setLogLevel( job.getLogLevel() );
-
-          // Discard old log lines from the old job
-          //
-          HopLogStore.discardLines( job.getLogChannelId(), true );
-
-          HopServerSingleton.getInstance().getJobMap().replaceJob( entry, newJob, jobConfiguration );
-          job = newJob;
-        }
+        HopServerSingleton.getInstance().getJobMap().replaceJob( entry, newJob, jobConfiguration );
+        job = newJob;
       }
-      job.start();
-    } catch ( HopException e ) {
-      e.printStackTrace();
     }
+    job.start();
+
     return getJobStatus( id );
   }
 
@@ -173,10 +159,6 @@ public class JobResource {
       jobMeta.setLogLevel( jobExecutionConfiguration.getLogLevel() );
       jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
 
-      // If there was a repository, we know about it at this point in time.
-      //
-      final Repository repository = jobConfiguration.getJobExecutionConfiguration().getRepository();
-
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
         new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
@@ -185,7 +167,7 @@ public class JobResource {
 
       // Create the transformation and store in the list...
       //
-      final Job job = new Job( repository, jobMeta, servletLoggingObject );
+      final Job job = new Job( jobMeta, servletLoggingObject );
 
       // Setting variables
       //
@@ -202,11 +184,11 @@ public class JobResource {
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the job entry
         //
-        String thisValue = jobExecutionConfiguration.getParams().get( parameterNames[idx] );
+        String thisValue = jobExecutionConfiguration.getParams().get( parameterNames[ idx ] );
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the job entry
           //
-          jobMeta.setParameterValue( parameterNames[idx], thisValue );
+          jobMeta.setParameterValue( parameterNames[ idx ], thisValue );
         }
       }
       jobMeta.activateParameters();
@@ -215,15 +197,6 @@ public class JobResource {
 
       HopServerSingleton.getInstance().getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
 
-      // Make sure to disconnect from the repository when the job finishes.
-      //
-      if ( repository != null ) {
-        job.addJobListener( new JobAdapter() {
-          public void jobFinished( Job job ) {
-            repository.disconnect();
-          }
-        } );
-      }
       return getJobStatus( carteObjectId );
     } catch ( HopException e ) {
       e.printStackTrace();

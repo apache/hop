@@ -49,8 +49,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -92,47 +91,20 @@ public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEn
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "fail_if_file_exists", failIfFileExists ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addfilenameresult ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
+
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       failIfFileExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_if_file_exists" ) );
       addfilenameresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
 
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'create file' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      failIfFileExists = rep.getJobEntryAttributeBoolean( id_jobentry, "fail_if_file_exists" );
-      addfilenameresult = rep.getJobEntryAttributeBoolean( id_jobentry, "add_filename_result" );
-
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'create file' from the repository for id_jobentry=" + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fail_if_file_exists", failIfFileExists );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_filename_result", addfilenameresult );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'create file' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -153,12 +125,6 @@ public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEn
     result.setResult( false );
 
     if ( filename != null ) {
-      //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
-
       String realFilename = getRealFilename();
       FileObject fileObject = null;
       try {
@@ -256,14 +222,8 @@ public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEn
     this.addfilenameresult = addfilenameresult;
   }
 
-  public static void main( String[] args ) {
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    new JobEntryCreateFile().check( remarks, null, new Variables(), null, null );
-    System.out.printf( "Remarks: %s\n", remarks );
-  }
-
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

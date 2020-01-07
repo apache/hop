@@ -73,10 +73,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.ObjectRevision;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
+
 import org.apache.hop.trans.BasePartitioner;
 import org.apache.hop.trans.SlaveStepCopyPartitionDistribution;
 import org.apache.hop.trans.Trans;
@@ -428,11 +425,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    * Keeps track of the number of rows read for input deadlock verification.
    */
   protected long deadLockCounter;
-
-  /**
-   * The repository used by the step to load and reference Hop objects with at runtime
-   */
-  protected Repository repository;
 
   /**
    * The metastore that the step uses to load external elements from
@@ -4159,29 +4151,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectId()
-   */
-  @Override
-  public ObjectId getObjectId() {
-    if ( stepMeta == null ) {
-      return null;
-    }
-    return stepMeta.getObjectId();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectRevision()
-   */
-  @Override
-  public ObjectRevision getObjectRevision() {
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
    * @see org.apache.hop.core.logging.LoggingObjectInterface#getObjectType()
    */
   @Override
@@ -4197,16 +4166,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   @Override
   public LoggingObjectInterface getParent() {
     return trans;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.logging.LoggingObjectInterface#getRepositoryDirectory()
-   */
-  @Override
-  public RepositoryDirectory getRepositoryDirectory() {
-    return null;
   }
 
   /*
@@ -4331,16 +4290,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     if ( log != null ) {
       log.setForcingSeparateLogging( forcingSeparateLogging );
     }
-  }
-
-  @Override
-  public Repository getRepository() {
-    return repository;
-  }
-
-  @Override
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   @Override

@@ -35,8 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -76,7 +75,7 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -111,32 +110,6 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
   public void setDefault() {
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      StreamInterface headStream = infoStreams.get( 0 );
-      StreamInterface tailStream = infoStreams.get( 1 );
-      headStream.setSubject( rep.getStepAttributeString( id_step, "head_name" ) );
-      tailStream.setSubject( rep.getStepAttributeString( id_step, "tail_name" ) );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AppendMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
-      StreamInterface headStream = infoStreams.get( 0 );
-      StreamInterface tailStream = infoStreams.get( 1 );
-      rep.saveStepAttribute( id_transformation, id_step, "head_name", headStream.getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "tail_name", tailStream.getStepname() );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "AppendMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     StepIOMetaInterface ioMeta = getStepIOMeta();
@@ -155,7 +128,7 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just take the info fields.
     //
@@ -168,7 +141,7 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();

@@ -22,21 +22,13 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.core.database.DatabaseMetaDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.DatabaseTestResults;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 
 /**
  *
@@ -69,14 +61,5 @@ public class DatabaseDialog extends DatabaseMetaDialog {
     MessageDialog dialog =
       new MessageDialog( parent, title, null, message, MessageDialog.ERROR, new String[] { okButton }, 0 );
     dialog.open();
-  }
-
-  @Deprecated
-  public void setModalDialog(boolean modal) {
-    // Ignore
-  }
-
-  public void setDatabases( List<DatabaseMeta> databases) {
-    // Ignore
   }
 }

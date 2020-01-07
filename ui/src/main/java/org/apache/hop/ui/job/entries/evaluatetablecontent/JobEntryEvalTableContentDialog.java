@@ -22,6 +22,29 @@
 
 package org.apache.hop.ui.job.entries.evaluatetablecontent;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.evaluatetablecontent.JobEntryEvalTableContent;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -48,28 +71,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.evaluatetablecontent.JobEntryEvalTableContent;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 
 /**
  * This dialog allows you to edit the Table content evaluation job entry settings. (select the connection and the table
@@ -89,7 +90,7 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
 
   private FormData fdlName, fdName;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Button wOK, wCancel;
 
@@ -160,9 +161,9 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
   private TextVar wLimit;
   private FormData fdlLimit, fdLimit;
 
-  public JobEntryEvalTableContentDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
-    JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryEvalTableContentDialog( Shell parent, JobEntryInterface jobEntryInt,
+                                         JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryEvalTableContent) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryEvalTableContent.Name.Default" ) );
@@ -231,11 +232,8 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, middle, margin );
-    if ( jobEntry.getDatabase() == null && jobMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
     wlSchemaname.setText( BaseMessages.getString( PKG, "JobEntryEvalTableContent.Schemaname.Label" ) );
@@ -787,21 +785,21 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
   }
 
   private void getTableName() {
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      DatabaseMeta inf = jobMeta.getDatabase( connr );
-
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, jobMeta.getDatabases() );
-      std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
-      if ( std.open() ) {
-        wTablename.setText( Const.NVL( std.getTableName(), "" ) );
+    String databaseName = wConnection.getText();
+    if ( StringUtils.isNotEmpty( databaseName ) ) {
+      DatabaseMeta databaseMeta = jobMeta.findDatabase( databaseName );
+      if ( databaseMeta != null ) {
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, jobMeta.getDatabases() );
+        std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
+        if ( std.open() ) {
+          wTablename.setText( Const.NVL( std.getTableName(), "" ) );
+        }
+      } else {
+        MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
+        mb.setMessage( BaseMessages.getString( PKG, "JobEntryEvalTableContent.ConnectionError2.DialogMessage" ) );
+        mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
+        mb.open();
       }
-    } else {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "JobEntryEvalTableContent.ConnectionError2.DialogMessage" ) );
-      mb.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
-      mb.open();
     }
   }
 

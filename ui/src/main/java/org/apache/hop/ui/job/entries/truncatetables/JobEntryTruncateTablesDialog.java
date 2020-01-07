@@ -24,6 +24,7 @@ package org.apache.hop.ui.job.entries.truncatetables;
 
 import java.util.Arrays;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -54,7 +55,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.truncatetables.JobEntryTruncateTables;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -82,7 +82,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
 
   private FormData fdlName, fdName;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Button wOK, wCancel;
 
@@ -107,8 +107,8 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
   private Button wPrevious;
   private FormData fdlPrevious, fdPrevious;
 
-  public JobEntryTruncateTablesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryTruncateTablesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryTruncateTables) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobTruncateTables.Name.Default" ) );
@@ -161,11 +161,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, middle, margin );
-    if ( jobEntry.getDatabase() == null && jobMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
 
     wlPrevious = new Label( shell, SWT.RIGHT );
     wlPrevious.setText( BaseMessages.getString( PKG, "JobTruncateTables.Previous.Label" ) );

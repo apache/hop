@@ -30,7 +30,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 public class GetTableNamesMetaInjectionTest extends BaseMetadataInjectionTest<GetTableNamesMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new GetTableNamesMeta() );
   }
 

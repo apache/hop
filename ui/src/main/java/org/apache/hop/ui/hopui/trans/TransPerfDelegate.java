@@ -369,7 +369,7 @@ public class TransPerfDelegate extends HopUiDelegate {
     button.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent event ) {
         TransGraph.editProperties(
-          hopUi.getActiveTransformation(), hopUi, hopUi.rep, true, TransDialog.Tabs.MONITOR_TAB );
+          hopUi.getActiveTransformation(), hopUi, true, TransDialog.Tabs.MONITOR_TAB );
       }
     } );
 

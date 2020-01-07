@@ -27,7 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannel;
@@ -35,14 +34,9 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.RepositoryPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.repository.RepositoriesMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryMeta;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
@@ -92,12 +86,6 @@ public class SlaveServerConfig {
 
   private boolean automaticCreationAllowed;
 
-  private Repository repository;
-  private RepositoryMeta repositoryMeta;
-  private String repositoryId;
-  private String repositoryUsername;
-  private String repositoryPassword;
-
   private DelegatingMetaStore metaStore;
 
   private String passwordFile;
@@ -112,11 +100,11 @@ public class SlaveServerConfig {
     // This sets it as the active one.
     //
     try {
-      XmlMetaStore localStore = new XmlMetaStore( MetaStoreConst.getDefaultPentahoMetaStoreLocation() );
+      XmlMetaStore localStore = new XmlMetaStore( MetaStoreConst.getDefaultHopMetaStoreLocation() );
       metaStore.addMetaStore( localStore );
       metaStore.setActiveMetaStoreName( localStore.getName() );
     } catch ( MetaStoreException e ) {
-      LogChannel.GENERAL.logError( "Unable to open local Pentaho meta store from [" + MetaStoreConst.getDefaultPentahoMetaStoreLocation() + "]", e );
+      LogChannel.GENERAL.logError( "Unable to open local Pentaho meta store from [" + MetaStoreConst.getDefaultHopMetaStoreLocation() + "]", e );
       // now replace this with an in memory metastore.
       //
       try {
@@ -178,15 +166,6 @@ public class SlaveServerConfig {
       xml.append( XMLHandler.closeTag( XML_TAG_AUTOSEQUENCE ) );
     }
 
-    if ( repositoryMeta != null ) {
-      xml.append( XMLHandler.openTag( XML_TAG_REPOSITORY ) );
-      xml.append( "  " ).append( XMLHandler.addTagValue( "id", repositoryMeta.getId() ) );
-      xml.append( "  " ).append( XMLHandler.addTagValue( "username", repositoryUsername ) );
-      xml.append( "  " ).append(
-        XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( repositoryPassword ) ) );
-      xml.append( XMLHandler.closeTag( XML_TAG_REPOSITORY ) );
-    }
-
     xml.append( XMLHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
@@ -219,11 +198,9 @@ public class SlaveServerConfig {
 
     // Read sequence information
     //
-    List<Node> dbNodes = XMLHandler.getNodes( node, DatabaseMeta.XML_TAG );
-    for ( Node dbNode : dbNodes ) {
-      databases.add( new DatabaseMeta( dbNode ) );
-    }
 
+    // TODO : read databases back in
+    //
     Node sequencesNode = XMLHandler.getSubNode( node, "sequences" );
     List<Node> seqNodes = XMLHandler.getNodes( sequencesNode, SlaveSequence.XML_TAG );
     for ( Node seqNode : seqNodes ) {
@@ -239,11 +216,6 @@ public class SlaveServerConfig {
 
     // Set Jetty Options
     setUpJettyOptions( node );
-
-    Node repositoryNode = XMLHandler.getSubNode( node, XML_TAG_REPOSITORY );
-    repositoryId = XMLHandler.getTagValue( repositoryNode, "name" );
-    repositoryUsername = XMLHandler.getTagValue( repositoryNode, "username" );
-    repositoryPassword = XMLHandler.getTagValue( repositoryNode, "password" );
   }
 
   /** Set up jetty options to the system properties
@@ -288,35 +260,6 @@ public class SlaveServerConfig {
       }
     }
     return jettyOptions;
-  }
-
-  private void openRepository( String repositoryId ) throws HopException {
-    try {
-
-      RepositoriesMeta repositoriesMeta = new RepositoriesMeta();
-      repositoriesMeta.readData();
-      repositoryMeta = repositoriesMeta.findRepository( repositoryId );
-      if ( repositoryMeta == null ) {
-        throw new HopException( "Unable to find repository: " + repositoryId );
-      }
-      PluginRegistry registry = PluginRegistry.getInstance();
-      repository = registry.loadClass( RepositoryPluginType.class, repositoryMeta, Repository.class );
-      repository.init( repositoryMeta );
-      repository.connect( repositoryUsername, repositoryPassword );
-
-      // Add the repository MetaStore to the delegation as well.
-      // Set this one as active with the highest priority
-      //
-      if ( repository.getMetaStore() != null ) {
-        metaStore.addMetaStore( 0, repository.getMetaStore() );
-        metaStore.setActiveMetaStoreName( repository.getMetaStore().getName() );
-      }
-
-      LogChannel.GENERAL.logBasic( "Connected to repository '" + repository.getName() + "'" );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to open repository connection", e );
-    }
   }
 
   public void readAutoSequences() throws HopException {
@@ -582,56 +525,6 @@ public class SlaveServerConfig {
     this.automaticCreationAllowed = automaticCreationAllowed;
   }
 
-  /**
-   * @return the repository, loaded lazily
-   */
-  public Repository getRepository() throws HopException {
-
-    if ( !Utils.isEmpty( repositoryId ) && repository == null ) {
-      openRepository( repositoryId );
-    }
-
-    return repository;
-  }
-
-  /**
-   * @param repository
-   *          the repository to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
-  }
-
-  /**
-   * @return the repositoryUsername
-   */
-  public String getRepositoryUsername() {
-    return repositoryUsername;
-  }
-
-  /**
-   * @param repositoryUsername
-   *          the repositoryUsername to set
-   */
-  public void setRepositoryUsername( String repositoryUsername ) {
-    this.repositoryUsername = repositoryUsername;
-  }
-
-  /**
-   * @return the repositoryPassword
-   */
-  public String getRepositoryPassword() {
-    return repositoryPassword;
-  }
-
-  /**
-   * @param repositoryPassword
-   *          the repositoryPassword to set
-   */
-  public void setRepositoryPassword( String repositoryPassword ) {
-    this.repositoryPassword = repositoryPassword;
-  }
-
   public DelegatingMetaStore getMetaStore() {
     return metaStore;
   }
@@ -646,14 +539,6 @@ public class SlaveServerConfig {
 
   public void setPasswordFile( String passwordFile ) {
     this.passwordFile = passwordFile;
-  }
-
-  public String getRepositoryId() {
-    return repositoryId;
-  }
-
-  public void setRepositoryId( String repositoryId ) {
-    this.repositoryId = repositoryId;
   }
 
 }

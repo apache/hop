@@ -243,9 +243,8 @@ public class SimpleMapping extends BaseStep implements StepInterface {
       try {
         // Pass the repository down to the metadata object...
         //
-        meta.setRepository( getTransMeta().getRepository() );
         simpleMappingData.mappingTransMeta =
-            SimpleMappingMeta.loadMappingMeta( meta, meta.getRepository(), meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
+            SimpleMappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
         if ( simpleMappingData.mappingTransMeta != null ) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.

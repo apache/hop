@@ -23,6 +23,7 @@
 
 package org.apache.hop.ui.hopui.trans;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.HopUiPluginManager;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -117,10 +118,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.lineage.TransDataLineage;
-import org.apache.hop.repository.HopRepositoryLostException;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.RepositoryOperation;
 import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -159,9 +156,6 @@ import org.apache.hop.ui.core.dialog.StepFieldsDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
-import org.apache.hop.ui.repository.RepositorySecurityUI;
-import org.apache.hop.ui.repository.dialog.RepositoryExplorerDialog;
-import org.apache.hop.ui.repository.dialog.RepositoryRevisionBrowserDialogInterface;
 import org.apache.hop.ui.hopui.AbstractGraph;
 import org.apache.hop.ui.hopui.SWTGC;
 import org.apache.hop.ui.hopui.HopUiExtenderPluginInterface;
@@ -741,13 +735,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
       @Override
       public void run() {
-        try {
-          setControlStates();
-        } catch ( HopRepositoryLostException krle ) {
-          if ( log.isBasic() ) {
-            log.logBasic( krle.getLocalizedMessage() );
-          }
-        }
+      setControlStates();
       }
     };
     timer.schedule( timerTask, 2000, 1000 );
@@ -971,7 +959,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             break;
 
           case STEP_DATA_SERVICE:
-            editProperties( transMeta, hopUi, hopUi.getRepository(), true, TransDialog.Tabs.EXTRA_TAB );
+            editProperties( transMeta, hopUi, true, TransDialog.Tabs.EXTRA_TAB );
             break;
           default:
             break;
@@ -1987,10 +1975,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       }
     }
 
-    if ( e.keyCode == SWT.F1 ) {
-      hopUi.browseVersionHistory();
-    }
-
     if ( e.keyCode == SWT.F2 ) {
       hopUi.editHopPropertiesFile();
     }
@@ -2587,7 +2571,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
   }
 
   public void settings() {
-    editProperties( transMeta, hopUi, hopUi.getRepository(), true );
+    editProperties( transMeta, hopUi, true );
   }
 
   public void newStep( String description ) {
@@ -3160,7 +3144,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
   private void inputOutputFields( StepMeta stepMeta, boolean before ) {
     hopUi.refreshGraph();
 
-    transMeta.setRepository( hopUi.rep );
     SearchFieldsProgressDialog op = new SearchFieldsProgressDialog( transMeta, stepMeta, before );
     boolean alreadyThrownError = false;
     try {
@@ -3536,19 +3519,18 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     return lastMove;
   }
 
-  public static boolean editProperties( TransMeta transMeta, HopUi hopUi, Repository rep,
-                                        boolean allowDirectoryChange ) {
-    return editProperties( transMeta, hopUi, rep, allowDirectoryChange, null );
+  public static boolean editProperties( TransMeta transMeta, HopUi hopUi, boolean allowDirectoryChange ) {
+    return editProperties( transMeta, hopUi, allowDirectoryChange, null );
 
   }
 
-  public static boolean editProperties( TransMeta transMeta, HopUi hopUi, Repository rep, boolean allowDirectoryChange,
+  public static boolean editProperties( TransMeta transMeta, HopUi hopUi, boolean allowDirectoryChange,
                                         TransDialog.Tabs currentTab ) {
     if ( transMeta == null ) {
       return false;
     }
 
-    TransDialog tid = new TransDialog( hopUi.getShell(), SWT.NONE, transMeta, rep, currentTab );
+    TransDialog tid = new TransDialog( hopUi.getShell(), SWT.NONE, transMeta, currentTab );
     tid.setDirectoryChangeAllowed( allowDirectoryChange );
     TransMeta ti = tid.open();
 
@@ -3556,8 +3538,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     //
     if ( tid.isSharedObjectsFileChanged() ) {
       try {
-        SharedObjects sharedObjects =
-          rep != null ? rep.readTransSharedObjects( transMeta ) : transMeta.readSharedObjects();
+        SharedObjects sharedObjects = transMeta.readSharedObjects();
         hopUi.sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
       } catch ( HopException e ) {
         // CHECKSTYLE:LineLength:OFF
@@ -3653,27 +3634,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       disposeExtraView();
     } else {
       addAllTabs();
-    }
-  }
-
-  public void browseVersionHistory() {
-    try {
-      if ( hopUi.rep.exists( transMeta.getName(), transMeta.getRepositoryDirectory(),
-        RepositoryObjectType.TRANSFORMATION ) ) {
-        RepositoryRevisionBrowserDialogInterface dialog =
-          RepositoryExplorerDialog.getVersionBrowserDialog( shell, hopUi.rep, transMeta );
-        String versionLabel = dialog.open();
-        if ( versionLabel != null ) {
-          hopUi.loadObjectFromRepository( transMeta.getName(), transMeta.getRepositoryElementType(), transMeta
-            .getRepositoryDirectory(), versionLabel );
-        }
-      } else {
-        modalMessageDialog( getString( "TransGraph.Sorry" ),
-          getString( "TransGraph.VersionBrowser.CantFindInRepo" ), SWT.CLOSE | SWT.ICON_ERROR );
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.VersionBrowserException.Title" ), BaseMessages
-        .getString( PKG, "TransGraph.VersionBrowserException.Message" ), e );
     }
   }
 
@@ -3835,13 +3795,9 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     // Auto save feature...
     handleTransMetaChanges( transMeta );
 
-    if ( ( ( transMeta.getName() != null && transMeta.getObjectId() != null && hopUi.rep != null ) || // Repository
-      // available &
-      // name / id set
-      ( transMeta.getFilename() != null && hopUi.rep == null ) // No repository & filename set
-    )
-      && !transMeta.hasChanged() // Didn't change
-      ) {
+    // filename set & not changed?
+    //
+    if ( StringUtils.isNotEmpty( transMeta.getFilename()) && !transMeta.hasChanged()) {
       if ( trans == null || !running ) {
         try {
           // Set the requested logging level..
@@ -3877,7 +3833,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           //
           trans = new Trans( transMeta );
 
-          trans.setRepository( hopUi.getRepository() );
           trans.setMetaStore( hopUi.getMetaStore() );
 
           String spoonLogObjectId = UUID.randomUUID().toString();
@@ -3888,7 +3843,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
           trans.setLogLevel( executionConfiguration.getLogLevel() );
           trans.setReplayDate( executionConfiguration.getReplayDate() );
-          trans.setRepository( executionConfiguration.getRepository() );
           trans.setMonitored( true );
           log.logBasic( BaseMessages.getString( PKG, "TransLog.Log.TransformationOpened" ) );
         } catch ( HopException e ) {
@@ -3935,13 +3889,17 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     } else {
       if ( transMeta.hasChanged() ) {
         showSaveFileMessage();
-      } else if ( hopUi.rep != null && transMeta.getName() == null ) {
+      }
+
+/*       else if ( transMeta.getName() == null ) {
         modalMessageDialog( getString( "TransLog.Dialog.GiveTransformationANameBeforeRunning.Title" ),
           getString( "TransLog.Dialog.GiveTransformationANameBeforeRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
       } else {
         modalMessageDialog( getString( "TransLog.Dialog.SaveTransformationBeforeRunning2.Title" ),
           getString( "TransLog.Dialog.SaveTransformationBeforeRunning2.Message" ), SWT.OK | SWT.ICON_WARNING );
       }
+ */
+
     }
   }
 
@@ -4029,7 +3987,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
         trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
         trans.setMetaStore( hopUi.getMetaStore() );
         trans.prepareExecution( args );
-        trans.setRepository( hopUi.rep );
 
         List<HopUiExtenderPluginInterface> relevantExtenders =
           HopUiExtenderPluginType.getInstance().getRelevantExtenders( TransDebugMetaWrapper.class, PREVIEW_TRANS );
@@ -4217,20 +4174,11 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
       @Override
       public void run() {
-        boolean operationsNotAllowed = false;
-        try {
-          operationsNotAllowed =
-            RepositorySecurityUI.verifyOperations( shell, hopUi.rep, false,
-              RepositoryOperation.EXECUTE_TRANSFORMATION );
-        } catch ( HopRepositoryLostException krle ) {
-          log.logError( krle.getLocalizedMessage() );
-          hopUi.handleRepositoryLost( krle );
-        }
 
         // Start/Run button...
         //
         XulToolbarbutton runButton = (XulToolbarbutton) toolbar.getElementById( "trans-run" );
-        if ( runButton != null && !controlDisposed( runButton ) && !operationsNotAllowed ) {
+        if ( runButton != null && !controlDisposed( runButton ) ) {
           if ( runButton.isDisabled() ^ running ) {
             runButton.setDisabled( running );
           }
@@ -4258,7 +4206,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
         //
         XulToolbarbutton debugButton = (XulToolbarbutton) toolbar.getElementById( "trans-debug" );
 
-        if ( debugButton != null && !controlDisposed( debugButton ) && !operationsNotAllowed ) {
+        if ( debugButton != null && !controlDisposed( debugButton ) ) {
           if ( debugButton.isDisabled() ^ running ) {
             debugButton.setDisabled( running );
           }
@@ -4267,7 +4215,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
         // Preview button...
         //
         XulToolbarbutton previewButton = (XulToolbarbutton) toolbar.getElementById( "trans-preview" );
-        if ( previewButton != null && !controlDisposed( previewButton ) && !operationsNotAllowed ) {
+        if ( previewButton != null && !controlDisposed( previewButton ) ) {
           if ( previewButton.isDisabled() ^ running ) {
             previewButton.setDisabled( running );
           }
@@ -4524,7 +4472,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       } else {
         StepMetaInterface meta = stepMeta.getStepMetaInterface();
         if ( !Utils.isEmpty( meta.getReferencedObjectDescriptions() ) ) {
-          referencedMeta = meta.loadReferencedObject( index, hopUi.rep, hopUi.metaStore, transMeta );
+          referencedMeta = meta.loadReferencedObject( index, hopUi.metaStore, transMeta );
         }
       }
       if ( referencedMeta == null ) {
@@ -5089,16 +5037,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
   public Trans getTrans() {
     return trans;
-  }
-
-  private Trans createLegacyTrans() {
-    try {
-      return new Trans( transMeta, hopUi.rep, transMeta.getName(),
-        transMeta.getRepositoryDirectory().getPath(),
-        transMeta.getFilename() );
-    } catch ( HopException e ) {
-      throw new RuntimeException( e );
-    }
   }
 
   private void setHopEnabled( TransHopMeta hop, boolean enabled ) {

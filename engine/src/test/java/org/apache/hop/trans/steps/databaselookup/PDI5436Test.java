@@ -55,7 +55,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
@@ -123,7 +122,7 @@ public class PDI5436Test {
     doReturn( new String[] { "=" } ).when( stepMeta ).getKeyCondition();
 
     doCallRealMethod().when( stepMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any( Repository.class ),
+        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
         any( IMetaStore.class ) );
     doReturn( new String[] { "value" } ).when( stepMeta ).getReturnValueNewName();
     doReturn( new int[] { ValueMetaInterface.TYPE_STRING } ).when( stepMeta ).getReturnValueDefaultType();

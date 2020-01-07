@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -328,8 +327,8 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     this.separator = separator;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public int getAlgorithmType() {
@@ -374,7 +373,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     return 0;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
 
       String lookupFromStepname = XMLHandler.getTagValue( stepnode, "from" );
@@ -448,7 +447,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Add match field
     ValueMetaInterface v =
       new ValueMetaString( space.environmentSubstitute( getOutputMatchField() ) );
@@ -542,67 +541,9 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      String lookupFromStepname = rep.getStepAttributeString( id_step, "lookup_from_step" );
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      infoStream.setSubject( lookupFromStepname );
-      lookupfield = rep.getStepAttributeString( id_step, "lookupfield" );
-      mainstreamfield = rep.getStepAttributeString( id_step, "mainstreamfield" );
-      outputmatchfield = rep.getStepAttributeString( id_step, "outputmatchfield" );
-      outputvaluefield = rep.getStepAttributeString( id_step, "outputvaluefield" );
-
-      caseSensitive = rep.getStepAttributeBoolean( id_step, "caseSensitive" );
-      closervalue = rep.getStepAttributeBoolean( id_step, "closervalue" );
-      minimalValue = rep.getStepAttributeString( id_step, "minimalValue" );
-      maximalValue = rep.getStepAttributeString( id_step, "maximalValue" );
-      separator = rep.getStepAttributeString( id_step, "separator" );
-
-      algorithm = getAlgorithmTypeByCode( Const.NVL( rep.getStepAttributeString( id_step, "algorithm" ), "" ) );
-
-      int nrvalues = rep.countNrStepAttributes( id_step, "return_value_name" );
-      allocate( nrvalues );
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        value[i] = rep.getStepAttributeString( id_step, i, "return_value_name" );
-        valueName[i] = rep.getStepAttributeString( id_step, i, "return_value_rename" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FuzzyMatchMeta.Exception.UnexpecteErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
-      rep.saveStepAttribute( id_transformation, id_step, "lookup_from_step", infoStream.getStepname() );
-      rep.saveStepAttribute( id_transformation, id_step, "lookupfield", lookupfield );
-      rep.saveStepAttribute( id_transformation, id_step, "mainstreamfield", mainstreamfield );
-      rep.saveStepAttribute( id_transformation, id_step, "outputmatchfield", outputmatchfield );
-      rep.saveStepAttribute( id_transformation, id_step, "outputvaluefield", outputvaluefield );
-
-      rep.saveStepAttribute( id_transformation, id_step, "caseSensitive", caseSensitive );
-      rep.saveStepAttribute( id_transformation, id_step, "closervalue", closervalue );
-      rep.saveStepAttribute( id_transformation, id_step, "minimalValue", minimalValue );
-      rep.saveStepAttribute( id_transformation, id_step, "maximalValue", maximalValue );
-      rep.saveStepAttribute( id_transformation, id_step, "separator", separator );
-      rep.saveStepAttribute( id_transformation, id_step, "algorithm", getAlgorithmTypeCode( algorithm ) );
-
-      for ( int i = 0; i < value.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_name", value[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "return_value_rename", valueName[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FuzzyMatchMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

@@ -8,5 +8,7 @@ public @interface MetaStoreElementType {
 
   String name();
 
-  String description();
+  String description() default "";
+
+  String dialogClassname() default "";
 }

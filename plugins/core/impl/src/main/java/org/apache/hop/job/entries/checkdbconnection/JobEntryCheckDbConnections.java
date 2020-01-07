@@ -43,8 +43,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -209,10 +208,9 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       Node fields = XMLHandler.getSubNode( entrynode, "connections" );
 
       // How many hosts?
@@ -224,54 +222,13 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "connection", i );
         String dbname = XMLHandler.getTagValue( fnode, "name" );
-        connections[i] = DatabaseMeta.findDatabase( databases, dbname );
+        connections[i] = DatabaseMeta.loadDatabase( metaStore, dbname );
         waitfors[i] = XMLHandler.getTagValue( fnode, "waitfor" );
         waittimes[i] = getWaitByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryCheckDbConnections.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node", xe.getMessage() ) );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      // How many connections?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "id_database" );
-      connections = new DatabaseMeta[argnr];
-      waitfors = new String[argnr];
-      waittimes = new int[argnr];
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        connections[a] =
-          rep.loadDatabaseMetaFromJobEntryAttribute( id_jobentry, "connection", a, "id_database", databases );
-        waitfors[a] = rep.getJobEntryAttributeString( id_jobentry, a, "waitfor" );
-        waittimes[a] =
-          getWaitByCode( Const.NVL( rep.getJobEntryAttributeString( id_jobentry, a, "waittime" ), "" ) );
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryCheckDbConnections.ERROR_0002_Cannot_Load_Job_From_Repository", "" + id_jobentry, dbe
-          .getMessage() ) );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      // save the arguments...
-      if ( connections != null ) {
-        for ( int i = 0; i < connections.length; i++ ) {
-          rep.saveDatabaseMetaJobEntryAttribute(
-            id_job, getObjectId(), i, "connection", "id_database", connections[i] );
-
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "waittime", getWaitTimeCode( waittimes[i] ) );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "waitfor", waitfors[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryCheckDbConnections.ERROR_0003_Cannot_Save_Job_Entry", "" + id_job, dbe.getMessage() ) );
     }
   }
 
@@ -414,7 +371,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "columnname", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

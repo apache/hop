@@ -64,7 +64,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.copyfiles.JobEntryCopyFiles;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -115,8 +114,8 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
   private ToolItem deleteToolItem; // Delete
 
-  public JobEntryCopyFilesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryCopyFilesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCopyFiles) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

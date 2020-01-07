@@ -175,7 +175,6 @@ public class DatabaseMetaTest {
     doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
     doCallRealMethod().when( databaseMeta ).setName( anyString() );
     doCallRealMethod().when( databaseMeta ).getName();
-    doCallRealMethod().when( databaseMeta ).getDisplayName();
     databaseMeta.setDatabaseInterface( odbm );
     databaseMeta.setName( "test" );
 
@@ -187,15 +186,13 @@ public class DatabaseMetaTest {
     doCallRealMethod().when( databaseMeta2 ).setDatabaseInterface( any( DatabaseInterface.class ) );
     doCallRealMethod().when( databaseMeta2 ).setName( anyString() );
     doCallRealMethod().when( databaseMeta2 ).getName();
-    doCallRealMethod().when( databaseMeta2 ).setDisplayName( anyString() );
-    doCallRealMethod().when( databaseMeta2 ).getDisplayName();
     doCallRealMethod().when( databaseMeta2 ).verifyAndModifyDatabaseName( any( ArrayList.class ), anyString() );
     databaseMeta2.setDatabaseInterface( odbm2 );
     databaseMeta2.setName( "test" );
 
     databaseMeta2.verifyAndModifyDatabaseName( list, null );
 
-    assertTrue( !databaseMeta.getDisplayName().equals( databaseMeta2.getDisplayName() ) );
+    assertTrue( !databaseMeta.getName().equals( databaseMeta2.getName() ) );
   }
 
   @Test

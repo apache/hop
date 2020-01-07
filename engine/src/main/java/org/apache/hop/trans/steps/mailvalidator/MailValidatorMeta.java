@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -295,7 +294,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
     return smtpCheck;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -320,7 +319,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     String realResultFieldName = space.environmentSubstitute( resultfieldname );
     if ( ResultAsString ) {
@@ -388,55 +387,9 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      emailfield = rep.getStepAttributeString( id_step, "emailfield" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      ResultAsString = rep.getStepAttributeBoolean( id_step, "ResultAsString" );
-      smtpCheck = rep.getStepAttributeBoolean( id_step, "smtpCheck" );
-
-      emailValideMsg = rep.getStepAttributeString( id_step, "emailValideMsg" );
-      emailNotValideMsg = rep.getStepAttributeString( id_step, "emailNotValideMsg" );
-      errorsFieldName = rep.getStepAttributeString( id_step, "errorsFieldName" );
-      timeout = rep.getStepAttributeString( id_step, "timeout" );
-      defaultSMTP = rep.getStepAttributeString( id_step, "defaultSMTP" );
-      emailSender = rep.getStepAttributeString( id_step, "emailSender" );
-      defaultSMTPField = rep.getStepAttributeString( id_step, "defaultSMTPField" );
-
-      isdynamicDefaultSMTP = rep.getStepAttributeBoolean( id_step, "isdynamicDefaultSMTP" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MailValidatorMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "emailfield", emailfield );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "ResultAsString", ResultAsString );
-      rep.saveStepAttribute( id_transformation, id_step, "smtpCheck", smtpCheck );
-
-      rep.saveStepAttribute( id_transformation, id_step, "emailValideMsg", emailValideMsg );
-      rep.saveStepAttribute( id_transformation, id_step, "emailNotValideMsg", emailNotValideMsg );
-      rep.saveStepAttribute( id_transformation, id_step, "errorsFieldName", errorsFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "timeout", timeout );
-      rep.saveStepAttribute( id_transformation, id_step, "defaultSMTP", defaultSMTP );
-      rep.saveStepAttribute( id_transformation, id_step, "emailSender", emailSender );
-      rep.saveStepAttribute( id_transformation, id_step, "defaultSMTPField", defaultSMTPField );
-
-      rep.saveStepAttribute( id_transformation, id_step, "isdynamicDefaultSMTP", isdynamicDefaultSMTP );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailValidatorMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( Utils.isEmpty( resultfieldname ) ) {

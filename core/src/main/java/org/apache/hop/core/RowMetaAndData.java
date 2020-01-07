@@ -34,9 +34,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.repository.LongObjectId;
-import org.apache.hop.repository.ObjectId;
-
 public class RowMetaAndData implements Cloneable {
   private RowMetaInterface rowMeta;
 
@@ -128,9 +125,6 @@ public class RowMetaAndData implements Cloneable {
   }
 
   public void addValue( ValueMetaInterface valueMeta, Object valueData ) {
-    if ( valueMeta.isInteger() && ( valueData instanceof ObjectId ) ) {
-      valueData = new LongObjectId( (ObjectId) valueData ).longValue();
-    }
     data = RowDataUtil.addValueData( data, rowMeta.size(), valueData );
     rowMeta.addValueMeta( valueMeta );
   }

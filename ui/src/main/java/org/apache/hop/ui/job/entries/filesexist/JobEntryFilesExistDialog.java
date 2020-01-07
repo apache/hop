@@ -50,7 +50,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.filesexist.JobEntryFilesExist;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -111,8 +110,8 @@ public class JobEntryFilesExistDialog extends JobEntryDialog implements JobEntry
   private TableView wFields;
   private FormData fdlFields, fdFields;
 
-  public JobEntryFilesExistDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryFilesExistDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryFilesExist) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobFilesExist.Name.Default" ) );

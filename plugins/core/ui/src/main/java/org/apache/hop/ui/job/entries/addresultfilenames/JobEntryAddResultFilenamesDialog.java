@@ -52,7 +52,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.addresultfilenames.JobEntryAddResultFilenames;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -122,9 +121,8 @@ public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements 
   private Button wbaFilename; // Add or change
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
-  public JobEntryAddResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep,
-    JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntryAddResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryAddResultFilenames) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {

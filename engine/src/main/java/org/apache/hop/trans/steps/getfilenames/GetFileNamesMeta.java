@@ -46,8 +46,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -195,7 +194,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param excludeWildcard
+   * @param dynamicExcludeWildcardField
    *          The dynamic excludeWildcard field to set.
    */
   public void setDynamicExcludeWildcardField( String dynamicExcludeWildcardField ) {
@@ -302,7 +301,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param fileRequired
+   * @param fileRequiredin
    *          The fileRequired to set.
    */
   public void setFileRequired( String[] fileRequiredin ) {
@@ -385,7 +384,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -441,7 +440,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // the filename
     ValueMetaInterface filename = new ValueMetaString( "filename" );
@@ -553,7 +552,6 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
       retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[i] ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
-      parentStepMeta.getParentTransMeta().getNamedClusterEmbedManager().registerUrl( fileName[i] );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -601,72 +599,6 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
     }
   }
 
-  @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      int nrfiles = rep.countNrStepAttributes( id_step, "file_name" );
-      fileTypeFilter =
-        FileInputList.FileTypeFilter.getByName( rep.getStepAttributeString( id_step, "filterfiletype" ) );
-      doNotFailIfNoFile = rep.getStepAttributeBoolean( id_step, "doNotFailIfNoFile" );
-      dynamicFilenameField = rep.getStepAttributeString( id_step, "filename_Field" );
-      dynamicWildcardField = rep.getStepAttributeString( id_step, "wildcard_Field" );
-      dynamicExcludeWildcardField = rep.getStepAttributeString( id_step, "exclude_wildcard_Field" );
-      dynamicIncludeSubFolders = rep.getStepAttributeBoolean( id_step, "dynamic_include_subfolders" );
-
-      includeRowNumber = rep.getStepAttributeBoolean( id_step, "rownum" );
-      isaddresult = rep.getStepAttributeBoolean( id_step, "isaddresult" );
-      filefield = rep.getStepAttributeBoolean( id_step, "filefield" );
-      rowNumberField = rep.getStepAttributeString( id_step, "rownum_field" );
-      rowLimit = rep.getStepAttributeInteger( id_step, "limit" );
-
-      allocate( nrfiles );
-
-      for ( int i = 0; i < nrfiles; i++ ) {
-        fileName[i] = rep.getStepAttributeString( id_step, i, "file_name" );
-        fileMask[i] = rep.getStepAttributeString( id_step, i, "file_mask" );
-        excludeFileMask[i] = rep.getStepAttributeString( id_step, i, "exclude_file_mask" );
-        fileRequired[i] = rep.getStepAttributeString( id_step, i, "file_required" );
-        if ( !YES.equalsIgnoreCase( fileRequired[i] ) ) {
-          fileRequired[i] = NO;
-        }
-        includeSubFolders[i] = rep.getStepAttributeString( id_step, i, "include_subfolders" );
-        if ( !YES.equalsIgnoreCase( includeSubFolders[i] ) ) {
-          includeSubFolders[i] = NO;
-        }
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "filterfiletype", fileTypeFilter.toString() );
-      rep.saveStepAttribute( id_transformation, id_step, "doNotFailIfNoFile", doNotFailIfNoFile );
-      rep.saveStepAttribute( id_transformation, id_step, "rownum", includeRowNumber );
-      rep.saveStepAttribute( id_transformation, id_step, "isaddresult", isaddresult );
-      rep.saveStepAttribute( id_transformation, id_step, "filefield", filefield );
-      rep.saveStepAttribute( id_transformation, id_step, "filename_Field", dynamicFilenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "wildcard_Field", dynamicWildcardField );
-      rep.saveStepAttribute( id_transformation, id_step, "exclude_wildcard_Field", dynamicExcludeWildcardField );
-      rep.saveStepAttribute( id_transformation, id_step, "dynamic_include_subfolders", dynamicIncludeSubFolders );
-
-      rep.saveStepAttribute( id_transformation, id_step, "rownum_field", rowNumberField );
-      rep.saveStepAttribute( id_transformation, id_step, "limit", rowLimit );
-
-      for ( int i = 0; i < fileName.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_name", fileName[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_mask", fileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "exclude_file_mask", excludeFileMask[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "file_required", fileRequired[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "include_subfolders", includeSubFolders[i] );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   private boolean[] includeSubFolderBoolean() {
     int len = fileName.length;
     boolean[] includeSubFolderBoolean = new boolean[len];
@@ -710,7 +642,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -806,7 +738,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

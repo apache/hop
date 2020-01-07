@@ -20,7 +20,7 @@ esac
 
 OPTIONS="$OPTIONS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
-java ${OPTIONS} -classpath ${CLASSPATH} org.apache.hop.ui.core.database.dialog.DatabaseMetaDialog $@
+java ${OPTIONS} -classpath ${CLASSPATH} org.apache.hop.ui.core.database.DatabaseMetaDialog $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}

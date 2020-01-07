@@ -37,8 +37,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -88,7 +87,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     readData( stepnode );
   }
 
@@ -195,89 +194,14 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      serverName = rep.getStepAttributeString( id_step, "servername" );
-      serverPort = rep.getStepAttributeString( id_step, "serverport" );
-
-      userName = rep.getStepAttributeString( id_step, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "password" ) );
-      sourceFileFieldName = rep.getStepAttributeString( id_step, "sourceFileFieldName" );
-      remoteDirectoryFieldName = rep.getStepAttributeString( id_step, "remoteDirectoryFieldName" );
-      inputIsStream = rep.getStepAttributeBoolean( id_step, "inputIsStream" );
-      addFilenameResut = rep.getStepAttributeBoolean( id_step, "addFilenameResut" );
-
-      usekeyfilename = rep.getStepAttributeBoolean( id_step, "usekeyfilename" );
-      keyfilename = rep.getStepAttributeString( id_step, "keyfilename" );
-      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "keyfilepass" ) );
-      compression = rep.getStepAttributeString( id_step, "compression" );
-      proxyType = rep.getStepAttributeString( id_step, "proxyType" );
-      proxyHost = rep.getStepAttributeString( id_step, "proxyHost" );
-      proxyPort = rep.getStepAttributeString( id_step, "proxyPort" );
-      proxyUsername = rep.getStepAttributeString( id_step, "proxyUsername" );
-      proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step, "proxyPassword" ) );
-
-      createRemoteFolder = rep.getStepAttributeBoolean( id_step, "createRemoteFolder" );
-
-      boolean remove = rep.getStepAttributeBoolean( id_step, "remove" );
-      setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByCode( Const.NVL( rep.getStepAttributeString(
-        id_step, "aftersftpput" ), "" ) ) );
-      if ( remove && getAfterFTPS() == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING ) {
-        setAfterFTPS( JobEntrySFTPPUT.AFTER_FTPSPUT_DELETE );
-      }
-      destinationfolderFieldName = rep.getStepAttributeString( id_step, "destinationfolderFieldName" );
-      createDestinationFolder = rep.getStepAttributeBoolean( id_step, "createdestinationfolder" );
-      remoteFilenameFieldName = rep.getStepAttributeString( id_step, "remoteFilenameFieldName" );
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error reading step information from the repository", e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "servername", serverName );
-      rep.saveStepAttribute( id_transformation, id_step, "serverport", serverPort );
-      rep.saveStepAttribute( id_transformation, id_step, "username", userName );
-      rep.saveStepAttribute( id_transformation, id_step, "password", Encr
-        .encryptPasswordIfNotUsingVariables( password ) );
-      rep.saveStepAttribute( id_transformation, id_step, "sourceFileFieldName", sourceFileFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "remoteDirectoryFieldName", remoteDirectoryFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "inputIsStream", inputIsStream );
-      rep.saveStepAttribute( id_transformation, id_step, "addFilenameResut", addFilenameResut );
-
-      rep.saveStepAttribute( id_transformation, id_step, "usekeyfilename", usekeyfilename );
-      rep.saveStepAttribute( id_transformation, id_step, "keyfilename", keyfilename );
-      rep.saveStepAttribute( id_transformation, id_step, "keyfilepass", Encr
-        .encryptPasswordIfNotUsingVariables( keyfilepass ) );
-      rep.saveStepAttribute( id_transformation, id_step, "compression", compression );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyType", proxyType );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyHost", proxyHost );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPort", proxyPort );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyUsername", proxyUsername );
-      rep.saveStepAttribute( id_transformation, id_step, "proxyPassword", Encr
-        .encryptPasswordIfNotUsingVariables( proxyPassword ) );
-      rep.saveStepAttribute( id_transformation, id_step, "aftersftpput", JobEntrySFTPPUT
-        .getAfterSFTPPutCode( getAfterFTPS() ) );
-
-      rep.saveStepAttribute( id_transformation, id_step, "createRemoteFolder", createRemoteFolder );
-      rep.saveStepAttribute( id_transformation, id_step, "destinationfolderFieldName", destinationfolderFieldName );
-      rep.saveStepAttribute( id_transformation, id_step, "createdestinationfolder", createDestinationFolder );
-      rep.saveStepAttribute( id_transformation, id_step, "remoteFilenameFieldName", remoteFilenameFieldName );
-
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save step information to the repository for id_step=" + id_step, e );
-    }
-  }
-
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

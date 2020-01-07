@@ -39,8 +39,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.productivity.java.syslog4j.Syslog;
 import org.productivity.java.syslog4j.SyslogIF;
@@ -102,10 +101,10 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       facility = XMLHandler.getTagValue( entrynode, "facility" );
@@ -117,40 +116,6 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
 
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'Syslog' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      facility = rep.getJobEntryAttributeString( id_jobentry, "facility" );
-      priority = rep.getJobEntryAttributeString( id_jobentry, "priority" );
-      message = rep.getJobEntryAttributeString( id_jobentry, "message" );
-      datePattern = rep.getJobEntryAttributeString( id_jobentry, "datePattern" );
-      addTimestamp = rep.getJobEntryAttributeBoolean( id_jobentry, "addTimestamp" );
-      addHostname = rep.getJobEntryAttributeBoolean( id_jobentry, "addHostname" );
-
-    } catch ( HopException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'Syslog' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "facility", facility );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "priority", priority );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "message", message );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "datePattern", datePattern );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addTimestamp", addTimestamp );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "addHostname", addHostname );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to save job entry of type 'Syslog' to the repository for id_job="
-        + id_job, dbe );
     }
   }
 
@@ -331,7 +296,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
   }
 

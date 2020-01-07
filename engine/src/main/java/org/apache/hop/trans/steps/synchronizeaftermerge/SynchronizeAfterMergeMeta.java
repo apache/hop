@@ -43,8 +43,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
@@ -74,7 +73,7 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
   @Injection( name = "TABLE_NAME" )
   private String tableName;
 
-  private List<? extends SharedObjectInterface> databases;
+  private IMetaStore metaStore;
 
   /** database connection */
   private DatabaseMeta databaseMeta;
@@ -141,7 +140,11 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
 
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
-    databaseMeta = DatabaseMeta.findDatabase( databases, connectionName );
+    try {
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+    } catch ( HopXMLException e ) {
+      throw new RuntimeException( "Error load connection '"+connectionName+"'", e );
+    }
   }
 
   /**
@@ -387,8 +390,8 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
     }
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -418,12 +421,13 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
     return retval;
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    this.metaStore = metaStore;
     try {
       int nrkeys, nrvalues;
       this.databases = databases;
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       commitSize = XMLHandler.getTagValue( stepnode, "commit" );
       schemaName = XMLHandler.getTagValue( stepnode, "lookup", "schema" );
       tableName = XMLHandler.getTagValue( stepnode, "lookup", "table" );
@@ -561,93 +565,9 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-
-    try {
-      this.databases = databases;
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-
-      commitSize = rep.getStepAttributeString( id_step, "commit" );
-      schemaName = rep.getStepAttributeString( id_step, "schema" );
-      tableName = rep.getStepAttributeString( id_step, "table" );
-
-      tablenameInField = rep.getStepAttributeBoolean( id_step, "tablename_in_field" );
-      tablenameField = rep.getStepAttributeString( id_step, "tablename_field" );
-      useBatchUpdate = rep.getStepAttributeBoolean( id_step, "use_batch" );
-      performLookup = rep.getStepAttributeBoolean( id_step, "perform_lookup" );
-
-      operationOrderField = rep.getStepAttributeString( id_step, "operation_order_field" );
-      OrderInsert = rep.getStepAttributeString( id_step, "order_insert" );
-      OrderUpdate = rep.getStepAttributeString( id_step, "order_update" );
-      OrderDelete = rep.getStepAttributeString( id_step, "order_delete" );
-
-      int nrkeys = rep.countNrStepAttributes( id_step, "key_name" );
-      int nrvalues = rep.countNrStepAttributes( id_step, "value_name" );
-
-      allocate( nrkeys, nrvalues );
-
-      for ( int i = 0; i < nrkeys; i++ ) {
-        keyStream[i] = rep.getStepAttributeString( id_step, i, "key_name" );
-        keyLookup[i] = rep.getStepAttributeString( id_step, i, "key_field" );
-        keyCondition[i] = rep.getStepAttributeString( id_step, i, "key_condition" );
-        keyStream2[i] = rep.getStepAttributeString( id_step, i, "key_name2" );
-      }
-
-      for ( int i = 0; i < nrvalues; i++ ) {
-        updateLookup[i] = rep.getStepAttributeString( id_step, i, "value_name" );
-        updateStream[i] = rep.getStepAttributeString( id_step, i, "value_rename" );
-        update[i] = Boolean.valueOf( rep.getStepAttributeBoolean( id_step, i, "value_update", true ) );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SynchronizeAfterMergeMeta.Exception.UnexpectedErrorReadingStepInfoFromRepository" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "commit", commitSize );
-      rep.saveStepAttribute( id_transformation, id_step, "schema", schemaName );
-      rep.saveStepAttribute( id_transformation, id_step, "table", tableName );
-
-      rep.saveStepAttribute( id_transformation, id_step, "tablename_in_field", tablenameInField );
-      rep.saveStepAttribute( id_transformation, id_step, "tablename_field", tablenameField );
-      rep.saveStepAttribute( id_transformation, id_step, "operation_order_field", operationOrderField );
-      rep.saveStepAttribute( id_transformation, id_step, "order_insert", OrderInsert );
-      rep.saveStepAttribute( id_transformation, id_step, "order_update", OrderUpdate );
-      rep.saveStepAttribute( id_transformation, id_step, "order_delete", OrderDelete );
-
-      rep.saveStepAttribute( id_transformation, id_step, "use_batch", useBatchUpdate );
-      rep.saveStepAttribute( id_transformation, id_step, "perform_lookup", performLookup );
-
-      for ( int i = 0; i < keyStream.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name", keyStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_field", keyLookup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_condition", keyCondition[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key_name2", keyStream2[i] );
-      }
-
-      for ( int i = 0; i < updateLookup.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_name", updateLookup[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_rename", updateStream[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "value_update", update[i].booleanValue() );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SynchronizeAfterMergeMeta.Exception.UnableToSaveStepInfoToRepository" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -904,7 +824,7 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    Repository repository, IMetaStore metaStore ) throws HopStepException {
+    IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -996,7 +916,7 @@ public class SynchronizeAfterMergeMeta extends BaseStepMeta implements StepMetaI
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys

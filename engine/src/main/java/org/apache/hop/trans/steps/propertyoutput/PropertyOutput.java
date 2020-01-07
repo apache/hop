@@ -73,7 +73,7 @@ public class PropertyOutput extends BaseStep implements StepInterface {
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Let's take the index of Key field ...
       data.indexOfKeyField = data.inputRowMeta.indexOfValue( meta.getKeyField() );

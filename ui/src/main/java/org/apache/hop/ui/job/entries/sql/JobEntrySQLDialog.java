@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.job.entries.sql;
 
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -57,7 +58,6 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.sql.JobEntrySQL;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -85,7 +85,7 @@ public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogI
 
   private FormData fdlName, fdName;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlUseSubs;
 
@@ -133,8 +133,8 @@ public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogI
   private TextVar wFilename;
   private FormData fdlFilename, fdbFilename, fdFilename;
 
-  public JobEntrySQLDialog( Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
-    super( parent, jobEntryInt, rep, jobMeta );
+  public JobEntrySQLDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
+    super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySQL) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobSQL.Name.Default" ) );
@@ -192,11 +192,7 @@ public class JobEntrySQLDialog extends JobEntryDialog implements JobEntryDialogI
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, middle, margin );
-    if ( jobEntry.getDatabase() == null && jobMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
+    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
 
     // SQL from file?
     wlSQLFromFile = new Label( shell, SWT.RIGHT );

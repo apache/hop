@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -46,7 +45,6 @@ import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.FileUtil;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
@@ -60,15 +58,7 @@ import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.JobEntryRunConfigurableInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-import org.apache.hop.repository.HasRepositoryDirectories;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryDirectory;
-import org.apache.hop.repository.RepositoryDirectoryInterface;
-import org.apache.hop.repository.RepositoryImportLocation;
-import org.apache.hop.repository.RepositoryObject;
-import org.apache.hop.repository.RepositoryObjectType;
-import org.apache.hop.repository.StringObjectId;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -81,7 +71,6 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.cluster.TransSplitter;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.www.SlaveServerTransStatus;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -97,19 +86,11 @@ import java.util.Map;
  * @author Matt Casters
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
-public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryInterface, HasRepositoryDirectories, JobEntryRunConfigurableInterface {
+public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryInterface, JobEntryRunConfigurableInterface {
   private static Class<?> PKG = JobEntryTrans.class; // for i18n purposes, needed by Translator2!!
   public static final int IS_PENTAHO = 1;
 
-  private String transname;
-
   private String filename;
-
-  private String directory;
-
-  private ObjectId transObjectId;
-
-  private ObjectLocationSpecificationMethod specificationMethod;
 
   public String[] arguments;
 
@@ -159,11 +140,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
   private Trans trans;
 
-  private CurrentDirectoryChangedListener currentDirListener = new EntryCurrentDirectoryChangedListener(
-      this::getSpecificationMethod,
-      this::getDirectory,
-      this::setDirectory );
-
   public JobEntryTrans( String name ) {
     super( name, "" );
   }
@@ -174,13 +150,13 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   private void allocateArgs( int nrArgs ) {
-    arguments = new String[nrArgs];
+    arguments = new String[ nrArgs ];
   }
 
   private void allocateParams( int nrParameters ) {
-    parameters = new String[nrParameters];
-    parameterFieldNames = new String[nrParameters];
-    parameterValues = new String[nrParameters];
+    parameters = new String[ nrParameters ];
+    parameterFieldNames = new String[ nrParameters ];
+    parameterValues = new String[ nrParameters ];
   }
 
   @Override
@@ -224,32 +200,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     return environmentSubstitute( getFilename() );
   }
 
-  public void setTransname( String transname ) {
-    this.transname = transname;
-  }
-
-  public String getTransname() {
-    return transname;
-  }
-
-  public String getDirectory() {
-    return directory;
-  }
-
-  public void setDirectory( String directory ) {
-    this.directory = directory;
-  }
-
-  @Override
-  public String[] getDirectories() {
-    return new String[]{ directory };
-  }
-
-  @Override
-  public void setDirectories( String[] directories ) {
-    this.directory = directories[0];
-  }
-
   public String getLogFilename() {
     String retval = "";
     if ( setLogfile ) {
@@ -276,42 +226,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
     retval.append( super.getXML() );
 
-    // specificationMethod
-    //
-    retval.append( "      " ).append(
-      XMLHandler.addTagValue( "specification_method", specificationMethod == null ? null : specificationMethod
-        .getCode() )
-    );
-    retval.append( "      " ).append(
-      XMLHandler.addTagValue( "trans_object_id", transObjectId == null ? null : transObjectId.toString() ) );
-    // Export a little bit of extra information regarding the reference since it doesn't really matter outside the same
-    // repository.
-    //
-    if ( rep != null && transObjectId != null ) {
-      try {
-        RepositoryObject objectInformation =
-          rep.getObjectInformation( transObjectId, RepositoryObjectType.TRANSFORMATION );
-        if ( objectInformation != null ) {
-          transname = objectInformation.getName();
-          directory = objectInformation.getRepositoryDirectory().getPath();
-        }
-      } catch ( HopException e ) {
-        // Ignore object reference problems. It simply means that the reference is no longer valid.
-      }
-    }
-
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "transname", transname ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
-    if ( directory != null ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
-    } else if ( directoryPath != null ) {
-      // don't loose this info (backup/recovery)
-      //
-      retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directoryPath ) );
-    }
     retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "exec_per_row", execPerRow ) );
@@ -362,46 +277,13 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
-  private void checkObjectLocationSpecificationMethod() {
-    if ( specificationMethod == null ) {
-      // Backward compatibility
-      //
-      // Default = Filename
-      //
-      specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-
-      if ( !Utils.isEmpty( filename ) ) {
-        specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-      } else if ( transObjectId != null ) {
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-      } else if ( !Utils.isEmpty( transname ) ) {
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-    }
-  }
-
   @Override
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-                       Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
 
-      String method = XMLHandler.getTagValue( entrynode, "specification_method" );
-      specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-
-      String transId = XMLHandler.getTagValue( entrynode, "trans_object_id" );
-      transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
-      transname = XMLHandler.getTagValue( entrynode, "transname" );
-      directory = XMLHandler.getTagValue( entrynode, "directory" );
-
-      if ( rep != null && rep.isConnected() && !Utils.isEmpty( transname ) ) {
-        specificationMethod = ObjectLocationSpecificationMethod.REPOSITORY_BY_NAME;
-      }
-
-      // Backward compatibility check for object specification
-      //
-      checkObjectLocationSpecificationMethod();
 
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       paramsFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "params_from_previous" ) );
@@ -463,140 +345,11 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     }
   }
 
-  // Load the jobentry from repository
-  //
-  @Override
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-                       List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      String method = rep.getJobEntryAttributeString( id_jobentry, "specification_method" );
-      specificationMethod = ObjectLocationSpecificationMethod.getSpecificationMethodByCode( method );
-      String transId = rep.getJobEntryAttributeString( id_jobentry, "trans_object_id" );
-      transObjectId = Utils.isEmpty( transId ) ? null : new StringObjectId( transId );
-      transname = rep.getJobEntryAttributeString( id_jobentry, "name" );
-      directory = rep.getJobEntryAttributeString( id_jobentry, "dir_path" );
-      filename = rep.getJobEntryAttributeString( id_jobentry, "file_name" );
-
-      // Backward compatibility check for object specification
-      //
-      checkObjectLocationSpecificationMethod();
-
-      argFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      paramsFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "params_from_previous" );
-      execPerRow = rep.getJobEntryAttributeBoolean( id_jobentry, "exec_per_row" );
-      clearResultRows = rep.getJobEntryAttributeBoolean( id_jobentry, "clear_rows", true );
-      clearResultFiles = rep.getJobEntryAttributeBoolean( id_jobentry, "clear_files", true );
-      setLogfile = rep.getJobEntryAttributeBoolean( id_jobentry, "set_logfile" );
-      addDate = rep.getJobEntryAttributeBoolean( id_jobentry, "add_date" );
-      addTime = rep.getJobEntryAttributeBoolean( id_jobentry, "add_time" );
-      logfile = rep.getJobEntryAttributeString( id_jobentry, "logfile" );
-      logext = rep.getJobEntryAttributeString( id_jobentry, "logext" );
-      logFileLevel = LogLevel.getLogLevelForCode( rep.getJobEntryAttributeString( id_jobentry, "loglevel" ) );
-      clustering = rep.getJobEntryAttributeBoolean( id_jobentry, "cluster" );
-      createParentFolder = rep.getJobEntryAttributeBoolean( id_jobentry, "create_parent_folder" );
-
-      remoteSlaveServerName = rep.getJobEntryAttributeString( id_jobentry, "slave_server_name" );
-      setAppendLogfile = rep.getJobEntryAttributeBoolean( id_jobentry, "set_append_logfile" );
-      waitingToFinish = rep.getJobEntryAttributeBoolean( id_jobentry, "wait_until_finished", true );
-      followingAbortRemotely = rep.getJobEntryAttributeBoolean( id_jobentry, "follow_abort_remote" );
-      loggingRemoteWork = rep.getJobEntryAttributeBoolean( id_jobentry, "logging_remote_work" );
-      runConfiguration = rep.getJobEntryAttributeString( id_jobentry, "run_configuration" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "argument" );
-      allocateArgs( argnr );
-
-      // Read all arguments...
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[ a ] = rep.getJobEntryAttributeString( id_jobentry, a, "argument" );
-      }
-
-      // How many arguments?
-      int parameternr = rep.countNrJobEntryAttributes( id_jobentry, "parameter_name" );
-      allocateParams( parameternr );
-
-      // Read all parameters ...
-      for ( int a = 0; a < parameternr; a++ ) {
-        parameters[ a ] = rep.getJobEntryAttributeString( id_jobentry, a, "parameter_name" );
-        parameterFieldNames[ a ] = rep.getJobEntryAttributeString( id_jobentry, a, "parameter_stream_name" );
-        parameterValues[ a ] = rep.getJobEntryAttributeString( id_jobentry, a, "parameter_value" );
-      }
-
-      passingAllParameters = rep.getJobEntryAttributeBoolean( id_jobentry, "pass_all_parameters", true );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( "Unable to load job entry of type 'trans' from the repository for id_jobentry="
-        + id_jobentry, dbe );
-    }
-  }
-
-  // Save the attributes of this job entry
-  //
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "specification_method", specificationMethod == null
-        ? null : specificationMethod.getCode() );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "trans_object_id", transObjectId == null
-        ? null : transObjectId.toString() );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "name", getTransname() );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "dir_path", getDirectory() != null ? getDirectory() : "" );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "file_name", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", argFromPrevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "params_from_previous", paramsFromPrevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "exec_per_row", execPerRow );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "clear_rows", clearResultRows );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "clear_files", clearResultFiles );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "set_logfile", setLogfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_date", addDate );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "add_time", addTime );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logfile", logfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logext", logext );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "loglevel", logFileLevel != null
-        ? logFileLevel.getCode() : null );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "cluster", clustering );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "slave_server_name", remoteSlaveServerName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "set_append_logfile", setAppendLogfile );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "wait_until_finished", waitingToFinish );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "follow_abort_remote", followingAbortRemotely );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "create_parent_folder", createParentFolder );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "logging_remote_work", loggingRemoteWork );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "run_configuration", runConfiguration );
-
-      // Save the arguments...
-      if ( arguments != null ) {
-        for ( int i = 0; i < arguments.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "argument", arguments[ i ] );
-        }
-      }
-
-      // Save the parameters...
-      if ( parameters != null ) {
-        for ( int i = 0; i < parameters.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "parameter_name", parameters[ i ] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "parameter_stream_name", Const.NVL(
-            parameterFieldNames[ i ], "" ) );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "parameter_value", Const.NVL(
-            parameterValues[ i ], "" ) );
-        }
-      }
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "pass_all_parameters", passingAllParameters );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'trans' to the repository for id_job=" + id_job, dbe );
-    }
-  }
-
   @Override
   public void clear() {
     super.clear();
 
-    specificationMethod = ObjectLocationSpecificationMethod.FILENAME;
-    transname = null;
     filename = null;
-    directory = null;
     arguments = null;
     argFromPrevious = false;
     execPerRow = false;
@@ -630,12 +383,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     LogChannelFileWriter logChannelFileWriter = null;
 
     LogLevel transLogLevel = parentJob.getLogLevel();
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     String realLogFilename = "";
     if ( setLogfile ) {
@@ -672,30 +419,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
       }
     }
 
-    // Open the transformation...
-    //
-    switch ( specificationMethod ) {
-      case FILENAME:
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "JobTrans.Log.OpeningTrans", environmentSubstitute( getFilename() ) ) );
-        }
-        break;
-      case REPOSITORY_BY_NAME:
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "JobTrans.Log.OpeningTransInDirec", environmentSubstitute( getFilename() ),
-            environmentSubstitute( directory ) ) );
-        }
-        break;
-      case REPOSITORY_BY_REFERENCE:
-        if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "JobTrans.Log.OpeningTransByReference", transObjectId ) );
-        }
-        break;
-      default:
-        break;
-    }
+    logDetailed( BaseMessages.getString( PKG, "JobTrans.Log.OpeningTrans", environmentSubstitute( getFilename() ) ) );
 
     // Load the transformation only once for the complete loop!
     // Throws an exception if it was not possible to load the transformation. For example, the XML file doesn't exist or
@@ -704,7 +428,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     //
     TransMeta transMeta = null;
     try {
-      transMeta = getTransMeta( rep, metaStore, this );
+      transMeta = getTransMeta( metaStore, this );
     } catch ( HopException e ) {
       logError( BaseMessages.getString( PKG, "JobTrans.Exception.UnableToRunJob", parentJobMeta.getName(),
         getName(), StringUtils.trim( e.getMessage() ) ), e );
@@ -901,17 +625,16 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           executionConfiguration.setRunConfiguration( runConfiguration );
           try {
             ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {
-              executionConfiguration, parentJob.getJobMeta(), transMeta, rep
-            } );
+              executionConfiguration, parentJob.getJobMeta(), transMeta } );
             List<Object> items = Arrays.asList( runConfiguration, false );
             try {
               ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint
-                      .RunConfigurationSelection.id, items );
+                .RunConfigurationSelection.id, items );
               if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
                 String jobName = parentJob.getJobMeta().getName();
                 String name = transMeta.getName();
                 logBasic( BaseMessages.getString( PKG, "JobTrans.Log.InvalidRunConfigurationCombination", jobName,
-                        name, jobName ) );
+                  name, jobName ) );
               }
             } catch ( Exception ignored ) {
               // Ignored
@@ -953,7 +676,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           executionConfiguration.setClusterStarting( true );
           executionConfiguration.setClusterShowingTransformation( false );
           executionConfiguration.setSafeModeEnabled( false );
-          executionConfiguration.setRepository( rep );
           executionConfiguration.setLogLevel( transLogLevel );
           executionConfiguration.setPreviousResult( previousResult );
 
@@ -1033,7 +755,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           executionConfiguration.setVariables( this );
           executionConfiguration.setRemoteServer( remoteSlaveServer );
           executionConfiguration.setLogLevel( transLogLevel );
-          executionConfiguration.setRepository( rep );
           executionConfiguration.setLogFileName( realLogFilename );
           executionConfiguration.setSetAppendLogfile( setAppendLogfile );
           executionConfiguration.setSetLogfile( setLogfile );
@@ -1053,7 +774,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           // Send the XML over to the slave server
           // Also start the transformation over there...
           //
-          String carteObjectId = Trans.sendToSlaveServer( transMeta, executionConfiguration, rep, metaStore );
+          String carteObjectId = Trans.sendToSlaveServer( transMeta, executionConfiguration, metaStore );
 
           // Now start the monitoring...
           //
@@ -1142,10 +863,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           trans.setLogLevel( transLogLevel );
           trans.setPreviousResult( previousResult );
           trans.setArguments( arguments );
-
-          // Mappings need the repository to load from
-          //
-          trans.setRepository( rep );
 
           // inject the metaStore
           trans.setMetaStore( metaStore );
@@ -1257,90 +974,15 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     result.setRows( newResult.getRows() );
   }
 
-  /**
-   * @deprecated use {@link #getTransMeta(Repository, IMetaStore, VariableSpace)}
-   * @param rep
-   * @param space
-   * @return
-   * @throws HopException
-   */
-  @Deprecated
-  public TransMeta getTransMeta( Repository rep, VariableSpace space ) throws HopException {
-    return getTransMeta( rep, null, space );
-  }
-
-  private TransMeta getTransMetaFromRepository( Repository rep, CurrentDirectoryResolver r, String transPath ) throws HopException {
-    String realTransName = "";
-    String realDirectory = "/";
-
-    if ( StringUtils.isBlank( transPath ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobTrans.Exception.MissingTransFileName" ) );
-    }
-
-    int index = transPath.lastIndexOf( '/' );
-    if ( index != -1 ) {
-      realTransName = transPath.substring( index + 1 );
-      realDirectory = index == 0 ? "/" : transPath.substring( 0, index );
-    }
-    realDirectory = r.normalizeSlashes( realDirectory );
-    RepositoryDirectoryInterface repositoryDirectory = rep.loadRepositoryDirectoryTree().findDirectory( realDirectory );
-    if ( repositoryDirectory == null ) {
-      throw new HopException( "Unable to find repository directory [" + Const.NVL( realDirectory, "" ) + "]" );
-    }
-    return rep.loadTransformation( realTransName, repositoryDirectory, null, true, null );
-  }
-
-  public TransMeta getTransMeta( Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public TransMeta getTransMeta( IMetaStore metaStore, VariableSpace space ) throws HopException {
     try {
       TransMeta transMeta = null;
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-      VariableSpace tmpSpace = r.resolveCurrentDirectory(
-          specificationMethod, space, rep, parentJob, getFilename() );
-      switch ( specificationMethod ) {
-        case FILENAME:
-          String realFilename = tmpSpace.environmentSubstitute( getFilename() );
+      VariableSpace tmpSpace = r.resolveCurrentDirectory( space, parentJob, getFilename() );
 
-          try {
-            transMeta = new TransMeta( realFilename, metaStore, null, true, null, null );
-          } catch ( HopException e ) {
-            // try to load from repository, this trans may have been developed locally and later uploaded to the
-            // repository
-            transMeta = rep == null ? new TransMeta( realFilename, metaStore, null, true, this, null ) : getTransMetaFromRepository( rep, r, realFilename );
-          }
-          break;
-        case REPOSITORY_BY_NAME:
-          String realDirectory = tmpSpace.environmentSubstitute( getDirectory() != null ? getDirectory() : "" );
-          String realTransName = tmpSpace.environmentSubstitute( getTransname() );
+      String realFilename = tmpSpace.environmentSubstitute( getFilename() );
 
-          String transPath = StringUtil.trimEnd( realDirectory, '/' ) + "/" + StringUtil
-                  .trimStart( realTransName, '/' );
-
-          if ( transPath.startsWith( "file://" ) || transPath.startsWith( "zip:file://" ) || transPath.startsWith(
-                  "hdfs://" ) ) {
-            if ( !transPath.endsWith( RepositoryObjectType.TRANSFORMATION.getExtension() ) ) {
-              transPath = transPath + RepositoryObjectType.TRANSFORMATION.getExtension();
-            }
-            transMeta = new TransMeta( transPath, metaStore, null, true, this, null );
-          } else {
-            transMeta = rep == null ? new TransMeta( transPath, metaStore, null, true, this, null ) : getTransMetaFromRepository( rep, r, transPath );
-          }
-          break;
-        case REPOSITORY_BY_REFERENCE:
-          if ( transObjectId == null ) {
-            throw new HopException( BaseMessages.getString( PKG,
-              "JobTrans.Exception.ReferencedTransformationIdIsNull" ) );
-          }
-
-          if ( rep != null ) {
-            // Load the last revision
-            //
-            transMeta = rep.loadTransformation( transObjectId, null );
-          }
-          break;
-        default:
-          throw new HopException( "The specified object location specification method '"
-            + specificationMethod + "' is not yet supported in this job entry." );
-      }
+      transMeta = new TransMeta( realFilename, metaStore, true, this );
 
       if ( transMeta != null ) {
         // set Internal.Entry.Current.Directory again because it was changed
@@ -1356,7 +998,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
         }
         // Pass repository and metastore references
         //
-        transMeta.setRepository( rep );
         transMeta.setMetaStore( metaStore );
       }
 
@@ -1380,9 +1021,9 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public List<SQLStatement> getSQLStatements( Repository repository, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
     this.copyVariablesFrom( space );
-    TransMeta transMeta = getTransMeta( repository, metaStore, this );
+    TransMeta transMeta = getTransMeta( metaStore, this );
 
     return transMeta.getSQLStatements();
   }
@@ -1417,19 +1058,19 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-                     Repository repository, IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     if ( setLogfile ) {
       JobEntryValidatorUtils.andValidator().validate( this, "logfile", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
     if ( !Utils.isEmpty( filename ) ) {
       JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     } else {
       JobEntryValidatorUtils.andValidator().validate( this, "transname", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
       JobEntryValidatorUtils.andValidator().validate( this, "directory", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
     }
   }
 
@@ -1459,14 +1100,13 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
    * @param space           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param repository      The repository to load resources from
    * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-                                 ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     // Try to load the transformation from repository or file.
     // Modify this recursively too...
     //
@@ -1475,12 +1115,12 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     // First load the transformation metadata...
     //
     copyVariablesFrom( space );
-    TransMeta transMeta = getTransMeta( repository, space );
+    TransMeta transMeta = getTransMeta( metaStore, space );
 
     // Also go down into the transformation and export the files there. (mapping recursively down)
     //
     String proposedNewFilename =
-      transMeta.exportResources( transMeta, definitions, namingInterface, repository, metaStore );
+      transMeta.exportResources( transMeta, definitions, namingInterface, metaStore );
 
     // To get a relative path to it, we inject ${Internal.Entry.Current.Directory}
     //
@@ -1489,14 +1129,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     // Set the correct filename inside the XML.
     //
     transMeta.setFilename( newFilename );
-
-    // exports always reside in the root directory, in case we want to turn this into a file repository...
-    //
-    transMeta.setRepositoryDirectory( new RepositoryDirectory() );
-
-    // export to filename ALWAYS (this allows the exported XML to be executed remotely)
-    //
-    setSpecificationMethod( ObjectLocationSpecificationMethod.FILENAME );
 
     // change it in the job entry
     //
@@ -1586,58 +1218,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   /**
-   * @return the transObjectId
-   */
-  public ObjectId getTransObjectId() {
-    return transObjectId;
-  }
-
-  /**
-   * @param transObjectId the transObjectId to set
-   */
-  public void setTransObjectId( ObjectId transObjectId ) {
-    this.transObjectId = transObjectId;
-  }
-
-  /**
-   * @return the specificationMethod
-   */
-  public ObjectLocationSpecificationMethod getSpecificationMethod() {
-    return specificationMethod;
-  }
-
-  @Override
-  public ObjectLocationSpecificationMethod[] getSpecificationMethods() {
-    return new ObjectLocationSpecificationMethod[] { specificationMethod };
-  }
-
-  /**
-   * @param specificationMethod the specificationMethod to set
-   */
-  public void setSpecificationMethod( ObjectLocationSpecificationMethod specificationMethod ) {
-    this.specificationMethod = specificationMethod;
-  }
-
-  @Override
-  public boolean hasRepositoryReferences() {
-    return specificationMethod == ObjectLocationSpecificationMethod.REPOSITORY_BY_REFERENCE;
-  }
-
-  /**
-   * Look up the references after import
-   *
-   * @param repository the repository to reference.
-   */
-  @Override
-  public void lookupRepositoryReferences( Repository repository ) throws HopException {
-    // The correct reference is stored in the trans name and directory attributes...
-    //
-    RepositoryDirectoryInterface repositoryDirectoryInterface =
-      RepositoryImportLocation.getRepositoryImportLocation().findDirectory( directory );
-    transObjectId = repository.getTransformationID( transname, repositoryDirectoryInterface );
-  }
-
-  /**
    * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
    */
   @Override
@@ -1646,8 +1226,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   private boolean isTransformationDefined() {
-    return !Utils.isEmpty( filename )
-      || transObjectId != null || ( !Utils.isEmpty( this.directory ) && !Utils.isEmpty( transname ) );
+    return StringUtils.isNotEmpty( filename );
   }
 
   @Override
@@ -1659,31 +1238,27 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param rep       the repository
    * @param metaStore metaStore
    * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public Object loadReferencedObject( int index, Repository rep, IMetaStore metaStore, VariableSpace space ) throws HopException {
-    return getTransMeta( rep, metaStore, space );
+  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+    return getTransMeta( metaStore, space );
   }
 
   @Override
   public void setParentJobMeta( JobMeta parentJobMeta ) {
     JobMeta previous = getParentJobMeta();
     super.setParentJobMeta( parentJobMeta );
-    if ( parentJobMeta !=  null ) {
-      parentJobMeta.addCurrentDirectoryChangedListener( currentDirListener );
+    if ( parentJobMeta != null ) {
       variables.setParentVariableSpace( parentJobMeta );
-    } else if ( previous != null ) {
-      previous.removeCurrentDirectoryChangedListener( currentDirListener );
     }
   }
 
   public void prepareFieldNamesParameters( String[] parameters, String[] parameterFieldNames, String[] parameterValues,
-                                                    NamedParams namedParam, JobEntryTrans jobEntryTrans )
+                                           NamedParams namedParam, JobEntryTrans jobEntryTrans )
     throws UnknownParamException {
     for ( int idx = 0; idx < parameters.length; idx++ ) {
       // Grab the parameter value set in the Trans job entry

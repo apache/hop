@@ -56,8 +56,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -119,9 +118,6 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
         retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
         retval.append( "          " ).append( XMLHandler.addTagValue( "filemask", filemasks[i] ) );
         retval.append( "        </field>" ).append( Const.CR );
-        if ( parentJobMeta != null ) {
-          parentJobMeta.getNamedClusterEmbedManager().registerUrl( arguments[ i ] );
-        }
       }
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -129,10 +125,10 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       includeSubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
       deleteallbefore = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "delete_all_before" ) );
@@ -154,49 +150,6 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
     } catch ( HopXMLException xe ) {
       throw new HopXMLException(
         BaseMessages.getString( PKG, "JobEntryAddResultFilenames.UnableToLoadFromXml" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      argFromPrevious = rep.getJobEntryAttributeBoolean( id_jobentry, "arg_from_previous" );
-      includeSubfolders = rep.getJobEntryAttributeBoolean( id_jobentry, "include_subfolders" );
-
-      deleteallbefore = rep.getJobEntryAttributeBoolean( id_jobentry, "delete_all_before" );
-
-      // How many arguments?
-      int argnr = rep.countNrJobEntryAttributes( id_jobentry, "name" );
-      arguments = new String[argnr];
-      filemasks = new String[argnr];
-
-      // Read them all...
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[a] = rep.getJobEntryAttributeString( id_jobentry, a, "name" );
-        filemasks[a] = rep.getJobEntryAttributeString( id_jobentry, a, "filemask" );
-      }
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryAddResultFilenames.UnableToLoadFromRepo", String.valueOf( id_jobentry ) ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "arg_from_previous", argFromPrevious );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "include_subfolders", includeSubfolders );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "delete_all_before", deleteallbefore );
-
-      // save the arguments...
-      if ( arguments != null ) {
-        for ( int i = 0; i < arguments.length; i++ ) {
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "name", arguments[i] );
-          rep.saveJobEntryAttribute( id_job, getObjectId(), i, "filemask", filemasks[i] );
-        }
-      }
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryAddResultFilenames.UnableToSaveToRepo", String.valueOf( id_job ) ), dbe );
     }
   }
 
@@ -277,10 +230,6 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
     String realwildcard = environmentSubstitute( wildcard );
 
     try {
-      if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-        parentJobMeta.getNamedClusterEmbedManager()
-          .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-      }
       filefolder = HopVFS.getFileObject( realFilefoldername, this );
       if ( filefolder.exists() ) {
         // the file or folder exists
@@ -441,7 +390,7 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 

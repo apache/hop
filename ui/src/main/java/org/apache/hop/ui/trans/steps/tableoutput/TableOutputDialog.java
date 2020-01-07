@@ -28,9 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusListener;
@@ -76,7 +78,6 @@ import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.tableoutput.TableOutputMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -102,7 +103,7 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
   private CTabItem wMainTab, wFieldsTab;
   private FormData fdMainComp, fdFieldsComp;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;
@@ -263,16 +264,8 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
-    if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
-      wConnection.select( 0 );
-    }
-    wConnection.addModifyListener( lsMod );
-    wConnection.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent event ) {
-        setFlags();
-      }
-    } );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
+    wConnection.addModifyListener( e->setFlags() );
     wConnection.addSelectionListener( lsSelection );
 
     // Schema line...
@@ -1384,16 +1377,17 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
   }
 
   private void getTableName() {
-    // New class: SelectTableDialog
-    int connr = wConnection.getSelectionIndex();
-    if ( connr >= 0 ) {
-      DatabaseMeta inf = transMeta.getDatabase( connr );
-
-      if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "TableOutputDialog.Log.LookingAtConnection", inf.toString() ) );
+    String connectionName = wConnection.getText();
+    if ( StringUtils.isEmpty(connectionName)) {
+      return;
+    }
+    DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
+    if (databaseMeta!=null) {
+    if ( log.isDebug() ) {
+        logDebug( BaseMessages.getString( PKG, "TableOutputDialog.Log.LookingAtConnection", databaseMeta.toString() ) );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, transMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, transMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );

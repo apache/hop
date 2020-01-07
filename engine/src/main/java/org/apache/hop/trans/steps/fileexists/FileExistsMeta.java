@@ -38,8 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -136,8 +135,8 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
     this.includefiletype = includefiletype;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -154,7 +153,7 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v =
@@ -182,7 +181,7 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       filenamefield = XMLHandler.getTagValue( stepnode, "filenamefield" );
       resultfieldname = XMLHandler.getTagValue( stepnode, "resultfieldname" );
@@ -195,35 +194,9 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      filenamefield = rep.getStepAttributeString( id_step, "filenamefield" );
-      resultfieldname = rep.getStepAttributeString( id_step, "resultfieldname" );
-      includefiletype = rep.getStepAttributeBoolean( id_step, "includefiletype" );
-      filetypefieldname = rep.getStepAttributeString( id_step, "filetypefieldname" );
-      addresultfilenames = rep.getStepAttributeBoolean( id_step, "addresultfilenames" );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FileExistsMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "filenamefield", filenamefield );
-      rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultfieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "includefiletype", includefiletype );
-      rep.saveStepAttribute( id_transformation, id_step, "filetypefieldname", filetypefieldname );
-      rep.saveStepAttribute( id_transformation, id_step, "addresultfilenames", addresultfilenames );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "FileExistsMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 

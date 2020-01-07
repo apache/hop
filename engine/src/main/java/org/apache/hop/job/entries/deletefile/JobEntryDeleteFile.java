@@ -49,8 +49,7 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -91,43 +90,19 @@ public class JobEntryDeleteFile extends JobEntryBase implements Cloneable, JobEn
     retval.append( super.getXML() );
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "fail_if_file_not_exists", failIfFileNotExists ) );
-    if ( parentJobMeta != null ) {
-      parentJobMeta.getNamedClusterEmbedManager().registerUrl( filename );
-    }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       failIfFileNotExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_if_file_not_exists" ) );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
         PKG, "JobEntryDeleteFile.Error_0001_Unable_To_Load_Job_From_Xml_Node" ), xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      filename = rep.getJobEntryAttributeString( id_jobentry, "filename" );
-      failIfFileNotExists = rep.getJobEntryAttributeBoolean( id_jobentry, "fail_if_file_not_exists" );
-    } catch ( HopException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryDeleteFile.ERROR_0002_Unable_To_Load_From_Repository", id_jobentry ), dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "filename", filename );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "fail_if_file_not_exists", failIfFileNotExists );
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "JobEntryDeleteFile.ERROR_0003_Unable_To_Save_Job_To_Repository", id_job ), dbe );
     }
   }
 
@@ -146,12 +121,6 @@ public class JobEntryDeleteFile extends JobEntryBase implements Cloneable, JobEn
   public Result execute( Result previousResult, int nr ) {
     Result result = previousResult;
     result.setResult( false );
-
-    //Set Embedded NamedCluter MetatStore Provider Key so that it can be passed to VFS
-    if ( parentJobMeta.getNamedClusterEmbedManager() != null ) {
-      parentJobMeta.getNamedClusterEmbedManager()
-        .passEmbeddedMetastoreKey( this, parentJobMeta.getEmbeddedMetastoreProviderKey() );
-    }
 
     if ( filename != null ) {
       String realFilename = getRealFilename();
@@ -230,7 +199,7 @@ public class JobEntryDeleteFile extends JobEntryBase implements Cloneable, JobEn
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileExistsValidator() );
@@ -239,11 +208,4 @@ public class JobEntryDeleteFile extends JobEntryBase implements Cloneable, JobEn
     }
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks, ctx );
   }
-
-  public static void main( String[] args ) {
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    new JobEntryDeleteFile().check( remarks, null, new Variables(), null, null );
-    System.out.printf( "Remarks: %s\n", remarks );
-  }
-
 }

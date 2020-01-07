@@ -42,8 +42,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -246,10 +245,10 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
-    Repository rep, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+    IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, databases, slaveServers );
+      super.loadXML( entrynode, slaveServers );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       responseTimeOut = XMLHandler.getTagValue( entrynode, "responseTimeOut" );
@@ -265,51 +264,6 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
 
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'SendNagiosPassiveCheck' from XML node", xe );
-    }
-  }
-
-  public void loadRep( Repository rep, IMetaStore metaStore, ObjectId id_jobentry, List<DatabaseMeta> databases,
-    List<SlaveServer> slaveServers ) throws HopException {
-    try {
-      port = rep.getJobEntryAttributeString( id_jobentry, "port" );
-      serverName = rep.getJobEntryAttributeString( id_jobentry, "servername" );
-      password = rep.getJobEntryAttributeString( id_jobentry, "password" );
-      responseTimeOut = rep.getJobEntryAttributeString( id_jobentry, "responseTimeOut" );
-      connectionTimeOut = rep.getJobEntryAttributeString( id_jobentry, "connectionTimeOut" );
-
-      senderServerName = rep.getJobEntryAttributeString( id_jobentry, "senderServerName" );
-      senderServiceName = rep.getJobEntryAttributeString( id_jobentry, "senderServiceName" );
-
-      message = rep.getJobEntryAttributeString( id_jobentry, "message" );
-
-      encryptionMode = getEncryptionModeByCode( rep.getJobEntryAttributeString( id_jobentry, "encryptionMode" ) );
-      level = getLevelByCode( rep.getJobEntryAttributeString( id_jobentry, "level" ) );
-
-    } catch ( HopException dbe ) {
-      throw new HopException(
-        "Unable to load job entry of type 'SendNagiosPassiveCheck' from the repository for id_jobentry="
-          + id_jobentry, dbe );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_job ) throws HopException {
-    try {
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "port", port );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "servername", serverName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "password", password );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "responseTimeOut", responseTimeOut );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "connectionTimeOut", connectionTimeOut );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "senderServerName", senderServerName );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "senderServiceName", senderServiceName );
-
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "message", message );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "encryptionMode", getEncryptionModeCode( encryptionMode ) );
-      rep.saveJobEntryAttribute( id_job, getObjectId(), "level", getLevelCode( level ) );
-
-    } catch ( HopDatabaseException dbe ) {
-      throw new HopException(
-        "Unable to save job entry of type 'SendNagiosPassiveCheck' to the repository for id_job=" + id_job, dbe );
     }
   }
 
@@ -565,7 +519,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
         AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

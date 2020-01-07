@@ -22,7 +22,7 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.repository.ObjectId;
+
 
 /**
  *
@@ -40,11 +40,6 @@ public interface CheckResultSourceInterface {
    * @return The description of the source generating the CheckResult
    */
   public String getDescription();
-
-  /**
-   * @return The ID of the source generating the CheckResult
-   */
-  public ObjectId getObjectId();
 
   /**
    * @return The Type ID of the source generating the CheckResult. The Type ID is the system-defined type identifier

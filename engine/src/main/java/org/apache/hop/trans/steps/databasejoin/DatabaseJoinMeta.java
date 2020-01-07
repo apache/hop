@@ -42,8 +42,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -193,12 +192,12 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     parameterField = null;
     parameterType = null;
     outerJoin = false;
     replacevars = false;
-    readData( stepnode, databases );
+    readData( stepnode, metaStore );
   }
 
   public void allocate( int nrparam ) {
@@ -220,10 +219,10 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
     return retval;
   }
 
-  private void readData( Node stepnode, List<DatabaseMeta> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
-      databaseMeta = DatabaseMeta.findDatabase( databases, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
       sql = XMLHandler.getTagValue( stepnode, "sql" );
       outerJoin = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "outer_join" ) );
       replacevars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "replace_vars" ) );
@@ -283,7 +282,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( databaseMeta == null ) {
       return;
@@ -359,58 +358,9 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   @Override
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      databaseMeta = rep.loadDatabaseMetaFromStepAttribute( id_step, "id_connection", databases );
-      rowLimit = (int) rep.getStepAttributeInteger( id_step, "rowlimit" );
-      sql = rep.getStepAttributeString( id_step, "sql" );
-      outerJoin = rep.getStepAttributeBoolean( id_step, "outer_join" );
-      replacevars = rep.getStepAttributeBoolean( id_step, "replace_vars" );
-
-      int nrparam = rep.countNrStepAttributes( id_step, "parameter_field" );
-
-      allocate( nrparam );
-
-      for ( int i = 0; i < nrparam; i++ ) {
-        parameterField[i] = rep.getStepAttributeString( id_step, i, "parameter_field" );
-        String stype = rep.getStepAttributeString( id_step, i, "parameter_type" );
-        parameterType[i] = ValueMetaFactory.getIdForValueMeta( stype );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "DatabaseJoinMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  @Override
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveDatabaseMetaStepAttribute( id_transformation, id_step, "id_connection", databaseMeta );
-      rep.saveStepAttribute( id_transformation, id_step, "rowlimit", rowLimit );
-      rep.saveStepAttribute( id_transformation, id_step, "sql", sql );
-      rep.saveStepAttribute( id_transformation, id_step, "outer_join", outerJoin );
-      rep.saveStepAttribute( id_transformation, id_step, "replace_vars", replacevars );
-
-      for ( int i = 0; i < parameterField.length; i++ ) {
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_field", parameterField[i] );
-        rep.saveStepAttribute( id_transformation, id_step, i, "parameter_type", ValueMetaFactory
-            .getValueMetaName( parameterType[i] ) );
-      }
-
-      // Also, save the step-database relationship!
-      if ( databaseMeta != null ) {
-        rep.insertStepDatabase( id_transformation, id_step, databaseMeta.getObjectId() );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "DatabaseJoinMeta.Exception.UnableToSaveStepInfo" )
-        + id_step, e );
-    }
-  }
-
-  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -569,13 +519,13 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, Repository repository,
+    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
     IMetaStore metaStore ) throws HopStepException {
 
     // Find the lookupfields...
     //
     RowMetaInterface out = prev.clone();
-    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info, }, null, transMeta, repository, metaStore );
+    getFields( out, stepMeta.getName(), new RowMetaInterface[] { info, }, null, transMeta, metaStore );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

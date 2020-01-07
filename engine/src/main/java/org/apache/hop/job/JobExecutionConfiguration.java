@@ -44,15 +44,11 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.RepositoryPluginType;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.repository.RepositoriesMeta;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
@@ -83,8 +79,6 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   private boolean clearingLog;
 
   private Result previousResult;
-
-  private Repository repository;
 
   private boolean passingExport;
 
@@ -414,20 +408,6 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
       xml.append( previousResult.getXML() );
     }
 
-    // Send the repository name and user to the remote site...
-    //
-    if ( repository != null ) {
-      xml.append( XMLHandler.openTag( "repository" ) );
-      xml.append( XMLHandler.addTagValue( "name", repository.getName() ) );
-      // File base repositories doesn't have user info
-      if ( repository.getUserInfo() != null ) {
-        xml.append( XMLHandler.addTagValue( "login", repository.getUserInfo().getLogin() ) );
-        xml.append( XMLHandler.addTagValue( "password", Encr.encryptPassword( repository
-          .getUserInfo().getPassword() ) ) );
-      }
-      xml.append( XMLHandler.closeTag( "repository" ) );
-    }
-
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
     return xml.toString();
   }
@@ -507,52 +487,6 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
         throw new HopException( "Unable to hydrate previous result", e );
       }
     }
-
-    // Try to get a handle to the repository from here...
-    //
-    Node repNode = XMLHandler.getSubNode( trecNode, "repository" );
-    if ( repNode != null ) {
-      String repositoryName = XMLHandler.getTagValue( repNode, "name" );
-      String username = XMLHandler.getTagValue( repNode, "login" );
-      String password = Encr.decryptPassword( XMLHandler.getTagValue( repNode, "password" ) );
-      connectRepository( repositoryName, username, password );
-    }
-
-  }
-
-  public Repository connectRepository( String repositoryName, String username, String password ) throws HopException {
-    // Verify that the repository exists on the slave server...
-    //
-    RepositoriesMeta repositoriesMeta = new RepositoriesMeta();
-    repositoriesMeta.getLog().setLogLevel( log.getLogLevel() );
-    try {
-      repositoriesMeta.readData();
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to get a list of repositories to locate repository '" + repositoryName + "'" );
-    }
-    return connectRepository( repositoriesMeta, repositoryName, username, password );
-  }
-
-  public Repository connectRepository( RepositoriesMeta repositoriesMeta, String repositoryName, String username, String password ) throws HopException {
-    RepositoryMeta repositoryMeta = repositoriesMeta.findRepository( repositoryName );
-    if ( repositoryMeta == null ) {
-      log.logBasic( "I couldn't find the repository with name '" + repositoryName + "'" );
-      return null;
-    }
-
-    Repository rep = PluginRegistry.getInstance().loadClass( RepositoryPluginType.class, repositoryMeta,
-        Repository.class );
-    rep.init( repositoryMeta );
-
-    try {
-      rep.connect( username, password );
-      log.logBasic( "Connected to " + repositoryName + " as " + username );
-      setRepository( rep );
-      return rep;
-    } catch ( Exception e ) {
-      log.logBasic( "Unable to connect to the repository with name '" + repositoryName + "'" );
-      return null;
-    }
   }
 
   public String[] getArgumentStrings() {
@@ -584,21 +518,6 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
    */
   public void setPreviousResult( Result previousResult ) {
     this.previousResult = previousResult;
-  }
-
-  /**
-   * @return the repository
-   */
-  public Repository getRepository() {
-    return repository;
-  }
-
-  /**
-   * @param repository
-   *          the repository to set
-   */
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   /**
@@ -706,7 +625,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
       if ( jobEntryCopy.isTransformation() ) {
         JobEntryTrans jobEntryTrans = (JobEntryTrans) jobEntryCopy.getEntry();
         try {
-          TransMeta transMeta = jobEntryTrans.getTransMeta( repository, metaStore, jobMeta );
+          TransMeta transMeta = jobEntryTrans.getTransMeta( metaStore, jobMeta );
           Map<String, String> map = transMeta.getUsedArguments( commandLineArguments );
           for ( String key : map.keySet() ) {
             String value = map.get( key );

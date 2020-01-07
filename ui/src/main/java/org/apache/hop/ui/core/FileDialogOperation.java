@@ -15,9 +15,6 @@
 
 package org.apache.hop.ui.core;
 
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.RepositoryObjectInterface;
-
 /**
  * Created by bmorrise on 8/17/17.
  */
@@ -31,11 +28,9 @@ public class FileDialogOperation {
   public static String TRANSFORMATION = "transformation";
   public static String JOB = "job";
 
-  private Repository repository;
   private String command;
   private String filter;
   private String origin;
-  private RepositoryObjectInterface repositoryObject;
   private String startDir;
   private String title;
   private String filename;
@@ -74,28 +69,12 @@ public class FileDialogOperation {
     this.origin = origin;
   }
 
-  public RepositoryObjectInterface getRepositoryObject() {
-    return repositoryObject;
-  }
-
-  public void setRepositoryObject( RepositoryObjectInterface repositoryObject ) {
-    this.repositoryObject = repositoryObject;
-  }
-
   public String getStartDir() {
     return startDir;
   }
 
   public void setStartDir( String startDir ) {
     this.startDir = startDir;
-  }
-
-  public Repository getRepository() {
-    return repository;
-  }
-
-  public void setRepository( Repository repository ) {
-    this.repository = repository;
   }
 
   public String getTitle() {

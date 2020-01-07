@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.repository.Repository;
 import org.apache.hop.metastore.api.IMetaStore;
 
 /**
@@ -48,8 +47,6 @@ public interface ResourceExportInterface {
    *          The map containing the filenames and content
    * @param namingInterface
    *          The resource naming interface allows the object to name appropriately
-   * @param repository
-   *          the repository object to load from
    * @param metaStore
    *          the central metastore to load non-kettle specific metadata from
    *
@@ -58,5 +55,5 @@ public interface ResourceExportInterface {
    *           in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, Repository repository, IMetaStore metaStore ) throws HopException;
+    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 }

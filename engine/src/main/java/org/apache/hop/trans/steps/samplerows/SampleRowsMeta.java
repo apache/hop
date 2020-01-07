@@ -37,8 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
+
 import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -66,8 +65,8 @@ public class SampleRowsMeta extends BaseStepMeta implements StepMetaInterface {
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, databases );
+  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+    readData( stepnode, metaStore );
   }
 
   public Object clone() {
@@ -76,7 +75,7 @@ public class SampleRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, Repository repository, IMetaStore metaStore ) throws HopStepException {
+    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !Utils.isEmpty( linenumfield ) ) {
 
       ValueMetaInterface v = new ValueMetaInteger( space.environmentSubstitute( linenumfield ) );
@@ -86,7 +85,7 @@ public class SampleRowsMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  private void readData( Node stepnode, List<? extends SharedObjectInterface> databases ) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       linesrange = XMLHandler.getTagValue( stepnode, "linesrange" );
       linenumfield = XMLHandler.getTagValue( stepnode, "linenumfield" );
@@ -117,28 +116,6 @@ public class SampleRowsMeta extends BaseStepMeta implements StepMetaInterface {
     linenumfield = null;
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases ) throws HopException {
-    try {
-      linesrange = rep.getStepAttributeString( id_step, "linesrange" );
-      linenumfield = rep.getStepAttributeString( id_step, "linenumfield" );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SampleRowsMeta.Exception.UnexpectedErrorReadingStepInfo" ), e );
-    }
-  }
-
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step ) throws HopException {
-    try {
-      rep.saveStepAttribute( id_transformation, id_step, "linesrange", linesrange );
-      rep.saveStepAttribute( id_transformation, id_step, "linenumfield", linenumfield );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "SampleRowsMeta.Exception.UnexpectedErrorSavingStepInfo" ), e );
-    }
-  }
-
   public String getXML() {
     StringBuilder retval = new StringBuilder();
     retval.append( "    " + XMLHandler.addTagValue( "linesrange", linesrange ) );
@@ -149,7 +126,7 @@ public class SampleRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    Repository repository, IMetaStore metaStore ) {
+    IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( Utils.isEmpty( linesrange ) ) {

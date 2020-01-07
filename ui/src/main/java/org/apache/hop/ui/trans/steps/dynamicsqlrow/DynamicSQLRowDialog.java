@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.trans.steps.dynamicsqlrow;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -69,7 +71,7 @@ public class DynamicSQLRowDialog extends BaseStepDialog implements StepDialogInt
 
   private boolean gotPreviousFields = false;
 
-  private CCombo wConnection;
+  private MetaSelectionManager<DatabaseMeta> wConnection;
 
   private Label wlSQL;
   private StyledTextComp wSQL;
@@ -150,7 +152,7 @@ public class DynamicSQLRowDialog extends BaseStepDialog implements StepDialogInt
     wStepname.setLayoutData( fdStepname );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wStepname, middle, margin );
+    wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
     if ( input.getDatabaseMeta() == null && transMeta.nrDatabases() == 1 ) {
       wConnection.select( 0 );
     }
@@ -436,8 +438,6 @@ public class DynamicSQLRowDialog extends BaseStepDialog implements StepDialogInt
     wqueryOnlyOnChange.setSelection( input.isQueryOnlyOnChange() );
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
-    } else if ( transMeta.nrDatabases() == 1 ) {
-      wConnection.setText( transMeta.getDatabase( 0 ).getName() );
     }
 
     wStepname.selectAll();

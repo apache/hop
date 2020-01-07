@@ -23,6 +23,7 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.HasDatabasesInterface;
 
 public interface LogTablePluginInterface extends LogTableInterface {
@@ -35,7 +36,7 @@ public interface LogTablePluginInterface extends LogTableInterface {
 
   public String getLogTablePluginUIClassname();
 
-  public void setContext( VariableSpace space, HasDatabasesInterface jobMeta );
+  public void setContext( VariableSpace space, IMetaStore metaStore );
 
   // Otherwise identical to the log table interface.
 

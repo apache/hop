@@ -40,12 +40,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.repository.ObjectId;
-import org.apache.hop.repository.Repository;
-import org.apache.hop.repository.StringObjectId;
+
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.MemoryRepository;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
@@ -57,10 +54,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 public class RowGeneratorMetaTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  private Repository rep;
-
-  private ObjectId id_step;
-
   private final String launchVariable = "${ROW_LIMIT}";
 
   private final String rowGeneratorRowLimitCode = "limit";
@@ -69,25 +62,7 @@ public class RowGeneratorMetaTest implements InitializerInterface<StepMetaInterf
 
   @Before
   public void setUp() throws HopException {
-    rep = new MemoryRepository();
-    id_step = new StringObjectId( "aStringObjectID" );
-    rep.saveStepAttribute( new StringObjectId( "transId" ), id_step, rowGeneratorRowLimitCode, launchVariable );
   }
-
-  /**
-   * If we can read row limit as string from repository then we can run row generator.
-   * @see RowGeneratorTest
-   * @throws HopException
-   */
-  @Test
-  public void testReadRowLimitAsStringFromRepository() throws HopException {
-    RowGeneratorMeta rowGeneratorMeta = new RowGeneratorMeta();
-    IMetaStore metaStore = Mockito.mock( IMetaStore.class );
-    DatabaseMeta dbMeta = Mockito.mock( DatabaseMeta.class );
-    rowGeneratorMeta.readRep( rep, metaStore, id_step, Collections.singletonList( dbMeta ) );
-    assertEquals( rowGeneratorMeta.getRowLimit(),  launchVariable );
-  }
-
 
   @Before
   public void setUpLoadSave() throws Exception {
