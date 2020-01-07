@@ -7216,7 +7216,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
 
     start();
-    getMenuBarManager().updateAll( true );
+    // getMenuBarManager().updateAll( true );
 
     return parent;
   }

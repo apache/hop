@@ -214,7 +214,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
     try {
       XulLoader loader = new HopXulLoader();
       loader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
-      ResourceBundle bundle = GlobalMessages.getBundle( "org.apache.hop/ui/spoon/messages/messages" );
+      ResourceBundle bundle = GlobalMessages.getBundle( "org/apache/hop/ui/hopui/messages/messages" );
       XulDomContainer xulDomContainer = loader.loadXul( XUL_FILE_TRANS_PREVIEW_TOOLBAR, bundle );
       xulDomContainer.addEventHandler( this );
       toolbar = (XulToolbar) xulDomContainer.getDocumentRoot().getElementById( "nav-toolbar" );
