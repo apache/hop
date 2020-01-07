@@ -23,7 +23,7 @@ public class FileDialogOperation {
   public static String SELECT_FOLDER = "selectFolder";
   public static String OPEN = "open";
   public static String SAVE = "save";
-  public static String ORIGIN_SPOON = "spoon";
+  public static String ORIGIN_SPOON = "hopui";
   public static String ORIGIN_OTHER = "other";
   public static String TRANSFORMATION = "transformation";
   public static String JOB = "job";

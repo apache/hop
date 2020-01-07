@@ -62,6 +62,7 @@ import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.lifecycle.LifeEventHandler;
 import org.apache.hop.core.lifecycle.LifeEventInfo;
 import org.apache.hop.core.lifecycle.LifecycleException;
@@ -323,6 +324,10 @@ import java.util.stream.Collectors;
  * @author Matt
  * @since 16-may-2003, i18n at 07-Feb-2006, redesign 01-Dec-2006
  */
+@GuiPlugin(
+  id = "HopUi",
+  description = "The main Hop UI"
+)
 public class HopUi extends ApplicationWindow implements AddUndoPositionInterface, TabListener, HopUiInterface,
   HopObserver, LifeEventHandler, XulEventSource, XulEventHandler, PartitionSchemasProvider {
 
@@ -520,7 +525,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private SwtDeck deck;
 
-  public static final String XUL_FILE_MAIN = "ui/spoon.xul";
+  public static final String XUL_FILE_MAIN = "ui/hopui.xul";
 
   private Map<String, XulComponent> menuMap = new HashMap<>();
 
@@ -770,7 +775,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       HopUiPerspectiveManager.getInstance().setStartupPerspective( startupPerspective );
       HopUiPerspectiveManager.getInstance().addPerspective( mainPerspective );
 
-      HopUiPluginManager.getInstance().applyPluginsForContainer( "spoon", mainSpoonContainer );
+      HopUiPluginManager.getInstance().applyPluginsForContainer( "hopui", mainSpoonContainer );
 
       HopUiPerspectiveManager.getInstance().setDeck( deck );
       HopUiPerspectiveManager.getInstance().setXulDoc( mainSpoonContainer );
@@ -7097,7 +7102,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   @Override
   public String getName() {
-    return "spoon";
+    return "hopUi";
   }
 
   @Override

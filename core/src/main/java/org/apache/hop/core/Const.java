@@ -356,7 +356,7 @@ public class Const {
   /**
    * The base name of the Spoon logfile
    */
-  public static final String SPOON_LOG_FILE = "spoon";
+  public static final String SPOON_LOG_FILE = "hop";
 
   /**
    * The base name of the Menu logfile
